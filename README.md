@@ -11,10 +11,17 @@ Plateforme de mise en relation Profs/Eleves d'echecs avec systeme de progression
 git clone https://github.com/bessaaamirouche/ChessConnect.git
 cd ChessConnect
 
-# 2. Lancer l'application
+# 2. Configurer Stripe (obligatoire pour les paiements)
+cat > .env << 'EOF'
+STRIPE_SECRET_KEY=sk_test_votre_cle_secrete
+STRIPE_PUBLISHABLE_KEY=pk_test_votre_cle_publique
+STRIPE_WEBHOOK_SECRET=whsec_votre_secret_webhook
+EOF
+
+# 3. Lancer l'application
 ./start.sh
 
-# 3. Attendre 1-2 minutes, puis ouvrir
+# 4. Attendre 1-2 minutes, puis ouvrir
 # http://localhost:4200
 ```
 
@@ -41,16 +48,61 @@ docker compose logs -f
 docker compose down -v
 ```
 
+## Deploiement sur VPS
+
+### 1. Installer Docker sur le serveur
+
+```bash
+curl -fsSL https://get.docker.com | sh
+sudo usermod -aG docker $USER && newgrp docker
+```
+
+### 2. Cloner et configurer
+
+```bash
+git clone https://github.com/bessaaamirouche/ChessConnect.git
+cd ChessConnect
+
+# Creer le fichier .env avec vos cles Stripe
+cat > .env << 'EOF'
+STRIPE_SECRET_KEY=sk_test_votre_cle_secrete
+STRIPE_PUBLISHABLE_KEY=pk_test_votre_cle_publique
+STRIPE_WEBHOOK_SECRET=whsec_votre_secret_webhook
+EOF
+
+# Modifier l'URL frontend avec l'IP du serveur
+sed -i 's|FRONTEND_URL: http://localhost:4200|FRONTEND_URL: http://VOTRE_IP:4200|' docker-compose.yml
+```
+
+### 3. Lancer
+
+```bash
+./start.sh
+# ou: docker compose up --build -d
+```
+
+L'application sera accessible sur `http://VOTRE_IP:4200`
+
+### 4. Ouvrir les ports (si necessaire)
+
+```bash
+sudo ufw allow 4200
+sudo ufw allow 8282
+```
+
 ## Fonctionnalites
 
 - **Inscription Eleve/Professeur** : Creation de compte avec roles
 - **Quiz d'Evaluation** : Determinez votre niveau d'echecs (Pion, Cavalier, Fou, Tour, Dame)
 - **Parcours d'Apprentissage** : 50 cours structures par niveau
 - **Reservation de Cours** : Reservez des sessions avec des professeurs
+- **Disponibilites 24h/24** : Les professeurs peuvent creer des creneaux a n'importe quelle heure
+- **Reservations urgentes** : Les creneaux restent visibles jusqu'a 5 min apres l'heure de debut
 - **Suivi de Progression** : Suivez votre parcours d'apprentissage
 - **Abonnements** : 3 formules (1, 2 ou 3 cours/semaine)
-- **Paiements Stripe** : Paiements securises (mode test)
-- **Integration Zoom** : Cours en visioconference
+- **Paiements Stripe** : Paiements securises integres (mode test)
+- **Video Jitsi Meet** : Cours en visioconference (ouvre dans un nouvel onglet)
+- **Notifications en temps reel** : Alertes pour nouvelles disponibilites et reservations
 
 ## Mode Developpement (sans Docker)
 
@@ -59,6 +111,7 @@ docker compose down -v
 - Java 17+
 - Node.js 18+ et npm
 - Maven 3.8+
+- PostgreSQL 16 (port 5433)
 
 ### Backend (Spring Boot)
 
@@ -83,7 +136,7 @@ Le frontend demarre sur `http://localhost:4200`
 /ChessConnect
 ├── /backend-api              # API Spring Boot
 │   ├── /src/main/java/com/chessconnect
-│   │   ├── /config           # SecurityConfig, ZoomConfig, QuizDataInitializer
+│   │   ├── /config           # SecurityConfig, StripeConfig, QuizDataInitializer
 │   │   ├── /controller       # REST Controllers
 │   │   ├── /dto              # Data Transfer Objects
 │   │   ├── /model            # Entites JPA
@@ -97,18 +150,20 @@ Le frontend demarre sur `http://localhost:4200`
 │   │   ├── /core             # Services, Guards, Interceptors, Models
 │   │   ├── /features         # Composants par fonctionnalite
 │   │   │   ├── /auth         # Login, Register
+│   │   │   ├── /availability # Gestion des disponibilites (prof)
 │   │   │   ├── /dashboard    # Tableau de bord
 │   │   │   ├── /lessons      # Reservation et liste des cours
 │   │   │   ├── /progress     # Suivi de progression
 │   │   │   ├── /quiz         # Quiz d'evaluation de niveau
+│   │   │   ├── /subscription # Gestion des abonnements
 │   │   │   └── /teachers     # Liste et profil des profs
-│   │   └── /shared           # Composants partages
+│   │   └── /shared           # Composants partages (toast, modals, etc.)
 │   ├── Dockerfile
 │   └── package.json
 ├── docker-compose.yml
 ├── start.sh                  # Script de demarrage Docker
 ├── stop.sh                   # Script d'arret Docker
-├── .env.example              # Variables d'environnement (template)
+├── .env                      # Variables d'environnement (a creer)
 └── README.md
 ```
 
@@ -116,7 +171,8 @@ Le frontend demarre sur `http://localhost:4200`
 
 - **Cursus Standardise:** 5 niveaux (Pion, Cavalier, Fou, Tour, Dame). L'eleve progresse meme s'il change de prof.
 - **Quiz d'Evaluation:** 25 questions (5 par niveau) pour determiner le niveau initial
-- **Reservations:** Sessions d'une heure via API Zoom
+- **Reservations:** Sessions d'une heure via Jitsi Meet
+- **Disponibilites:** Le prof cree des creneaux d'au moins 1h pour permettre une reservation
 - **Abonnements:** 69€/mois (1 cours/sem), 129€/mois (2 cours/sem), 179€/mois (3 cours/sem)
 - **Commission:** 10% preleves par la plateforme
 
@@ -147,30 +203,53 @@ Le frontend demarre sur `http://localhost:4200`
 | GET     | `/`             | Liste tous les professeurs         | Non  |
 | GET     | `/{id}`         | Detail d'un professeur             | Non  |
 
+### Disponibilites (`/api/availabilities`)
+| Methode | Endpoint              | Description                     | Auth    |
+|---------|-----------------------|---------------------------------|---------|
+| POST    | `/`                   | Creer une disponibilite         | TEACHER |
+| GET     | `/me`                 | Mes disponibilites              | TEACHER |
+| DELETE  | `/{id}`               | Supprimer une disponibilite     | TEACHER |
+| GET     | `/teacher/{id}/slots` | Creneaux disponibles d'un prof  | Non     |
+
 ### Cours (`/api/lessons`)
 | Methode | Endpoint          | Description                     | Auth    |
 |---------|-------------------|---------------------------------|---------|
 | POST    | `/book`           | Reserver un cours               | STUDENT |
 | GET     | `/upcoming`       | Cours a venir                   | JWT     |
 | GET     | `/history`        | Historique des cours            | JWT     |
+| PATCH   | `/{id}/confirm`   | Confirmer un cours              | TEACHER |
+| PATCH   | `/{id}/cancel`    | Annuler un cours                | JWT     |
+| PATCH   | `/{id}/complete`  | Marquer comme termine           | TEACHER |
 
 ### Paiements (`/api/payments`)
 | Methode | Endpoint                | Description                     | Auth    |
 |---------|-------------------------|---------------------------------|---------|
+| GET     | `/config`               | Configuration Stripe publique   | Non     |
 | GET     | `/plans`                | Liste des plans d'abonnement    | Non     |
 | POST    | `/checkout/subscription`| Creer session Stripe Checkout   | STUDENT |
+| POST    | `/checkout/lesson`      | Payer un cours a l'unite        | STUDENT |
 | GET     | `/subscription`         | Abonnement actif                | STUDENT |
 
 ## Variables d'Environnement
 
-Voir `.env.example` pour la liste complete. Les valeurs par defaut permettent de tester l'application sans configuration.
+Creer un fichier `.env` a la racine du projet :
 
-| Variable                    | Description                  |
-|-----------------------------|------------------------------|
-| `POSTGRES_*`                | Configuration PostgreSQL     |
-| `JWT_SECRET`                | Cle secrete JWT              |
-| `STRIPE_*`                  | Configuration Stripe         |
-| `ZOOM_*`                    | Configuration Zoom API       |
+```env
+# Stripe (obligatoire pour les paiements)
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_PUBLISHABLE_KEY=pk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+```
+
+Variables configurees dans `docker-compose.yml` :
+
+| Variable                    | Description                  | Defaut |
+|-----------------------------|------------------------------|--------|
+| `POSTGRES_DB`               | Nom de la base               | chessconnect |
+| `POSTGRES_USER`             | Utilisateur PostgreSQL       | chess |
+| `POSTGRES_PASSWORD`         | Mot de passe PostgreSQL      | chess123 |
+| `FRONTEND_URL`              | URL du frontend              | http://localhost:4200 |
+| `TZ`                        | Fuseau horaire               | Europe/Paris |
 
 ## Stack Technique
 
@@ -180,8 +259,8 @@ Voir `.env.example` pour la liste complete. Les valeurs par defaut permettent de
 | Frontend  | Angular 17, Signals, Standalone Components |
 | Database  | PostgreSQL 16 |
 | DevOps    | Docker, Docker Compose, Nginx |
-| Paiements | Stripe (mode test) |
-| Video     | Zoom Server-to-Server OAuth |
+| Paiements | Stripe (Embedded Checkout) |
+| Video     | Jitsi Meet (gratuit, sans compte) |
 
 ## Architecture Docker
 
@@ -191,4 +270,29 @@ Voir `.env.example` pour la liste complete. Les valeurs par defaut permettent de
 │  (Angular/Nginx)│────>│  (Spring Boot)  │────>│   (Database)    │
 │   Port: 4200    │     │   Port: 8282    │     │   Port: 5433    │
 └─────────────────┘     └─────────────────┘     └─────────────────┘
+        │                       │
+        │   Proxy /api/*        │
+        └───────────────────────┘
 ```
+
+## Troubleshooting
+
+### Le backend ne demarre pas
+```bash
+docker logs chessconnect-backend --tail 50
+```
+
+### Probleme de fuseau horaire
+Verifier que le conteneur est en heure Paris :
+```bash
+docker exec chessconnect-backend date
+```
+
+### Les paiements ne fonctionnent pas
+Verifier que le fichier `.env` existe et contient les cles Stripe :
+```bash
+cat .env
+```
+
+### CORS errors
+Verifier que `FRONTEND_URL` dans `docker-compose.yml` correspond a l'URL utilisee.

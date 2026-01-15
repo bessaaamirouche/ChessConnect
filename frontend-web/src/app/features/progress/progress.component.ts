@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { ProgressService, LevelInfo } from '../../core/services/progress.service';
@@ -30,6 +30,7 @@ import {
   selector: 'app-progress',
   standalone: true,
   imports: [RouterLink, DatePipe, DecimalPipe, NgIconComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({
     heroChartBarSquare,
     heroCalendarDays,

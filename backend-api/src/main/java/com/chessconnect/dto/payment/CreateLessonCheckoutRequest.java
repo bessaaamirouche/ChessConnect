@@ -18,4 +18,6 @@ public class CreateLessonCheckoutRequest {
     private Integer durationMinutes = 60;
 
     private String notes;
+
+    private boolean embedded = false;
 }

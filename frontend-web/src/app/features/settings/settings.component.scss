@@ -115,16 +115,11 @@
 }
 
 .profile-grid {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: var(--space-lg);
-
-  @include respond-to(md) {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  @include respond-to(xl) {
-    grid-template-columns: 2fr 1fr;
-  }
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .card {

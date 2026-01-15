@@ -30,6 +30,11 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/chessconnect
       SPRING_DATASOURCE_USERNAME: chess
       SPRING_DATASOURCE_PASSWORD: chess123
+      FRONTEND_URL: http://192.168.1.16:4200
+      # Stripe API Keys - Set your own keys here
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-sk_test_your_stripe_secret_key}
+      STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY:-pk_test_your_stripe_publishable_key}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-whsec_your_webhook_secret}
     ports:
       - "8282:8282"
     depends_on:

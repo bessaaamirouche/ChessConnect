@@ -258,29 +258,14 @@
   <!-- Confirm Modal -->
   <app-confirm-modal #confirmModal></app-confirm-modal>
 
-  <!-- Video Call Modal -->
+  <!-- Video Call Component -->
   @if (activeVideoCall()) {
-    <div class="video-modal-overlay" (click)="closeVideoCall()"></div>
-    <div class="video-modal">
-      <div class="video-modal__header">
-        <h3>
-          Cours avec
-          @if (authService.isStudent()) {
-            {{ activeVideoCall()!.teacherName }}
-          } @else {
-            {{ activeVideoCall()!.studentName }}
-          }
-        </h3>
-        <button class="video-modal__close" (click)="closeVideoCall()"><ng-icon name="heroXMark" size="20"></ng-icon></button>
-      </div>
-      <div class="video-modal__content">
-        <iframe
-          [src]="getJitsiUrl()"
-          allow="camera; microphone; fullscreen; display-capture; autoplay"
-          class="video-modal__iframe"
-        ></iframe>
-      </div>
-    </div>
+    <app-video-call
+      [roomName]="videoCallRoomName()"
+      [userName]="videoCallUserName()"
+      [title]="videoCallTitle()"
+      (closed)="closeVideoCall()"
+    ></app-video-call>
   }
 
   <!-- Student Profile Modal (Teacher only) -->

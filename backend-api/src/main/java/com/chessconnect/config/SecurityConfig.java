@@ -48,6 +48,8 @@ public class SecurityConfig {
                         .requestMatchers("/payments/webhooks/**").permitAll()
                         .requestMatchers("/payments/config").permitAll()
                         .requestMatchers("/payments/plans").permitAll()
+                        .requestMatchers("/payments/checkout/subscription/confirm").permitAll()
+                        .requestMatchers("/payments/checkout/lesson/confirm").permitAll()
                         .requestMatchers("/progress/levels/**").permitAll()
                         .requestMatchers("/availabilities/teacher/**").permitAll()
                         .requestMatchers("/payments/admin/**").permitAll()
@@ -65,7 +67,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:4200", "http://localhost:80"));
+        configuration.setAllowedOriginPatterns(List.of("http://localhost:*", "http://192.168.*.*:*"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);

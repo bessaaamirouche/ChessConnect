@@ -56,11 +56,13 @@ public class StripeService {
     }
 
     public Session createCheckoutSession(User user, SubscriptionPlan plan, String customerId) throws StripeException {
+        return createCheckoutSession(user, plan, customerId, false);
+    }
+
+    public Session createCheckoutSession(User user, SubscriptionPlan plan, String customerId, boolean embedded) throws StripeException {
         // Use dynamic price data instead of pre-created price IDs
         SessionCreateParams.Builder paramsBuilder = SessionCreateParams.builder()
                 .setMode(SessionCreateParams.Mode.SUBSCRIPTION)
-                .setSuccessUrl(frontendUrl + "/subscription/success?session_id={CHECKOUT_SESSION_ID}")
-                .setCancelUrl(frontendUrl + "/subscription/cancel")
                 .putMetadata("user_id", user.getId().toString())
                 .putMetadata("plan", plan.name())
                 .addLineItem(
@@ -86,6 +88,14 @@ public class StripeService {
                                 .build()
                 );
 
+        if (embedded) {
+            paramsBuilder.setUiMode(SessionCreateParams.UiMode.EMBEDDED);
+            paramsBuilder.setReturnUrl(frontendUrl + "/subscription/success?session_id={CHECKOUT_SESSION_ID}");
+        } else {
+            paramsBuilder.setSuccessUrl(frontendUrl + "/subscription/success?session_id={CHECKOUT_SESSION_ID}");
+            paramsBuilder.setCancelUrl(frontendUrl + "/subscription/cancel");
+        }
+
         if (customerId != null) {
             paramsBuilder.setCustomer(customerId);
         } else {
@@ -93,7 +103,8 @@ public class StripeService {
         }
 
         Session session = Session.create(paramsBuilder.build());
-        log.info("Created checkout session {} for user {} with plan {}", session.getId(), user.getId(), plan);
+        log.info("Created {} checkout session {} for user {} with plan {}",
+                embedded ? "embedded" : "hosted", session.getId(), user.getId(), plan);
         return session;
     }
 
@@ -139,10 +150,21 @@ public class StripeService {
             int durationMinutes,
             String notes
     ) throws StripeException {
-        SessionCreateParams params = SessionCreateParams.builder()
+        return createLessonPaymentSession(student, teacherId, amountCents, description, scheduledAt, durationMinutes, notes, false);
+    }
+
+    public Session createLessonPaymentSession(
+            User student,
+            Long teacherId,
+            int amountCents,
+            String description,
+            String scheduledAt,
+            int durationMinutes,
+            String notes,
+            boolean embedded
+    ) throws StripeException {
+        SessionCreateParams.Builder paramsBuilder = SessionCreateParams.builder()
                 .setMode(SessionCreateParams.Mode.PAYMENT)
-                .setSuccessUrl(frontendUrl + "/lessons/payment/success?session_id={CHECKOUT_SESSION_ID}")
-                .setCancelUrl(frontendUrl + "/lessons/payment/cancel")
                 .setCustomerEmail(student.getEmail())
                 .putMetadata("user_id", student.getId().toString())
                 .putMetadata("teacher_id", teacherId.toString())
@@ -166,12 +188,19 @@ public class StripeService {
                                 )
                                 .setQuantity(1L)
                                 .build()
-                )
-                .build();
+                );
 
-        Session session = Session.create(params);
-        log.info("Created lesson payment session {} for user {} with teacher {}",
-                session.getId(), student.getId(), teacherId);
+        if (embedded) {
+            paramsBuilder.setUiMode(SessionCreateParams.UiMode.EMBEDDED);
+            paramsBuilder.setReturnUrl(frontendUrl + "/lessons/payment/success?session_id={CHECKOUT_SESSION_ID}");
+        } else {
+            paramsBuilder.setSuccessUrl(frontendUrl + "/lessons/payment/success?session_id={CHECKOUT_SESSION_ID}");
+            paramsBuilder.setCancelUrl(frontendUrl + "/lessons/payment/cancel");
+        }
+
+        Session session = Session.create(paramsBuilder.build());
+        log.info("Created {} lesson payment session {} for user {} with teacher {}",
+                embedded ? "embedded" : "hosted", session.getId(), student.getId(), teacherId);
         return session;
     }
 

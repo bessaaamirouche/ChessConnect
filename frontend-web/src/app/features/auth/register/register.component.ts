@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
@@ -10,6 +10,7 @@ import { heroAcademicCap, heroUserGroup, heroPlayCircle, heroArrowRight } from '
   selector: 'app-register',
   standalone: true,
   imports: [ReactiveFormsModule, RouterLink, NgIconComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({ heroAcademicCap, heroUserGroup, heroPlayCircle, heroArrowRight })],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss'

@@ -230,4 +230,14 @@
       }
     </div>
   </main>
+
+  <!-- Embedded Checkout -->
+  @if (showCheckout() && checkoutClientSecret()) {
+    <app-embedded-checkout
+      [clientSecret]="checkoutClientSecret()!"
+      [title]="'Paiement - Cours avec ' + teacherService.selectedTeacher()?.firstName"
+      (closed)="closeCheckout()"
+      (completed)="onCheckoutCompleted()"
+    ></app-embedded-checkout>
+  }
 </div>

@@ -31,7 +31,7 @@
 .input {
   width: 100%;
   padding: var(--space-sm) var(--space-md);
-  font-size: 1rem;
+  font-size: 16px; // Empêche le zoom sur iOS
   color: var(--text-primary);
   background: var(--bg-tertiary);
   border: 1px solid var(--border-default);
@@ -39,6 +39,10 @@
   transition: all var(--transition-fast);
 
   @include focus-ring;
+
+  @include respond-to(md) {
+    font-size: 1rem;
+  }
 
   &::placeholder {
     color: var(--text-muted);

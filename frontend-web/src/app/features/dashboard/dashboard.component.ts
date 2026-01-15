@@ -80,6 +80,9 @@ export class DashboardComponent implements OnInit {
   // Active view for teacher profile
   activeView = signal<'dashboard' | 'profile'>('dashboard');
 
+  // Mobile menu state
+  mobileMenuOpen = signal(false);
+
   // Profile editing
   savingProfile = signal(false);
   profileSuccess = signal(false);
@@ -311,6 +314,15 @@ export class DashboardComponent implements OnInit {
 
   logout(): void {
     this.authService.logout();
+  }
+
+  // Mobile menu methods
+  toggleMobileMenu(): void {
+    this.mobileMenuOpen.update(v => !v);
+  }
+
+  closeMobileMenu(): void {
+    this.mobileMenuOpen.set(false);
   }
 
   // Lesson actions for teachers

@@ -8,4 +8,6 @@ import lombok.Data;
 public class CreateCheckoutSessionRequest {
     @NotNull(message = "Plan is required")
     private SubscriptionPlan plan;
+
+    private boolean embedded = false;
 }

@@ -3,46 +3,84 @@
 .auth-page {
   min-height: 100vh;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  padding: var(--space-lg);
+  padding: var(--space-md);
   background:
     radial-gradient(ellipse at top, rgba(212, 168, 75, 0.1) 0%, transparent 50%),
     var(--bg-primary);
+
+  @include respond-to(sm) {
+    padding: var(--space-lg);
+    align-items: center;
+  }
 }
 
 .auth-card {
   width: 100%;
   max-width: 480px;
-  padding: var(--space-2xl);
+  padding: var(--space-lg);
+  margin-top: var(--space-lg);
+
+  @include respond-to(sm) {
+    padding: var(--space-xl);
+    margin-top: 0;
+  }
+
+  @include respond-to(md) {
+    padding: var(--space-2xl);
+  }
 
   &__header {
     text-align: center;
-    margin-bottom: var(--space-xl);
+    margin-bottom: var(--space-lg);
+
+    @include respond-to(sm) {
+      margin-bottom: var(--space-xl);
+    }
   }
 
   &__logo {
     font-family: var(--font-display);
-    font-size: 1.75rem;
+    font-size: 1.5rem;
     font-weight: 700;
     @include gold-text;
     display: block;
-    margin-bottom: var(--space-lg);
+    margin-bottom: var(--space-md);
+
+    @include respond-to(sm) {
+      font-size: 1.75rem;
+      margin-bottom: var(--space-lg);
+    }
   }
 
   h1 {
     margin-bottom: var(--space-xs);
+    font-size: 1.25rem;
+
+    @include respond-to(sm) {
+      font-size: 1.5rem;
+    }
   }
 
   &__footer {
     text-align: center;
-    margin-top: var(--space-xl);
-    padding-top: var(--space-lg);
+    margin-top: var(--space-lg);
+    padding-top: var(--space-md);
     border-top: 1px solid var(--border-subtle);
 
+    @include respond-to(sm) {
+      margin-top: var(--space-xl);
+      padding-top: var(--space-lg);
+    }
+
     p {
-      font-size: 0.9375rem;
+      font-size: 0.875rem;
       color: var(--text-secondary);
+
+      @include respond-to(sm) {
+        font-size: 0.9375rem;
+      }
     }
 
     a {
@@ -54,8 +92,13 @@
 .role-selector {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--space-md);
-  margin-bottom: var(--space-xl);
+  gap: var(--space-sm);
+  margin-bottom: var(--space-lg);
+
+  @include respond-to(sm) {
+    gap: var(--space-md);
+    margin-bottom: var(--space-xl);
+  }
 }
 
 .role-btn {
@@ -63,12 +106,16 @@
   flex-direction: column;
   align-items: center;
   gap: var(--space-xs);
-  padding: var(--space-lg);
+  padding: var(--space-md);
   background: var(--bg-tertiary);
   border: 2px solid var(--border-default);
   border-radius: var(--radius-lg);
   transition: all var(--transition-fast);
   cursor: pointer;
+
+  @include respond-to(sm) {
+    padding: var(--space-lg);
+  }
 
   &:hover {
     border-color: var(--border-strong);
@@ -81,32 +128,56 @@
   }
 
   &__icon {
-    font-size: 2rem;
+    font-size: 1.5rem;
+
+    @include respond-to(sm) {
+      font-size: 2rem;
+    }
   }
 
   &__label {
     font-weight: 600;
+    font-size: 0.875rem;
     color: var(--text-primary);
+
+    @include respond-to(sm) {
+      font-size: 1rem;
+    }
   }
 
   &__desc {
-    font-size: 0.8125rem;
+    font-size: 0.75rem;
     color: var(--text-muted);
+    display: none;
+
+    @include respond-to(sm) {
+      display: block;
+      font-size: 0.8125rem;
+    }
   }
 }
 
 .auth-form {
   display: flex;
   flex-direction: column;
-  gap: var(--space-lg);
+  gap: var(--space-md);
+
+  @include respond-to(sm) {
+    gap: var(--space-lg);
+  }
 }
 
 .form-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: var(--space-md);
+
+  @include respond-to(sm) {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
+.student-fields,
 .teacher-fields {
   display: flex;
   flex-direction: column;
@@ -115,6 +186,31 @@
   background: var(--bg-tertiary);
   border-radius: var(--radius-md);
   border: 1px solid var(--border-subtle);
+}
+
+.student-fields {
+  // Hauteur minimale fixe pour éviter les sauts de layout
+  min-height: 180px;
+
+  .elo-field-container {
+    min-height: 85px;
+    overflow: hidden;
+  }
+
+  .elo-field {
+    animation: slideDown 0.2s ease-out;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .alert {

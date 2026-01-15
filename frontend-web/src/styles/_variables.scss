@@ -93,11 +93,19 @@
 }
 
 // === SCSS Variables for mixins ===
+// Breakpoints optimisés pour:
+// - Mobile: < 640px
+// - Tablette portrait: 640px - 768px
+// - Tablette paysage: 768px - 1024px
+// - PC 13 pouces: 1024px - 1366px
+// - Desktop: > 1366px
 $breakpoints: (
+  xs: 480px,
   sm: 640px,
   md: 768px,
   lg: 1024px,
   xl: 1280px,
+  laptop: 1366px,
   2xl: 1536px
 );
 
@@ -105,6 +113,24 @@ $breakpoints: (
 @mixin respond-to($breakpoint) {
   @if map-has-key($breakpoints, $breakpoint) {
     @media (min-width: map-get($breakpoints, $breakpoint)) {
+      @content;
+    }
+  }
+}
+
+// Mobile-first: max-width pour cibler les petits écrans
+@mixin respond-down($breakpoint) {
+  @if map-has-key($breakpoints, $breakpoint) {
+    @media (max-width: #{map-get($breakpoints, $breakpoint) - 1px}) {
+      @content;
+    }
+  }
+}
+
+// Cibler une plage spécifique
+@mixin respond-between($min, $max) {
+  @if map-has-key($breakpoints, $min) and map-has-key($breakpoints, $max) {
+    @media (min-width: map-get($breakpoints, $min)) and (max-width: #{map-get($breakpoints, $max) - 1px}) {
       @content;
     }
   }

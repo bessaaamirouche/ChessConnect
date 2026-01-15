@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
@@ -22,6 +22,7 @@ type Section = 'home' | 'profils' | 'apprentis' | 'fonctionnement' | 'contact';
   selector: 'app-home',
   standalone: true,
   imports: [RouterLink, NgIconComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({
     heroUserGroup,
     heroAcademicCap,
@@ -41,8 +42,17 @@ type Section = 'home' | 'profils' | 'apprentis' | 'fonctionnement' | 'contact';
 export class HomeComponent {
   activeSection = signal<Section>('home');
   isTransitioning = signal(false);
+  mobileMenuOpen = signal(false);
 
   constructor(public authService: AuthService) {}
+
+  toggleMobileMenu(): void {
+    this.mobileMenuOpen.update(v => !v);
+  }
+
+  closeMobileMenu(): void {
+    this.mobileMenuOpen.set(false);
+  }
 
   navigateTo(section: Section): void {
     if (this.activeSection() === section || this.isTransitioning()) return;

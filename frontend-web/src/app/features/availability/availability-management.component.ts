@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ViewChild } from '@angular/core';
+import { Component, OnInit, inject, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -23,6 +23,7 @@ import {
   selector: 'app-availability-management',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink, ConfirmModalComponent, NgIconComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({
     heroChartBarSquare,
     heroCalendarDays,

@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { QuizService } from '../../core/services/quiz.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -26,6 +26,7 @@ type QuizStep = 'intro' | 'questions' | 'result';
   selector: 'app-quiz',
   standalone: true,
   imports: [RouterLink, NgIconComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({
     heroChartBarSquare,
     heroCalendarDays,

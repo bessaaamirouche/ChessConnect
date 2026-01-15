@@ -50,6 +50,10 @@ public class SubscriptionService {
     }
 
     public CheckoutSessionResponse createSubscriptionCheckout(Long userId, SubscriptionPlan plan) throws StripeException {
+        return createSubscriptionCheckout(userId, plan, false);
+    }
+
+    public CheckoutSessionResponse createSubscriptionCheckout(Long userId, SubscriptionPlan plan, boolean embedded) throws StripeException {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -59,13 +63,19 @@ public class SubscriptionService {
             throw new RuntimeException("User already has an active subscription");
         }
 
-        Session session = stripeService.createCheckoutSession(user, plan, null);
+        Session session = stripeService.createCheckoutSession(user, plan, null, embedded);
 
-        return CheckoutSessionResponse.builder()
+        CheckoutSessionResponse.CheckoutSessionResponseBuilder responseBuilder = CheckoutSessionResponse.builder()
                 .sessionId(session.getId())
-                .url(session.getUrl())
-                .publishableKey(stripeService.getPublishableKey())
-                .build();
+                .publishableKey(stripeService.getPublishableKey());
+
+        if (embedded) {
+            responseBuilder.clientSecret(session.getClientSecret());
+        } else {
+            responseBuilder.url(session.getUrl());
+        }
+
+        return responseBuilder.build();
     }
 
     @Transactional

@@ -41,7 +41,7 @@ export const routes: Routes = [
   },
   {
     path: 'lessons/payment/success',
-    canActivate: [authGuard, studentGuard],
+    // No auth guard - Stripe redirects here
     loadComponent: () => import('./features/lessons/payment-success/payment-success.component').then(m => m.PaymentSuccessComponent)
   },
   {
@@ -61,7 +61,7 @@ export const routes: Routes = [
   },
   {
     path: 'subscription/success',
-    canActivate: [authGuard],
+    // No auth guard - Stripe redirects here and we need to handle the session
     loadComponent: () => import('./features/subscription/subscription-success.component').then(m => m.SubscriptionSuccessComponent)
   },
   {

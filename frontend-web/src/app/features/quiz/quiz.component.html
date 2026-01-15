@@ -104,7 +104,7 @@
                 Question {{ quizService.currentIndex() + 1 }} / {{ quizService.totalQuestions() }}
               </span>
               <span class="quiz-progress__level">
-                Niveau {{ quizService.currentQuestion()?.level }}
+                Niveau {{ quizService.currentQuestion()!.level }}
               </span>
             </div>
             <div class="quiz-progress__bar">
@@ -222,7 +222,7 @@
                     <span class="quiz-result__score-name">{{ CHESS_LEVELS[level].label }}</span>
                     <span class="quiz-result__score-value">
                       @if (isLevelEvaluated(level)) {
-                        {{ result.scoresByLevel[level] ?? 0 }}/{{ result.totalByLevel[level] ?? 0 }}
+                        {{ result.scoresByLevel[level] }}/{{ result.totalByLevel[level] }}
                         <span class="quiz-result__score-percent">({{ getScorePercentage(level) }}%)</span>
                       } @else {
                         -

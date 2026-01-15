@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TeacherService } from '../../../core/services/teacher.service';
@@ -22,6 +22,7 @@ import {
   selector: 'app-teacher-list',
   standalone: true,
   imports: [RouterLink, NgIconComponent, FormsModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({
     heroAcademicCap,
     heroChartBarSquare,

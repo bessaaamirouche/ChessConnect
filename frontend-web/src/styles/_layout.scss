@@ -204,18 +204,30 @@
 
 // === Page Header ===
 .page-header {
-  margin-bottom: var(--space-2xl);
+  margin-bottom: var(--space-xl);
+
+  @include respond-to(md) {
+    margin-bottom: var(--space-2xl);
+  }
 
   &__title {
-    font-size: 1.75rem;
+    font-size: 1.375rem;
     font-weight: 700;
     color: var(--text-primary);
     margin-bottom: var(--space-xs);
+
+    @include respond-to(md) {
+      font-size: 1.75rem;
+    }
   }
 
   &__subtitle {
-    font-size: 1rem;
+    font-size: 0.875rem;
     color: var(--text-secondary);
+
+    @include respond-to(md) {
+      font-size: 1rem;
+    }
   }
 }
 

@@ -6,23 +6,43 @@
         <img src="assets/logo.png" alt="ChessConnect Logo" class="nav__logo-img">
       </button>
 
-      <div class="nav__links">
+      <!-- Mobile hamburger -->
+      <button class="nav__hamburger" [class.active]="mobileMenuOpen()" (click)="toggleMobileMenu()">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <!-- Mobile menu overlay -->
+      <div class="nav__mobile-overlay" [class.active]="mobileMenuOpen()" (click)="closeMobileMenu()"></div>
+
+      <div class="nav__links" [class.active]="mobileMenuOpen()">
         <button
           [class.active]="isActive('profils')"
-          (click)="navigateTo('profils')"
+          (click)="navigateTo('profils'); closeMobileMenu()"
         >Profils</button>
         <button
           [class.active]="isActive('apprentis')"
-          (click)="navigateTo('apprentis')"
+          (click)="navigateTo('apprentis'); closeMobileMenu()"
         >Apprentis</button>
         <button
           [class.active]="isActive('fonctionnement')"
-          (click)="navigateTo('fonctionnement')"
+          (click)="navigateTo('fonctionnement'); closeMobileMenu()"
         >Fonctionnement</button>
         <button
           [class.active]="isActive('contact')"
-          (click)="navigateTo('contact')"
+          (click)="navigateTo('contact'); closeMobileMenu()"
         >Contact</button>
+
+        <!-- Mobile-only auth buttons -->
+        <div class="nav__mobile-actions">
+          @if (authService.isAuthenticated()) {
+            <a routerLink="/dashboard" class="nav__btn nav__btn--primary" (click)="closeMobileMenu()">Mon Espace</a>
+          } @else {
+            <a routerLink="/login" class="nav__btn nav__btn--ghost" (click)="closeMobileMenu()">Connexion</a>
+            <a routerLink="/register" class="nav__btn nav__btn--primary" (click)="closeMobileMenu()">S'inscrire</a>
+          }
+        </div>
       </div>
 
       <div class="nav__actions">

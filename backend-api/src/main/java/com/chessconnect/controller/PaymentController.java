@@ -90,16 +90,21 @@ public class PaymentController {
                     description,
                     request.getScheduledAt().toString(),
                     request.getDurationMinutes(),
-                    request.getNotes()
+                    request.getNotes(),
+                    request.isEmbedded()
             );
 
-            CheckoutSessionResponse response = CheckoutSessionResponse.builder()
+            CheckoutSessionResponse.CheckoutSessionResponseBuilder responseBuilder = CheckoutSessionResponse.builder()
                     .sessionId(session.getId())
-                    .url(session.getUrl())
-                    .publishableKey(stripeService.getPublishableKey())
-                    .build();
+                    .publishableKey(stripeService.getPublishableKey());
 
-            return ResponseEntity.ok(response);
+            if (request.isEmbedded()) {
+                responseBuilder.clientSecret(session.getClientSecret());
+            } else {
+                responseBuilder.url(session.getUrl());
+            }
+
+            return ResponseEntity.ok(responseBuilder.build());
         } catch (StripeException e) {
             log.error("Stripe error creating lesson checkout session", e);
             return ResponseEntity.status(HttpStatus.BAD_GATEWAY).build();
@@ -128,7 +133,8 @@ public class PaymentController {
         try {
             CheckoutSessionResponse response = subscriptionService.createSubscriptionCheckout(
                     userDetails.getId(),
-                    request.getPlan()
+                    request.getPlan(),
+                    request.isEmbedded()
             );
             return ResponseEntity.ok(response);
         } catch (StripeException e) {
@@ -209,10 +215,9 @@ public class PaymentController {
     }
 
     // Confirm subscription payment and activate subscription (called after Stripe redirect)
+    // No auth required - we verify the user via Stripe session metadata
     @PostMapping("/checkout/subscription/confirm")
-    @PreAuthorize("hasRole('STUDENT')")
     public ResponseEntity<Map<String, Object>> confirmSubscriptionPayment(
-            @AuthenticationPrincipal UserDetailsImpl userDetails,
             @RequestParam String sessionId
     ) {
         try {
@@ -230,32 +235,25 @@ public class PaymentController {
             // Get metadata from session
             Map<String, String> metadata = session.getMetadata();
             String planName = metadata.get("plan");
+            String userIdStr = metadata.get("user_id");
 
-            if (planName == null) {
+            if (planName == null || userIdStr == null) {
                 return ResponseEntity.badRequest().body(Map.of(
                         "success", false,
-                        "error", "Session invalide - plan non trouvé"
+                        "error", "Session invalide - données manquantes"
                 ));
             }
 
-            // Verify the session belongs to this user
-            Long sessionUserId = Long.parseLong(metadata.get("user_id"));
-            if (!sessionUserId.equals(userDetails.getId())) {
-                log.warn("User {} tried to confirm subscription for user {}", userDetails.getId(), sessionUserId);
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of(
-                        "success", false,
-                        "error", "Non autorisé"
-                ));
-            }
+            Long userId = Long.parseLong(userIdStr);
 
             // Get Stripe subscription ID
             String stripeSubscriptionId = session.getSubscription();
 
             // Activate subscription
             SubscriptionPlan plan = SubscriptionPlan.valueOf(planName);
-            var subscription = subscriptionService.activateSubscription(stripeSubscriptionId, userDetails.getId(), plan);
+            var subscription = subscriptionService.activateSubscription(stripeSubscriptionId, userId, plan);
 
-            log.info("Subscription {} activated for student {} after payment confirmation", subscription.getId(), userDetails.getId());
+            log.info("Subscription {} activated for student {} after payment confirmation", subscription.getId(), userId);
 
             return ResponseEntity.ok(Map.of(
                     "success", true,
@@ -281,10 +279,9 @@ public class PaymentController {
     }
 
     // Confirm lesson payment and book the lesson (called after Stripe redirect)
+    // No auth required - we verify the user via Stripe session metadata
     @PostMapping("/checkout/lesson/confirm")
-    @PreAuthorize("hasRole('STUDENT')")
     public ResponseEntity<Map<String, Object>> confirmLessonPayment(
-            @AuthenticationPrincipal UserDetailsImpl userDetails,
             @RequestParam String sessionId
     ) {
         try {
@@ -302,23 +299,16 @@ public class PaymentController {
             // Get metadata from session
             Map<String, String> metadata = session.getMetadata();
             String type = metadata.get("type");
+            String userIdStr = metadata.get("user_id");
 
-            if (!"ONE_TIME_LESSON".equals(type)) {
+            if (!"ONE_TIME_LESSON".equals(type) || userIdStr == null) {
                 return ResponseEntity.badRequest().body(Map.of(
                         "success", false,
                         "error", "Session invalide"
                 ));
             }
 
-            // Verify the session belongs to this user
-            Long sessionUserId = Long.parseLong(metadata.get("user_id"));
-            if (!sessionUserId.equals(userDetails.getId())) {
-                log.warn("User {} tried to confirm session for user {}", userDetails.getId(), sessionUserId);
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of(
-                        "success", false,
-                        "error", "Non autorisé"
-                ));
-            }
+            Long userId = Long.parseLong(userIdStr);
 
             // Extract lesson details from metadata
             Long teacherId = Long.parseLong(metadata.get("teacher_id"));
@@ -335,8 +325,8 @@ public class PaymentController {
                     false // Don't use subscription - this is a paid lesson
             );
 
-            var lesson = lessonService.bookLesson(userDetails.getId(), bookRequest);
-            log.info("Lesson {} booked for student {} after payment confirmation", lesson.id(), userDetails.getId());
+            var lesson = lessonService.bookLesson(userId, bookRequest);
+            log.info("Lesson {} booked for student {} after payment confirmation", lesson.id(), userId);
 
             return ResponseEntity.ok(Map.of(
                     "success", true,

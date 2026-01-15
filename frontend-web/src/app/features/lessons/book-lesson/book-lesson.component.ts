@@ -8,6 +8,7 @@ import { AvailabilityService } from '../../../core/services/availability.service
 import { PaymentService } from '../../../core/services/payment.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { TimeSlot } from '../../../core/models/availability.model';
+import { EmbeddedCheckoutComponent } from '../../../shared/embedded-checkout/embedded-checkout.component';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   heroTicket,
@@ -25,7 +26,7 @@ import {
 @Component({
   selector: 'app-book-lesson',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule, NgIconComponent],
+  imports: [CommonModule, RouterLink, ReactiveFormsModule, NgIconComponent, EmbeddedCheckoutComponent],
   viewProviders: [provideIcons({
     heroTicket,
     heroCreditCard,
@@ -47,6 +48,11 @@ export class BookLessonComponent implements OnInit {
   success = signal(false);
   selectedSlot = signal<TimeSlot | null>(null);
   useSubscriptionSignal = signal(true);
+
+  // Embedded checkout
+  showCheckout = signal(false);
+  checkoutClientSecret = signal<string | null>(null);
+  checkoutSessionId = signal<string | null>(null);
 
   teacherSlots = this.availabilityService.teacherSlots;
   slotsLoading = this.availabilityService.loading;
@@ -197,17 +203,25 @@ export class BookLessonComponent implements OnInit {
 
     this.loading.set(true);
 
-    // If payment is required, redirect to Stripe checkout
+    // If payment is required, use embedded checkout
     if (this.requiresPayment()) {
       this.paymentService.createLessonCheckout({
         teacherId: teacher.id,
         scheduledAt: scheduledAt,
         durationMinutes: 60,
         notes: notes || ''
-      }).subscribe({
+      }, true).subscribe({
         next: (response) => {
-          // Redirect to Stripe checkout
-          window.location.href = response.url;
+          if (response.clientSecret) {
+            // Use embedded checkout
+            this.checkoutClientSecret.set(response.clientSecret);
+            this.checkoutSessionId.set(response.sessionId);
+            this.showCheckout.set(true);
+            this.loading.set(false);
+          } else if (response.url) {
+            // Fallback to redirect
+            window.location.href = response.url;
+          }
         },
         error: () => {
           this.loading.set(false);
@@ -231,6 +245,24 @@ export class BookLessonComponent implements OnInit {
         error: () => {
           this.loading.set(false);
         }
+      });
+    }
+  }
+
+  closeCheckout(): void {
+    this.showCheckout.set(false);
+    this.checkoutClientSecret.set(null);
+    this.checkoutSessionId.set(null);
+  }
+
+  onCheckoutCompleted(): void {
+    const sessionId = this.checkoutSessionId();
+    this.closeCheckout();
+
+    if (sessionId) {
+      // Navigate to success page to confirm payment
+      this.router.navigate(['/lessons/payment/success'], {
+        queryParams: { session_id: sessionId }
       });
     }
   }

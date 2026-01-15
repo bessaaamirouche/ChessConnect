@@ -5,8 +5,9 @@ import { Subscription, SubscriptionPlan, SubscriptionPlanDetails } from '../mode
 
 export interface CheckoutSessionResponse {
   sessionId: string;
-  url: string;
+  url?: string;
   publishableKey: string;
+  clientSecret?: string;
 }
 
 export interface PaymentConfig {
@@ -78,11 +79,11 @@ export class PaymentService {
     return this.http.get<PaymentConfig>(`${this.apiUrl}/config`);
   }
 
-  createSubscriptionCheckout(plan: SubscriptionPlan): Observable<CheckoutSessionResponse> {
+  createSubscriptionCheckout(plan: SubscriptionPlan, embedded = true): Observable<CheckoutSessionResponse> {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
 
-    return this.http.post<CheckoutSessionResponse>(`${this.apiUrl}/checkout/subscription`, { plan }).pipe(
+    return this.http.post<CheckoutSessionResponse>(`${this.apiUrl}/checkout/subscription`, { plan, embedded }).pipe(
       tap(() => this.loadingSignal.set(false)),
       catchError(error => {
         this.loadingSignal.set(false);
@@ -92,11 +93,11 @@ export class PaymentService {
     );
   }
 
-  createLessonCheckout(request: LessonCheckoutRequest): Observable<CheckoutSessionResponse> {
+  createLessonCheckout(request: LessonCheckoutRequest, embedded = true): Observable<CheckoutSessionResponse> {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
 
-    return this.http.post<CheckoutSessionResponse>(`${this.apiUrl}/checkout/lesson`, request).pipe(
+    return this.http.post<CheckoutSessionResponse>(`${this.apiUrl}/checkout/lesson`, { ...request, embedded }).pipe(
       tap(() => this.loadingSignal.set(false)),
       catchError(error => {
         this.loadingSignal.set(false);

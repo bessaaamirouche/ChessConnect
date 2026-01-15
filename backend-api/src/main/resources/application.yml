@@ -49,7 +49,7 @@ stripe:
 
 # App Configuration
 app:
-  frontend-url: ${FRONTEND_URL:http://localhost:4200}
+  frontend-url: ${FRONTEND_URL:http://192.168.1.16:4200}
 
 # Logging
 logging:

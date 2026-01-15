@@ -1,0 +1,218 @@
+<div class="auth-page">
+  <div class="auth-card card">
+    @if (success()) {
+      <!-- Success Screen for Students -->
+      <div class="register-success">
+        <div class="register-success__icon">&#10004;</div>
+        <h1 class="heading-3">Bienvenue sur ChessConnect !</h1>
+        <p class="text-secondary">Votre compte a ete cree avec succes.</p>
+
+        <div class="register-success__quiz-prompt">
+          <h3>Evaluez votre niveau</h3>
+          <p>Vous connaissez deja les echecs ? Passez notre quiz pour determiner votre niveau et commencer avec des cours adaptes.</p>
+
+          <button class="btn btn--primary btn--lg btn--block" (click)="goToQuiz()">
+            <ng-icon name="heroPlayCircle"></ng-icon>
+            Evaluer mon niveau
+          </button>
+
+          <button class="btn btn--ghost btn--block" (click)="skipQuiz()">
+            Commencer au niveau Pion
+            <ng-icon name="heroArrowRight"></ng-icon>
+          </button>
+        </div>
+      </div>
+    } @else {
+    <div class="auth-card__header">
+      <a routerLink="/" class="auth-card__logo">ChessConnect</a>
+      <h1 class="heading-3">Créer un compte</h1>
+      <p class="text-secondary">Rejoignez la communauté ChessConnect</p>
+    </div>
+
+    @if (error()) {
+      <div class="alert alert--error">
+        {{ error() }}
+      </div>
+    }
+
+    <!-- Role Selection -->
+    <div class="role-selector">
+      <button
+        type="button"
+        class="role-btn"
+        [class.role-btn--active]="selectedRole() === 'STUDENT'"
+        (click)="selectRole('STUDENT')"
+      >
+        <span class="role-btn__icon"><ng-icon name="heroUserGroup" size="28"></ng-icon></span>
+        <span class="role-btn__label">Élève</span>
+        <span class="role-btn__desc">Je veux apprendre</span>
+      </button>
+      <button
+        type="button"
+        class="role-btn"
+        [class.role-btn--active]="selectedRole() === 'TEACHER'"
+        (click)="selectRole('TEACHER')"
+      >
+        <span class="role-btn__icon"><ng-icon name="heroAcademicCap" size="28"></ng-icon></span>
+        <span class="role-btn__label">Professeur</span>
+        <span class="role-btn__desc">Je veux enseigner</span>
+      </button>
+    </div>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-group__label" for="firstName">Prénom</label>
+          <input
+            type="text"
+            id="firstName"
+            formControlName="firstName"
+            class="input"
+            [class.input--error]="registerForm.get('firstName')?.invalid && registerForm.get('firstName')?.touched"
+            placeholder="Jean"
+          >
+          @if (registerForm.get('firstName')?.invalid && registerForm.get('firstName')?.touched) {
+            <span class="form-group__error">Minimum 2 caractères</span>
+          }
+        </div>
+        <div class="form-group">
+          <label class="form-group__label" for="lastName">Nom</label>
+          <input
+            type="text"
+            id="lastName"
+            formControlName="lastName"
+            class="input"
+            [class.input--error]="registerForm.get('lastName')?.invalid && registerForm.get('lastName')?.touched"
+            placeholder="Dupont"
+          >
+          @if (registerForm.get('lastName')?.invalid && registerForm.get('lastName')?.touched) {
+            <span class="form-group__error">Minimum 2 caractères</span>
+          }
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-group__label" for="email">Email</label>
+        <input
+          type="email"
+          id="email"
+          formControlName="email"
+          class="input"
+          [class.input--error]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched"
+          placeholder="jean.dupont@email.com"
+        >
+        @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
+          <span class="form-group__error">Email invalide</span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label class="form-group__label" for="password">Mot de passe</label>
+        <input
+          type="password"
+          id="password"
+          formControlName="password"
+          class="input"
+          [class.input--error]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched"
+          placeholder="8 caractères minimum"
+        >
+        @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
+          <span class="form-group__error">Minimum 8 caractères</span>
+        }
+      </div>
+
+      @if (selectedRole() === 'STUDENT') {
+        <div class="student-fields">
+          <div class="form-group">
+            <label class="form-group__label" for="birthDate">Date de naissance</label>
+            <input
+              type="date"
+              id="birthDate"
+              formControlName="birthDate"
+              class="input"
+            >
+          </div>
+
+          <div class="form-group">
+            <label class="checkbox">
+              <input type="checkbox" formControlName="knowsElo">
+              <span>Je connais mon classement ELO</span>
+            </label>
+          </div>
+
+          @if (registerForm.get('knowsElo')?.value) {
+            <div class="form-group">
+              <label class="form-group__label" for="eloRating">Classement ELO</label>
+              <input
+                type="number"
+                id="eloRating"
+                formControlName="eloRating"
+                class="input"
+                min="100"
+                max="3000"
+                placeholder="Ex: 1200"
+              >
+              <small class="form-hint">Votre classement FIDE ou FFE</small>
+            </div>
+          }
+        </div>
+      }
+
+      @if (selectedRole() === 'TEACHER') {
+        <div class="teacher-fields">
+          <div class="form-group">
+            <label class="form-group__label" for="hourlyRate">Tarif horaire (€)</label>
+            <input
+              type="number"
+              id="hourlyRate"
+              formControlName="hourlyRate"
+              class="input"
+              min="10"
+              step="5"
+              placeholder="50"
+            >
+          </div>
+
+          <div class="form-group">
+            <label class="checkbox">
+              <input type="checkbox" formControlName="acceptsSubscription">
+              <span>J'accepte les élèves avec abonnement</span>
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label class="form-group__label" for="bio">Bio</label>
+            <textarea
+              id="bio"
+              formControlName="bio"
+              class="textarea"
+              rows="3"
+              placeholder="Présentez-vous en quelques lignes..."
+            ></textarea>
+          </div>
+        </div>
+      }
+
+      <button
+        type="submit"
+        class="btn btn--primary btn--block btn--lg"
+        [disabled]="loading()"
+      >
+        @if (loading()) {
+          <span class="spinner spinner--sm"></span>
+          Création...
+        } @else {
+          Créer mon compte
+        }
+      </button>
+    </form>
+
+    <div class="auth-card__footer">
+      <p>
+        Déjà un compte ?
+        <a routerLink="/login" class="text-gold">Se connecter</a>
+      </p>
+    </div>
+    }
+  </div>
+</div>

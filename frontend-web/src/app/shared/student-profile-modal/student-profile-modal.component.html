@@ -1,0 +1,129 @@
+<div class="modal-backdrop" (click)="onBackdropClick($event)">
+  <div class="modal">
+    <!-- Header -->
+    <header class="modal__header">
+      <h2 class="modal__title">Profil de l'élève</h2>
+      <button class="modal__close" (click)="closeModal()">
+        <ng-icon name="heroXMark" size="24"></ng-icon>
+      </button>
+    </header>
+
+    @if (learningPathService.loading()) {
+      <div class="modal__loading">
+        <span class="spinner spinner--lg"></span>
+        <p>Chargement du profil...</p>
+      </div>
+    } @else if (learningPathService.studentProfile()) {
+      <!-- Student Info -->
+      <div class="student-info">
+        <div class="student-info__avatar" [style.background-color]="getGradeColor(learningPathService.studentProfile()!.currentLevel)">
+          {{ getGradeIcon(learningPathService.studentProfile()!.currentLevel) }}
+        </div>
+        <div class="student-info__details">
+          <h3 class="student-info__name">{{ learningPathService.studentProfile()!.fullName }}</h3>
+          <span class="student-info__level">
+            Niveau : {{ learningPathService.studentProfile()!.currentLevelDisplayName }}
+          </span>
+        </div>
+        <div class="student-info__stats">
+          <div class="stat">
+            <span class="stat__value">{{ learningPathService.studentProfile()!.totalLessonsCompleted }}</span>
+            <span class="stat__label">Cours validés</span>
+          </div>
+          <div class="stat">
+            <span class="stat__value">{{ learningPathService.studentProfile()!.progressPercentage | number:'1.0-0' }}%</span>
+            <span class="stat__label">Progression</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Course Progress -->
+      <div class="modal__content">
+        <h4 class="section-title">Progression par niveau</h4>
+
+        <div class="grades-list">
+          @for (grade of learningPathService.studentProfile()!.courseProgress; track grade.grade) {
+            <div class="grade-card" [class.expanded]="isGradeExpanded(grade.grade)">
+              <button class="grade-card__header" (click)="toggleGrade(grade.grade)">
+                <span class="grade-card__icon" [style.color]="getGradeColor(grade.grade)">
+                  {{ getGradeIcon(grade.grade) }}
+                </span>
+                <span class="grade-card__name">{{ grade.displayName }}</span>
+                <span class="grade-card__progress">
+                  {{ grade.completedCourses }}/{{ grade.totalCourses }}
+                </span>
+                <ng-icon [name]="isGradeExpanded(grade.grade) ? 'heroChevronUp' : 'heroChevronDown'" class="grade-card__chevron"></ng-icon>
+              </button>
+
+              @if (isGradeExpanded(grade.grade)) {
+                <div class="grade-card__courses">
+                  @for (course of grade.courses; track course.id) {
+                    <div class="course-row" [class.course-row--completed]="course.status === 'COMPLETED'">
+                      <span class="course-row__order">{{ course.orderInGrade }}.</span>
+                      <span class="course-row__title">{{ course.title }}</span>
+
+                      <div class="course-row__actions">
+                        @switch (course.status) {
+                          @case ('COMPLETED') {
+                            <span class="course-row__status course-row__status--completed">
+                              <ng-icon name="heroCheckCircle" size="18"></ng-icon>
+                              Validé
+                            </span>
+                          }
+                          @case ('IN_PROGRESS') {
+                            <button
+                              class="btn btn--sm btn--primary"
+                              (click)="validateCourse(course)"
+                              [disabled]="validatingCourse() === course.id"
+                            >
+                              @if (validatingCourse() === course.id) {
+                                <span class="spinner spinner--xs"></span>
+                              } @else {
+                                Valider
+                              }
+                            </button>
+                          }
+                          @case ('PENDING_VALIDATION') {
+                            <button
+                              class="btn btn--sm btn--warning"
+                              (click)="validateCourse(course)"
+                              [disabled]="validatingCourse() === course.id"
+                            >
+                              @if (validatingCourse() === course.id) {
+                                <span class="spinner spinner--xs"></span>
+                              } @else {
+                                En attente - Valider
+                              }
+                            </button>
+                          }
+                          @case ('LOCKED') {
+                            <span class="course-row__status course-row__status--locked">
+                              <ng-icon name="heroLockClosed" size="16"></ng-icon>
+                              Verrouillé
+                            </span>
+                          }
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    } @else if (learningPathService.error()) {
+      <div class="modal__error">
+        <p>{{ learningPathService.error() }}</p>
+        <button class="btn btn--primary" (click)="learningPathService.getStudentProfile(studentId).subscribe()">
+          Réessayer
+        </button>
+      </div>
+    }
+
+    <!-- Footer -->
+    <footer class="modal__footer">
+      <button class="btn btn--ghost" (click)="closeModal()">Fermer</button>
+    </footer>
+  </div>
+</div>

@@ -1,0 +1,21 @@
+// ================================================
+// ChessConnect - Main Stylesheet
+// Design System "Echecs Moderne 2026"
+// ================================================
+
+// Variables must be loaded first
+@forward 'styles/variables';
+
+// Google Fonts
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500;700;900&display=swap');
+
+// Reset and base styles
+@import 'styles/reset';
+
+// Components
+@import 'styles/typography';
+@import 'styles/buttons';
+@import 'styles/forms';
+@import 'styles/cards';
+@import 'styles/layout';
+@import 'styles/utilities';

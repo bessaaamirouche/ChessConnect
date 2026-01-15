@@ -1,0 +1,85 @@
+spring:
+  application:
+    name: chessconnect-api
+
+  # PostgreSQL Database
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5433/chessconnect}
+    username: ${SPRING_DATASOURCE_USERNAME:chess}
+    password: ${SPRING_DATASOURCE_PASSWORD:chess123}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    time-zone: UTC
+
+server:
+  port: 8282
+  servlet:
+    context-path: /api
+
+# JWT Configuration
+jwt:
+  secret: ${JWT_SECRET:ChessConnectDefaultSecretKeyForDevelopmentOnly2024!}
+  expiration: 86400000
+
+# Zoom API Configuration (Server-to-Server OAuth)
+zoom:
+  account-id: ${ZOOM_ACCOUNT_ID:your-zoom-account-id}
+  client-id: ${ZOOM_CLIENT_ID:your-zoom-client-id}
+  client-secret: ${ZOOM_CLIENT_SECRET:your-zoom-client-secret}
+  base-url: https://api.zoom.us/v2
+  oauth-url: https://zoom.us/oauth/token
+
+# Stripe Configuration (Test mode)
+stripe:
+  secret-key: ${STRIPE_SECRET_KEY:sk_test_your_stripe_secret_key}
+  publishable-key: ${STRIPE_PUBLISHABLE_KEY:pk_test_your_stripe_publishable_key}
+  webhook-secret: ${STRIPE_WEBHOOK_SECRET:whsec_your_webhook_secret}
+
+# App Configuration
+app:
+  frontend-url: ${FRONTEND_URL:http://localhost:4200}
+
+# Logging
+logging:
+  level:
+    com.chessconnect: DEBUG
+    org.springframework.security: WARN
+
+---
+# Docker Profile (PostgreSQL)
+spring:
+  config:
+    activate:
+      on-profile: docker
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  h2:
+    console:
+      enabled: false
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+logging:
+  level:
+    com.chessconnect: INFO

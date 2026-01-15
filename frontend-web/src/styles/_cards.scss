@@ -1,0 +1,253 @@
+// ================================================
+// Card Components
+// ================================================
+
+@use 'variables' as *;
+
+.card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: all var(--transition-base);
+
+  &--interactive {
+    cursor: pointer;
+    @include hover-lift;
+
+    &:hover {
+      border-color: var(--border-default);
+    }
+  }
+
+  &--glass {
+    @include glass-effect;
+  }
+
+  &--gold-border {
+    border-color: var(--border-gold);
+
+    &:hover {
+      border-color: var(--gold-400);
+      box-shadow: var(--shadow-gold);
+    }
+  }
+
+  &__header {
+    padding: var(--space-lg);
+    border-bottom: 1px solid var(--border-subtle);
+
+    &--no-border {
+      border-bottom: none;
+    }
+  }
+
+  &__body {
+    padding: var(--space-lg);
+  }
+
+  &__footer {
+    padding: var(--space-lg);
+    border-top: 1px solid var(--border-subtle);
+    background: var(--bg-tertiary);
+  }
+}
+
+// === Teacher Card ===
+.teacher-card {
+  @extend .card;
+  @extend .card--interactive;
+
+  &__avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: var(--radius-full);
+    object-fit: cover;
+    border: 3px solid var(--gold-400);
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+
+  &__name {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  &__rate {
+    font-size: 1.25rem;
+    font-weight: 700;
+    @include gold-text;
+  }
+
+  &__stats {
+    display: flex;
+    gap: var(--space-lg);
+
+    span {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+  }
+}
+
+// === Lesson Card ===
+.lesson-card {
+  @extend .card;
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+  padding: var(--space-lg);
+
+  &__time {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--space-md);
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-md);
+    min-width: 80px;
+
+    &-day {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    &-date {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--gold-400);
+    }
+
+    &-hour {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+  }
+
+  &__content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+
+  &__status {
+    &--pending { color: var(--warning); }
+    &--confirmed { color: var(--success); }
+    &--completed { color: var(--info); }
+    &--cancelled { color: var(--error); }
+  }
+}
+
+// === Stats Card ===
+.stats-card {
+  @extend .card;
+  padding: var(--space-lg);
+  text-align: center;
+
+  &--link {
+    cursor: pointer;
+    text-decoration: none;
+    transition: all var(--transition-fast);
+
+    &:hover {
+      border-color: var(--gold-400);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(212, 168, 75, 0.15);
+    }
+  }
+
+  &--gold {
+    border-color: var(--gold-400);
+    background: linear-gradient(135deg, rgba(212, 168, 75, 0.1) 0%, var(--bg-secondary) 100%);
+
+    .stats-card__icon {
+      background: rgba(212, 168, 75, 0.2);
+    }
+  }
+
+  &__icon {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto var(--space-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(212, 168, 75, 0.1);
+    border-radius: var(--radius-full);
+    color: var(--gold-400);
+    font-size: 1.5rem;
+  }
+
+  &__value {
+    font-size: 2rem;
+    font-weight: 700;
+    @include gold-text;
+  }
+
+  &__label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-top: var(--space-xs);
+  }
+}
+
+// === Pricing Card ===
+.pricing-card {
+  @extend .card;
+  text-align: center;
+  padding: var(--space-2xl) var(--space-xl);
+
+  &--featured {
+    border-color: var(--gold-400);
+    position: relative;
+  }
+
+  &__name {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--space-sm);
+  }
+
+  &__price {
+    font-size: 3rem;
+    font-weight: 700;
+    @include gold-text;
+
+    span {
+      font-size: 1rem;
+      font-weight: 400;
+      color: var(--text-muted);
+    }
+  }
+
+  &__quota {
+    font-size: 0.9375rem;
+    color: var(--text-secondary);
+    margin: var(--space-md) 0 var(--space-xl);
+  }
+
+  &__features {
+    text-align: left;
+    margin-bottom: var(--space-xl);
+
+    li {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      padding: var(--space-sm) 0;
+      font-size: 0.9375rem;
+      color: var(--text-secondary);
+    }
+  }
+}

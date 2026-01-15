@@ -1,0 +1,75 @@
+<div class="profile-page">
+  <nav class="navbar">
+    <div class="container navbar__inner">
+      <a routerLink="/" class="navbar__logo">ChessConnect</a>
+      <div class="navbar__actions">
+        <a routerLink="/teachers" class="btn btn--ghost">Retour</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+    @if (teacherService.selectedTeacher(); as teacher) {
+      <div class="profile">
+        <div class="profile__header card">
+          <div class="avatar avatar--xl avatar--gold">
+            @if (teacher.avatarUrl) {
+              <img [src]="teacher.avatarUrl" [alt]="teacher.firstName">
+            } @else {
+              {{ getInitials(teacher.firstName, teacher.lastName) }}
+            }
+          </div>
+
+          <div class="profile__info">
+            <h1 class="heading-2">{{ teacher.firstName }} {{ teacher.lastName }}</h1>
+            <div class="profile__meta">
+              <span class="profile__rate">{{ formatPrice(teacher.hourlyRateCents) }}/heure</span>
+              @if (teacher.acceptsSubscription) {
+                <span class="badge badge--gold">Accepte les abonnements</span>
+              }
+            </div>
+          </div>
+
+          @if (authService.isStudent()) {
+            <a [routerLink]="['/book', teacher.id]" class="btn btn--primary btn--lg">
+              Réserver un cours
+            </a>
+          }
+        </div>
+
+        <div class="profile__content grid grid--cols-2">
+          <div class="card">
+            <h3 class="heading-4 mb-lg">À propos</h3>
+            @if (teacher.bio) {
+              <p class="text-secondary">{{ teacher.bio }}</p>
+            } @else {
+              <p class="text-muted">Ce professeur n'a pas encore rempli sa bio.</p>
+            }
+          </div>
+
+          <div class="card">
+            <h3 class="heading-4 mb-lg">Statistiques</h3>
+            <div class="profile__stats">
+              <div class="stat">
+                <span class="stat__value">-</span>
+                <span class="stat__label">Cours donnés</span>
+              </div>
+              <div class="stat">
+                <span class="stat__value">-</span>
+                <span class="stat__label">Élèves</span>
+              </div>
+              <div class="stat">
+                <span class="stat__value">-</span>
+                <span class="stat__label">Note moyenne</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    } @else {
+      <div class="loading-state">
+        <span class="spinner spinner--lg"></span>
+      </div>
+    }
+  </main>
+</div>

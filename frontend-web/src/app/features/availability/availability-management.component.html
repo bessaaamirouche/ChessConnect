@@ -1,0 +1,241 @@
+<div class="dashboard">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar__header">
+      <a routerLink="/" class="sidebar__logo">ChessConnect</a>
+    </div>
+
+    <nav class="sidebar__nav">
+      <div class="sidebar__section">
+        <span class="sidebar__section-title">Menu</span>
+        <a routerLink="/dashboard" class="sidebar__link">
+          <ng-icon name="heroChartBarSquare" class="sidebar__icon"></ng-icon> Mon Espace
+        </a>
+        <a routerLink="/lessons" class="sidebar__link">
+          <ng-icon name="heroCalendarDays" class="sidebar__icon"></ng-icon> Mes Cours
+        </a>
+        <a routerLink="/availability" class="sidebar__link active">
+          <ng-icon name="heroClipboardDocumentList" class="sidebar__icon"></ng-icon> Mes Disponibilités
+        </a>
+      </div>
+
+      <div class="sidebar__section">
+        <span class="sidebar__section-title">Compte</span>
+        <a routerLink="/settings" class="sidebar__link">
+          <ng-icon name="heroUserCircle" class="sidebar__icon"></ng-icon> Mon Profil
+        </a>
+        <button class="sidebar__link" (click)="logout()">
+          <ng-icon name="heroArrowRightOnRectangle" class="sidebar__icon"></ng-icon> Déconnexion
+        </button>
+      </div>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <header class="page-header">
+      <div>
+        <h1 class="page-header__title">Mes Disponibilités</h1>
+        <p class="page-header__subtitle">Gérez vos créneaux de cours disponibles</p>
+      </div>
+      <button class="btn btn--primary" (click)="openAddModal()">
+        <ng-icon name="heroPlus" size="16"></ng-icon> Ajouter un créneau
+      </button>
+    </header>
+
+    @if (error()) {
+      <div class="alert alert--error">
+        <span>{{ error() }}</span>
+        <button class="alert__close" (click)="clearError()">×</button>
+      </div>
+    }
+
+    @if (loading()) {
+      <div class="loading-state">
+        <span class="spinner spinner--lg"></span>
+        <p>Chargement...</p>
+      </div>
+    } @else {
+      <!-- Recurring Availabilities -->
+      <section class="section">
+        <div class="section__header">
+          <h2 class="section__title">Créneaux Récurrents</h2>
+        </div>
+        <p class="section__desc">Ces créneaux se répètent chaque semaine</p>
+
+        <div class="week-grid">
+          @for (day of daysOfWeek; track day.value) {
+            <div class="day-column">
+              <div class="day-header">{{ day.label }}</div>
+              <div class="day-slots">
+                @for (slot of getAvailabilitiesByDay(day.value); track slot.id) {
+                  <div class="slot-card">
+                    <div class="slot-time">
+                      {{ slot.startTime }} - {{ slot.endTime }}
+                    </div>
+                    <button class="slot-delete" (click)="deleteAvailability(slot.id)" title="Supprimer">
+                      <ng-icon name="heroTrash" size="14"></ng-icon>
+                    </button>
+                  </div>
+                } @empty {
+                  <div class="no-slots">-</div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+
+      <!-- Specific Date Availabilities -->
+      <section class="section">
+        <div class="section__header">
+          <h2 class="section__title">Créneaux Ponctuels</h2>
+        </div>
+        <p class="section__desc">Disponibilités pour des dates spécifiques</p>
+
+        @if (getSpecificDateAvailabilities().length > 0) {
+          <div class="specific-slots">
+            @for (slot of getSpecificDateAvailabilities(); track slot.id) {
+              <div class="specific-slot-card">
+                <div class="slot-date">{{ slot.specificDate }}</div>
+                <div class="slot-time">{{ slot.startTime }} - {{ slot.endTime }}</div>
+                <button class="slot-delete" (click)="deleteAvailability(slot.id)" title="Supprimer">
+                  <ng-icon name="heroTrash" size="14"></ng-icon>
+                </button>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="empty-state">
+            <div class="empty-state__icon"><ng-icon name="heroCalendarDays" size="48"></ng-icon></div>
+            <p class="empty-state__description">Aucun créneau ponctuel défini</p>
+          </div>
+        }
+      </section>
+    }
+  </main>
+</div>
+
+<!-- Add Modal -->
+@if (showAddModal) {
+  <div class="modal-overlay" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal__header">
+        <h3>Ajouter une disponibilité</h3>
+        <button class="modal__close" (click)="closeModal()"><ng-icon name="heroXMark" size="20"></ng-icon></button>
+      </div>
+
+      <div class="modal__body">
+        <!-- Type Selection -->
+        <div class="form-group">
+          <label class="form-group__label">Type de créneau</label>
+          <div class="radio-group">
+            <label class="radio-option">
+              <input
+                type="radio"
+                name="recurring"
+                [value]="true"
+                [(ngModel)]="isRecurring"
+                (ngModelChange)="onRecurringChange()"
+              />
+              <span>Récurrent (chaque semaine)</span>
+            </label>
+            <label class="radio-option">
+              <input
+                type="radio"
+                name="recurring"
+                [value]="false"
+                [(ngModel)]="isRecurring"
+                (ngModelChange)="onRecurringChange()"
+              />
+              <span>Ponctuel (date spécifique)</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Day Selection (for recurring) -->
+        @if (isRecurring) {
+          <div class="form-group">
+            <label class="form-group__label" for="daySelect">Jour de la semaine</label>
+            <select id="daySelect" class="input" [(ngModel)]="selectedDay">
+              @for (day of daysOfWeek; track day.value) {
+                <option [value]="day.value">{{ day.label }}</option>
+              }
+            </select>
+          </div>
+        }
+
+        <!-- Date Selection (for specific) -->
+        @if (!isRecurring) {
+          <div class="form-group">
+            <label class="form-group__label" for="dateInput">Date</label>
+            <input
+              type="date"
+              id="dateInput"
+              class="input"
+              [(ngModel)]="selectedDate"
+              [min]="getTodayDate()"
+            />
+          </div>
+        }
+
+        <!-- Time Selection -->
+        <div class="form-group">
+          <label class="form-group__label">Heure de début</label>
+          <div class="time-picker">
+            <select class="input time-picker__select" [(ngModel)]="startHour">
+              @for (h of hours; track h) {
+                <option [value]="h">{{ h }}</option>
+              }
+            </select>
+            <span class="time-picker__separator">:</span>
+            <select class="input time-picker__select" [(ngModel)]="startMinute">
+              @for (m of minutes; track m) {
+                <option [value]="m">{{ m }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-group__label">Heure de fin</label>
+          <div class="time-picker">
+            <select class="input time-picker__select" [(ngModel)]="endHour">
+              @for (h of hours; track h) {
+                <option [value]="h">{{ h }}</option>
+              }
+            </select>
+            <span class="time-picker__separator">:</span>
+            <select class="input time-picker__select" [(ngModel)]="endMinute">
+              @for (m of minutes; track m) {
+                <option [value]="m">{{ m }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        @if (startTime >= endTime) {
+          <p class="error-text">L'heure de fin doit être après l'heure de début</p>
+        }
+      </div>
+
+      <div class="modal__footer">
+        <button class="btn btn--ghost" (click)="closeModal()">Annuler</button>
+        <button
+          class="btn btn--primary"
+          (click)="createAvailability()"
+          [disabled]="!isFormValid() || submitting"
+        >
+          @if (submitting) {
+            <span class="spinner spinner--sm"></span>
+          } @else {
+            Ajouter
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Confirm Modal -->
+<app-confirm-modal #confirmModal></app-confirm-modal>

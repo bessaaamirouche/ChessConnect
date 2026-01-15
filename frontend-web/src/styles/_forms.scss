@@ -1,0 +1,184 @@
+// ================================================
+// Form Components
+// ================================================
+
+@use 'variables' as *;
+
+// === Form Group ===
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+
+  &__label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+  }
+
+  &__error {
+    font-size: 0.8125rem;
+    color: var(--error);
+  }
+
+  &__hint {
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+  }
+}
+
+// === Input ===
+.input {
+  width: 100%;
+  padding: var(--space-sm) var(--space-md);
+  font-size: 1rem;
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+
+  @include focus-ring;
+
+  &::placeholder {
+    color: var(--text-muted);
+  }
+
+  &:hover:not(:disabled):not(:focus) {
+    border-color: var(--border-strong);
+  }
+
+  &:focus {
+    border-color: var(--gold-400);
+    background: var(--bg-elevated);
+  }
+
+  &--error {
+    border-color: var(--error);
+
+    &:focus {
+      box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 4px var(--error);
+    }
+  }
+
+  &--lg {
+    padding: var(--space-md) var(--space-lg);
+    font-size: 1.125rem;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+// === Textarea ===
+.textarea {
+  @extend .input;
+  min-height: 120px;
+  resize: vertical;
+}
+
+// === Select ===
+.select {
+  @extend .input;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a8a5a0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right var(--space-md) center;
+  padding-right: var(--space-2xl);
+}
+
+// === Checkbox & Radio ===
+.checkbox,
+.radio {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  cursor: pointer;
+
+  input {
+    appearance: none;
+    width: 1.25rem;
+    height: 1.25rem;
+    background: var(--bg-tertiary);
+    border: 2px solid var(--border-default);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+
+    &:checked {
+      background: var(--gold-400);
+      border-color: var(--gold-400);
+    }
+
+    @include focus-ring;
+  }
+
+  span {
+    font-size: 0.9375rem;
+    color: var(--text-primary);
+  }
+}
+
+.checkbox input {
+  border-radius: var(--radius-sm);
+
+  &:checked {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%230d0d0f' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+}
+
+.radio input {
+  border-radius: var(--radius-full);
+
+  &:checked {
+    background: var(--bg-tertiary);
+    border-color: var(--gold-400);
+    box-shadow: inset 0 0 0 4px var(--gold-400);
+  }
+}
+
+// === Toggle Switch ===
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  cursor: pointer;
+
+  &__switch {
+    position: relative;
+    width: 48px;
+    height: 26px;
+    background: var(--bg-elevated);
+    border-radius: var(--radius-full);
+    transition: background var(--transition-fast);
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 20px;
+      height: 20px;
+      background: var(--text-secondary);
+      border-radius: var(--radius-full);
+      transition: all var(--transition-fast);
+    }
+  }
+
+  input {
+    display: none;
+
+    &:checked + .toggle__switch {
+      background: var(--gold-400);
+
+      &::after {
+        transform: translateX(22px);
+        background: var(--text-inverse);
+      }
+    }
+  }
+}

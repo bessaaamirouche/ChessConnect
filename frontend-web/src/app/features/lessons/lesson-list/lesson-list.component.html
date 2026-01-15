@@ -1,0 +1,327 @@
+<div class="dashboard">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar__header">
+      <a routerLink="/" class="sidebar__logo">ChessConnect</a>
+    </div>
+
+    <nav class="sidebar__nav">
+      <div class="sidebar__section">
+        <span class="sidebar__section-title">Menu</span>
+        <a routerLink="/dashboard" class="sidebar__link">
+          <ng-icon name="heroChartBarSquare" class="sidebar__icon"></ng-icon> Mon Espace
+        </a>
+        <a routerLink="/lessons" class="sidebar__link active">
+          <ng-icon name="heroCalendarDays" class="sidebar__icon"></ng-icon> Mes Cours
+        </a>
+        @if (authService.isTeacher()) {
+          <a routerLink="/availability" class="sidebar__link">
+            <ng-icon name="heroClipboardDocumentList" class="sidebar__icon"></ng-icon> Mes Disponibilités
+          </a>
+        }
+        @if (authService.isStudent()) {
+          <a routerLink="/progress" class="sidebar__link">
+            <ng-icon name="heroTrophy" class="sidebar__icon"></ng-icon> Ma Progression
+          </a>
+          <a routerLink="/subscription" class="sidebar__link">
+            <ng-icon name="heroCreditCard" class="sidebar__icon"></ng-icon> Abonnement
+          </a>
+          <a routerLink="/teachers" class="sidebar__link">
+            <ng-icon name="heroAcademicCap" class="sidebar__icon"></ng-icon> Trouver un Prof
+          </a>
+        }
+      </div>
+
+      <div class="sidebar__section">
+        <span class="sidebar__section-title">Compte</span>
+        <a routerLink="/settings" class="sidebar__link">
+          <ng-icon name="heroUserCircle" class="sidebar__icon"></ng-icon> Mon Profil
+        </a>
+        <button class="sidebar__link" (click)="logout()">
+          <ng-icon name="heroArrowRightOnRectangle" class="sidebar__icon"></ng-icon> Déconnexion
+        </button>
+      </div>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <header class="page-header">
+      <div>
+        <h1 class="page-header__title">Mes Cours</h1>
+        <p class="page-header__subtitle">Gérez vos leçons d'échecs</p>
+      </div>
+      @if (authService.isStudent()) {
+        <a routerLink="/teachers" class="btn btn--primary">
+          <ng-icon name="heroPlus" size="16"></ng-icon> Réserver un cours
+        </a>
+      }
+    </header>
+
+    <!-- Upcoming Lessons -->
+    <section class="section">
+      <div class="section__header">
+        <h2 class="section__title">Cours à venir</h2>
+      </div>
+      <p class="section__desc">Vos prochaines leçons programmées</p>
+
+      @if (lessonService.upcomingLessons().length === 0) {
+        <div class="empty-state">
+          <div class="empty-state__icon"><ng-icon name="heroCalendarDays" size="48"></ng-icon></div>
+          <p class="empty-state__description">Aucun cours prévu</p>
+        </div>
+      } @else {
+        <div class="lessons-list">
+          @for (lesson of lessonService.upcomingLessons(); track lesson.id) {
+            <div class="lesson-card">
+              <div class="lesson-card__time">
+                <span class="lesson-card__time-day">{{ lesson.scheduledAt | date:'EEE' }}</span>
+                <span class="lesson-card__time-date">{{ lesson.scheduledAt | date:'d' }}</span>
+                <span class="lesson-card__time-hour">{{ lesson.scheduledAt | date:'HH:mm' }}</span>
+              </div>
+
+              <div class="lesson-card__content">
+                <h4>
+                  @if (authService.isStudent()) {
+                    Cours avec {{ lesson.teacherName }}
+                  } @else {
+                    <span class="lesson-card__student">
+                      Cours avec {{ lesson.studentName }}
+                      <button
+                        class="btn-link"
+                        (click)="openStudentProfile(lesson.studentId)"
+                        title="Voir le profil"
+                      >
+                        <ng-icon name="heroUserCircle" size="18"></ng-icon>
+                      </button>
+                    </span>
+                  }
+                </h4>
+                @if (authService.isTeacher()) {
+                  <div class="lesson-card__student-info">
+                    @if (lesson.studentLevel) {
+                      <span class="student-info-badge">
+                        <ng-icon name="heroTrophy" size="14"></ng-icon>
+                        {{ getLevelLabel(lesson.studentLevel) }}
+                      </span>
+                    }
+                    @if (lesson.studentAge) {
+                      <span class="student-info-badge">
+                        <ng-icon name="heroUser" size="14"></ng-icon>
+                        {{ lesson.studentAge }} ans
+                      </span>
+                    }
+                    @if (lesson.studentElo) {
+                      <span class="student-info-badge">
+                        <ng-icon name="heroChartBar" size="14"></ng-icon>
+                        ELO {{ lesson.studentElo }}
+                      </span>
+                    }
+                  </div>
+                }
+                <div class="lesson-card__meta">
+                  <span class="badge" [class]="statusLabels[lesson.status].cssClass">
+                    {{ getStatusLabel(lesson) }}
+                  </span>
+                  @if (lesson.isFromSubscription) {
+                    <span class="badge badge--gold">Abo</span>
+                  }
+                </div>
+              </div>
+
+              <div class="lesson-card__actions">
+                @if (lesson.status === 'PENDING' && authService.isTeacher()) {
+                  <button class="btn btn--primary btn--sm" (click)="confirmLesson(lesson.id)">
+                    Confirmer
+                  </button>
+                }
+                @if (lesson.status === 'CONFIRMED' && lesson.zoomLink) {
+                  @if (canJoinLesson(lesson)) {
+                    <button class="btn btn--primary btn--sm" (click)="openVideoCall(lesson)">
+                      Accéder
+                    </button>
+                  } @else {
+                    <span class="time-badge">{{ getTimeUntilJoin(lesson) }}</span>
+                  }
+                }
+                @if (lesson.status === 'CONFIRMED' && authService.isTeacher() && canCompleteLesson(lesson)) {
+                  <button class="btn btn--secondary btn--sm" (click)="openCompleteModal(lesson.id)">
+                    Terminer
+                  </button>
+                }
+                @if (lesson.status !== 'CANCELLED' && lesson.status !== 'COMPLETED') {
+                  <button class="btn btn--ghost btn--sm" (click)="cancelLesson(lesson.id)">
+                    Annuler
+                  </button>
+                }
+                @if (lesson.status === 'CANCELLED') {
+                  @if (lesson.cancellationReason) {
+                    <button
+                      class="btn btn--ghost btn--sm"
+                      (click)="toggleReason(lesson.id)"
+                      title="Voir la raison"
+                    >
+                      <ng-icon name="heroInformationCircle" size="16"></ng-icon>
+                    </button>
+                  }
+                  <button class="btn btn--ghost btn--sm" (click)="deleteLesson(lesson.id)">
+                    <ng-icon name="heroTrash" size="16"></ng-icon>
+                  </button>
+                }
+              </div>
+            </div>
+            @if (lesson.status === 'CANCELLED' && lesson.cancellationReason && visibleReasonId() === lesson.id) {
+              <div class="reason-banner">
+                <ng-icon name="heroInformationCircle" size="14"></ng-icon>
+                <span><strong>Raison :</strong> {{ lesson.cancellationReason }}</span>
+              </div>
+            }
+          }
+        </div>
+      }
+    </section>
+
+    <!-- History -->
+    <section class="section">
+      <div class="section__header">
+        <h2 class="section__title">Historique</h2>
+      </div>
+      <p class="section__desc">Vos cours passés</p>
+
+      @if (lessonService.lessonHistory().length === 0) {
+        <div class="empty-state">
+          <div class="empty-state__icon"><ng-icon name="heroBookOpen" size="48"></ng-icon></div>
+          <p class="empty-state__description">Aucun cours passé</p>
+        </div>
+      } @else {
+        <div class="history-grid">
+          @for (lesson of lessonService.lessonHistory(); track lesson.id) {
+            <div class="history-card">
+              <div class="history-card__actions">
+                @if (lesson.status === 'CANCELLED' && lesson.cancellationReason) {
+                  <button
+                    class="history-card__action-btn history-card__action-btn--info"
+                    (click)="toggleReason(lesson.id)"
+                    title="Voir la raison"
+                  >
+                    <ng-icon name="heroInformationCircle" size="14"></ng-icon>
+                  </button>
+                }
+                @if (lesson.status === 'COMPLETED' && lesson.teacherObservations && authService.isStudent()) {
+                  <button
+                    class="history-card__action-btn history-card__action-btn--observations"
+                    (click)="toggleObservations(lesson.id)"
+                    title="Voir les observations"
+                  >
+                    <ng-icon name="heroBookOpen" size="14"></ng-icon>
+                  </button>
+                }
+                <button
+                  class="history-card__action-btn history-card__action-btn--delete"
+                  (click)="deleteLesson(lesson.id)"
+                  title="Supprimer"
+                >
+                  <ng-icon name="heroTrash" size="14"></ng-icon>
+                </button>
+              </div>
+              @if (visibleReasonId() === lesson.id) {
+                <div class="history-card__tooltip">
+                  <div class="history-card__tooltip-header">Raison de l'annulation</div>
+                  <div class="history-card__tooltip-content">{{ lesson.cancellationReason }}</div>
+                </div>
+              }
+              @if (visibleObservationsId() === lesson.id) {
+                <div class="history-card__tooltip history-card__tooltip--observations">
+                  <div class="history-card__tooltip-header">Observations du professeur</div>
+                  <div class="history-card__tooltip-content">{{ lesson.teacherObservations }}</div>
+                </div>
+              }
+              <div class="history-card__date">{{ lesson.scheduledAt | date:'d MMM yyyy' }}</div>
+              <div class="history-card__time">{{ lesson.scheduledAt | date:'HH:mm' }}</div>
+              <div class="history-card__person">
+                @if (authService.isStudent()) {
+                  {{ lesson.teacherName }}
+                } @else {
+                  {{ lesson.studentName }}
+                }
+              </div>
+              <span class="badge" [class]="statusLabels[lesson.status].cssClass">
+                {{ getStatusLabel(lesson) }}
+              </span>
+            </div>
+          }
+        </div>
+      }
+    </section>
+  </main>
+
+  <!-- Confirm Modal -->
+  <app-confirm-modal #confirmModal></app-confirm-modal>
+
+  <!-- Video Call Modal -->
+  @if (activeVideoCall()) {
+    <div class="video-modal-overlay" (click)="closeVideoCall()"></div>
+    <div class="video-modal">
+      <div class="video-modal__header">
+        <h3>
+          Cours avec
+          @if (authService.isStudent()) {
+            {{ activeVideoCall()!.teacherName }}
+          } @else {
+            {{ activeVideoCall()!.studentName }}
+          }
+        </h3>
+        <button class="video-modal__close" (click)="closeVideoCall()"><ng-icon name="heroXMark" size="20"></ng-icon></button>
+      </div>
+      <div class="video-modal__content">
+        <iframe
+          [src]="getJitsiUrl()"
+          allow="camera; microphone; fullscreen; display-capture; autoplay"
+          class="video-modal__iframe"
+        ></iframe>
+      </div>
+    </div>
+  }
+
+  <!-- Student Profile Modal (Teacher only) -->
+  @if (selectedStudentId()) {
+    <app-student-profile-modal
+      [studentId]="selectedStudentId()!"
+      (close)="closeStudentProfile()"
+      (courseValidated)="onCourseValidated($event)"
+    ></app-student-profile-modal>
+  }
+
+  <!-- Complete Lesson Modal -->
+  @if (showCompleteModal()) {
+    <div class="modal-overlay" (click)="closeCompleteModal()"></div>
+    <div class="complete-modal">
+      <div class="complete-modal__header">
+        <h3>Terminer le cours</h3>
+        <button class="complete-modal__close" (click)="closeCompleteModal()">
+          <ng-icon name="heroXMark" size="20"></ng-icon>
+        </button>
+      </div>
+      <div class="complete-modal__content">
+        <label class="complete-modal__label" for="observations">
+          Observations pour l'élève (optionnel)
+        </label>
+        <textarea
+          id="observations"
+          class="complete-modal__textarea"
+          [ngModel]="observationsText()"
+          (ngModelChange)="observationsText.set($event)"
+          placeholder="Ex: Bon travail sur les ouvertures, continuer à pratiquer les finales de pions..."
+          rows="4"
+        ></textarea>
+        <p class="complete-modal__hint">
+          Ces observations seront visibles par l'élève dans son historique de cours.
+        </p>
+      </div>
+      <div class="complete-modal__actions">
+        <button class="btn btn--ghost" (click)="closeCompleteModal()">Annuler</button>
+        <button class="btn btn--primary" (click)="submitCompleteLesson()">Terminer le cours</button>
+      </div>
+    </div>
+  }
+</div>

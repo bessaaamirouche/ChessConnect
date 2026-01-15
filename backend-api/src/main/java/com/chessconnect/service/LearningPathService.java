@@ -1,0 +1,382 @@
+package com.chessconnect.service;
+
+import com.chessconnect.dto.learningpath.CourseResponse;
+import com.chessconnect.dto.learningpath.GradeWithCoursesResponse;
+import com.chessconnect.dto.learningpath.LearningPathResponse;
+import com.chessconnect.dto.student.StudentProfileResponse;
+import com.chessconnect.model.Course;
+import com.chessconnect.model.Progress;
+import com.chessconnect.model.User;
+import com.chessconnect.model.UserCourseProgress;
+import com.chessconnect.model.enums.ChessLevel;
+import com.chessconnect.model.enums.CourseStatus;
+import com.chessconnect.repository.CourseRepository;
+import com.chessconnect.repository.ProgressRepository;
+import com.chessconnect.repository.UserCourseProgressRepository;
+import com.chessconnect.repository.UserRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+@Service
+public class LearningPathService {
+
+    private final CourseRepository courseRepository;
+    private final UserCourseProgressRepository userCourseProgressRepository;
+    private final ProgressRepository progressRepository;
+    private final UserRepository userRepository;
+
+    public LearningPathService(
+        CourseRepository courseRepository,
+        UserCourseProgressRepository userCourseProgressRepository,
+        ProgressRepository progressRepository,
+        UserRepository userRepository
+    ) {
+        this.courseRepository = courseRepository;
+        this.userCourseProgressRepository = userCourseProgressRepository;
+        this.progressRepository = progressRepository;
+        this.userRepository = userRepository;
+    }
+
+    @Transactional(readOnly = true)
+    public LearningPathResponse getLearningPath(Long userId) {
+        Progress userProgress = progressRepository.findByStudentId(userId)
+            .orElse(null);
+        ChessLevel currentLevel = userProgress != null ? userProgress.getCurrentLevel() : ChessLevel.PION;
+
+        List<Course> allCourses = courseRepository.findAllOrderByGradeAndOrder();
+        Map<Long, UserCourseProgress> progressMap = userCourseProgressRepository.findByUserId(userId)
+            .stream()
+            .collect(Collectors.toMap(p -> p.getCourse().getId(), p -> p));
+
+        // Get teacher names for validated courses
+        Set<Long> teacherIds = progressMap.values().stream()
+            .map(UserCourseProgress::getValidatedByTeacherId)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toSet());
+        Map<Long, String> teacherNames = getTeacherNames(teacherIds);
+
+        List<GradeWithCoursesResponse> grades = new ArrayList<>();
+
+        for (ChessLevel grade : ChessLevel.values()) {
+            List<Course> gradeCourses = allCourses.stream()
+                .filter(c -> c.getGrade() == grade)
+                .toList();
+
+            boolean isGradeUnlocked = isGradeAccessible(grade, currentLevel);
+
+            List<CourseResponse> courseResponses = new ArrayList<>();
+            int completedCount = 0;
+
+            for (int i = 0; i < gradeCourses.size(); i++) {
+                Course course = gradeCourses.get(i);
+                UserCourseProgress progress = progressMap.get(course.getId());
+
+                CourseStatus status = determineStatus(progress, isGradeUnlocked, i, gradeCourses, progressMap);
+
+                String teacherName = null;
+                if (progress != null && progress.getValidatedByTeacherId() != null) {
+                    teacherName = teacherNames.get(progress.getValidatedByTeacherId());
+                }
+
+                CourseResponse response = new CourseResponse(
+                    course.getId(),
+                    course.getTitle(),
+                    course.getDescription(),
+                    null,
+                    course.getGrade(),
+                    course.getOrderInGrade(),
+                    course.getEstimatedMinutes(),
+                    course.getIconName(),
+                    status,
+                    progress != null ? progress.getStartedAt() : null,
+                    progress != null ? progress.getCompletedAt() : null,
+                    progress != null ? progress.getValidatedByTeacherId() : null,
+                    teacherName,
+                    progress != null ? progress.getValidatedAt() : null
+                );
+                courseResponses.add(response);
+
+                if (status == CourseStatus.COMPLETED) {
+                    completedCount++;
+                }
+            }
+
+            grades.add(GradeWithCoursesResponse.create(grade, courseResponses, completedCount, isGradeUnlocked));
+        }
+
+        return LearningPathResponse.create(grades);
+    }
+
+    @Transactional(readOnly = true)
+    public CourseResponse getCourseDetail(Long userId, Long courseId) {
+        Course course = courseRepository.findById(courseId)
+            .orElseThrow(() -> new RuntimeException("Course not found"));
+
+        UserCourseProgress progress = userCourseProgressRepository
+            .findByUserIdAndCourseId(userId, courseId)
+            .orElse(null);
+
+        Progress userProgress = progressRepository.findByStudentId(userId).orElse(null);
+        ChessLevel currentLevel = userProgress != null ? userProgress.getCurrentLevel() : ChessLevel.PION;
+        boolean isGradeUnlocked = isGradeAccessible(course.getGrade(), currentLevel);
+
+        List<Course> gradeCourses = courseRepository.findByGradeOrderByOrderInGrade(course.getGrade());
+        Map<Long, UserCourseProgress> progressMap = userCourseProgressRepository.findByUserId(userId)
+            .stream()
+            .collect(Collectors.toMap(p -> p.getCourse().getId(), p -> p));
+
+        int courseIndex = -1;
+        for (int i = 0; i < gradeCourses.size(); i++) {
+            if (gradeCourses.get(i).getId().equals(courseId)) {
+                courseIndex = i;
+                break;
+            }
+        }
+
+        CourseStatus status = determineStatus(progress, isGradeUnlocked, courseIndex, gradeCourses, progressMap);
+
+        String teacherName = null;
+        if (progress != null && progress.getValidatedByTeacherId() != null) {
+            teacherName = userRepository.findById(progress.getValidatedByTeacherId())
+                .map(u -> u.getFirstName() + " " + u.getLastName())
+                .orElse(null);
+        }
+
+        return new CourseResponse(
+            course.getId(),
+            course.getTitle(),
+            course.getDescription(),
+            status != CourseStatus.LOCKED ? course.getContent() : null,
+            course.getGrade(),
+            course.getOrderInGrade(),
+            course.getEstimatedMinutes(),
+            course.getIconName(),
+            status,
+            progress != null ? progress.getStartedAt() : null,
+            progress != null ? progress.getCompletedAt() : null,
+            progress != null ? progress.getValidatedByTeacherId() : null,
+            teacherName,
+            progress != null ? progress.getValidatedAt() : null
+        );
+    }
+
+    @Transactional
+    public CourseResponse startCourse(Long userId, Long courseId) {
+        Course course = courseRepository.findById(courseId)
+            .orElseThrow(() -> new RuntimeException("Course not found"));
+
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Progress userProgress = progressRepository.findByStudentId(userId).orElse(null);
+        ChessLevel currentLevel = userProgress != null ? userProgress.getCurrentLevel() : ChessLevel.PION;
+
+        if (!isGradeAccessible(course.getGrade(), currentLevel)) {
+            throw new RuntimeException("Ce grade n'est pas encore accessible");
+        }
+
+        UserCourseProgress progress = userCourseProgressRepository
+            .findByUserIdAndCourseId(userId, courseId)
+            .orElseGet(() -> {
+                UserCourseProgress newProgress = new UserCourseProgress();
+                newProgress.setUser(user);
+                newProgress.setCourse(course);
+                return newProgress;
+            });
+
+        if (progress.getStatus() == CourseStatus.LOCKED) {
+            progress.start();
+            progress = userCourseProgressRepository.save(progress);
+        }
+
+        return CourseResponse.fromEntity(course, progress);
+    }
+
+    /**
+     * Validate a course for a student (Teacher only)
+     */
+    @Transactional
+    public CourseResponse validateCourse(Long teacherId, Long studentId, Long courseId) {
+        Course course = courseRepository.findById(courseId)
+            .orElseThrow(() -> new RuntimeException("Course not found"));
+
+        User student = userRepository.findById(studentId)
+            .orElseThrow(() -> new RuntimeException("Student not found"));
+
+        User teacher = userRepository.findById(teacherId)
+            .orElseThrow(() -> new RuntimeException("Teacher not found"));
+
+        UserCourseProgress progress = userCourseProgressRepository
+            .findByUserIdAndCourseId(studentId, courseId)
+            .orElseGet(() -> {
+                UserCourseProgress newProgress = new UserCourseProgress();
+                newProgress.setUser(student);
+                newProgress.setCourse(course);
+                newProgress.start();
+                return newProgress;
+            });
+
+        if (progress.getStatus() != CourseStatus.COMPLETED) {
+            progress.validate(teacherId);
+            progress = userCourseProgressRepository.save(progress);
+
+            unlockNextCourse(studentId, course);
+        }
+
+        String teacherName = teacher.getFirstName() + " " + teacher.getLastName();
+        return CourseResponse.fromEntity(course, progress, teacherName);
+    }
+
+    /**
+     * Get student profile with all courses (for teachers)
+     */
+    @Transactional(readOnly = true)
+    public StudentProfileResponse getStudentProfile(Long studentId) {
+        User student = userRepository.findById(studentId)
+            .orElseThrow(() -> new RuntimeException("Student not found"));
+
+        Progress studentProgress = progressRepository.findByStudentId(studentId)
+            .orElse(null);
+        ChessLevel currentLevel = studentProgress != null ? studentProgress.getCurrentLevel() : ChessLevel.PION;
+        int totalLessonsCompleted = studentProgress != null ? studentProgress.getTotalLessonsCompleted() : 0;
+
+        List<Course> allCourses = courseRepository.findAllOrderByGradeAndOrder();
+        Map<Long, UserCourseProgress> progressMap = userCourseProgressRepository.findByUserId(studentId)
+            .stream()
+            .collect(Collectors.toMap(p -> p.getCourse().getId(), p -> p));
+
+        // Get teacher names for validated courses
+        Set<Long> teacherIds = progressMap.values().stream()
+            .map(UserCourseProgress::getValidatedByTeacherId)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toSet());
+        Map<Long, String> teacherNames = getTeacherNames(teacherIds);
+
+        List<GradeWithCoursesResponse> grades = new ArrayList<>();
+
+        for (ChessLevel grade : ChessLevel.values()) {
+            List<Course> gradeCourses = allCourses.stream()
+                .filter(c -> c.getGrade() == grade)
+                .toList();
+
+            boolean isGradeUnlocked = isGradeAccessible(grade, currentLevel);
+
+            List<CourseResponse> courseResponses = new ArrayList<>();
+            int completedCount = 0;
+
+            for (int i = 0; i < gradeCourses.size(); i++) {
+                Course course = gradeCourses.get(i);
+                UserCourseProgress progress = progressMap.get(course.getId());
+
+                CourseStatus status = determineStatus(progress, isGradeUnlocked, i, gradeCourses, progressMap);
+
+                String teacherName = null;
+                if (progress != null && progress.getValidatedByTeacherId() != null) {
+                    teacherName = teacherNames.get(progress.getValidatedByTeacherId());
+                }
+
+                CourseResponse response = new CourseResponse(
+                    course.getId(),
+                    course.getTitle(),
+                    course.getDescription(),
+                    null,
+                    course.getGrade(),
+                    course.getOrderInGrade(),
+                    course.getEstimatedMinutes(),
+                    course.getIconName(),
+                    status,
+                    progress != null ? progress.getStartedAt() : null,
+                    progress != null ? progress.getCompletedAt() : null,
+                    progress != null ? progress.getValidatedByTeacherId() : null,
+                    teacherName,
+                    progress != null ? progress.getValidatedAt() : null
+                );
+                courseResponses.add(response);
+
+                if (status == CourseStatus.COMPLETED) {
+                    completedCount++;
+                }
+            }
+
+            grades.add(GradeWithCoursesResponse.create(grade, courseResponses, completedCount, isGradeUnlocked));
+        }
+
+        return StudentProfileResponse.create(
+            student.getId(),
+            student.getFirstName(),
+            student.getLastName(),
+            currentLevel,
+            totalLessonsCompleted,
+            grades
+        );
+    }
+
+    private Map<Long, String> getTeacherNames(Set<Long> teacherIds) {
+        if (teacherIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        return userRepository.findAllById(teacherIds).stream()
+            .collect(Collectors.toMap(
+                User::getId,
+                u -> u.getFirstName() + " " + u.getLastName()
+            ));
+    }
+
+    private void unlockNextCourse(Long userId, Course completedCourse) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+        List<Course> gradeCourses = courseRepository.findByGradeOrderByOrderInGrade(completedCourse.getGrade());
+
+        Optional<Course> nextCourse = gradeCourses.stream()
+            .filter(c -> c.getOrderInGrade() > completedCourse.getOrderInGrade())
+            .findFirst();
+
+        if (nextCourse.isPresent()) {
+            Course next = nextCourse.get();
+            if (!userCourseProgressRepository.existsByUserIdAndCourseId(userId, next.getId())) {
+                UserCourseProgress newProgress = new UserCourseProgress();
+                newProgress.setUser(user);
+                newProgress.setCourse(next);
+                newProgress.setStatus(CourseStatus.IN_PROGRESS);
+                userCourseProgressRepository.save(newProgress);
+            }
+        }
+    }
+
+    private boolean isGradeAccessible(ChessLevel grade, ChessLevel currentUserLevel) {
+        return grade.getOrder() <= currentUserLevel.getOrder();
+    }
+
+    private CourseStatus determineStatus(
+        UserCourseProgress progress,
+        boolean isGradeUnlocked,
+        int courseIndex,
+        List<Course> gradeCourses,
+        Map<Long, UserCourseProgress> progressMap
+    ) {
+        if (progress != null && progress.getStatus() != CourseStatus.LOCKED) {
+            return progress.getStatus();
+        }
+
+        if (!isGradeUnlocked) {
+            return CourseStatus.LOCKED;
+        }
+
+        if (courseIndex == 0) {
+            return progress != null ? progress.getStatus() : CourseStatus.IN_PROGRESS;
+        }
+
+        Course previousCourse = gradeCourses.get(courseIndex - 1);
+        UserCourseProgress previousProgress = progressMap.get(previousCourse.getId());
+
+        if (previousProgress != null && previousProgress.getStatus() == CourseStatus.COMPLETED) {
+            return progress != null ? progress.getStatus() : CourseStatus.IN_PROGRESS;
+        }
+
+        return CourseStatus.LOCKED;
+    }
+}

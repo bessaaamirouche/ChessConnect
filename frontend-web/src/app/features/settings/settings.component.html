@@ -1,0 +1,189 @@
+<div class="dashboard">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar__header">
+      <a routerLink="/" class="sidebar__logo">ChessConnect</a>
+    </div>
+
+    <nav class="sidebar__nav">
+      <div class="sidebar__section">
+        <span class="sidebar__section-title">Menu</span>
+        <a routerLink="/dashboard" class="sidebar__link">
+          <ng-icon name="heroChartBarSquare" class="sidebar__icon"></ng-icon> Mon Espace
+        </a>
+        <a routerLink="/lessons" class="sidebar__link">
+          <ng-icon name="heroCalendarDays" class="sidebar__icon"></ng-icon> Mes Cours
+        </a>
+        @if (authService.isTeacher()) {
+          <a routerLink="/availability" class="sidebar__link">
+            <ng-icon name="heroClipboardDocumentList" class="sidebar__icon"></ng-icon> Mes Disponibilités
+          </a>
+        }
+        @if (authService.isStudent()) {
+          <a routerLink="/progress" class="sidebar__link">
+            <ng-icon name="heroTrophy" class="sidebar__icon"></ng-icon> Ma Progression
+          </a>
+          <a routerLink="/subscription" class="sidebar__link">
+            <ng-icon name="heroCreditCard" class="sidebar__icon"></ng-icon> Abonnement
+          </a>
+          <a routerLink="/teachers" class="sidebar__link">
+            <ng-icon name="heroAcademicCap" class="sidebar__icon"></ng-icon> Trouver un Prof
+          </a>
+        }
+      </div>
+
+      <div class="sidebar__section">
+        <span class="sidebar__section-title">Compte</span>
+        <a routerLink="/settings" class="sidebar__link active">
+          <ng-icon name="heroUserCircle" class="sidebar__icon"></ng-icon> Mon Profil
+        </a>
+        <button class="sidebar__link" (click)="logout()">
+          <ng-icon name="heroArrowRightOnRectangle" class="sidebar__icon"></ng-icon> Déconnexion
+        </button>
+      </div>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <header class="page-header">
+      <div>
+        <h1 class="page-header__title">Mon Profil</h1>
+        <p class="page-header__subtitle">Gérez vos informations personnelles</p>
+      </div>
+    </header>
+
+    @if (profileSuccess()) {
+      <div class="alert alert--success">Profil mis à jour avec succès !</div>
+    }
+    @if (profileError()) {
+      <div class="alert alert--error">{{ profileError() }}</div>
+    }
+
+    <div class="profile-grid">
+      <!-- Profile Form -->
+      <div class="card">
+        <h3 class="card__title">Informations personnelles</h3>
+        <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" class="compact-form">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-group__label">Prénom</label>
+              <input type="text" formControlName="firstName" class="input input--sm">
+            </div>
+            <div class="form-group">
+              <label class="form-group__label">Nom</label>
+              <input type="text" formControlName="lastName" class="input input--sm">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-group__label">Email</label>
+            <input type="email" formControlName="email" class="input input--sm input--disabled" [disabled]="true">
+          </div>
+
+          @if (isStudent()) {
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-group__label">Date de naissance</label>
+                <input type="date" formControlName="birthDate" class="input input--sm">
+              </div>
+              <div class="form-group">
+                <label class="form-group__label">Classement ELO</label>
+                <div class="elo-input">
+                  <label class="checkbox checkbox--inline">
+                    <input type="checkbox" formControlName="knowsElo">
+                    <span>Connu</span>
+                  </label>
+                  @if (profileForm.get('knowsElo')?.value) {
+                    <input
+                      type="number"
+                      formControlName="eloRating"
+                      class="input input--sm"
+                      min="100"
+                      max="3000"
+                      placeholder="1200"
+                    >
+                  }
+                </div>
+              </div>
+            </div>
+          }
+
+          @if (isTeacher()) {
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-group__label">Tarif horaire</label>
+                <div class="input-group input-group--sm">
+                  <input type="number" formControlName="hourlyRate" class="input input--sm" min="10" step="5">
+                  <span class="input-group__addon">€/h</span>
+                </div>
+              </div>
+              <div class="form-group form-group--center">
+                <label class="checkbox">
+                  <input type="checkbox" formControlName="acceptsSubscription">
+                  <span>Accepte abonnements</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-group__label">Biographie</label>
+              <textarea
+                formControlName="bio"
+                class="textarea textarea--sm"
+                rows="3"
+                placeholder="Décrivez votre expérience..."
+              ></textarea>
+            </div>
+          }
+
+          <button type="submit" class="btn btn--primary btn--sm" [disabled]="profileForm.invalid || profileForm.pristine || savingProfile()">
+            @if (savingProfile()) {
+              <span class="spinner spinner--sm"></span>
+            } @else {
+              Enregistrer
+            }
+          </button>
+        </form>
+      </div>
+
+      <!-- Password Form -->
+      <div class="card">
+        <h3 class="card__title">Mot de passe</h3>
+
+        @if (passwordSuccess()) {
+          <div class="alert alert--success alert--sm">Mot de passe modifié !</div>
+        }
+        @if (passwordError()) {
+          <div class="alert alert--error alert--sm">{{ passwordError() }}</div>
+        }
+
+        <form [formGroup]="passwordForm" (ngSubmit)="changePassword()" class="compact-form">
+          <div class="form-group">
+            <label class="form-group__label">Actuel</label>
+            <input type="password" formControlName="currentPassword" class="input input--sm">
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-group__label">Nouveau</label>
+              <input type="password" formControlName="newPassword" class="input input--sm">
+            </div>
+            <div class="form-group">
+              <label class="form-group__label">Confirmer</label>
+              <input type="password" formControlName="confirmPassword" class="input input--sm">
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn--ghost btn--sm" [disabled]="passwordForm.invalid || savingPassword()">
+            @if (savingPassword()) {
+              <span class="spinner spinner--sm"></span>
+            } @else {
+              Modifier
+            }
+          </button>
+        </form>
+      </div>
+    </div>
+  </main>
+</div>

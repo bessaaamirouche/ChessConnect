@@ -1,0 +1,270 @@
+<div class="dashboard">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar__header">
+      <a routerLink="/" class="sidebar__logo">ChessConnect</a>
+    </div>
+
+    <nav class="sidebar__nav">
+      <div class="sidebar__section">
+        <span class="sidebar__section-title">Menu</span>
+        <a routerLink="/dashboard" class="sidebar__link">
+          <ng-icon name="heroChartBarSquare" class="sidebar__icon"></ng-icon> Mon Espace
+        </a>
+        <a routerLink="/lessons" class="sidebar__link">
+          <ng-icon name="heroCalendarDays" class="sidebar__icon"></ng-icon> Mes Cours
+        </a>
+        <a routerLink="/progress" class="sidebar__link">
+          <ng-icon name="heroTrophy" class="sidebar__icon"></ng-icon> Ma Progression
+        </a>
+        <a routerLink="/subscription" class="sidebar__link">
+          <ng-icon name="heroCreditCard" class="sidebar__icon"></ng-icon> Abonnement
+        </a>
+        <a routerLink="/teachers" class="sidebar__link">
+          <ng-icon name="heroAcademicCap" class="sidebar__icon"></ng-icon> Trouver un Prof
+        </a>
+      </div>
+
+      <div class="sidebar__section">
+        <span class="sidebar__section-title">Compte</span>
+        <a routerLink="/settings" class="sidebar__link">
+          <ng-icon name="heroUserCircle" class="sidebar__icon"></ng-icon> Mon Profil
+        </a>
+        <button class="sidebar__link" (click)="logout()">
+          <ng-icon name="heroArrowRightOnRectangle" class="sidebar__icon"></ng-icon> Deconnexion
+        </button>
+      </div>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="quiz-wrapper">
+      <!-- Intro Step -->
+      @if (step() === 'intro') {
+        <div class="quiz-intro">
+          <div class="quiz-intro__icon">♟</div>
+          <h1 class="quiz-intro__title">Evaluez votre niveau</h1>
+          <p class="quiz-intro__description">
+            Ce quiz va determiner votre niveau aux echecs en vous posant des questions progressives,
+            du niveau Pion jusqu'au niveau Dame.
+          </p>
+
+          <div class="quiz-intro__info">
+            <div class="quiz-intro__info-item">
+              <span class="quiz-intro__info-value">25</span>
+              <span class="quiz-intro__info-label">Questions</span>
+            </div>
+            <div class="quiz-intro__info-item">
+              <span class="quiz-intro__info-value">5</span>
+              <span class="quiz-intro__info-label">Niveaux</span>
+            </div>
+            <div class="quiz-intro__info-item">
+              <span class="quiz-intro__info-value">70%</span>
+              <span class="quiz-intro__info-label">Pour passer</span>
+            </div>
+          </div>
+
+          <div class="quiz-intro__levels">
+            <h3>Niveaux evalues</h3>
+            <div class="quiz-intro__levels-list">
+              @for (level of levels; track level) {
+                <div class="quiz-intro__level">
+                  <span class="quiz-intro__level-icon">{{ getLevelIcon(level) }}</span>
+                  <span class="quiz-intro__level-name">{{ CHESS_LEVELS[level].label }}</span>
+                  <span class="quiz-intro__level-desc">{{ CHESS_LEVELS[level].description }}</span>
+                </div>
+              }
+            </div>
+          </div>
+
+          <button class="btn btn--primary btn--lg quiz-intro__start" (click)="startQuiz()" [disabled]="quizService.loading()">
+            @if (quizService.loading()) {
+              <span class="spinner spinner--sm"></span>
+              Chargement...
+            } @else {
+              <ng-icon name="heroPlayCircle"></ng-icon>
+              Commencer le quiz
+            }
+          </button>
+
+          <a routerLink="/progress" class="quiz-intro__skip">
+            Passer et commencer au niveau Pion
+          </a>
+        </div>
+      }
+
+      <!-- Questions Step -->
+      @if (step() === 'questions') {
+        <div class="quiz-questions">
+          <!-- Progress Bar -->
+          <div class="quiz-progress">
+            <div class="quiz-progress__info">
+              <span class="quiz-progress__current">
+                Question {{ quizService.currentIndex() + 1 }} / {{ quizService.totalQuestions() }}
+              </span>
+              <span class="quiz-progress__level">
+                Niveau {{ quizService.currentQuestion()?.level }}
+              </span>
+            </div>
+            <div class="quiz-progress__bar">
+              <div class="quiz-progress__fill" [style.width.%]="quizService.progressPercentage()"></div>
+            </div>
+          </div>
+
+          <!-- Question Card -->
+          @if (quizService.currentQuestion(); as question) {
+            <div class="quiz-card">
+              <div class="quiz-card__header">
+                <span class="quiz-card__level-badge">
+                  {{ getLevelIcon(question.level) }} {{ CHESS_LEVELS[question.level].label }}
+                </span>
+              </div>
+
+              <h2 class="quiz-card__question">{{ question.question }}</h2>
+
+              <div class="quiz-card__options">
+                <button
+                  class="quiz-option"
+                  [class.quiz-option--selected]="isAnswerSelected('A')"
+                  (click)="selectAnswer('A')"
+                >
+                  <span class="quiz-option__letter">A</span>
+                  <span class="quiz-option__text">{{ question.optionA }}</span>
+                </button>
+
+                <button
+                  class="quiz-option"
+                  [class.quiz-option--selected]="isAnswerSelected('B')"
+                  (click)="selectAnswer('B')"
+                >
+                  <span class="quiz-option__letter">B</span>
+                  <span class="quiz-option__text">{{ question.optionB }}</span>
+                </button>
+
+                <button
+                  class="quiz-option"
+                  [class.quiz-option--selected]="isAnswerSelected('C')"
+                  (click)="selectAnswer('C')"
+                >
+                  <span class="quiz-option__letter">C</span>
+                  <span class="quiz-option__text">{{ question.optionC }}</span>
+                </button>
+
+                @if (question.optionD) {
+                  <button
+                    class="quiz-option"
+                    [class.quiz-option--selected]="isAnswerSelected('D')"
+                    (click)="selectAnswer('D')"
+                  >
+                    <span class="quiz-option__letter">D</span>
+                    <span class="quiz-option__text">{{ question.optionD }}</span>
+                  </button>
+                }
+              </div>
+            </div>
+          }
+
+          <!-- Navigation -->
+          <div class="quiz-nav">
+            <button
+              class="btn btn--secondary"
+              (click)="goPrevious()"
+              [disabled]="quizService.isFirstQuestion()"
+            >
+              <ng-icon name="heroArrowLeft"></ng-icon>
+              Precedent
+            </button>
+
+            <span class="quiz-nav__answered">
+              {{ quizService.answeredCount() }} / {{ quizService.totalQuestions() }} repondues
+            </span>
+
+            <button
+              class="btn btn--primary"
+              (click)="goNext()"
+              [disabled]="!quizService.currentAnswer() || quizService.submitting()"
+            >
+              @if (quizService.submitting()) {
+                <span class="spinner spinner--sm"></span>
+                Envoi...
+              } @else if (quizService.isLastQuestion()) {
+                Terminer
+                <ng-icon name="heroCheckCircle"></ng-icon>
+              } @else {
+                Suivant
+                <ng-icon name="heroArrowRight"></ng-icon>
+              }
+            </button>
+          </div>
+        </div>
+      }
+
+      <!-- Result Step -->
+      @if (step() === 'result') {
+        @if (quizService.result(); as result) {
+          <div class="quiz-result">
+            <div class="quiz-result__header">
+              <div class="quiz-result__icon">{{ getLevelIcon(result.determinedLevel) }}</div>
+              <h1 class="quiz-result__title">Votre niveau : {{ result.levelDisplayName }}</h1>
+              <p class="quiz-result__subtitle">{{ result.levelDescription }}</p>
+            </div>
+
+            <p class="quiz-result__message">{{ result.message }}</p>
+
+            <!-- Scores by Level -->
+            <div class="quiz-result__scores">
+              <h3>Resultats par niveau</h3>
+              <div class="quiz-result__scores-list">
+                @for (level of levels; track level) {
+                  <div class="quiz-result__score" [class.quiz-result__score--passed]="isLevelPassed(level)" [class.quiz-result__score--failed]="isLevelEvaluated(level) && !isLevelPassed(level)" [class.quiz-result__score--not-evaluated]="!isLevelEvaluated(level)">
+                    <span class="quiz-result__score-icon">{{ getLevelIcon(level) }}</span>
+                    <span class="quiz-result__score-name">{{ CHESS_LEVELS[level].label }}</span>
+                    <span class="quiz-result__score-value">
+                      @if (isLevelEvaluated(level)) {
+                        {{ result.scoresByLevel[level] ?? 0 }}/{{ result.totalByLevel[level] ?? 0 }}
+                        <span class="quiz-result__score-percent">({{ getScorePercentage(level) }}%)</span>
+                      } @else {
+                        -
+                      }
+                    </span>
+                    <span class="quiz-result__score-status">
+                      @if (isLevelEvaluated(level)) {
+                        @if (isLevelPassed(level)) {
+                          <ng-icon name="heroCheckCircle" class="text-success"></ng-icon>
+                        } @else {
+                          <ng-icon name="heroXCircle" class="text-error"></ng-icon>
+                        }
+                      } @else {
+                        <span class="text-muted">Non evalue</span>
+                      }
+                    </span>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="quiz-result__actions">
+              <button class="btn btn--primary btn--lg" (click)="goToProgress()">
+                Voir mon parcours
+                <ng-icon name="heroArrowRight"></ng-icon>
+              </button>
+              <button class="btn btn--secondary" (click)="retakeQuiz()">
+                Refaire le quiz
+              </button>
+            </div>
+          </div>
+        }
+      }
+
+      <!-- Error -->
+      @if (quizService.error()) {
+        <div class="quiz-error">
+          <p>{{ quizService.error() }}</p>
+          <button class="btn btn--secondary" (click)="quizService.clearError()">Fermer</button>
+        </div>
+      }
+    </div>
+  </main>
+</div>

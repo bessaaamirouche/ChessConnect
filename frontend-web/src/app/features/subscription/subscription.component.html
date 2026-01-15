@@ -1,0 +1,245 @@
+<div class="subscription-page">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar__header">
+      <a routerLink="/" class="sidebar__logo">ChessConnect</a>
+    </div>
+
+    <nav class="sidebar__nav">
+      <div class="sidebar__section">
+        <span class="sidebar__section-title">Menu</span>
+        <a routerLink="/dashboard" class="sidebar__link">
+          <ng-icon name="heroChartBarSquare" class="sidebar__icon"></ng-icon> Mon Espace
+        </a>
+        <a routerLink="/lessons" class="sidebar__link">
+          <ng-icon name="heroCalendarDays" class="sidebar__icon"></ng-icon> Mes Cours
+        </a>
+        <a routerLink="/progress" class="sidebar__link">
+          <ng-icon name="heroTrophy" class="sidebar__icon"></ng-icon> Ma Progression
+        </a>
+        <a routerLink="/subscription" class="sidebar__link active">
+          <ng-icon name="heroCreditCard" class="sidebar__icon"></ng-icon> Abonnement
+        </a>
+        <a routerLink="/teachers" class="sidebar__link">
+          <ng-icon name="heroAcademicCap" class="sidebar__icon"></ng-icon> Trouver un Prof
+        </a>
+      </div>
+
+      <div class="sidebar__section">
+        <span class="sidebar__section-title">Compte</span>
+        <a routerLink="/settings" class="sidebar__link">
+          <ng-icon name="heroUserCircle" class="sidebar__icon"></ng-icon> Mon Profil
+        </a>
+        <button class="sidebar__link" (click)="logout()">
+          <ng-icon name="heroArrowRightOnRectangle" class="sidebar__icon"></ng-icon> Déconnexion
+        </button>
+      </div>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <header class="page-header">
+      <div>
+        <h1 class="page-header__title">Mon Abonnement</h1>
+        <p class="page-header__subtitle">Gérez votre abonnement et accédez à des cours illimités</p>
+      </div>
+    </header>
+
+    <!-- Active Subscription Section -->
+    @if (paymentService.activeSubscription()) {
+      <section class="section">
+        <div class="section__header">
+          <h2 class="section__title">
+            @if (paymentService.activeSubscription()!.cancelledAt) {
+              Abonnement annulé
+            } @else {
+              Abonnement actif
+            }
+          </h2>
+        </div>
+
+        <div class="active-subscription-card" [class.active-subscription-card--cancelled]="paymentService.activeSubscription()!.cancelledAt">
+          @if (paymentService.activeSubscription()!.cancelledAt) {
+            <div class="active-subscription-card__badge active-subscription-card__badge--cancelled">Annulé</div>
+          } @else {
+            <div class="active-subscription-card__badge">Actif</div>
+          }
+          <div class="active-subscription-card__content">
+            <div class="active-subscription-card__plan">
+              <span class="active-subscription-card__plan-icon"><ng-icon name="heroTrophy" size="32"></ng-icon></span>
+              <div>
+                <h3>{{ paymentService.activeSubscription()!.planType }}</h3>
+                <p class="active-subscription-card__price">
+                  {{ formatPrice(paymentService.activeSubscription()!.priceCents) }}/mois
+                </p>
+              </div>
+            </div>
+
+            @if (paymentService.activeSubscription()!.cancelledAt && paymentService.activeSubscription()!.endDate) {
+              <div class="active-subscription-card__cancelled-info">
+                <ng-icon name="heroInformationCircle" size="18"></ng-icon>
+                <span>Votre abonnement reste actif jusqu'au <strong>{{ paymentService.activeSubscription()!.endDate | date:'dd/MM/yyyy' }}</strong>. Vous pouvez continuer à utiliser vos cours restants.</span>
+              </div>
+            }
+
+            <div class="active-subscription-card__stats">
+              <div class="stat-item">
+                <span class="stat-item__value">{{ paymentService.activeSubscription()!.monthlyQuota }}</span>
+                <span class="stat-item__label">Cours/mois</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-item__value">{{ paymentService.activeSubscription()!.remainingLessons }}</span>
+                <span class="stat-item__label">Restants ce mois</span>
+              </div>
+              <div class="stat-item">
+                @if (paymentService.activeSubscription()!.cancelledAt && paymentService.activeSubscription()!.endDate) {
+                  <span class="stat-item__value">{{ paymentService.activeSubscription()!.endDate | date:'dd/MM/yyyy' }}</span>
+                  <span class="stat-item__label">Fin le</span>
+                } @else {
+                  <span class="stat-item__value">{{ paymentService.activeSubscription()!.startDate | date:'dd/MM/yyyy' }}</span>
+                  <span class="stat-item__label">Depuis le</span>
+                }
+              </div>
+            </div>
+
+            <div class="active-subscription-card__actions">
+              <a routerLink="/teachers" class="btn btn--primary">Réserver un cours</a>
+              @if (!paymentService.activeSubscription()!.cancelledAt) {
+                <button class="btn btn--ghost btn--danger" (click)="confirmCancel()">
+                  Annuler l'abonnement
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+      </section>
+    }
+
+    <!-- Cancel Confirmation Modal -->
+    @if (showCancelConfirm()) {
+      <div class="modal-overlay" (click)="dismissCancelConfirm()">
+        <div class="modal" (click)="$event.stopPropagation()">
+          <div class="modal__header">
+            <h3>Confirmer l'annulation</h3>
+          </div>
+          <div class="modal__body">
+            <p>Êtes-vous sûr de vouloir annuler votre abonnement ?</p>
+            <p class="text-muted">Vous pourrez continuer à utiliser votre abonnement jusqu'à la fin de la période en cours.</p>
+          </div>
+          <div class="modal__footer">
+            <button class="btn btn--ghost" (click)="dismissCancelConfirm()">Annuler</button>
+            <button
+              class="btn btn--danger"
+              (click)="cancelSubscription()"
+              [disabled]="cancelling()"
+            >
+              @if (cancelling()) {
+                <span class="spinner spinner--sm"></span>
+                Annulation...
+              } @else {
+                Confirmer l'annulation
+              }
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Plans Section -->
+    @if (!paymentService.activeSubscription()) {
+      <section class="section">
+        <div class="section__header">
+          <h2 class="section__title">Choisissez votre formule</h2>
+        </div>
+
+        @if (paymentService.loading()) {
+          <div class="loading-state">
+            <span class="spinner spinner--lg"></span>
+          </div>
+        } @else {
+          <div class="plans-grid">
+            @for (plan of paymentService.plans(); track plan.code) {
+              <div class="plan-card" [class.plan-card--popular]="plan.popular">
+                @if (plan.popular) {
+                  <div class="plan-card__badge">Le plus populaire</div>
+                }
+
+                <div class="plan-card__header">
+                  <h3 class="plan-card__name">{{ plan.name }}</h3>
+                  <div class="plan-card__price">
+                    <span class="plan-card__price-amount">{{ formatPrice(plan.priceCents) }}</span>
+                    <span class="plan-card__price-period">/mois</span>
+                  </div>
+                  <p class="plan-card__quota">{{ plan.monthlyQuota }} cours par mois</p>
+                </div>
+
+                <ul class="plan-card__features">
+                  @for (feature of plan.features; track feature) {
+                    <li>
+                      <ng-icon name="heroCheck" class="plan-card__feature-check"></ng-icon>
+                      {{ feature }}
+                    </li>
+                  }
+                </ul>
+
+                <button
+                  class="btn plan-card__btn"
+                  [class.btn--primary]="plan.popular"
+                  [class.btn--outline]="!plan.popular"
+                  (click)="subscribeToPlan(plan.code)"
+                  [disabled]="processingPlan() !== null"
+                >
+                  @if (processingPlan() === plan.code) {
+                    <span class="spinner spinner--sm"></span>
+                    Redirection...
+                  } @else {
+                    S'abonner
+                  }
+                </button>
+              </div>
+            }
+          </div>
+        }
+      </section>
+
+      <!-- Benefits Section -->
+      <section class="section">
+        <div class="section__header">
+          <h2 class="section__title">Pourquoi s'abonner ?</h2>
+        </div>
+
+        <div class="benefits-grid">
+          <div class="benefit-card">
+            <div class="benefit-card__icon"><ng-icon name="heroBanknotes" size="32"></ng-icon></div>
+            <h4>Économisez jusqu'à 30%</h4>
+            <p>Les cours en abonnement sont moins chers que les cours ponctuels</p>
+          </div>
+          <div class="benefit-card">
+            <div class="benefit-card__icon"><ng-icon name="heroArrowTrendingUp" size="32"></ng-icon></div>
+            <h4>Progression régulière</h4>
+            <p>Un rythme constant pour progresser efficacement</p>
+          </div>
+          <div class="benefit-card">
+            <div class="benefit-card__icon"><ng-icon name="heroCalendarDays" size="32"></ng-icon></div>
+            <h4>Flexibilité totale</h4>
+            <p>Choisissez vos créneaux et vos professeurs librement</p>
+          </div>
+          <div class="benefit-card">
+            <div class="benefit-card__icon"><ng-icon name="heroXMark" size="32"></ng-icon></div>
+            <h4>Sans engagement</h4>
+            <p>Annulez à tout moment, sans frais</p>
+          </div>
+        </div>
+      </section>
+    }
+
+    <!-- Error Message -->
+    @if (paymentService.error()) {
+      <div class="alert alert--error">
+        {{ paymentService.error() }}
+        <button class="alert__close" (click)="paymentService.clearError()">×</button>
+      </div>
+    }
+  </main>
+</div>

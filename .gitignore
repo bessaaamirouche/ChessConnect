@@ -1,0 +1,49 @@
+# =========================
+# IDE & Editors
+# =========================
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# =========================
+# Backend (Java/Maven)
+# =========================
+backend-api/target/
+backend-api/*.log
+backend-api/.mvn/
+
+# =========================
+# Frontend (Angular/Node)
+# =========================
+frontend-web/node_modules/
+frontend-web/dist/
+frontend-web/.angular/
+frontend-web/coverage/
+
+# =========================
+# Docker
+# =========================
+# Keep docker-compose.yml but ignore local overrides
+docker-compose.override.yml
+
+# =========================
+# Environment & Secrets
+# =========================
+.env
+.env.local
+*.env
+
+# =========================
+# Logs
+# =========================
+*.log
+logs/
+
+# =========================
+# Temporary files
+# =========================
+*.tmp
+*.temp

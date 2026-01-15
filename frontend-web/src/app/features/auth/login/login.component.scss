@@ -1,0 +1,82 @@
+@use '../../../../styles/variables' as *;
+
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-lg);
+  background:
+    radial-gradient(ellipse at top, rgba(212, 168, 75, 0.1) 0%, transparent 50%),
+    var(--bg-primary);
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  padding: var(--space-2xl);
+
+  &__header {
+    text-align: center;
+    margin-bottom: var(--space-xl);
+  }
+
+  &__logo {
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    font-weight: 700;
+    @include gold-text;
+    display: block;
+    margin-bottom: var(--space-lg);
+  }
+
+  h1 {
+    margin-bottom: var(--space-xs);
+  }
+
+  &__footer {
+    text-align: center;
+    margin-top: var(--space-xl);
+    padding-top: var(--space-lg);
+    border-top: 1px solid var(--border-subtle);
+
+    p {
+      font-size: 0.9375rem;
+      color: var(--text-secondary);
+    }
+
+    a {
+      font-weight: 600;
+      transition: opacity var(--transition-fast);
+
+      &:hover {
+        opacity: 0.8;
+      }
+    }
+  }
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.alert {
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  font-size: 0.9375rem;
+  margin-bottom: var(--space-lg);
+
+  &--error {
+    background: var(--error-muted);
+    color: var(--error);
+    border: 1px solid rgba(248, 113, 113, 0.3);
+  }
+
+  &--success {
+    background: var(--success-muted);
+    color: var(--success);
+    border: 1px solid rgba(74, 222, 128, 0.3);
+  }
+}

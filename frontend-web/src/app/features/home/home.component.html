@@ -1,0 +1,339 @@
+<div class="landing" [class.transitioning]="isTransitioning()">
+  <!-- Navbar -->
+  <nav class="nav">
+    <div class="nav__container">
+      <button class="nav__logo" (click)="navigateTo('home')">
+        <img src="assets/logo.png" alt="ChessConnect Logo" class="nav__logo-img">
+      </button>
+
+      <div class="nav__links">
+        <button
+          [class.active]="isActive('profils')"
+          (click)="navigateTo('profils')"
+        >Profils</button>
+        <button
+          [class.active]="isActive('apprentis')"
+          (click)="navigateTo('apprentis')"
+        >Apprentis</button>
+        <button
+          [class.active]="isActive('fonctionnement')"
+          (click)="navigateTo('fonctionnement')"
+        >Fonctionnement</button>
+        <button
+          [class.active]="isActive('contact')"
+          (click)="navigateTo('contact')"
+        >Contact</button>
+      </div>
+
+      <div class="nav__actions">
+        @if (authService.isAuthenticated()) {
+          <a routerLink="/dashboard" class="nav__btn nav__btn--primary">Mon Espace</a>
+        } @else {
+          <a routerLink="/login" class="nav__btn nav__btn--ghost">Connexion</a>
+          <a routerLink="/register" class="nav__btn nav__btn--primary">S'inscrire</a>
+        }
+      </div>
+    </div>
+  </nav>
+
+  <!-- Sections Container -->
+  <main class="sections">
+    <!-- HOME SECTION -->
+    <section
+      class="section section--home"
+      [class.section--active]="isActive('home')"
+      [class.section--hidden]="!isActive('home')"
+      aria-label="Accueil"
+    >
+      <div class="hero">
+        <div class="hero__content">
+          <div class="hero__chess-icons">
+            <div class="chess-icon">♟</div>
+            <div class="chess-icon">♞</div>
+            <div class="chess-icon chess-icon--center">♚</div>
+            <div class="chess-icon">♞</div>
+            <div class="chess-icon">♟</div>
+          </div>
+
+          <h1 class="hero__title">Maîtrisez l'Art des Échecs</h1>
+          <p class="hero__subtitle">
+            Connectez-vous avec des mentors &<br>
+            apprenez à votre rythme
+          </p>
+
+          <div class="hero__buttons">
+            <a routerLink="/teachers" class="hero__btn hero__btn--outline">Trouver un Prof</a>
+            <a routerLink="/register" class="hero__btn hero__btn--primary">Devenir Apprenti</a>
+          </div>
+
+          <div class="hero__stats">
+            <div class="hero__stat">
+              <span class="hero__stat-value">500+</span>
+              <span class="hero__stat-label">Élèves actifs</span>
+            </div>
+            <div class="hero__stat">
+              <span class="hero__stat-value">50+</span>
+              <span class="hero__stat-label">Coachs certifiés</span>
+            </div>
+            <div class="hero__stat">
+              <span class="hero__stat-value">4.9/5</span>
+              <span class="hero__stat-label">Note moyenne</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROFILS SECTION -->
+    <section
+      class="section section--profils"
+      [class.section--active]="isActive('profils')"
+      [class.section--hidden]="!isActive('profils')"
+      aria-label="Profils"
+    >
+      <div class="section__inner">
+        <div class="section__header">
+          <h1 class="section__title">Nos Professeurs</h1>
+          <p class="section__desc">Découvrez nos coachs certifiés et expérimentés</p>
+        </div>
+
+        <div class="profils__grid">
+          <div class="profil-card">
+            <div class="profil-card__avatar">GM</div>
+            <h3 class="profil-card__name">Grand Maître</h3>
+            <p class="profil-card__level">Expert International</p>
+            <p class="profil-card__bio">+20 ans d'expérience en compétition et enseignement</p>
+            <span class="profil-card__rate">75€/h</span>
+          </div>
+          <div class="profil-card">
+            <div class="profil-card__avatar">MI</div>
+            <h3 class="profil-card__name">Maître International</h3>
+            <p class="profil-card__level">Champion National</p>
+            <p class="profil-card__bio">Spécialiste des ouvertures et de la stratégie</p>
+            <span class="profil-card__rate">55€/h</span>
+          </div>
+          <div class="profil-card">
+            <div class="profil-card__avatar">FM</div>
+            <h3 class="profil-card__name">Maître FIDE</h3>
+            <p class="profil-card__level">Coach Pédagogue</p>
+            <p class="profil-card__bio">Idéal pour débutants et intermédiaires</p>
+            <span class="profil-card__rate">40€/h</span>
+          </div>
+        </div>
+
+        <a routerLink="/teachers" class="section__cta">
+          Voir tous les profils
+          <ng-icon name="heroArrowRight" size="20"></ng-icon>
+        </a>
+      </div>
+    </section>
+
+    <!-- APPRENTIS SECTION -->
+    <section
+      class="section section--apprentis"
+      [class.section--active]="isActive('apprentis')"
+      [class.section--hidden]="!isActive('apprentis')"
+      aria-label="Apprentis"
+    >
+      <div class="section__inner">
+        <div class="section__header">
+          <h1 class="section__title">Parcours Apprenti</h1>
+          <p class="section__desc">Un cursus structuré en 5 niveaux pour maîtriser les échecs, du débutant au maître</p>
+        </div>
+
+        <div class="levels__grid">
+          <div class="level-card">
+            <span class="level-card__badge level-card__badge--pion">♟</span>
+            <h3>Pion</h3>
+            <span class="level-card__level">Débutant</span>
+            <p class="level-card__desc">Apprenez les règles de base, les mouvements des pièces et les premiers concepts tactiques.</p>
+            <div class="level-card__meta">
+              <span class="level-card__lessons">10 cours</span>
+              <span class="level-card__duration">~5h</span>
+            </div>
+          </div>
+          <div class="level-card">
+            <span class="level-card__badge level-card__badge--cavalier">♞</span>
+            <h3>Cavalier</h3>
+            <span class="level-card__level">Intermédiaire</span>
+            <p class="level-card__desc">Maîtrisez les ouvertures classiques et développez votre sens positionnel.</p>
+            <div class="level-card__meta">
+              <span class="level-card__lessons">15 cours</span>
+              <span class="level-card__duration">~8h</span>
+            </div>
+          </div>
+          <div class="level-card">
+            <span class="level-card__badge level-card__badge--fou">♝</span>
+            <h3>Fou</h3>
+            <span class="level-card__level">Confirmé</span>
+            <p class="level-card__desc">Perfectionnez vos tactiques avancées et apprenez à calculer plusieurs coups à l'avance.</p>
+            <div class="level-card__meta">
+              <span class="level-card__lessons">20 cours</span>
+              <span class="level-card__duration">~12h</span>
+            </div>
+          </div>
+          <div class="level-card">
+            <span class="level-card__badge level-card__badge--tour">♜</span>
+            <h3>Tour</h3>
+            <span class="level-card__level">Avancé</span>
+            <p class="level-card__desc">Étudiez les finales complexes et les stratégies de milieu de partie des grands maîtres.</p>
+            <div class="level-card__meta">
+              <span class="level-card__lessons">25 cours</span>
+              <span class="level-card__duration">~15h</span>
+            </div>
+          </div>
+          <div class="level-card level-card--featured">
+            <span class="level-card__badge level-card__badge--dame">♛</span>
+            <h3>Dame</h3>
+            <span class="level-card__level">Expert</span>
+            <p class="level-card__desc">Atteignez le niveau compétitif avec une préparation personnalisée et l'analyse de vos parties.</p>
+            <div class="level-card__meta">
+              <span class="level-card__lessons">Illimité</span>
+              <span class="level-card__duration">Maître</span>
+            </div>
+          </div>
+        </div>
+
+        <a routerLink="/register" class="section__cta">
+          Commencer mon parcours
+          <ng-icon name="heroArrowRight" size="20"></ng-icon>
+        </a>
+      </div>
+    </section>
+
+    <!-- FONCTIONNEMENT SECTION -->
+    <section
+      class="section section--fonctionnement"
+      [class.section--active]="isActive('fonctionnement')"
+      [class.section--hidden]="!isActive('fonctionnement')"
+      aria-label="Fonctionnement"
+    >
+      <div class="section__inner">
+        <div class="section__header">
+          <h1 class="section__title">Comment ça marche</h1>
+          <p class="section__desc">Une plateforme simple et efficace</p>
+        </div>
+
+        <div class="features__grid">
+          <div class="feature-card">
+            <div class="feature-card__icon">
+              <ng-icon name="heroVideoCamera" size="32"></ng-icon>
+            </div>
+            <h2 class="feature-card__title">Cours en Visio HD</h2>
+            <p class="feature-card__desc">Apprenez confortablement depuis chez vous</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-card__icon">
+              <ng-icon name="heroAcademicCap" size="32"></ng-icon>
+            </div>
+            <h2 class="feature-card__title">Coachs Experts</h2>
+            <p class="feature-card__desc">Des professeurs certifiés et pédagogues</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-card__icon">
+              <ng-icon name="heroUserGroup" size="32"></ng-icon>
+            </div>
+            <h2 class="feature-card__title">Suivi Personnalisé</h2>
+            <p class="feature-card__desc">Un cursus adapté à votre niveau</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-card__icon">
+              <ng-icon name="heroClock" size="32"></ng-icon>
+            </div>
+            <h2 class="feature-card__title">Flexibilité Totale</h2>
+            <p class="feature-card__desc">Réservez quand vous voulez</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-card__icon">
+              <ng-icon name="heroShieldCheck" size="32"></ng-icon>
+            </div>
+            <h2 class="feature-card__title">Paiement Sécurisé</h2>
+            <p class="feature-card__desc">Transactions 100% sécurisées</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-card__icon">
+              <ng-icon name="heroGlobeAlt" size="32"></ng-icon>
+            </div>
+            <h2 class="feature-card__title">Accessible Partout</h2>
+            <p class="feature-card__desc">Sur tous vos appareils</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT SECTION -->
+    <section
+      class="section section--contact"
+      [class.section--active]="isActive('contact')"
+      [class.section--hidden]="!isActive('contact')"
+      aria-label="Contact"
+    >
+      <div class="section__inner">
+        <div class="section__header">
+          <h1 class="section__title">Contactez-nous</h1>
+          <p class="section__desc">Une question ? Nous sommes là pour vous aider</p>
+        </div>
+
+        <div class="contact__content">
+          <div class="contact__info">
+            <div class="contact__item">
+              <ng-icon name="heroChatBubbleLeftRight" size="24"></ng-icon>
+              <div>
+                <h3>Support</h3>
+                <p>support&#64;chessconnect.fr</p>
+              </div>
+            </div>
+            <div class="contact__item">
+              <ng-icon name="heroUserGroup" size="24"></ng-icon>
+              <div>
+                <h3>Partenariats</h3>
+                <p>partenaires&#64;chessconnect.fr</p>
+              </div>
+            </div>
+            <div class="contact__item">
+              <ng-icon name="heroAcademicCap" size="24"></ng-icon>
+              <div>
+                <h3>Devenir Coach</h3>
+                <p>recrutement&#64;chessconnect.fr</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="contact__social">
+            <p>Suivez-nous</p>
+            <div class="contact__social-links">
+              <a href="#" class="contact__social-link">
+                <ng-icon name="heroGlobeAlt" size="24"></ng-icon>
+              </a>
+              <a href="#" class="contact__social-link">
+                <ng-icon name="heroChatBubbleLeftRight" size="24"></ng-icon>
+              </a>
+              <a href="#" class="contact__social-link">
+                <ng-icon name="heroPlayCircle" size="24"></ng-icon>
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer global -->
+  <footer class="footer">
+    <div class="footer__container">
+      <img src="assets/logo.png" alt="ChessConnect" class="footer__logo">
+      <p class="footer__copyright">© 2026 ChessConnect. Tous droits réservés.</p>
+      <div class="footer__links">
+        <a href="#">Confidentialité</a>
+        <a href="#">Conditions</a>
+        <a href="#">Mentions légales</a>
+      </div>
+    </div>
+  </footer>
+</div>

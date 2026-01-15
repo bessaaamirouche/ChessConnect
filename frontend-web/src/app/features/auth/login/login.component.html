@@ -1,0 +1,67 @@
+<div class="auth-page">
+  <div class="auth-card card">
+    <div class="auth-card__header">
+      <a routerLink="/" class="auth-card__logo">ChessConnect</a>
+      <h1 class="heading-3">Connexion</h1>
+      <p class="text-secondary">Accédez à votre espace personnel</p>
+    </div>
+
+    @if (error()) {
+      <div class="alert alert--error">
+        {{ error() }}
+      </div>
+    }
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
+      <div class="form-group">
+        <label class="form-group__label" for="email">Email</label>
+        <input
+          type="email"
+          id="email"
+          formControlName="email"
+          class="input"
+          [class.input--error]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
+          placeholder="votre@email.com"
+        >
+        @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
+          <span class="form-group__error">Email invalide</span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label class="form-group__label" for="password">Mot de passe</label>
+        <input
+          type="password"
+          id="password"
+          formControlName="password"
+          class="input"
+          [class.input--error]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+          placeholder="••••••••"
+        >
+        @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
+          <span class="form-group__error">8 caractères minimum</span>
+        }
+      </div>
+
+      <button
+        type="submit"
+        class="btn btn--primary btn--block btn--lg"
+        [disabled]="loginForm.invalid || loading()"
+      >
+        @if (loading()) {
+          <span class="spinner spinner--sm"></span>
+          Connexion...
+        } @else {
+          Se connecter
+        }
+      </button>
+    </form>
+
+    <div class="auth-card__footer">
+      <p>
+        Pas encore de compte ?
+        <a routerLink="/register" class="text-gold">Créer un compte</a>
+      </p>
+    </div>
+  </div>
+</div>

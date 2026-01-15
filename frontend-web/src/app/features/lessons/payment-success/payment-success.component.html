@@ -1,0 +1,34 @@
+<div class="payment-success-page">
+  <div class="container container--narrow">
+    @if (loading()) {
+      <div class="status-card card">
+        <div class="status-card__icon">
+          <span class="spinner spinner--lg"></span>
+        </div>
+        <h2 class="heading-3">Confirmation en cours...</h2>
+        <p class="text-secondary">Veuillez patienter pendant que nous confirmons votre paiement.</p>
+      </div>
+    } @else if (success()) {
+      <div class="status-card status-card--success card">
+        <div class="status-card__icon status-card__icon--success">
+          &#10004;
+        </div>
+        <h2 class="heading-3">Paiement confirme !</h2>
+        <p class="text-secondary">Votre cours a ete reserve avec succes.</p>
+        <p class="text-muted">Redirection vers Mon Espace...</p>
+      </div>
+    } @else if (error()) {
+      <div class="status-card status-card--error card">
+        <div class="status-card__icon status-card__icon--error">
+          &#10006;
+        </div>
+        <h2 class="heading-3">Erreur</h2>
+        <p class="text-secondary">{{ error() }}</p>
+        <div class="status-card__actions">
+          <a routerLink="/dashboard" class="btn btn--primary">Aller à Mon Espace</a>
+          <a routerLink="/teachers" class="btn btn--ghost">Reessayer</a>
+        </div>
+      </div>
+    }
+  </div>
+</div>

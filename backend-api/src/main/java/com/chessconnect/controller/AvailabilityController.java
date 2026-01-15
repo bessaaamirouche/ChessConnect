@@ -1,0 +1,100 @@
+package com.chessconnect.controller;
+
+import com.chessconnect.dto.availability.AvailabilityRequest;
+import com.chessconnect.dto.availability.AvailabilityResponse;
+import com.chessconnect.dto.availability.TimeSlotResponse;
+import com.chessconnect.security.UserDetailsImpl;
+import com.chessconnect.service.AvailabilityService;
+import jakarta.validation.Valid;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.util.List;
+
+@RestController
+@RequestMapping("/availabilities")
+public class AvailabilityController {
+
+    private final AvailabilityService availabilityService;
+
+    public AvailabilityController(AvailabilityService availabilityService) {
+        this.availabilityService = availabilityService;
+    }
+
+    // Teacher: Create a new availability slot
+    @PostMapping
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseEntity<AvailabilityResponse> createAvailability(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @Valid @RequestBody AvailabilityRequest request
+    ) {
+        AvailabilityResponse response = availabilityService.createAvailability(
+                userDetails.getId(), request
+        );
+        return ResponseEntity.ok(response);
+    }
+
+    // Teacher: Get my availabilities
+    @GetMapping("/me")
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseEntity<List<AvailabilityResponse>> getMyAvailabilities(
+            @AuthenticationPrincipal UserDetailsImpl userDetails
+    ) {
+        List<AvailabilityResponse> availabilities = availabilityService.getTeacherAvailabilities(
+                userDetails.getId()
+        );
+        return ResponseEntity.ok(availabilities);
+    }
+
+    // Teacher: Get my recurring availabilities
+    @GetMapping("/me/recurring")
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseEntity<List<AvailabilityResponse>> getMyRecurringAvailabilities(
+            @AuthenticationPrincipal UserDetailsImpl userDetails
+    ) {
+        List<AvailabilityResponse> availabilities = availabilityService.getRecurringAvailabilities(
+                userDetails.getId()
+        );
+        return ResponseEntity.ok(availabilities);
+    }
+
+    // Teacher: Delete an availability
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseEntity<Void> deleteAvailability(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable Long id
+    ) {
+        availabilityService.deleteAvailability(userDetails.getId(), id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // Public: Get a teacher's availabilities
+    @GetMapping("/teacher/{teacherId}")
+    public ResponseEntity<List<AvailabilityResponse>> getTeacherAvailabilities(
+            @PathVariable Long teacherId
+    ) {
+        List<AvailabilityResponse> availabilities = availabilityService.getTeacherAvailabilities(teacherId);
+        return ResponseEntity.ok(availabilities);
+    }
+
+    // Public: Get available time slots for a teacher
+    @GetMapping("/teacher/{teacherId}/slots")
+    public ResponseEntity<List<TimeSlotResponse>> getAvailableSlots(
+            @PathVariable Long teacherId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
+    ) {
+        // Limit to 30 days max
+        if (endDate.isAfter(startDate.plusDays(30))) {
+            endDate = startDate.plusDays(30);
+        }
+
+        List<TimeSlotResponse> slots = availabilityService.getAvailableSlots(teacherId, startDate, endDate);
+        return ResponseEntity.ok(slots);
+    }
+}

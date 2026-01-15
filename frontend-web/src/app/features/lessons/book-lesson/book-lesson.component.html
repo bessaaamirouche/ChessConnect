@@ -1,0 +1,233 @@
+<div class="dashboard">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar__header">
+      <a routerLink="/" class="sidebar__logo">ChessConnect</a>
+    </div>
+
+    <nav class="sidebar__nav">
+      <div class="sidebar__section">
+        <span class="sidebar__section-title">Menu</span>
+        <a routerLink="/dashboard" class="sidebar__link">
+          <ng-icon name="heroChartBarSquare" class="sidebar__icon"></ng-icon> Mon Espace
+        </a>
+        <a routerLink="/lessons" class="sidebar__link">
+          <ng-icon name="heroCalendarDays" class="sidebar__icon"></ng-icon> Mes Cours
+        </a>
+        <a routerLink="/progress" class="sidebar__link">
+          <ng-icon name="heroTrophy" class="sidebar__icon"></ng-icon> Ma Progression
+        </a>
+        <a routerLink="/subscription" class="sidebar__link">
+          <ng-icon name="heroCreditCard" class="sidebar__icon"></ng-icon> Abonnement
+        </a>
+        <a routerLink="/teachers" class="sidebar__link active">
+          <ng-icon name="heroAcademicCap" class="sidebar__icon"></ng-icon> Trouver un Prof
+        </a>
+      </div>
+
+      <div class="sidebar__section">
+        <span class="sidebar__section-title">Compte</span>
+        <a routerLink="/settings" class="sidebar__link">
+          <ng-icon name="heroUserCircle" class="sidebar__icon"></ng-icon> Mon Profil
+        </a>
+        <button class="sidebar__link" (click)="logout()">
+          <ng-icon name="heroArrowRightOnRectangle" class="sidebar__icon"></ng-icon> Deconnexion
+        </button>
+      </div>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="booking-wrapper">
+      @if (success()) {
+        <div class="success-card text-center">
+          <div class="success-icon">&#10004;</div>
+          <h2 class="heading-3">Reservation confirmee !</h2>
+          <p class="text-secondary">Vous allez etre redirige vers Mon Espace...</p>
+        </div>
+      } @else if (teacherService.selectedTeacher()) {
+        <div class="booking-content">
+          <header class="booking-content__header">
+            <h1 class="heading-3">Reserver un cours</h1>
+          </header>
+
+          <!-- Teacher Info -->
+          <div class="booking-card__teacher">
+            <div class="avatar avatar--md avatar--gold">
+              @if (teacherService.selectedTeacher()?.avatarUrl) {
+                <img [src]="teacherService.selectedTeacher()?.avatarUrl" [alt]="teacherService.selectedTeacher()?.firstName">
+              } @else {
+                {{ getInitials(teacherService.selectedTeacher()?.firstName || '', teacherService.selectedTeacher()?.lastName || '') }}
+              }
+            </div>
+            <div>
+              <h3>{{ teacherService.selectedTeacher()?.firstName }} {{ teacherService.selectedTeacher()?.lastName }}</h3>
+              <span class="text-gold font-bold">{{ formatPrice(teacherService.selectedTeacher()?.hourlyRateCents) }}/h</span>
+              @if (!teacherService.selectedTeacher()?.acceptsSubscription) {
+                <span class="badge badge--warning badge--sm">Paiement direct</span>
+              }
+            </div>
+          </div>
+
+          <!-- Subscription Status -->
+          @if (teacherAcceptsSubscription()) {
+            <div class="subscription-info">
+              @if (paymentService.activeSubscription()) {
+                <div class="subscription-info__card subscription-info__card--active">
+                  <span class="subscription-info__icon"><ng-icon name="heroTicket" size="18"></ng-icon></span>
+                  <div>
+                    <strong>Abonnement {{ paymentService.activeSubscription()?.planName }}</strong>
+                    <p>{{ paymentService.activeSubscription()?.remainingLessons }} cours restants</p>
+                  </div>
+                </div>
+              } @else {
+                <div class="subscription-info__card subscription-info__card--none">
+                  <span class="subscription-info__icon"><ng-icon name="heroCreditCard" size="18"></ng-icon></span>
+                  <div>
+                    <strong>Pas d'abonnement</strong>
+                    <p>Paiement de {{ formatPrice(teacherService.selectedTeacher()?.hourlyRateCents) }} requis</p>
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="subscription-info">
+              <div class="subscription-info__card subscription-info__card--payment">
+                <span class="subscription-info__icon"><ng-icon name="heroBanknotes" size="18"></ng-icon></span>
+                <div>
+                  <strong>Paiement requis</strong>
+                  <p>{{ formatPrice(teacherService.selectedTeacher()?.hourlyRateCents) }}</p>
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- Error -->
+          @if (lessonService.error() || paymentService.error()) {
+            <div class="alert alert--error">
+              {{ lessonService.error() || paymentService.error() }}
+            </div>
+          }
+
+          <!-- Available Slots -->
+          <div class="slots-section">
+            <h4 class="slots-title">Choisissez un creneau</h4>
+
+            @if (slotsLoading()) {
+              <div class="slots-loading">
+                <span class="spinner spinner--md"></span>
+                <p>Chargement...</p>
+              </div>
+            } @else if (teacherSlots().length === 0) {
+              <div class="slots-empty">
+                <p>Aucun creneau disponible</p>
+              </div>
+            } @else {
+              <div class="slots-calendar">
+                @for (date of sortedDates(); track date) {
+                  <div class="day-block">
+                    <div class="day-block__header">
+                      {{ formatDate(date) }}
+                    </div>
+                    <div class="day-block__slots">
+                      @for (slot of slotsByDate().get(date); track slot.startTime) {
+                        <button
+                          type="button"
+                          class="slot-btn"
+                          [class.slot-btn--available]="slot.isAvailable"
+                          [class.slot-btn--unavailable]="!slot.isAvailable"
+                          [class.slot-btn--selected]="isSlotSelected(slot)"
+                          [disabled]="!slot.isAvailable"
+                          (click)="selectSlot(slot)"
+                        >
+                          {{ slot.startTime }}
+                          @if (!slot.isAvailable) {
+                            <span class="slot-btn__badge">Pris</span>
+                          }
+                        </button>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Selected Slot Info -->
+          <div class="selected-slot-info" [class.selected-slot-info--empty]="!selectedSlot()">
+            @if (selectedSlot()) {
+              <span class="selected-slot-info__label">Créneau sélectionné :</span>
+              <span class="selected-slot-info__value">
+                {{ formatDateShort(selectedSlot()!.date) }} à {{ formatTime(selectedSlot()!.startTime) }}
+              </span>
+            } @else {
+              <span class="selected-slot-info__placeholder">Sélectionnez un créneau</span>
+            }
+          </div>
+
+          <!-- Booking Form -->
+          <form [formGroup]="bookingForm" (ngSubmit)="onSubmit()" class="booking-form">
+            <div class="form-group form-group--compact">
+              <label class="form-group__label">Notes (optionnel)</label>
+              <textarea
+                formControlName="notes"
+                class="textarea textarea--compact"
+                rows="2"
+                placeholder="Objectifs, questions..."
+              ></textarea>
+            </div>
+
+            @if (canUseSubscription()) {
+              <div class="form-group">
+                <label class="checkbox checkbox--sm">
+                  <input type="checkbox" formControlName="useSubscription">
+                  <span>Utiliser mon abonnement</span>
+                </label>
+              </div>
+            }
+
+            <!-- Price Summary -->
+            <div class="price-summary">
+              <div class="price-summary__row">
+                <span>Prix</span>
+                <span class="price-summary__value">
+                  @if (!requiresPayment()) {
+                    Inclus
+                  } @else {
+                    {{ formatPrice(teacherService.selectedTeacher()?.hourlyRateCents) }}
+                  }
+                </span>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              class="btn btn--primary btn--block"
+              [disabled]="!selectedSlot() || loading()"
+            >
+              @if (loading()) {
+                <span class="spinner spinner--sm"></span>
+                @if (requiresPayment()) {
+                  Redirection...
+                } @else {
+                  Reservation...
+                }
+              } @else {
+                @if (requiresPayment()) {
+                  Payer {{ formatPrice(teacherService.selectedTeacher()?.hourlyRateCents) }}
+                } @else {
+                  Confirmer
+                }
+              }
+              </button>
+          </form>
+        </div>
+      } @else {
+        <div class="loading-state">
+          <span class="spinner spinner--lg"></span>
+        </div>
+      }
+    </div>
+  </main>
+</div>

@@ -96,6 +96,9 @@ public class AvailabilityService {
     public List<TimeSlotResponse> getAvailableSlots(Long teacherId, LocalDate startDate, LocalDate endDate) {
         List<TimeSlotResponse> slots = new ArrayList<>();
 
+        // Get all availabilities for the teacher
+        List<Availability> availabilities = availabilityRepository.findByTeacherIdAndIsActiveTrue(teacherId);
+
         // Get existing lessons to check for conflicts
         LocalDateTime startDateTime = startDate.atStartOfDay();
         LocalDateTime endDateTime = endDate.plusDays(1).atStartOfDay();
@@ -108,37 +111,49 @@ public class AvailabilityService {
                 .map(Lesson::getScheduledAt)
                 .toList();
 
-        // Generate slots 24/7 for each day (from 6:00 to 23:00)
+        // Generate slots for each day
         LocalDate currentDate = startDate;
         while (!currentDate.isAfter(endDate)) {
+            DayOfWeek dayOfWeek = currentDate.getDayOfWeek();
             LocalDate finalDate = currentDate;
 
-            // Generate time slots from 6:00 to 23:00 every hour
-            LocalTime currentTime = LocalTime.of(6, 0);
-            LocalTime endOfDay = LocalTime.of(23, 0);
+            // Find availabilities for this day
+            List<Availability> dayAvailabilities = availabilities.stream()
+                    .filter(a -> {
+                        if (a.getIsRecurring()) {
+                            return a.getDayOfWeek() == dayOfWeek;
+                        } else {
+                            return finalDate.equals(a.getSpecificDate());
+                        }
+                    })
+                    .toList();
 
-            while (currentTime.isBefore(endOfDay)) {
-                LocalDateTime slotDateTime = LocalDateTime.of(finalDate, currentTime);
-                LocalDateTime slotEndDateTime = slotDateTime.plusMinutes(SLOT_DURATION_MINUTES);
+            // Generate time slots for each availability
+            for (Availability availability : dayAvailabilities) {
+                LocalTime currentTime = availability.getStartTime();
+                while (currentTime.plusMinutes(SLOT_DURATION_MINUTES).compareTo(availability.getEndTime()) <= 0) {
+                    LocalDateTime slotDateTime = LocalDateTime.of(finalDate, currentTime);
+                    LocalDateTime slotEndDateTime = slotDateTime.plusMinutes(SLOT_DURATION_MINUTES);
 
-                // Include slots if start time is at least 15 min in the future (allow urgent bookings)
-                if (slotDateTime.isAfter(LocalDateTime.now().minusMinutes(15))) {
-                    // Check for overlaps with booked lessons
-                    boolean isAvailable = bookedSlotStarts.stream()
-                            .noneMatch(bookedStart -> {
-                                LocalDateTime bookedEnd = bookedStart.plusMinutes(SLOT_DURATION_MINUTES);
-                                return slotDateTime.isBefore(bookedEnd) && slotEndDateTime.isAfter(bookedStart);
-                            });
+                    // Allow urgent bookings - show slots up to 5 min in the past
+                    if (slotDateTime.isAfter(LocalDateTime.now().minusMinutes(5))) {
+                        // Check for overlaps with booked lessons
+                        boolean isAvailable = bookedSlotStarts.stream()
+                                .noneMatch(bookedStart -> {
+                                    LocalDateTime bookedEnd = bookedStart.plusMinutes(SLOT_DURATION_MINUTES);
+                                    return slotDateTime.isBefore(bookedEnd) && slotEndDateTime.isAfter(bookedStart);
+                                });
 
-                    slots.add(TimeSlotResponse.create(
-                            finalDate,
-                            currentTime,
-                            currentTime.plusMinutes(SLOT_DURATION_MINUTES),
-                            isAvailable
-                    ));
+                        slots.add(TimeSlotResponse.create(
+                                finalDate,
+                                currentTime,
+                                currentTime.plusMinutes(SLOT_DURATION_MINUTES),
+                                isAvailable
+                        ));
+                    }
+
+                    currentTime = currentTime.plusMinutes(SLOT_INTERVAL_MINUTES);
                 }
-
-                currentTime = currentTime.plusHours(1); // Créneaux toutes les heures
             }
 
             currentDate = currentDate.plusDays(1);
@@ -150,9 +165,20 @@ public class AvailabilityService {
     }
 
     public boolean isSlotAvailable(Long teacherId, LocalDateTime dateTime) {
-        // Allow any slot between 6:00 and 23:00
+        LocalDate date = dateTime.toLocalDate();
         LocalTime time = dateTime.toLocalTime();
-        if (time.isBefore(LocalTime.of(6, 0)) || time.isAfter(LocalTime.of(22, 0))) {
+        DayOfWeek dayOfWeek = date.getDayOfWeek();
+
+        // Check if there's an availability for this slot (no time restriction)
+        List<Availability> availabilities = availabilityRepository.findAvailabilitiesForDate(
+                teacherId, dayOfWeek, date
+        );
+
+        boolean hasAvailability = availabilities.stream()
+                .anyMatch(a -> !time.isBefore(a.getStartTime()) &&
+                               time.plusMinutes(SLOT_DURATION_MINUTES).compareTo(a.getEndTime()) <= 0);
+
+        if (!hasAvailability) {
             return false;
         }
 

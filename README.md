@@ -2,26 +2,74 @@
 
 Plateforme de mise en relation Profs/Eleves d'echecs avec systeme de progression standardise.
 
-## Prerequis
+## Demarrage Rapide (Docker)
 
-- **Java 17+** (ou Java 21 recommande)
-- **Node.js 18+** et npm
-- **Maven 3.8+**
-- **Docker & Docker Compose** (optionnel, pour deploiement)
+**Prerequis:** Uniquement [Docker Desktop](https://www.docker.com/products/docker-desktop/) installe et en cours d'execution.
 
-## Demarrage Rapide
+```bash
+# 1. Cloner le projet
+git clone https://github.com/bessaaamirouche/ChessConnect.git
+cd ChessConnect
 
-### Mode Developpement (sans Docker)
+# 2. Lancer l'application
+./start.sh
 
-**1. Backend (Spring Boot avec H2 en memoire)**
+# 3. Attendre 1-2 minutes, puis ouvrir
+# http://localhost:4200
+```
+
+**C'est tout !** Pas besoin de Java, Node.js, ou PostgreSQL.
+
+### URLs d'acces
+
+| Service  | URL                         |
+|----------|----------------------------|
+| Frontend | http://localhost:4200       |
+| Backend  | http://localhost:8282/api   |
+| Database | localhost:5433 (PostgreSQL) |
+
+### Commandes utiles
+
+```bash
+# Voir les logs
+docker compose logs -f
+
+# Arreter l'application
+./stop.sh
+
+# Arreter et supprimer les donnees
+docker compose down -v
+```
+
+## Fonctionnalites
+
+- **Inscription Eleve/Professeur** : Creation de compte avec roles
+- **Quiz d'Evaluation** : Determinez votre niveau d'echecs (Pion, Cavalier, Fou, Tour, Dame)
+- **Parcours d'Apprentissage** : 50 cours structures par niveau
+- **Reservation de Cours** : Reservez des sessions avec des professeurs
+- **Suivi de Progression** : Suivez votre parcours d'apprentissage
+- **Abonnements** : 3 formules (1, 2 ou 3 cours/semaine)
+- **Paiements Stripe** : Paiements securises (mode test)
+- **Integration Zoom** : Cours en visioconference
+
+## Mode Developpement (sans Docker)
+
+### Prerequis
+
+- Java 17+
+- Node.js 18+ et npm
+- Maven 3.8+
+
+### Backend (Spring Boot)
+
 ```bash
 cd backend-api
 ./mvnw spring-boot:run
 ```
 Le backend demarre sur `http://localhost:8282/api`
-Console H2 disponible sur `http://localhost:8282/api/h2-console`
 
-**2. Frontend (Angular)**
+### Frontend (Angular)
+
 ```bash
 cd frontend-web
 npm install
@@ -29,25 +77,16 @@ npm start
 ```
 Le frontend demarre sur `http://localhost:4200`
 
-### Mode Docker (PostgreSQL)
-
-```bash
-docker-compose up --build
-```
-- Frontend: `http://localhost:4200`
-- Backend: `http://localhost:8282/api`
-- PostgreSQL: `localhost:5432`
-
 ## Structure du Projet
 
 ```
-/chess-connect
+/ChessConnect
 ├── /backend-api              # API Spring Boot
 │   ├── /src/main/java/com/chessconnect
-│   │   ├── /config           # SecurityConfig, ZoomConfig
-│   │   ├── /controller       # AuthController, LessonController, TeacherController, UserController
-│   │   ├── /dto              # DTOs pour auth, lesson, user, zoom
-│   │   ├── /model            # Entites JPA (User, Lesson, Progress, Subscription, Payment)
+│   │   ├── /config           # SecurityConfig, ZoomConfig, QuizDataInitializer
+│   │   ├── /controller       # REST Controllers
+│   │   ├── /dto              # Data Transfer Objects
+│   │   ├── /model            # Entites JPA
 │   │   ├── /repository       # Repositories Spring Data
 │   │   ├── /security         # JWT (JwtService, JwtAuthenticationFilter)
 │   │   └── /service          # Services metier
@@ -56,24 +95,30 @@ docker-compose up --build
 ├── /frontend-web             # Application Angular 17
 │   ├── /src/app
 │   │   ├── /core             # Services, Guards, Interceptors, Models
-│   │   └── /features         # Composants par fonctionnalite
-│   │       ├── /auth         # Login, Register
-│   │       ├── /dashboard    # Tableau de bord
-│   │       ├── /home         # Page d'accueil
-│   │       ├── /lessons      # Reservation et liste des cours
-│   │       └── /teachers     # Liste et profil des profs
+│   │   ├── /features         # Composants par fonctionnalite
+│   │   │   ├── /auth         # Login, Register
+│   │   │   ├── /dashboard    # Tableau de bord
+│   │   │   ├── /lessons      # Reservation et liste des cours
+│   │   │   ├── /progress     # Suivi de progression
+│   │   │   ├── /quiz         # Quiz d'evaluation de niveau
+│   │   │   └── /teachers     # Liste et profil des profs
+│   │   └── /shared           # Composants partages
 │   ├── Dockerfile
 │   └── package.json
 ├── docker-compose.yml
+├── start.sh                  # Script de demarrage Docker
+├── stop.sh                   # Script d'arret Docker
+├── .env.example              # Variables d'environnement (template)
 └── README.md
 ```
 
 ## Specifications Metier
 
 - **Cursus Standardise:** 5 niveaux (Pion, Cavalier, Fou, Tour, Dame). L'eleve progresse meme s'il change de prof.
-- **Reservations:** Sessions d'une heure via API Zoom.
+- **Quiz d'Evaluation:** 25 questions (5 par niveau) pour determiner le niveau initial
+- **Reservations:** Sessions d'une heure via API Zoom
 - **Abonnements:** 69€/mois (1 cours/sem), 129€/mois (2 cours/sem), 179€/mois (3 cours/sem)
-- **Commission:** 10% preleves par la plateforme sur les abonnements et cours ponctuels.
+- **Commission:** 10% preleves par la plateforme
 
 ## API Endpoints
 
@@ -83,115 +128,67 @@ docker-compose up --build
 | POST    | `/register` | Inscription d'un utilisateur | Non  |
 | POST    | `/login`    | Connexion (retourne JWT)   | Non  |
 
-### Utilisateurs (`/api/users`)
-| Methode | Endpoint              | Description                    | Auth   |
-|---------|-----------------------|--------------------------------|--------|
-| GET     | `/me`                 | Profil de l'utilisateur connecte | JWT    |
-| PUT     | `/me/teacher-profile` | Modifier profil prof           | TEACHER |
+### Quiz (`/api/quiz`)
+| Methode | Endpoint     | Description                     | Auth    |
+|---------|--------------|---------------------------------|---------|
+| GET     | `/questions` | Liste des questions du quiz     | Non     |
+| POST    | `/submit`    | Soumettre les reponses          | STUDENT |
+| GET     | `/result`    | Dernier resultat du quiz        | STUDENT |
+
+### Progression (`/api/progress`)
+| Methode | Endpoint          | Description                     | Auth    |
+|---------|-------------------|---------------------------------|---------|
+| GET     | `/me`             | Ma progression                  | STUDENT |
+| GET     | `/learning-path`  | Parcours d'apprentissage        | STUDENT |
 
 ### Professeurs (`/api/teachers`)
 | Methode | Endpoint        | Description                        | Auth |
 |---------|-----------------|------------------------------------|------|
 | GET     | `/`             | Liste tous les professeurs         | Non  |
 | GET     | `/{id}`         | Detail d'un professeur             | Non  |
-| GET     | `/search?q=`    | Recherche par nom/bio              | Non  |
-| GET     | `/subscription` | Profs acceptant les abonnements    | Non  |
 
 ### Cours (`/api/lessons`)
 | Methode | Endpoint          | Description                     | Auth    |
 |---------|-------------------|---------------------------------|---------|
 | POST    | `/book`           | Reserver un cours               | STUDENT |
-| GET     | `/{lessonId}`     | Detail d'un cours               | JWT     |
-| PATCH   | `/{lessonId}/status` | Modifier le statut           | JWT     |
 | GET     | `/upcoming`       | Cours a venir                   | JWT     |
 | GET     | `/history`        | Historique des cours            | JWT     |
 
 ### Paiements (`/api/payments`)
 | Methode | Endpoint                | Description                     | Auth    |
 |---------|-------------------------|---------------------------------|---------|
-| GET     | `/config`               | Cle publique Stripe             | Non     |
 | GET     | `/plans`                | Liste des plans d'abonnement    | Non     |
 | POST    | `/checkout/subscription`| Creer session Stripe Checkout   | STUDENT |
 | GET     | `/subscription`         | Abonnement actif                | STUDENT |
-| GET     | `/subscription/history` | Historique abonnements          | STUDENT |
-| POST    | `/subscription/cancel`  | Annuler abonnement              | STUDENT |
-| GET     | `/history`              | Historique des paiements        | JWT     |
-| GET     | `/checkout/verify`      | Verifier session checkout       | JWT     |
-| POST    | `/webhooks/stripe`      | Webhook Stripe                  | Non     |
-
-### Progression (`/api/progress`)
-| Methode | Endpoint          | Description                     | Auth    |
-|---------|-------------------|---------------------------------|---------|
-| GET     | `/me`             | Ma progression                  | STUDENT |
-| GET     | `/levels`         | Liste des niveaux               | Non     |
-| GET     | `/levels/{level}` | Detail d'un niveau              | Non     |
 
 ## Variables d'Environnement
 
-### Backend (Docker)
-| Variable                    | Description                  | Defaut                |
-|-----------------------------|------------------------------|-----------------------|
-| `SPRING_PROFILES_ACTIVE`    | Profil Spring                | `docker`              |
-| `SPRING_DATASOURCE_URL`     | URL PostgreSQL               | -                     |
-| `SPRING_DATASOURCE_USERNAME`| Utilisateur DB               | -                     |
-| `SPRING_DATASOURCE_PASSWORD`| Mot de passe DB              | -                     |
-| `JWT_SECRET`                | Cle secrete JWT              | -                     |
-| `JWT_EXPIRATION`            | Duree token (ms)             | `86400000` (24h)      |
-| `ZOOM_ACCOUNT_ID`           | Zoom Server-to-Server OAuth  | -                     |
-| `ZOOM_CLIENT_ID`            | Zoom Client ID               | -                     |
-| `ZOOM_CLIENT_SECRET`        | Zoom Client Secret           | -                     |
-| `STRIPE_SECRET_KEY`         | Cle secrete Stripe           | -                     |
-| `STRIPE_PUBLISHABLE_KEY`    | Cle publique Stripe          | -                     |
-| `STRIPE_WEBHOOK_SECRET`     | Secret webhook Stripe        | -                     |
-| `FRONTEND_URL`              | URL du frontend              | `http://localhost:4200`|
+Voir `.env.example` pour la liste complete. Les valeurs par defaut permettent de tester l'application sans configuration.
 
-## Schema Base de Donnees
-
-```
-┌──────────────┐     ┌──────────────┐     ┌──────────────┐
-│    users     │     │   lessons    │     │   progress   │
-├──────────────┤     ├──────────────┤     ├──────────────┤
-│ id           │◄────│ student_id   │     │ id           │
-│ email        │◄────│ teacher_id   │     │ student_id   │──►users
-│ password     │     │ scheduled_at │     │ current_level│
-│ first_name   │     │ status       │     │ lessons_count│
-│ last_name    │     │ zoom_url     │     │ updated_at   │
-│ role         │     │ created_at   │     └──────────────┘
-│ hourly_rate  │     └──────────────┘
-│ bio          │
-│ avatar_url   │     ┌──────────────┐     ┌──────────────┐
-│ created_at   │     │subscriptions │     │   payments   │
-└──────────────┘     ├──────────────┤     ├──────────────┤
-                     │ id           │     │ id           │
-                     │ student_id   │──►  │ user_id      │──►users
-                     │ plan_type    │     │ amount_cents │
-                     │ starts_at    │     │ type         │
-                     │ ends_at      │     │ created_at   │
-                     │ status       │     └──────────────┘
-                     └──────────────┘
-
-Roles: STUDENT, TEACHER, ADMIN
-Niveaux: PION, CAVALIER, FOU, TOUR, DAME
-```
+| Variable                    | Description                  |
+|-----------------------------|------------------------------|
+| `POSTGRES_*`                | Configuration PostgreSQL     |
+| `JWT_SECRET`                | Cle secrete JWT              |
+| `STRIPE_*`                  | Configuration Stripe         |
+| `ZOOM_*`                    | Configuration Zoom API       |
 
 ## Stack Technique
 
 | Composant | Technologies |
 |-----------|-------------|
-| Backend   | Spring Boot 3.2, Spring Security (JWT), Spring Data JPA, WebFlux |
-| Frontend  | Angular 17, Signals, HttpClient, TypeScript |
-| Database  | PostgreSQL 16 (prod), H2 (dev) |
+| Backend   | Spring Boot 3.2, Spring Security (JWT), Spring Data JPA |
+| Frontend  | Angular 17, Signals, Standalone Components |
+| Database  | PostgreSQL 16 |
 | DevOps    | Docker, Docker Compose, Nginx |
-| API Externe | Zoom Server-to-Server OAuth |
+| Paiements | Stripe (mode test) |
+| Video     | Zoom Server-to-Server OAuth |
 
-## Tests
+## Architecture Docker
 
-```bash
-# Backend
-cd backend-api
-./mvnw test
-
-# Frontend
-cd frontend-web
-npm test
+```
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│    Frontend     │     │    Backend      │     │   PostgreSQL    │
+│  (Angular/Nginx)│────>│  (Spring Boot)  │────>│   (Database)    │
+│   Port: 4200    │     │   Port: 8282    │     │   Port: 5433    │
+└─────────────────┘     └─────────────────┘     └─────────────────┘
 ```

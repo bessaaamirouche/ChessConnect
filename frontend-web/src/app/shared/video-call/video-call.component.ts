@@ -29,7 +29,13 @@ declare var JitsiMeetExternalAPI: any;
               <p>Connexion en cours...</p>
             </div>
           }
-          <div id="jitsi-container" [style.display]="loading() ? 'none' : 'block'"></div>
+          @if (error()) {
+            <div class="video-call-error">
+              <p>{{ error() }}</p>
+              <button class="btn btn--primary" (click)="retry()">Réessayer</button>
+            </div>
+          }
+          <div id="jitsi-container" [style.display]="loading() || error() ? 'none' : 'block'"></div>
         </div>
       </div>
     </div>
@@ -99,7 +105,8 @@ declare var JitsiMeetExternalAPI: any;
       background: #000;
     }
 
-    .video-call-loading {
+    .video-call-loading,
+    .video-call-error {
       position: absolute;
       top: 50%;
       left: 50%;
@@ -108,6 +115,14 @@ declare var JitsiMeetExternalAPI: any;
       color: var(--text-secondary);
 
       p {
+        margin-top: 1rem;
+      }
+    }
+
+    .video-call-error {
+      color: var(--color-error, #ef4444);
+
+      button {
         margin-top: 1rem;
       }
     }
@@ -125,8 +140,10 @@ export class VideoCallComponent implements OnInit, OnDestroy {
   @Output() closed = new EventEmitter<void>();
 
   loading = signal(true);
+  error = signal<string | null>(null);
   private api: any;
   private isBrowser: boolean;
+  private loadTimeout: any;
 
   constructor(@Inject(PLATFORM_ID) platformId: Object) {
     this.isBrowser = isPlatformBrowser(platformId);
@@ -139,12 +156,24 @@ export class VideoCallComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    if (this.loadTimeout) {
+      clearTimeout(this.loadTimeout);
+    }
     if (this.api) {
       this.api.dispose();
     }
   }
 
   private loadJitsiScript(): void {
+    // Timeout after 30 seconds
+    this.loadTimeout = setTimeout(() => {
+      if (this.loading()) {
+        console.error('[Jitsi] Connection timeout after 30s');
+        this.loading.set(false);
+        this.error.set('La connexion a échoué. Vérifiez votre connexion internet.');
+      }
+    }, 30000);
+
     if (typeof JitsiMeetExternalAPI !== 'undefined') {
       this.initJitsi();
       return;
@@ -154,6 +183,10 @@ export class VideoCallComponent implements OnInit, OnDestroy {
     script.src = 'https://meet.jit.si/external_api.js';
     script.async = true;
     script.onload = () => this.initJitsi();
+    script.onerror = () => {
+      this.loading.set(false);
+      this.error.set('Impossible de charger le service vidéo.');
+    };
     document.head.appendChild(script);
   }
 
@@ -187,14 +220,46 @@ export class VideoCallComponent implements OnInit, OnDestroy {
       }
     };
 
+    console.log('[Jitsi] Creating API with room:', options.roomName);
     this.api = new JitsiMeetExternalAPI(domain, options);
 
-    this.api.addEventListener('videoConferenceJoined', () => {
+    this.api.addEventListener('videoConferenceJoined', (event: any) => {
+      console.log('[Jitsi] Conference joined:', event);
+      if (this.loadTimeout) {
+        clearTimeout(this.loadTimeout);
+      }
       this.loading.set(false);
     });
 
-    this.api.addEventListener('readyToClose', () => {
+    this.api.addEventListener('participantJoined', (event: any) => {
+      console.log('[Jitsi] Participant joined:', event);
+    });
+
+    this.api.addEventListener('videoConferenceLeft', () => {
+      console.log('[Jitsi] Conference left');
       this.onClose();
+    });
+
+    this.api.addEventListener('readyToClose', () => {
+      console.log('[Jitsi] Ready to close');
+      this.onClose();
+    });
+
+    this.api.addEventListener('errorOccurred', (event: any) => {
+      console.error('[Jitsi] Error:', event);
+      this.loading.set(false);
+      this.error.set('Une erreur est survenue lors de la connexion.');
+    });
+
+    // Additional debug events
+    this.api.addEventListener('browserSupport', (event: any) => {
+      console.log('[Jitsi] Browser support:', event);
+    });
+
+    this.api.addEventListener('log', (event: any) => {
+      if (event.logLevel === 'error') {
+        console.error('[Jitsi Log]', event);
+      }
     });
   }
 
@@ -203,5 +268,11 @@ export class VideoCallComponent implements OnInit, OnDestroy {
       this.api.dispose();
     }
     this.closed.emit();
+  }
+
+  retry(): void {
+    this.error.set(null);
+    this.loading.set(true);
+    this.loadJitsiScript();
   }
 }

@@ -7,7 +7,6 @@ import { AuthService } from '../../../core/services/auth.service';
 import { LESSON_STATUS_LABELS, Lesson } from '../../../core/models/lesson.model';
 import { ConfirmModalComponent } from '../../../shared/confirm-modal/confirm-modal.component';
 import { StudentProfileModalComponent } from '../../../shared/student-profile-modal/student-profile-modal.component';
-import { VideoCallComponent } from '../../../shared/video-call/video-call.component';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   heroCalendarDays,
@@ -36,7 +35,7 @@ import { CHESS_LEVELS } from '../../../core/models/user.model';
 @Component({
   selector: 'app-lesson-list',
   standalone: true,
-  imports: [RouterLink, DatePipe, FormsModule, ConfirmModalComponent, NgIconComponent, StudentProfileModalComponent, VideoCallComponent],
+  imports: [RouterLink, DatePipe, FormsModule, ConfirmModalComponent, NgIconComponent, StudentProfileModalComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({
     heroCalendarDays,
@@ -67,7 +66,6 @@ export class LessonListComponent implements OnInit {
   @ViewChild('confirmModal') confirmModal!: ConfirmModalComponent;
 
   statusLabels = LESSON_STATUS_LABELS;
-  activeVideoCall = signal<Lesson | null>(null);
   selectedStudentId = signal<number | null>(null);
   visibleReasonId = signal<number | null>(null);
   visibleObservationsId = signal<number | null>(null);
@@ -77,10 +75,6 @@ export class LessonListComponent implements OnInit {
   completingLessonId = signal<number | null>(null);
   observationsText = signal('');
 
-  // Video call
-  videoCallRoomName = signal<string>('');
-  videoCallUserName = signal<string>('');
-  videoCallTitle = signal<string>('');
 
   constructor(
     public lessonService: LessonService,
@@ -159,22 +153,9 @@ export class LessonListComponent implements OnInit {
   }
 
   openVideoCall(lesson: Lesson): void {
-    this.activeVideoCall.set(lesson);
-    // Extract room name from zoomLink (Jitsi URL)
-    const roomName = lesson.zoomLink?.split('/').pop() || `chess-${lesson.id}`;
-    const userName = this.authService.currentUser()?.firstName || 'Participant';
-    const otherPerson = this.authService.isStudent() ? lesson.teacherName : lesson.studentName;
-
-    this.videoCallRoomName.set(roomName);
-    this.videoCallUserName.set(userName);
-    this.videoCallTitle.set(`Cours avec ${otherPerson}`);
-  }
-
-  closeVideoCall(): void {
-    this.activeVideoCall.set(null);
-    this.videoCallRoomName.set('');
-    this.videoCallUserName.set('');
-    this.videoCallTitle.set('');
+    const roomName = lesson.zoomLink?.split('/').pop() || `ChessConnect-${lesson.id}`;
+    const jitsiUrl = `https://meet.jit.si/${roomName}`;
+    window.open(jitsiUrl, '_blank');
   }
 
   // Check if it's time to join the lesson (15 min before until end)

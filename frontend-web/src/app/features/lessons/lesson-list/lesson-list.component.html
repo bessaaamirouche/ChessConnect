@@ -258,15 +258,6 @@
   <!-- Confirm Modal -->
   <app-confirm-modal #confirmModal></app-confirm-modal>
 
-  <!-- Video Call Component -->
-  @if (activeVideoCall()) {
-    <app-video-call
-      [roomName]="videoCallRoomName()"
-      [userName]="videoCallUserName()"
-      [title]="videoCallTitle()"
-      (closed)="closeVideoCall()"
-    ></app-video-call>
-  }
 
   <!-- Student Profile Modal (Teacher only) -->
   @if (selectedStudentId()) {

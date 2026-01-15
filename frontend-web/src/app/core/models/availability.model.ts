@@ -41,8 +41,8 @@ export const DAYS_OF_WEEK: { value: DayOfWeek; label: string }[] = [
   { value: 'SUNDAY', label: 'Dimanche' }
 ];
 
-// Hours list (06 to 22)
-export const HOURS: string[] = Array.from({ length: 17 }, (_, i) => (i + 6).toString().padStart(2, '0'));
+// Hours list (00 to 23) - 24h
+export const HOURS: string[] = Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0'));
 
 // Minutes list (00, 05, 10, ... 55)
 export const MINUTES: string[] = Array.from({ length: 12 }, (_, i) => (i * 5).toString().padStart(2, '0'));

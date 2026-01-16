@@ -4,7 +4,7 @@ export type ChessLevel = 'PION' | 'CAVALIER' | 'FOU' | 'TOUR' | 'DAME';
 
 export interface User {
   id: number;
-  email?: string;
+  email: string;
   firstName: string;
   lastName: string;
   role: UserRole;

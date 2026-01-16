@@ -1,7 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
-import { environment } from '../../../environments/environment';
 
 export interface Rating {
   id: number;
@@ -32,7 +31,7 @@ export interface RatingSummary {
   providedIn: 'root'
 })
 export class RatingService {
-  private readonly apiUrl = `${environment.apiUrl}/ratings`;
+  private readonly apiUrl = '/api/ratings';
 
   teacherRatings = signal<Rating[]>([]);
   ratingSummary = signal<RatingSummary | null>(null);

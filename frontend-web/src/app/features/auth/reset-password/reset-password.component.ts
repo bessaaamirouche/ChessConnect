@@ -2,7 +2,6 @@ import { Component, OnInit, signal } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-reset-password',
@@ -42,7 +41,7 @@ export class ResetPasswordComponent implements OnInit {
     }
 
     // Validate token
-    this.http.get<{ valid: boolean }>(`${environment.apiUrl}/auth/reset-password/validate?token=${this.token}`)
+    this.http.get<{ valid: boolean }>(`/api/auth/reset-password/validate?token=${this.token}`)
       .subscribe({
         next: (response) => {
           this.validating.set(false);
@@ -72,7 +71,7 @@ export class ResetPasswordComponent implements OnInit {
     this.loading.set(true);
     this.error.set(null);
 
-    this.http.post(`${environment.apiUrl}/auth/reset-password`, {
+    this.http.post('/api/auth/reset-password', {
       token: this.token,
       newPassword: this.form.value.newPassword
     }).subscribe({

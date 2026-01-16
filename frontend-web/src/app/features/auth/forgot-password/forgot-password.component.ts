@@ -2,7 +2,6 @@ import { Component, signal } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-forgot-password',
@@ -32,7 +31,7 @@ export class ForgotPasswordComponent {
     this.loading.set(true);
     this.error.set(null);
 
-    this.http.post(`${environment.apiUrl}/auth/forgot-password`, this.form.value).subscribe({
+    this.http.post('/api/auth/forgot-password', this.form.value).subscribe({
       next: () => {
         this.loading.set(false);
         this.success.set(true);

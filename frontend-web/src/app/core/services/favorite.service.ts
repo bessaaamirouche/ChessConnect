@@ -1,7 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
-import { environment } from '../../../environments/environment';
 
 export interface FavoriteTeacher {
   id: number;
@@ -21,7 +20,7 @@ export interface FavoriteTeacher {
   providedIn: 'root'
 })
 export class FavoriteService {
-  private readonly apiUrl = `${environment.apiUrl}/favorites`;
+  private readonly apiUrl = '/api/favorites';
 
   favorites = signal<FavoriteTeacher[]>([]);
   favoriteTeacherIds = signal<Set<number>>(new Set());

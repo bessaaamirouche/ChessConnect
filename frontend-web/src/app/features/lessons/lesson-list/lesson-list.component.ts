@@ -256,7 +256,7 @@ export class LessonListComponent implements OnInit {
   // Rating methods
   openRatingModal(lesson: Lesson): void {
     this.ratingLessonId.set(lesson.id);
-    this.ratingTeacherName.set(`${lesson.teacherFirstName} ${lesson.teacherLastName}`);
+    this.ratingTeacherName.set(lesson.teacherName);
     this.showRatingModal.set(true);
   }
 

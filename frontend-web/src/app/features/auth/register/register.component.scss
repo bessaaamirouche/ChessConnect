@@ -238,6 +238,35 @@
   }
 }
 
+.language-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-xs);
+}
+
+.language-btn {
+  padding: var(--space-xs) var(--space-sm);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+
+  &:hover {
+    border-color: var(--border-strong);
+    color: var(--text-primary);
+  }
+
+  &--active {
+    background: rgba(212, 168, 75, 0.15);
+    border-color: var(--gold-400);
+    color: var(--gold-400);
+  }
+}
+
 .register-success {
   text-align: center;
   padding: var(--space-lg) 0;

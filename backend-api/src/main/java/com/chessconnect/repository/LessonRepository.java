@@ -65,4 +65,19 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
     // For migration: find completed lessons that haven't been credited yet
     @Query("SELECT l FROM Lesson l WHERE l.status = 'COMPLETED' AND (l.earningsCredited IS NULL OR l.earningsCredited = false)")
     List<Lesson> findCompletedLessonsNotCredited();
+
+    // For lesson reminders
+    @Query("SELECT l FROM Lesson l WHERE l.status = :status AND l.scheduledAt BETWEEN :start AND :end AND (l.reminderSent IS NULL OR l.reminderSent = false)")
+    List<Lesson> findLessonsForReminder(
+            @Param("status") LessonStatus status,
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end
+    );
+
+    // Admin queries
+    @Query("SELECT COUNT(l) FROM Lesson l WHERE l.student.id = :userId OR l.teacher.id = :userId")
+    Long countByStudentIdOrTeacherId(@Param("userId") Long userId);
+
+    @Query("SELECT COUNT(l) FROM Lesson l WHERE l.scheduledAt BETWEEN :start AND :end")
+    Long countByScheduledAtBetween(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 }

@@ -2,7 +2,7 @@ import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
-import { UserRole } from '../../../core/models/user.model';
+import { UserRole, AVAILABLE_LANGUAGES } from '../../../core/models/user.model';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { heroAcademicCap, heroUserGroup, heroPlayCircle, heroArrowRight } from '@ng-icons/heroicons/outline';
 
@@ -21,6 +21,8 @@ export class RegisterComponent {
   error = signal<string | null>(null);
   selectedRole = signal<UserRole>('STUDENT');
   success = signal(false);
+  availableLanguages = AVAILABLE_LANGUAGES;
+  selectedLanguages = signal<string[]>(['FR']);
 
   constructor(
     private fb: FormBuilder,
@@ -42,6 +44,22 @@ export class RegisterComponent {
       eloRating: [null],
       knowsElo: [false]
     });
+  }
+
+  toggleLanguage(langCode: string): void {
+    const current = this.selectedLanguages();
+    if (current.includes(langCode)) {
+      // Don't allow removing all languages
+      if (current.length > 1) {
+        this.selectedLanguages.set(current.filter(l => l !== langCode));
+      }
+    } else {
+      this.selectedLanguages.set([...current, langCode]);
+    }
+  }
+
+  isLanguageSelected(langCode: string): boolean {
+    return this.selectedLanguages().includes(langCode);
   }
 
   selectRole(role: UserRole): void {
@@ -79,6 +97,8 @@ export class RegisterComponent {
       delete formValue.birthDate;
       delete formValue.eloRating;
       delete formValue.knowsElo;
+      // Add selected languages
+      formValue.languages = this.selectedLanguages();
     }
 
     this.authService.register(formValue).subscribe({

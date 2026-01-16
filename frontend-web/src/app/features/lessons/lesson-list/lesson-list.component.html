@@ -198,6 +198,15 @@
           @for (lesson of lessonService.lessonHistory(); track lesson.id) {
             <div class="history-card">
               <div class="history-card__actions">
+                @if (canRateLesson(lesson)) {
+                  <button
+                    class="history-card__action-btn history-card__action-btn--rate"
+                    (click)="openRatingModal(lesson)"
+                    title="Evaluer ce cours"
+                  >
+                    &#9733;
+                  </button>
+                }
                 @if (lesson.status === 'CANCELLED' && lesson.cancellationReason) {
                   <button
                     class="history-card__action-btn history-card__action-btn--info"
@@ -299,5 +308,15 @@
         <button class="btn btn--primary" (click)="submitCompleteLesson()">Terminer le cours</button>
       </div>
     </div>
+  }
+
+  <!-- Rating Modal -->
+  @if (showRatingModal() && ratingLessonId()) {
+    <app-rating-modal
+      [lessonId]="ratingLessonId()!"
+      [teacherName]="ratingTeacherName()"
+      (close)="closeRatingModal()"
+      (rated)="onRatingSubmitted()"
+    ></app-rating-modal>
   }
 </div>

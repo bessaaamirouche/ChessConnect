@@ -39,6 +39,31 @@
     @include gold-text;
   }
 
+  &__rating {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    font-size: 1rem;
+    color: var(--text-primary);
+
+    .star {
+      color: var(--gold-400);
+      font-size: 1.25rem;
+    }
+
+    .review-count {
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+  }
+
+  &__languages {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+    margin-top: var(--space-sm);
+  }
+
   &__content {
     .card {
       padding: var(--space-xl);
@@ -71,4 +96,17 @@
   display: flex;
   justify-content: center;
   padding: var(--space-3xl);
+}
+
+.language-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-2xs) var(--space-sm);
+  background: rgba(212, 168, 75, 0.15);
+  border: 1px solid var(--gold-400);
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--gold-400);
+  text-transform: uppercase;
 }

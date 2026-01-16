@@ -184,6 +184,85 @@
           </button>
         </form>
       </div>
+
+      <!-- Preferences -->
+      <div class="card">
+        <h3 class="card__title">Preferences</h3>
+
+        @if (preferencesSuccess()) {
+          <div class="alert alert--success alert--sm">Preferences mises a jour !</div>
+        }
+        @if (preferencesError()) {
+          <div class="alert alert--error alert--sm">{{ preferencesError() }}</div>
+        }
+
+        <div class="preference-item">
+          <div class="preference-item__info">
+            <span class="preference-item__label">Rappels par email</span>
+            <span class="preference-item__description">Recevoir un email de rappel 1h avant chaque cours</span>
+          </div>
+          <label class="toggle" [class.toggle--loading]="savingPreferences()">
+            <input
+              type="checkbox"
+              [checked]="emailRemindersEnabled()"
+              (change)="toggleEmailReminders()"
+              [disabled]="savingPreferences()"
+            >
+            <span class="toggle__slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Google Calendar Integration -->
+      <div class="card">
+        <h3 class="card__title">Google Calendar</h3>
+
+        @if (calendarSuccess()) {
+          <div class="alert alert--success alert--sm">{{ calendarSuccess() }}</div>
+        }
+        @if (calendarError()) {
+          <div class="alert alert--error alert--sm">{{ calendarError() }}</div>
+        }
+
+        @if (!calendarStatus().configured) {
+          <div class="calendar-status">
+            <p class="text-muted">Google Calendar n'est pas configure sur ce serveur.</p>
+          </div>
+        } @else if (calendarStatus().connected) {
+          <div class="calendar-status calendar-status--connected">
+            <div class="calendar-status__info">
+              <span class="calendar-status__badge">Connecte</span>
+              <p class="text-muted">Vos cours seront automatiquement ajoutes a votre agenda Google.</p>
+            </div>
+            <button
+              class="btn btn--ghost btn--sm"
+              (click)="disconnectGoogleCalendar()"
+              [disabled]="calendarLoading()"
+            >
+              @if (calendarLoading()) {
+                <span class="spinner spinner--sm"></span>
+              } @else {
+                Deconnecter
+              }
+            </button>
+          </div>
+        } @else {
+          <div class="calendar-status">
+            <p class="text-muted">Connectez votre compte Google pour synchroniser automatiquement vos cours avec votre agenda.</p>
+            <button
+              class="btn btn--primary btn--sm"
+              (click)="connectGoogleCalendar()"
+              [disabled]="calendarLoading()"
+            >
+              @if (calendarLoading()) {
+                <span class="spinner spinner--sm"></span>
+              } @else {
+                Connecter Google Calendar
+              }
+            </button>
+          </div>
+        }
+      </div>
     </div>
   </main>
 </div>

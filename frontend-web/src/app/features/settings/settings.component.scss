@@ -249,3 +249,135 @@
     border: 1px solid rgba(248, 113, 113, 0.3);
   }
 }
+
+// Preference items
+.preference-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding: var(--space-sm) 0;
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  &__label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  &__description {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+}
+
+// Toggle switch
+.toggle {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  flex-shrink: 0;
+
+  input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+
+    &:checked + .toggle__slider {
+      background: var(--gold-500);
+    }
+
+    &:checked + .toggle__slider::before {
+      transform: translateX(20px);
+    }
+
+    &:disabled + .toggle__slider {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  &__slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-subtle);
+    border-radius: 24px;
+    transition: all var(--transition-fast);
+
+    &::before {
+      content: '';
+      position: absolute;
+      height: 18px;
+      width: 18px;
+      left: 2px;
+      bottom: 2px;
+      background: white;
+      border-radius: 50%;
+      transition: transform var(--transition-fast);
+    }
+  }
+
+  &--loading {
+    .toggle__slider {
+      opacity: 0.6;
+    }
+  }
+}
+
+// Calendar status
+.calendar-status {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+
+  p {
+    font-size: 0.8125rem;
+    margin: 0;
+  }
+
+  &--connected {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-lg);
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+
+  &__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--success);
+    background: var(--success-muted);
+    border-radius: var(--radius-sm);
+    width: fit-content;
+
+    &::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: var(--success);
+      border-radius: 50%;
+    }
+  }
+}
+
+.text-muted {
+  color: var(--text-muted);
+}

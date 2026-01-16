@@ -133,7 +133,17 @@
     } @else {
       <div class="teachers-grid">
         @for (teacher of filteredTeachers(); track teacher.id) {
-          <div class="teacher-card">
+          <div class="teacher-card" [class.teacher-card--favorite]="isFavorite(teacher.id)">
+            @if (authService.isStudent()) {
+              <button
+                class="teacher-card__fav-btn"
+                [class.teacher-card__fav-btn--active]="isFavorite(teacher.id)"
+                (click)="toggleFavorite(teacher.id, $event)"
+                [title]="isFavorite(teacher.id) ? 'Retirer des favoris' : 'Ajouter aux favoris'"
+              >
+                &#9829;
+              </button>
+            }
             <div class="teacher-card__header">
               <div class="avatar">
                 @if (teacher.avatarUrl) {
@@ -149,6 +159,12 @@
                 <span class="teacher-card__rate">
                   {{ formatPrice(teacher.hourlyRateCents) }}
                 </span>
+                @if (teacher.averageRating) {
+                  <span class="teacher-card__rating">
+                    &#9733; {{ teacher.averageRating.toFixed(1) }}
+                    <span class="review-count">({{ teacher.reviewCount }})</span>
+                  </span>
+                }
               </div>
             </div>
 

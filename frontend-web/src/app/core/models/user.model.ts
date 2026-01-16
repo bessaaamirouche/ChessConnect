@@ -13,9 +13,17 @@ export interface User {
   acceptsSubscription?: boolean;
   bio?: string;
   avatarUrl?: string;
+  languages?: string[];
+  averageRating?: number;
+  reviewCount?: number;
   // Student fields
   birthDate?: string;
   eloRating?: number;
+  // Settings
+  emailRemindersEnabled?: boolean;
+  googleCalendarEnabled?: boolean;
+  // Admin
+  isSuspended?: boolean;
   createdAt?: string;
 }
 
@@ -43,10 +51,24 @@ export interface RegisterRequest {
   hourlyRateCents?: number;
   acceptsSubscription?: boolean;
   bio?: string;
+  languages?: string[];
   // Student fields
   birthDate?: string;
   eloRating?: number;
 }
+
+// Available languages for teachers
+export const AVAILABLE_LANGUAGES: { code: string; name: string }[] = [
+  { code: 'FR', name: 'Francais' },
+  { code: 'EN', name: 'English' },
+  { code: 'ES', name: 'Espanol' },
+  { code: 'DE', name: 'Deutsch' },
+  { code: 'IT', name: 'Italiano' },
+  { code: 'PT', name: 'Portugues' },
+  { code: 'RU', name: 'Russkiy' },
+  { code: 'ZH', name: 'Zhongwen' },
+  { code: 'AR', name: 'Al-Arabiya' }
+];
 
 export interface UpdateTeacherProfileRequest {
   hourlyRateCents?: number;

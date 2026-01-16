@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public record RegisterRequest(
         @NotBlank(message = "Email is required")
@@ -30,6 +31,7 @@ public record RegisterRequest(
         Integer hourlyRateCents,
         Boolean acceptsSubscription,
         String bio,
+        List<String> languages,  // Languages spoken by teacher (e.g., ["FR", "EN"])
 
         // Student fields
         LocalDate birthDate,

@@ -296,3 +296,43 @@ cat .env
 
 ### CORS errors
 Verifier que `FRONTEND_URL` dans `docker-compose.yml` correspond a l'URL utilisee.
+
+## Fonctionnalites a Implementer
+
+### 1. Evaluation des Professeurs
+- Apres la fin d'un cours, l'eleve peut evaluer le professeur sur 5 etoiles
+- La note moyenne est affichee sur le profil du professeur
+
+### 2. Professeurs Favoris et Abonnement
+- L'eleve peut mettre un professeur en favori pour le voir en haut de la liste lors de la reservation
+- Bouton "S'abonner" pour recevoir un email quand le professeur publie de nouveaux creneaux
+
+### 3. Mot de Passe Oublie
+- Ajouter un lien "Mot de passe oublie ?" sur la page de connexion
+- Envoyer un token par email pour reinitialiser le mot de passe
+
+### 4. Integration Google Calendar
+- Ajouter automatiquement les creneaux reserves dans l'agenda Google de l'eleve et du professeur
+
+### 5. Rappel par Email
+- Envoyer un email de rappel 1 heure avant le cours
+- Option configurable dans les preferences utilisateur
+
+### 6. Back-Office Administrateur
+- Gestion des eleves et professeurs
+- Comptabilite : CA, commissions (10%)
+- Gestion des remboursements avec motif
+- Modification des abonnements
+- Restrictions et moderation
+
+### 7. Gestion des Conflits Horaires (Etudiant)
+- Un etudiant ne peut pas reserver le meme creneau horaire chez deux professeurs differents
+- Il doit annuler la premiere reservation pour pouvoir en faire une autre au meme horaire
+
+### 8. Gestion des Conflits de Creneaux (Professeur)
+- Les creneaux de disponibilite d'un professeur ne doivent pas se chevaucher
+- Afficher un message d'erreur en cas de conflit
+
+### 9. Langues Parlees du Professeur
+- Le professeur renseigne les langues qu'il parle a l'inscription ou dans ses preferences
+- Les langues sont affichees sur son profil

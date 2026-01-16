@@ -47,6 +47,7 @@ public class LessonService {
     private final ZoomService zoomService;
     private final TeacherBalanceService teacherBalanceService;
     private final StripeService stripeService;
+    private final GoogleCalendarService googleCalendarService;
 
     public LessonService(
             LessonRepository lessonRepository,
@@ -56,7 +57,8 @@ public class LessonService {
             PaymentRepository paymentRepository,
             ZoomService zoomService,
             TeacherBalanceService teacherBalanceService,
-            StripeService stripeService
+            StripeService stripeService,
+            GoogleCalendarService googleCalendarService
     ) {
         this.lessonRepository = lessonRepository;
         this.userRepository = userRepository;
@@ -66,6 +68,7 @@ public class LessonService {
         this.zoomService = zoomService;
         this.teacherBalanceService = teacherBalanceService;
         this.stripeService = stripeService;
+        this.googleCalendarService = googleCalendarService;
     }
 
     @Transactional
@@ -91,6 +94,9 @@ public class LessonService {
         }
 
         checkTeacherAvailability(teacher.getId(), request.scheduledAt(), request.durationMinutes());
+
+        // Check for student time conflicts
+        checkStudentTimeConflict(studentId, request.scheduledAt(), request.durationMinutes());
 
         Lesson lesson = new Lesson();
         lesson.setStudent(student);
@@ -142,12 +148,15 @@ public class LessonService {
 
         validateStatusTransition(currentStatus, newStatus, isTeacher);
 
-        // Handle CONFIRMED - Create video meeting link
+        // Handle CONFIRMED - Create video meeting link and calendar events
         if (newStatus == LessonStatus.CONFIRMED && lesson.getZoomLink() == null) {
             // Use Jitsi Meet (free, no auth required) instead of Zoom
             String meetingId = "chessconnect-" + lesson.getId() + "-" + System.currentTimeMillis();
             lesson.setZoomLink("https://meet.jit.si/" + meetingId);
             log.info("Created Jitsi meeting for lesson {}: {}", lesson.getId(), lesson.getZoomLink());
+
+            // Create Google Calendar events for student and teacher (if connected)
+            createCalendarEvents(lesson);
         }
 
         // Handle CANCELLED
@@ -180,6 +189,24 @@ public class LessonService {
         lesson.setStatus(newStatus);
         Lesson updatedLesson = lessonRepository.save(lesson);
         return LessonResponse.from(updatedLesson);
+    }
+
+    /**
+     * Create Google Calendar events for both student and teacher if they have calendar connected.
+     */
+    private void createCalendarEvents(Lesson lesson) {
+        User student = lesson.getStudent();
+        User teacher = lesson.getTeacher();
+
+        // Create event for student if connected
+        if (googleCalendarService.isConnected(student)) {
+            googleCalendarService.createLessonEvent(lesson, student);
+        }
+
+        // Create event for teacher if connected
+        if (googleCalendarService.isConnected(teacher)) {
+            googleCalendarService.createLessonEvent(lesson, teacher);
+        }
     }
 
     private void createZoomMeeting(Lesson lesson) {
@@ -282,6 +309,33 @@ public class LessonService {
 
         if (hasConflict) {
             throw new IllegalArgumentException("Teacher is not available at the requested time");
+        }
+    }
+
+    /**
+     * Check if the student has a conflicting lesson at the requested time.
+     * Feature 7: Students cannot book overlapping lessons with different teachers.
+     */
+    private void checkStudentTimeConflict(Long studentId, LocalDateTime scheduledAt, int durationMinutes) {
+        LocalDateTime endTime = scheduledAt.plusMinutes(durationMinutes);
+
+        List<Lesson> existingLessons = lessonRepository.findStudentLessonsBetween(
+                studentId, scheduledAt.minusMinutes(durationMinutes - 1), endTime
+        );
+
+        boolean hasConflict = existingLessons.stream()
+                .filter(l -> l.getStatus() == LessonStatus.PENDING || l.getStatus() == LessonStatus.CONFIRMED)
+                .anyMatch(existingLesson -> {
+                    LocalDateTime existingStart = existingLesson.getScheduledAt();
+                    LocalDateTime existingEnd = existingStart.plusMinutes(existingLesson.getDurationMinutes());
+                    // Check for overlap
+                    return scheduledAt.isBefore(existingEnd) && endTime.isAfter(existingStart);
+                });
+
+        if (hasConflict) {
+            throw new IllegalArgumentException(
+                    "Vous avez deja un cours a cet horaire. Annulez-le d'abord pour pouvoir reserver ce creneau."
+            );
         }
     }
 

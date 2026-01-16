@@ -27,7 +27,21 @@
               @if (teacher.acceptsSubscription) {
                 <span class="badge badge--gold">Accepte les abonnements</span>
               }
+              @if (teacher.averageRating) {
+                <span class="profile__rating">
+                  <span class="star">&#9733;</span>
+                  {{ teacher.averageRating.toFixed(1) }}
+                  <span class="review-count">({{ teacher.reviewCount }} avis)</span>
+                </span>
+              }
             </div>
+            @if (teacher.languages && teacher.languages.length > 0) {
+              <div class="profile__languages">
+                @for (lang of teacher.languages; track lang) {
+                  <span class="language-badge">{{ lang }}</span>
+                }
+              </div>
+            }
           </div>
 
           @if (authService.isStudent()) {

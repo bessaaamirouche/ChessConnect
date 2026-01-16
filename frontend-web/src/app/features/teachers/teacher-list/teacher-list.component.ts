@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TeacherService } from '../../../core/services/teacher.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { FavoriteService } from '../../../core/services/favorite.service';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   heroAcademicCap,
@@ -44,12 +45,14 @@ export class TeacherListComponent implements OnInit {
   minRate = signal<number | null>(null);
   maxRate = signal<number | null>(null);
 
+  // Sort teachers: favorites first, then by name
   filteredTeachers = computed(() => {
     const query = this.searchQuery().toLowerCase().trim();
     const min = this.minRate();
     const max = this.maxRate();
+    const favoriteIds = this.favoriteService.favoriteTeacherIds();
 
-    return this.teacherService.teachers().filter(teacher => {
+    const filtered = this.teacherService.teachers().filter(teacher => {
       // Filter by name
       const fullName = `${teacher.firstName} ${teacher.lastName}`.toLowerCase();
       const matchesName = !query || fullName.includes(query);
@@ -61,15 +64,42 @@ export class TeacherListComponent implements OnInit {
 
       return matchesName && matchesMinRate && matchesMaxRate;
     });
+
+    // Sort: favorites first
+    return filtered.sort((a, b) => {
+      const aIsFav = favoriteIds.has(a.id) ? 0 : 1;
+      const bIsFav = favoriteIds.has(b.id) ? 0 : 1;
+      if (aIsFav !== bIsFav) return aIsFav - bIsFav;
+      return a.firstName.localeCompare(b.firstName);
+    });
   });
 
   constructor(
     public teacherService: TeacherService,
-    public authService: AuthService
+    public authService: AuthService,
+    public favoriteService: FavoriteService
   ) {}
 
   ngOnInit(): void {
     this.teacherService.loadTeachers().subscribe();
+    if (this.authService.isStudent()) {
+      this.favoriteService.loadFavorites().subscribe();
+    }
+  }
+
+  toggleFavorite(teacherId: number, event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (this.favoriteService.isFavorite(teacherId)) {
+      this.favoriteService.removeFavorite(teacherId).subscribe();
+    } else {
+      this.favoriteService.addFavorite(teacherId).subscribe();
+    }
+  }
+
+  isFavorite(teacherId: number): boolean {
+    return this.favoriteService.isFavorite(teacherId);
   }
 
   formatPrice(cents: number | undefined): string {

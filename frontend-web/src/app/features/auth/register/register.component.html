@@ -192,6 +192,23 @@
               placeholder="Présentez-vous en quelques lignes..."
             ></textarea>
           </div>
+
+          <div class="form-group">
+            <label class="form-group__label">Langues parlees</label>
+            <div class="language-selector">
+              @for (lang of availableLanguages; track lang.code) {
+                <button
+                  type="button"
+                  class="language-btn"
+                  [class.language-btn--active]="isLanguageSelected(lang.code)"
+                  (click)="toggleLanguage(lang.code)"
+                >
+                  {{ lang.name }}
+                </button>
+              }
+            </div>
+            <small class="form-hint">Selectionnez au moins une langue</small>
+          </div>
         </div>
       }
 

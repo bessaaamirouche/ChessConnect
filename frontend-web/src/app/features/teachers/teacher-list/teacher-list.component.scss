@@ -241,6 +241,7 @@
 }
 
 .teacher-card {
+  position: relative;
   background: var(--bg-secondary);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
@@ -250,6 +251,34 @@
   &:hover {
     border-color: var(--gold-400);
     box-shadow: 0 4px 20px rgba(212, 168, 75, 0.1);
+  }
+
+  &--favorite {
+    border-color: rgba(212, 168, 75, 0.3);
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(212, 168, 75, 0.05) 100%);
+  }
+
+  &__fav-btn {
+    position: absolute;
+    top: var(--space-sm);
+    right: var(--space-sm);
+    background: none;
+    border: none;
+    font-size: 1.25rem;
+    color: var(--border-default);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    padding: var(--space-xs);
+    line-height: 1;
+
+    &:hover {
+      color: var(--gold-400);
+      transform: scale(1.1);
+    }
+
+    &--active {
+      color: var(--gold-400);
+    }
   }
 
   &__header {
@@ -274,6 +303,20 @@
     font-size: 1rem;
     font-weight: 700;
     @include gold-text;
+  }
+
+  &__rating {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    font-size: 0.8125rem;
+    color: var(--gold-400);
+    margin-left: var(--space-sm);
+
+    .review-count {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+    }
   }
 
   &__bio {

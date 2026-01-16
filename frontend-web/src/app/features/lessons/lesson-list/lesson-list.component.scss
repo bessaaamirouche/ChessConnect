@@ -543,6 +543,17 @@
   }
 }
 
+// Rating button style
+.history-card__action-btn--rate {
+  color: var(--gold-400);
+  font-size: 1rem;
+
+  &:hover {
+    background: rgba(212, 168, 75, 0.15);
+    transform: scale(1.1);
+  }
+}
+
 // Observations button style
 .history-card__action-btn--observations {
   color: var(--gold-400);

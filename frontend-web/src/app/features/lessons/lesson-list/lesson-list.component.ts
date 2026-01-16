@@ -4,9 +4,11 @@ import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LessonService } from '../../../core/services/lesson.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { RatingService } from '../../../core/services/rating.service';
 import { LESSON_STATUS_LABELS, Lesson } from '../../../core/models/lesson.model';
 import { ConfirmModalComponent } from '../../../shared/confirm-modal/confirm-modal.component';
 import { StudentProfileModalComponent } from '../../../shared/student-profile-modal/student-profile-modal.component';
+import { RatingModalComponent } from '../../../shared/rating-modal/rating-modal.component';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   heroCalendarDays,
@@ -35,7 +37,7 @@ import { CHESS_LEVELS } from '../../../core/models/user.model';
 @Component({
   selector: 'app-lesson-list',
   standalone: true,
-  imports: [RouterLink, DatePipe, FormsModule, ConfirmModalComponent, NgIconComponent, StudentProfileModalComponent],
+  imports: [RouterLink, DatePipe, FormsModule, ConfirmModalComponent, NgIconComponent, StudentProfileModalComponent, RatingModalComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({
     heroCalendarDays,
@@ -75,10 +77,17 @@ export class LessonListComponent implements OnInit {
   completingLessonId = signal<number | null>(null);
   observationsText = signal('');
 
+  // Rating modal
+  showRatingModal = signal(false);
+  ratingLessonId = signal<number | null>(null);
+  ratingTeacherName = signal('');
+  ratedLessons = signal<Set<number>>(new Set());
+
 
   constructor(
     public lessonService: LessonService,
-    public authService: AuthService
+    public authService: AuthService,
+    private ratingService: RatingService
   ) {}
 
   ngOnInit(): void {
@@ -242,5 +251,46 @@ export class LessonListComponent implements OnInit {
     if (confirmed !== null) {
       this.lessonService.deleteLesson(lessonId).subscribe();
     }
+  }
+
+  // Rating methods
+  openRatingModal(lesson: Lesson): void {
+    this.ratingLessonId.set(lesson.id);
+    this.ratingTeacherName.set(`${lesson.teacherFirstName} ${lesson.teacherLastName}`);
+    this.showRatingModal.set(true);
+  }
+
+  closeRatingModal(): void {
+    this.showRatingModal.set(false);
+    this.ratingLessonId.set(null);
+    this.ratingTeacherName.set('');
+  }
+
+  onRatingSubmitted(): void {
+    const lessonId = this.ratingLessonId();
+    if (lessonId) {
+      const rated = new Set(this.ratedLessons());
+      rated.add(lessonId);
+      this.ratedLessons.set(rated);
+    }
+    this.closeRatingModal();
+  }
+
+  canRateLesson(lesson: Lesson): boolean {
+    return lesson.status === 'COMPLETED' &&
+           this.authService.isStudent() &&
+           !this.ratedLessons().has(lesson.id);
+  }
+
+  checkIfLessonRated(lessonId: number): void {
+    this.ratingService.getLessonRating(lessonId).subscribe({
+      next: (result) => {
+        if (result.isRated) {
+          const rated = new Set(this.ratedLessons());
+          rated.add(lessonId);
+          this.ratedLessons.set(rated);
+        }
+      }
+    });
   }
 }

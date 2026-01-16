@@ -111,6 +111,21 @@
   }
 }
 
+.forgot-password-link {
+  display: block;
+  text-align: right;
+  margin-top: var(--space-xs);
+  font-size: 0.8125rem;
+  color: var(--gold-400);
+  text-decoration: none;
+  transition: opacity var(--transition-fast);
+
+  &:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+  }
+}
+
 .alert {
   padding: var(--space-md);
   border-radius: var(--radius-md);

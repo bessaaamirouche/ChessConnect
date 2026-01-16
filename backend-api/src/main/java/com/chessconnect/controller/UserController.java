@@ -77,6 +77,11 @@ public class UserController {
             }
         }
 
+        // Preferences (for all users)
+        if (request.getEmailRemindersEnabled() != null) {
+            user.setEmailRemindersEnabled(request.getEmailRemindersEnabled());
+        }
+
         user = userRepository.save(user);
 
         return ResponseEntity.ok(mapToProfileResponse(user));
@@ -140,6 +145,7 @@ public class UserController {
                 .avatarUrl(user.getAvatarUrl())
                 .birthDate(user.getBirthDate())
                 .eloRating(user.getEloRating())
+                .emailRemindersEnabled(user.getEmailRemindersEnabled())
                 .build();
     }
 }

@@ -23,4 +23,7 @@ public class TeacherProfileResponse {
     // Student fields
     private LocalDate birthDate;
     private Integer eloRating;
+
+    // Preferences
+    private Boolean emailRemindersEnabled;
 }

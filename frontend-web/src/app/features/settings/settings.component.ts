@@ -1,9 +1,10 @@
 import { Component, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { HttpClient } from '@angular/common/http';
+import { CalendarService, CalendarStatus } from '../../core/services/calendar.service';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   heroChartBarSquare,
@@ -40,15 +41,28 @@ export class SettingsComponent implements OnInit {
 
   savingProfile = signal(false);
   savingPassword = signal(false);
+  savingPreferences = signal(false);
   profileSuccess = signal(false);
   passwordSuccess = signal(false);
+  preferencesSuccess = signal(false);
   profileError = signal<string | null>(null);
   passwordError = signal<string | null>(null);
+  preferencesError = signal<string | null>(null);
+
+  emailRemindersEnabled = signal(true);
+
+  // Google Calendar
+  calendarStatus = signal<CalendarStatus>({ configured: false, connected: false, enabled: false });
+  calendarLoading = signal(false);
+  calendarSuccess = signal<string | null>(null);
+  calendarError = signal<string | null>(null);
 
   constructor(
     private fb: FormBuilder,
     public authService: AuthService,
-    private http: HttpClient
+    private http: HttpClient,
+    private calendarService: CalendarService,
+    private route: ActivatedRoute
   ) {
     this.profileForm = this.fb.group({
       firstName: ['', Validators.required],
@@ -73,6 +87,14 @@ export class SettingsComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadProfile();
+    this.loadCalendarStatus();
+
+    // Handle Google Calendar OAuth callback
+    this.route.queryParams.subscribe(params => {
+      if (params['calendar'] === 'callback' && params['code']) {
+        this.handleCalendarCallback(params['code']);
+      }
+    });
   }
 
   loadProfile(): void {
@@ -89,6 +111,8 @@ export class SettingsComponent implements OnInit {
         eloRating: user.eloRating || null,
         knowsElo: !!user.eloRating
       });
+      // Load email reminder preference
+      this.emailRemindersEnabled.set(user.emailRemindersEnabled !== false);
     }
   }
 
@@ -169,6 +193,96 @@ export class SettingsComponent implements OnInit {
       error: (err) => {
         this.savingPassword.set(false);
         this.passwordError.set(err.error?.message || 'Mot de passe actuel incorrect');
+      }
+    });
+  }
+
+  toggleEmailReminders(): void {
+    if (this.savingPreferences()) return;
+
+    const newValue = !this.emailRemindersEnabled();
+    this.savingPreferences.set(true);
+    this.preferencesSuccess.set(false);
+    this.preferencesError.set(null);
+
+    this.http.patch<any>('/api/users/me', { emailRemindersEnabled: newValue }).subscribe({
+      next: (updatedUser) => {
+        this.emailRemindersEnabled.set(newValue);
+        this.authService.updateCurrentUser(updatedUser);
+        this.savingPreferences.set(false);
+        this.preferencesSuccess.set(true);
+        setTimeout(() => this.preferencesSuccess.set(false), 3000);
+      },
+      error: (err) => {
+        this.savingPreferences.set(false);
+        this.preferencesError.set(err.error?.message || 'Erreur lors de la sauvegarde');
+      }
+    });
+  }
+
+  // Google Calendar methods
+  loadCalendarStatus(): void {
+    this.calendarService.getStatus().subscribe({
+      next: (status) => this.calendarStatus.set(status),
+      error: () => this.calendarStatus.set({ configured: false, connected: false, enabled: false })
+    });
+  }
+
+  connectGoogleCalendar(): void {
+    this.calendarLoading.set(true);
+    this.calendarError.set(null);
+
+    this.calendarService.getAuthUrl().subscribe({
+      next: (response) => {
+        this.calendarLoading.set(false);
+        if (response.authUrl) {
+          window.location.href = response.authUrl;
+        } else {
+          this.calendarError.set(response.message || 'Google Calendar non disponible');
+        }
+      },
+      error: (err) => {
+        this.calendarLoading.set(false);
+        this.calendarError.set(err.error?.message || 'Erreur de connexion');
+      }
+    });
+  }
+
+  handleCalendarCallback(code: string): void {
+    this.calendarLoading.set(true);
+    this.calendarError.set(null);
+
+    this.calendarService.handleCallback(code).subscribe({
+      next: () => {
+        this.calendarLoading.set(false);
+        this.calendarSuccess.set('Google Calendar connecte avec succes !');
+        this.loadCalendarStatus();
+        // Clear URL params
+        window.history.replaceState({}, '', '/settings');
+        setTimeout(() => this.calendarSuccess.set(null), 3000);
+      },
+      error: (err) => {
+        this.calendarLoading.set(false);
+        this.calendarError.set(err.error?.message || 'Erreur lors de la connexion');
+        window.history.replaceState({}, '', '/settings');
+      }
+    });
+  }
+
+  disconnectGoogleCalendar(): void {
+    this.calendarLoading.set(true);
+    this.calendarError.set(null);
+
+    this.calendarService.disconnect().subscribe({
+      next: () => {
+        this.calendarLoading.set(false);
+        this.calendarSuccess.set('Google Calendar deconnecte');
+        this.loadCalendarStatus();
+        setTimeout(() => this.calendarSuccess.set(null), 3000);
+      },
+      error: (err) => {
+        this.calendarLoading.set(false);
+        this.calendarError.set(err.error?.message || 'Erreur lors de la deconnexion');
       }
     });
   }

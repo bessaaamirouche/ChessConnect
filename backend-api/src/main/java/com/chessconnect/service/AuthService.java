@@ -57,6 +57,12 @@ public class AuthService {
             user.setHourlyRateCents(request.hourlyRateCents() != null ? request.hourlyRateCents() : 5000);
             user.setAcceptsSubscription(request.acceptsSubscription() != null ? request.acceptsSubscription() : true);
             user.setBio(request.bio());
+            // Save languages for teachers
+            if (request.languages() != null && !request.languages().isEmpty()) {
+                user.setLanguages(String.join(",", request.languages()));
+            } else {
+                user.setLanguages("FR"); // Default to French
+            }
         } else if (request.role() == UserRole.STUDENT) {
             user.setBirthDate(request.birthDate());
             user.setEloRating(request.eloRating());

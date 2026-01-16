@@ -4,6 +4,7 @@ import com.chessconnect.dto.teacher.TeacherBalanceResponse;
 import com.chessconnect.model.User;
 import com.chessconnect.model.enums.UserRole;
 import com.chessconnect.repository.UserRepository;
+import com.chessconnect.service.RatingService;
 import com.chessconnect.service.TeacherBalanceService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,10 +19,16 @@ public class TeacherController {
 
     private final UserRepository userRepository;
     private final TeacherBalanceService teacherBalanceService;
+    private final RatingService ratingService;
 
-    public TeacherController(UserRepository userRepository, TeacherBalanceService teacherBalanceService) {
+    public TeacherController(
+            UserRepository userRepository,
+            TeacherBalanceService teacherBalanceService,
+            RatingService ratingService
+    ) {
         this.userRepository = userRepository;
         this.teacherBalanceService = teacherBalanceService;
+        this.ratingService = ratingService;
     }
 
     @GetMapping
@@ -90,6 +97,15 @@ public class TeacherController {
     public record MigrationResponse(int lessonsProcessed, String message) {}
 
     private TeacherResponse mapToResponse(User teacher) {
+        // Parse languages from comma-separated string to List
+        List<String> languagesList = teacher.getLanguages() != null && !teacher.getLanguages().isEmpty()
+                ? List.of(teacher.getLanguages().split(","))
+                : List.of("FR");
+
+        // Get rating data
+        Double averageRating = ratingService.getAverageRatingForTeacher(teacher.getId());
+        Integer reviewCount = ratingService.getReviewCountForTeacher(teacher.getId());
+
         return new TeacherResponse(
                 teacher.getId(),
                 teacher.getEmail(),
@@ -98,7 +114,10 @@ public class TeacherController {
                 teacher.getHourlyRateCents(),
                 teacher.getAcceptsSubscription(),
                 teacher.getBio(),
-                teacher.getAvatarUrl()
+                teacher.getAvatarUrl(),
+                languagesList,
+                averageRating,
+                reviewCount
         );
     }
 
@@ -110,6 +129,9 @@ public class TeacherController {
             Integer hourlyRateCents,
             Boolean acceptsSubscription,
             String bio,
-            String avatarUrl
+            String avatarUrl,
+            List<String> languages,
+            Double averageRating,
+            Integer reviewCount
     ) {}
 }

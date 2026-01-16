@@ -78,6 +78,9 @@ public class Lesson {
     @Column(name = "earnings_credited")
     private Boolean earningsCredited = false;
 
+    @Column(name = "reminder_sent")
+    private Boolean reminderSent = false;
+
     @Column(name = "teacher_observations", columnDefinition = "TEXT")
     private String teacherObservations;
 
@@ -169,6 +172,9 @@ public class Lesson {
 
     public Boolean getEarningsCredited() { return earningsCredited; }
     public void setEarningsCredited(Boolean earningsCredited) { this.earningsCredited = earningsCredited; }
+
+    public Boolean getReminderSent() { return reminderSent; }
+    public void setReminderSent(Boolean reminderSent) { this.reminderSent = reminderSent; }
 
     public String getTeacherObservations() { return teacherObservations; }
     public void setTeacherObservations(String teacherObservations) { this.teacherObservations = teacherObservations; }

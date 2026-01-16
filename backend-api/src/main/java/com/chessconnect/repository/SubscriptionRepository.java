@@ -24,4 +24,6 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
     List<Subscription> findAllByIsActiveTrue();
 
     Optional<Subscription> findByStripeSubscriptionId(String stripeSubscriptionId);
+
+    long countByIsActiveTrue();
 }

@@ -4,14 +4,17 @@ import com.chessconnect.dto.availability.AvailabilityRequest;
 import com.chessconnect.dto.availability.AvailabilityResponse;
 import com.chessconnect.dto.availability.TimeSlotResponse;
 import com.chessconnect.model.Availability;
+import com.chessconnect.model.FavoriteTeacher;
 import com.chessconnect.model.Lesson;
 import com.chessconnect.model.User;
 import com.chessconnect.model.enums.LessonStatus;
 import com.chessconnect.repository.AvailabilityRepository;
+import com.chessconnect.repository.FavoriteTeacherRepository;
 import com.chessconnect.repository.LessonRepository;
 import com.chessconnect.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,8 +22,10 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public class AvailabilityService {
@@ -32,15 +37,24 @@ public class AvailabilityService {
     private final AvailabilityRepository availabilityRepository;
     private final LessonRepository lessonRepository;
     private final UserRepository userRepository;
+    private final FavoriteTeacherRepository favoriteRepository;
+    private final EmailService emailService;
+
+    @Value("${app.frontend-url:http://localhost:4200}")
+    private String frontendUrl;
 
     public AvailabilityService(
             AvailabilityRepository availabilityRepository,
             LessonRepository lessonRepository,
-            UserRepository userRepository
+            UserRepository userRepository,
+            FavoriteTeacherRepository favoriteRepository,
+            EmailService emailService
     ) {
         this.availabilityRepository = availabilityRepository;
         this.lessonRepository = lessonRepository;
         this.userRepository = userRepository;
+        this.favoriteRepository = favoriteRepository;
+        this.emailService = emailService;
     }
 
     @Transactional
@@ -49,6 +63,9 @@ public class AvailabilityService {
                 .orElseThrow(() -> new RuntimeException("Teacher not found"));
 
         validateAvailabilityRequest(request);
+
+        // Check for overlapping availabilities (Feature 8)
+        checkAvailabilityOverlap(teacherId, request);
 
         Availability availability = new Availability();
         availability.setTeacher(teacher);
@@ -62,7 +79,52 @@ public class AvailabilityService {
         availability = availabilityRepository.save(availability);
         log.info("Created availability {} for teacher {}", availability.getId(), teacherId);
 
+        // Notify subscribed students
+        notifySubscribers(teacher, availability);
+
         return AvailabilityResponse.fromEntity(availability);
+    }
+
+    private void notifySubscribers(User teacher, Availability availability) {
+        List<FavoriteTeacher> subscribers = favoriteRepository.findByTeacherIdAndNotifyNewSlotsTrue(teacher.getId());
+
+        if (subscribers.isEmpty()) {
+            return;
+        }
+
+        String teacherName = teacher.getFirstName() + " " + teacher.getLastName();
+        String availabilityInfo = formatAvailabilityInfo(availability);
+        String bookingLink = frontendUrl + "/book/" + teacher.getId();
+
+        for (FavoriteTeacher subscriber : subscribers) {
+            User student = subscriber.getStudent();
+            emailService.sendNewAvailabilityNotification(
+                    student.getEmail(),
+                    student.getFirstName(),
+                    teacherName,
+                    availabilityInfo,
+                    bookingLink
+            );
+        }
+
+        log.info("Notified {} subscribers about new availability for teacher {}",
+                subscribers.size(), teacher.getId());
+    }
+
+    private String formatAvailabilityInfo(Availability availability) {
+        StringBuilder sb = new StringBuilder();
+
+        if (availability.getIsRecurring()) {
+            String dayName = availability.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.FRENCH);
+            sb.append("Tous les ").append(dayName).append("s");
+        } else {
+            sb.append("Le ").append(availability.getSpecificDate().toString());
+        }
+
+        sb.append(" de ").append(availability.getStartTime())
+          .append(" a ").append(availability.getEndTime());
+
+        return sb.toString();
     }
 
     public List<AvailabilityResponse> getTeacherAvailabilities(Long teacherId) {
@@ -209,6 +271,44 @@ public class AvailabilityService {
 
         if (!request.getIsRecurring() && request.getSpecificDate().isBefore(LocalDate.now())) {
             throw new RuntimeException("Specific date cannot be in the past");
+        }
+    }
+
+    /**
+     * Check for overlapping availability slots (Feature 8).
+     * Teacher availability slots must not overlap on the same day.
+     */
+    private void checkAvailabilityOverlap(Long teacherId, AvailabilityRequest request) {
+        List<Availability> existingAvailabilities;
+
+        if (request.getIsRecurring()) {
+            // For recurring, check overlaps on the same day of week
+            existingAvailabilities = availabilityRepository
+                    .findByTeacherIdAndDayOfWeekAndIsActiveTrue(teacherId, request.getDayOfWeek())
+                    .stream()
+                    .filter(Availability::getIsRecurring)
+                    .toList();
+        } else {
+            // For specific date, check overlaps on that date
+            existingAvailabilities = availabilityRepository
+                    .findAvailabilitiesForDate(teacherId, request.getSpecificDate().getDayOfWeek(), request.getSpecificDate());
+        }
+
+        LocalTime newStart = request.getStartTime();
+        LocalTime newEnd = request.getEndTime();
+
+        boolean hasOverlap = existingAvailabilities.stream()
+                .anyMatch(existing -> {
+                    LocalTime existingStart = existing.getStartTime();
+                    LocalTime existingEnd = existing.getEndTime();
+                    // Check if time ranges overlap
+                    return newStart.isBefore(existingEnd) && newEnd.isAfter(existingStart);
+                });
+
+        if (hasOverlap) {
+            throw new RuntimeException(
+                    "Ce creneau chevauche une disponibilite existante. Modifiez les horaires ou supprimez l'ancienne disponibilite."
+            );
         }
     }
 }

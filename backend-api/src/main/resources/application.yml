@@ -50,6 +50,26 @@ stripe:
 # App Configuration
 app:
   frontend-url: ${FRONTEND_URL:http://192.168.1.16:4200}
+  name: ChessConnect
+
+# Email Configuration
+spring.mail:
+  host: ${SPRING_MAIL_HOST:smtp.gmail.com}
+  port: ${SPRING_MAIL_PORT:587}
+  username: ${SPRING_MAIL_USERNAME:}
+  password: ${SPRING_MAIL_PASSWORD:}
+  enabled: ${SPRING_MAIL_ENABLED:false}
+  properties:
+    mail:
+      smtp:
+        auth: true
+        starttls:
+          enable: true
+
+# Google Calendar Configuration
+google:
+  client-id: ${GOOGLE_CLIENT_ID:}
+  client-secret: ${GOOGLE_CLIENT_SECRET:}
 
 # Logging
 logging:

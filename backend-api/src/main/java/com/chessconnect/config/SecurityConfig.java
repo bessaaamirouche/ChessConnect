@@ -43,6 +43,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/ratings/teacher/**").permitAll()
                         .requestMatchers("/public/**").permitAll()
                         .requestMatchers("/teachers/**").permitAll()
                         .requestMatchers("/payments/webhooks/**").permitAll()

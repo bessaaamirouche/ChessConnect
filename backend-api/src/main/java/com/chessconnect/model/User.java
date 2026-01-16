@@ -50,6 +50,28 @@ public class User {
     @Column(name = "elo_rating")
     private Integer eloRating;
 
+    // Languages spoken by teacher (comma-separated: "FR,EN,ES")
+    @Column(name = "languages")
+    private String languages;
+
+    // Email reminder preference
+    @Column(name = "email_reminders_enabled")
+    private Boolean emailRemindersEnabled = true;
+
+    // Google Calendar integration
+    @Column(name = "google_calendar_token", columnDefinition = "TEXT")
+    private String googleCalendarToken;
+
+    @Column(name = "google_calendar_refresh_token", columnDefinition = "TEXT")
+    private String googleCalendarRefreshToken;
+
+    @Column(name = "google_calendar_enabled")
+    private Boolean googleCalendarEnabled = false;
+
+    // Admin suspension
+    @Column(name = "is_suspended")
+    private Boolean isSuspended = false;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -135,4 +157,22 @@ public class User {
         if (birthDate == null) return null;
         return Period.between(birthDate, LocalDate.now()).getYears();
     }
+
+    public String getLanguages() { return languages; }
+    public void setLanguages(String languages) { this.languages = languages; }
+
+    public Boolean getEmailRemindersEnabled() { return emailRemindersEnabled; }
+    public void setEmailRemindersEnabled(Boolean emailRemindersEnabled) { this.emailRemindersEnabled = emailRemindersEnabled; }
+
+    public String getGoogleCalendarToken() { return googleCalendarToken; }
+    public void setGoogleCalendarToken(String googleCalendarToken) { this.googleCalendarToken = googleCalendarToken; }
+
+    public String getGoogleCalendarRefreshToken() { return googleCalendarRefreshToken; }
+    public void setGoogleCalendarRefreshToken(String googleCalendarRefreshToken) { this.googleCalendarRefreshToken = googleCalendarRefreshToken; }
+
+    public Boolean getGoogleCalendarEnabled() { return googleCalendarEnabled; }
+    public void setGoogleCalendarEnabled(Boolean googleCalendarEnabled) { this.googleCalendarEnabled = googleCalendarEnabled; }
+
+    public Boolean getIsSuspended() { return isSuspended; }
+    public void setIsSuspended(Boolean isSuspended) { this.isSuspended = isSuspended; }
 }

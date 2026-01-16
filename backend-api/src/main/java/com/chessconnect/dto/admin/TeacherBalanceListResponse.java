@@ -5,9 +5,9 @@ public record TeacherBalanceListResponse(
         String firstName,
         String lastName,
         String email,
-        Long availableBalanceCents,
-        Long pendingBalanceCents,
-        Long totalEarnedCents,
-        Long totalWithdrawnCents,
-        Long lessonsCompleted
+        Integer availableBalanceCents,
+        Integer pendingBalanceCents,
+        Integer totalEarnedCents,
+        Integer totalWithdrawnCents,
+        Integer lessonsCompleted
 ) {}

@@ -66,7 +66,8 @@ public class AdminService {
             Long reviewCount = null;
             if (user.getRole() == UserRole.TEACHER) {
                 avgRating = ratingRepository.getAverageRatingForTeacher(user.getId());
-                reviewCount = ratingRepository.countByTeacherId(user.getId());
+                Integer count = ratingRepository.getReviewCountForTeacher(user.getId());
+                reviewCount = count != null ? count.longValue() : 0L;
             }
             return UserListResponse.from(user, lessonsCount, avgRating, reviewCount);
         });
@@ -84,7 +85,8 @@ public class AdminService {
         Long reviewCount = null;
         if (user.getRole() == UserRole.TEACHER) {
             avgRating = ratingRepository.getAverageRatingForTeacher(user.getId());
-            reviewCount = ratingRepository.countByTeacherId(user.getId());
+            Integer count = ratingRepository.getReviewCountForTeacher(user.getId());
+            reviewCount = count != null ? count.longValue() : 0L;
         }
         return UserListResponse.from(user, lessonsCount, avgRating, reviewCount);
     }

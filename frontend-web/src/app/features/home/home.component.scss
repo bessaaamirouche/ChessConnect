@@ -13,11 +13,19 @@ $ivory-muted: #d4cfc0;
 
 // === Landing Container ===
 .landing {
-  height: 100vh;
-  overflow: hidden;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   background: $wood-dark;
   display: flex;
   flex-direction: column;
+
+  @include respond-to(lg) {
+    height: 100vh;
+    overflow: hidden;
+  }
 
   &.transitioning {
     .section {
@@ -34,10 +42,14 @@ $ivory-muted: #d4cfc0;
   left: 0;
   right: 0;
   z-index: 1000;
-  padding: var(--space-md) var(--space-lg);
+  padding: var(--space-sm) var(--space-md);
   background: linear-gradient(180deg, rgba($wood-dark, 0.98) 0%, rgba($wood-dark, 0.9) 100%);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba($mustard, 0.2);
+
+  @include respond-to(sm) {
+    padding: var(--space-md) var(--space-lg);
+  }
 
   @include respond-to(lg) {
     padding: var(--space-md) var(--space-xl);
@@ -66,9 +78,13 @@ $ivory-muted: #d4cfc0;
     }
 
     &-img {
-      height: 45px;
+      height: 36px;
       width: auto;
       object-fit: contain;
+
+      @include respond-to(sm) {
+        height: 45px;
+      }
 
       @include respond-to(md) {
         height: 55px;
@@ -84,12 +100,18 @@ $ivory-muted: #d4cfc0;
   &__hamburger {
     display: flex;
     flex-direction: column;
-    gap: 5px;
-    padding: var(--space-sm);
-    background: transparent;
-    border: none;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    background: rgba($mustard, 0.1);
+    border: 1px solid rgba($mustard, 0.3);
+    border-radius: var(--radius-md);
     cursor: pointer;
     z-index: 1001;
+    flex-shrink: 0;
 
     @include respond-to(lg) {
       display: none;
@@ -97,22 +119,28 @@ $ivory-muted: #d4cfc0;
 
     span {
       display: block;
-      width: 24px;
-      height: 2px;
-      background: $ivory;
+      width: 22px;
+      height: 3px;
+      background: $mustard;
       border-radius: 2px;
       transition: all var(--transition-fast);
     }
 
+    &:hover {
+      background: rgba($mustard, 0.2);
+    }
+
     &.active {
+      background: rgba($mustard, 0.2);
+
       span:nth-child(1) {
-        transform: rotate(45deg) translate(5px, 5px);
+        transform: rotate(45deg) translate(6px, 6px);
       }
       span:nth-child(2) {
         opacity: 0;
       }
       span:nth-child(3) {
-        transform: rotate(-45deg) translate(5px, -5px);
+        transform: rotate(-45deg) translate(6px, -6px);
       }
     }
   }
@@ -264,16 +292,26 @@ $ivory-muted: #d4cfc0;
 }
 
 .section {
-  position: absolute;
-  inset: 0;
-  top: 70px;
-  display: flex;
+  position: relative;
+  min-height: calc(100vh - 70px);
+  min-height: calc(100dvh - 70px);
+  display: none;
   align-items: center;
   justify-content: center;
-  opacity: 0;
-  visibility: hidden;
-  transform: scale(0.98);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: var(--space-lg) var(--space-md);
+  overflow-y: auto;
+
+  @include respond-to(lg) {
+    position: absolute;
+    inset: 0;
+    top: 70px;
+    min-height: auto;
+    padding: 0;
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.98);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
 
   // Background avec overlay pour chaque section
   &::before {
@@ -295,15 +333,24 @@ $ivory-muted: #d4cfc0;
   }
 
   &--active {
-    opacity: 1;
-    visibility: visible;
-    transform: scale(1);
+    display: flex;
+
+    @include respond-to(lg) {
+      opacity: 1;
+      visibility: visible;
+      transform: scale(1);
+    }
   }
 
   &--hidden {
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
+    display: none;
+
+    @include respond-to(lg) {
+      display: flex;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
   }
 
   // === Images de fond par section ===
@@ -385,18 +432,33 @@ $ivory-muted: #d4cfc0;
 
 // === Hero Section ===
 .hero {
-  position: absolute;
-  inset: 0;
+  position: relative;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: var(--space-lg) 0;
+
+  @include respond-to(lg) {
+    position: absolute;
+    inset: 0;
+    padding: 0;
+  }
 
   &__content {
     position: relative;
     z-index: 10;
     text-align: center;
     max-width: 700px;
-    padding: var(--space-xl);
+    padding: var(--space-md);
+
+    @include respond-to(sm) {
+      padding: var(--space-lg);
+    }
+
+    @include respond-to(lg) {
+      padding: var(--space-xl);
+    }
   }
 
   &__chess-icons {
@@ -503,9 +565,20 @@ $ivory-muted: #d4cfc0;
   &__stats {
     display: flex;
     justify-content: center;
-    gap: var(--space-2xl);
-    padding-top: var(--space-xl);
+    gap: var(--space-md);
+    padding-top: var(--space-md);
     border-top: 1px solid rgba($mustard, 0.2);
+    flex-wrap: wrap;
+
+    @include respond-to(sm) {
+      gap: var(--space-xl);
+      padding-top: var(--space-lg);
+    }
+
+    @include respond-to(lg) {
+      gap: var(--space-2xl);
+      padding-top: var(--space-xl);
+    }
   }
 
   &__stat {
@@ -514,16 +587,32 @@ $ivory-muted: #d4cfc0;
     &-value {
       display: block;
       font-family: var(--font-display);
-      font-size: 1.75rem;
+      font-size: 1.25rem;
       font-weight: 700;
       color: $mustard;
+
+      @include respond-to(sm) {
+        font-size: 1.5rem;
+      }
+
+      @include respond-to(lg) {
+        font-size: 1.75rem;
+      }
     }
 
     &-label {
-      font-size: 0.8125rem;
+      font-size: 0.6875rem;
       color: $ivory-muted;
       text-transform: uppercase;
       letter-spacing: 0.05em;
+
+      @include respond-to(sm) {
+        font-size: 0.75rem;
+      }
+
+      @include respond-to(lg) {
+        font-size: 0.8125rem;
+      }
     }
   }
 }

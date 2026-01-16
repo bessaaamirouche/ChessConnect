@@ -67,7 +67,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(List.of("http://localhost:*", "http://192.168.*.*:*", "http://5.189.173.131:*", "https://*"));
+        configuration.setAllowedOriginPatterns(List.of("http://localhost:*", "http://192.168.*.*:*", "http://5.189.173.131:*", "https://*", "http://mychess.fr:*", "https://mychess.fr:*", "http://www.mychess.fr:*", "https://www.mychess.fr:*"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);

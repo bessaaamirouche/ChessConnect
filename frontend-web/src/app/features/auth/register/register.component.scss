@@ -2,16 +2,25 @@
 
 .auth-page {
   min-height: 100vh;
+  min-height: 100dvh; // Dynamic viewport height for mobile
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding: var(--space-md);
+  padding: var(--space-sm);
+  padding-top: var(--space-lg);
+  padding-bottom: var(--space-xl);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   background:
     radial-gradient(ellipse at top, rgba(212, 168, 75, 0.1) 0%, transparent 50%),
     var(--bg-primary);
 
   @include respond-to(sm) {
     padding: var(--space-lg);
+    padding-top: var(--space-xl);
+  }
+
+  @include respond-to(md) {
     align-items: center;
   }
 }
@@ -19,15 +28,18 @@
 .auth-card {
   width: 100%;
   max-width: 480px;
-  padding: var(--space-lg);
-  margin-top: var(--space-lg);
+  padding: var(--space-md);
+  margin-top: 0;
 
   @include respond-to(sm) {
-    padding: var(--space-xl);
-    margin-top: 0;
+    padding: var(--space-lg);
   }
 
   @include respond-to(md) {
+    padding: var(--space-xl);
+  }
+
+  @include respond-to(lg) {
     padding: var(--space-2xl);
   }
 

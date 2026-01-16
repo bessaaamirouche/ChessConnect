@@ -2,13 +2,11 @@
 
 .auth-page {
   min-height: 100vh;
-  min-height: 100dvh; // Dynamic viewport height for mobile
+  min-height: 100dvh;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
-  padding: var(--space-sm);
-  padding-top: var(--space-lg);
-  padding-bottom: var(--space-xl);
+  padding: var(--space-xs);
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   background:
@@ -16,82 +14,68 @@
     var(--bg-primary);
 
   @include respond-to(sm) {
-    padding: var(--space-lg);
-    padding-top: var(--space-xl);
-  }
-
-  @include respond-to(md) {
-    align-items: center;
+    padding: var(--space-sm);
   }
 }
 
 .auth-card {
   width: 100%;
   max-width: 480px;
-  padding: var(--space-md);
+  padding: var(--space-sm);
   margin-top: 0;
 
   @include respond-to(sm) {
-    padding: var(--space-lg);
+    padding: var(--space-md);
   }
 
   @include respond-to(md) {
-    padding: var(--space-xl);
-  }
-
-  @include respond-to(lg) {
-    padding: var(--space-2xl);
+    padding: var(--space-lg);
   }
 
   &__header {
     text-align: center;
-    margin-bottom: var(--space-lg);
+    margin-bottom: var(--space-sm);
 
     @include respond-to(sm) {
-      margin-bottom: var(--space-xl);
+      margin-bottom: var(--space-md);
     }
   }
 
   &__logo {
     font-family: var(--font-display);
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     font-weight: 700;
     @include gold-text;
     display: block;
-    margin-bottom: var(--space-md);
+    margin-bottom: var(--space-xs);
 
     @include respond-to(sm) {
-      font-size: 1.75rem;
-      margin-bottom: var(--space-lg);
+      font-size: 1.5rem;
+      margin-bottom: var(--space-sm);
     }
   }
 
   h1 {
-    margin-bottom: var(--space-xs);
-    font-size: 1.25rem;
+    margin-bottom: var(--space-2xs);
+    font-size: 1.125rem;
 
     @include respond-to(sm) {
-      font-size: 1.5rem;
+      font-size: 1.25rem;
     }
   }
 
   &__footer {
     text-align: center;
-    margin-top: var(--space-lg);
-    padding-top: var(--space-md);
+    margin-top: var(--space-sm);
+    padding-top: var(--space-sm);
     border-top: 1px solid var(--border-subtle);
 
-    @include respond-to(sm) {
-      margin-top: var(--space-xl);
-      padding-top: var(--space-lg);
-    }
-
     p {
-      font-size: 0.875rem;
+      font-size: 0.8125rem;
       color: var(--text-secondary);
 
       @include respond-to(sm) {
-        font-size: 0.9375rem;
+        font-size: 0.875rem;
       }
     }
 
@@ -104,12 +88,12 @@
 .role-selector {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--space-sm);
-  margin-bottom: var(--space-lg);
+  gap: var(--space-xs);
+  margin-bottom: var(--space-sm);
 
   @include respond-to(sm) {
-    gap: var(--space-md);
-    margin-bottom: var(--space-xl);
+    gap: var(--space-sm);
+    margin-bottom: var(--space-md);
   }
 }
 
@@ -117,16 +101,16 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-xs);
-  padding: var(--space-md);
+  gap: var(--space-2xs);
+  padding: var(--space-sm);
   background: var(--bg-tertiary);
   border: 2px solid var(--border-default);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   transition: all var(--transition-fast);
   cursor: pointer;
 
   @include respond-to(sm) {
-    padding: var(--space-lg);
+    padding: var(--space-md);
   }
 
   &:hover {
@@ -140,31 +124,31 @@
   }
 
   &__icon {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
 
     @include respond-to(sm) {
-      font-size: 2rem;
+      font-size: 1.5rem;
     }
   }
 
   &__label {
     font-weight: 600;
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     color: var(--text-primary);
 
     @include respond-to(sm) {
-      font-size: 1rem;
+      font-size: 0.875rem;
     }
   }
 
   &__desc {
-    font-size: 0.75rem;
+    font-size: 0.6875rem;
     color: var(--text-muted);
     display: none;
 
     @include respond-to(sm) {
       display: block;
-      font-size: 0.8125rem;
+      font-size: 0.75rem;
     }
   }
 }
@@ -172,17 +156,17 @@
 .auth-form {
   display: flex;
   flex-direction: column;
-  gap: var(--space-md);
+  gap: var(--space-sm);
 
   @include respond-to(sm) {
-    gap: var(--space-lg);
+    gap: var(--space-md);
   }
 }
 
 .form-row {
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--space-md);
+  gap: var(--space-sm);
 
   @include respond-to(sm) {
     grid-template-columns: 1fr 1fr;
@@ -193,19 +177,23 @@
 .teacher-fields {
   display: flex;
   flex-direction: column;
-  gap: var(--space-lg);
-  padding: var(--space-lg);
+  gap: var(--space-sm);
+  padding: var(--space-sm);
   background: var(--bg-tertiary);
   border-radius: var(--radius-md);
   border: 1px solid var(--border-subtle);
+
+  @include respond-to(sm) {
+    padding: var(--space-md);
+    gap: var(--space-md);
+  }
 }
 
 .student-fields {
-  // Hauteur minimale fixe pour éviter les sauts de layout
-  min-height: 180px;
+  min-height: 140px;
 
   .elo-field-container {
-    min-height: 85px;
+    min-height: 70px;
     overflow: hidden;
   }
 
@@ -226,10 +214,10 @@
 }
 
 .alert {
-  padding: var(--space-md);
+  padding: var(--space-sm);
   border-radius: var(--radius-md);
-  font-size: 0.9375rem;
-  margin-bottom: var(--space-lg);
+  font-size: 0.8125rem;
+  margin-bottom: var(--space-sm);
 
   &--error {
     background: var(--error-muted);

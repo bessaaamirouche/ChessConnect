@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, inject, ViewChild, ChangeDetectionStrategy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -16,7 +16,8 @@ import {
   heroPlus,
   heroTrash,
   heroXMark,
-  heroClock
+  heroClock,
+  heroBars3
 } from '@ng-icons/heroicons/outline';
 
 @Component({
@@ -33,7 +34,8 @@ import {
     heroPlus,
     heroTrash,
     heroXMark,
-    heroClock
+    heroClock,
+    heroBars3
   })],
   templateUrl: './availability-management.component.html',
   styleUrl: './availability-management.component.scss'
@@ -52,6 +54,7 @@ export class AvailabilityManagementComponent implements OnInit {
   loading = this.availabilityService.loading;
   error = this.availabilityService.error;
 
+  sidebarOpen = signal(false);
   showAddModal = false;
   isRecurring = true;
   selectedDay: DayOfWeek = 'MONDAY';
@@ -177,5 +180,13 @@ export class AvailabilityManagementComponent implements OnInit {
 
   logout(): void {
     this.authService.logout();
+  }
+
+  toggleSidebar(): void {
+    this.sidebarOpen.update(v => !v);
+  }
+
+  closeSidebar(): void {
+    this.sidebarOpen.set(false);
   }
 }

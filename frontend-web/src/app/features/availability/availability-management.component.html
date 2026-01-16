@@ -1,6 +1,19 @@
 <div class="dashboard">
+  <!-- Mobile Header -->
+  <header class="mobile-header">
+    <button class="burger-btn" (click)="toggleSidebar()">
+      <ng-icon name="heroBars3" size="24"></ng-icon>
+    </button>
+    <a routerLink="/" class="mobile-header__logo">ChessConnect</a>
+  </header>
+
+  <!-- Sidebar Overlay -->
+  @if (sidebarOpen()) {
+    <div class="sidebar-overlay" (click)="closeSidebar()"></div>
+  }
+
   <!-- Sidebar -->
-  <aside class="sidebar">
+  <aside class="sidebar" [class.sidebar--open]="sidebarOpen()">
     <div class="sidebar__header">
       <a routerLink="/" class="sidebar__logo">ChessConnect</a>
     </div>
@@ -8,23 +21,23 @@
     <nav class="sidebar__nav">
       <div class="sidebar__section">
         <span class="sidebar__section-title">Menu</span>
-        <a routerLink="/dashboard" class="sidebar__link">
+        <a routerLink="/dashboard" class="sidebar__link" (click)="closeSidebar()">
           <ng-icon name="heroChartBarSquare" class="sidebar__icon"></ng-icon> Mon Espace
         </a>
-        <a routerLink="/lessons" class="sidebar__link">
+        <a routerLink="/lessons" class="sidebar__link" (click)="closeSidebar()">
           <ng-icon name="heroCalendarDays" class="sidebar__icon"></ng-icon> Mes Cours
         </a>
-        <a routerLink="/availability" class="sidebar__link active">
+        <a routerLink="/availability" class="sidebar__link active" (click)="closeSidebar()">
           <ng-icon name="heroClipboardDocumentList" class="sidebar__icon"></ng-icon> Mes Disponibilités
         </a>
       </div>
 
       <div class="sidebar__section">
         <span class="sidebar__section-title">Compte</span>
-        <a routerLink="/settings" class="sidebar__link">
+        <a routerLink="/settings" class="sidebar__link" (click)="closeSidebar()">
           <ng-icon name="heroUserCircle" class="sidebar__icon"></ng-icon> Mon Profil
         </a>
-        <button class="sidebar__link" (click)="logout()">
+        <button class="sidebar__link" (click)="logout(); closeSidebar()">
           <ng-icon name="heroArrowRightOnRectangle" class="sidebar__icon"></ng-icon> Déconnexion
         </button>
       </div>

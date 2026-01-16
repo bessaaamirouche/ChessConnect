@@ -1,4 +1,5 @@
 <div class="auth-page">
+  <a routerLink="/" class="back-home">&larr; Retour à l'accueil</a>
   <div class="auth-card card">
     @if (success()) {
       <!-- Success Screen for Students -->
@@ -26,7 +27,6 @@
     <div class="auth-card__header">
       <a routerLink="/" class="auth-card__logo">ChessConnect</a>
       <h1 class="heading-3">Créer un compte</h1>
-      <p class="text-secondary">Rejoignez la communauté ChessConnect</p>
     </div>
 
     @if (error()) {

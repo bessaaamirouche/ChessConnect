@@ -3,9 +3,65 @@
 .dashboard {
   display: grid;
   min-height: 100vh;
+  grid-template-rows: auto 1fr;
 
   @include respond-to(lg) {
     grid-template-columns: 280px 1fr;
+    grid-template-rows: 1fr;
+  }
+}
+
+.mobile-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-subtle);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+
+  @include respond-to(lg) {
+    display: none;
+  }
+
+  &__logo {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 700;
+    @include gold-text;
+  }
+}
+
+.burger-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--bg-elevated);
+  }
+}
+
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 199;
+
+  @include respond-to(lg) {
+    display: none;
   }
 }
 
@@ -14,13 +70,25 @@
   border-right: 1px solid var(--border-subtle);
   padding: var(--space-lg);
   display: none;
-  position: sticky;
+  flex-direction: column;
+  position: fixed;
   top: 0;
+  left: 0;
   height: 100vh;
+  width: 280px;
+  z-index: 200;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+
+  &--open {
+    display: flex;
+    transform: translateX(0);
+  }
 
   @include respond-to(lg) {
     display: flex;
-    flex-direction: column;
+    position: sticky;
+    transform: translateX(0);
   }
 
   &__header {

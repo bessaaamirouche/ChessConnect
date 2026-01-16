@@ -102,16 +102,17 @@ $ivory-muted: #d4cfc0;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
     width: 44px;
     height: 44px;
     padding: 0;
-    background: rgba($mustard, 0.1);
-    border: 1px solid rgba($mustard, 0.3);
+    background: rgba($mustard, 0.15);
+    border: 1px solid rgba($mustard, 0.4);
     border-radius: var(--radius-md);
     cursor: pointer;
-    z-index: 1001;
+    z-index: 1003;
     flex-shrink: 0;
+    position: relative;
 
     @include respond-to(lg) {
       display: none;
@@ -119,28 +120,33 @@ $ivory-muted: #d4cfc0;
 
     span {
       display: block;
-      width: 22px;
-      height: 3px;
+      width: 20px;
+      height: 2px;
       background: $mustard;
       border-radius: 2px;
-      transition: all var(--transition-fast);
+      transition: all 0.3s ease;
     }
 
     &:hover {
-      background: rgba($mustard, 0.2);
+      background: rgba($mustard, 0.25);
     }
 
     &.active {
-      background: rgba($mustard, 0.2);
+      background: $mustard;
+
+      span {
+        background: $wood-dark;
+      }
 
       span:nth-child(1) {
-        transform: rotate(45deg) translate(6px, 6px);
+        transform: rotate(45deg) translate(5px, 5px);
       }
       span:nth-child(2) {
         opacity: 0;
+        transform: scaleX(0);
       }
       span:nth-child(3) {
-        transform: rotate(-45deg) translate(6px, -6px);
+        transform: rotate(-45deg) translate(5px, -5px);
       }
     }
   }
@@ -152,11 +158,11 @@ $ivory-muted: #d4cfc0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(0, 0, 0, 0.7);
     opacity: 0;
     visibility: hidden;
-    transition: all var(--transition-base);
-    z-index: 999;
+    transition: opacity 0.3s ease;
+    z-index: 1001;
 
     &.active {
       opacity: 1;
@@ -177,14 +183,17 @@ $ivory-muted: #d4cfc0;
     width: 280px;
     max-width: 85vw;
     background: $wood-dark;
-    padding: calc(70px + var(--space-xl)) var(--space-lg) var(--space-lg);
+    border-left: 1px solid rgba($mustard, 0.3);
+    padding: var(--space-lg);
+    padding-top: 80px;
     display: flex;
     flex-direction: column;
-    gap: var(--space-sm);
+    gap: var(--space-xs);
     transform: translateX(100%);
-    transition: transform var(--transition-base);
-    z-index: 1000;
+    transition: transform 0.3s ease;
+    z-index: 1002;
     overflow-y: auto;
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.5);
 
     &.active {
       transform: translateX(0);
@@ -195,20 +204,22 @@ $ivory-muted: #d4cfc0;
       width: auto;
       max-width: none;
       background: transparent;
+      border-left: none;
       padding: 0;
       flex-direction: row;
       gap: var(--space-xs);
       transform: none;
       overflow: visible;
+      box-shadow: none;
     }
 
     button {
-      background: none;
-      border: none;
-      color: $ivory-muted;
-      font-size: 1rem;
+      background: rgba($mustard, 0.05);
+      border: 1px solid rgba($mustard, 0.2);
+      color: $ivory;
+      font-size: 0.9375rem;
       font-weight: 500;
-      padding: var(--space-md);
+      padding: var(--space-sm) var(--space-md);
       border-radius: var(--radius-md);
       cursor: pointer;
       transition: all var(--transition-fast);
@@ -217,18 +228,22 @@ $ivory-muted: #d4cfc0;
       text-align: left;
 
       @include respond-to(lg) {
+        background: none;
+        border: none;
         font-size: 0.9375rem;
         padding: var(--space-sm) var(--space-md);
       }
 
       &:hover {
         color: $ivory;
-        background: rgba($mustard, 0.1);
+        background: rgba($mustard, 0.15);
+        border-color: rgba($mustard, 0.4);
       }
 
       &.active {
         color: $mustard;
-        background: rgba($mustard, 0.15);
+        background: rgba($mustard, 0.2);
+        border-color: $mustard;
       }
     }
   }

@@ -113,7 +113,7 @@ export class RegisterComponent {
         }
       },
       error: (err) => {
-        this.error.set(err.error?.message || 'Une erreur est survenue');
+        this.error.set(err.error?.error || err.error?.message || 'Une erreur est survenue');
         this.loading.set(false);
       }
     });

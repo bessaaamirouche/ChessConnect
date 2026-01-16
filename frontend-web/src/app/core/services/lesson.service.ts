@@ -37,7 +37,7 @@ export class LessonService {
           this.loadingSignal.set(false);
         },
         error: (err) => {
-          this.errorSignal.set(err.error?.message || 'Erreur lors de la réservation');
+          this.errorSignal.set(err.error?.error || err.error?.message || 'Erreur lors de la réservation');
           this.loadingSignal.set(false);
         }
       })

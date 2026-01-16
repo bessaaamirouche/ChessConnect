@@ -38,7 +38,7 @@ export class LoginComponent {
         this.router.navigate([this.authService.getRedirectRoute()]);
       },
       error: (err) => {
-        this.error.set(err.error?.message || 'Email ou mot de passe incorrect');
+        this.error.set(err.error?.error || err.error?.message || 'Email ou mot de passe incorrect');
         this.loading.set(false);
       }
     });

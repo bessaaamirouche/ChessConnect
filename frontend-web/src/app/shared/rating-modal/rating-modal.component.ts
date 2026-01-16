@@ -61,7 +61,7 @@ export class RatingModalComponent {
       },
       error: (err) => {
         this.loading.set(false);
-        this.error.set(err.error?.message || 'Une erreur est survenue');
+        this.error.set(err.error?.error || err.error?.message || 'Une erreur est survenue');
       }
     });
   }

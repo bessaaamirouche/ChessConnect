@@ -108,7 +108,6 @@ public class TeacherController {
 
         return new TeacherResponse(
                 teacher.getId(),
-                teacher.getEmail(),
                 teacher.getFirstName(),
                 teacher.getLastName(),
                 teacher.getHourlyRateCents(),
@@ -123,7 +122,6 @@ public class TeacherController {
 
     public record TeacherResponse(
             Long id,
-            String email,
             String firstName,
             String lastName,
             Integer hourlyRateCents,

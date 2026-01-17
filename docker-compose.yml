@@ -31,7 +31,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/chessconnect
       SPRING_DATASOURCE_USERNAME: chess
       SPRING_DATASOURCE_PASSWORD: chess123
-      FRONTEND_URL: http://mychess.fr
+      FRONTEND_URL: https://mychess.fr
       # Stripe API Keys - Set via .env file or environment variables
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
       STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY}
@@ -61,7 +61,7 @@ services:
       dockerfile: Dockerfile
     container_name: chessconnect-frontend
     ports:
-      - "80:80"
+      - "4200:80"
     depends_on:
       - backend
     networks:

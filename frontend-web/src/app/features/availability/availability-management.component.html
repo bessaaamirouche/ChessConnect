@@ -197,7 +197,7 @@
           <label class="form-group__label">Heure de début</label>
           <div class="time-picker">
             <select class="input time-picker__select" [(ngModel)]="startHour">
-              @for (h of hours; track h) {
+              @for (h of availableStartHours; track h) {
                 <option [value]="h">{{ h }}</option>
               }
             </select>
@@ -208,28 +208,8 @@
               }
             </select>
           </div>
+          <small class="form-hint">Durée du créneau : 1 heure (fin à {{ endTime }})</small>
         </div>
-
-        <div class="form-group">
-          <label class="form-group__label">Heure de fin</label>
-          <div class="time-picker">
-            <select class="input time-picker__select" [(ngModel)]="endHour">
-              @for (h of hours; track h) {
-                <option [value]="h">{{ h }}</option>
-              }
-            </select>
-            <span class="time-picker__separator">:</span>
-            <select class="input time-picker__select" [(ngModel)]="endMinute">
-              @for (m of minutes; track m) {
-                <option [value]="m">{{ m }}</option>
-              }
-            </select>
-          </div>
-        </div>
-
-        @if (startTime >= endTime) {
-          <p class="error-text">L'heure de fin doit être après l'heure de début</p>
-        }
       </div>
 
       <div class="modal__footer">

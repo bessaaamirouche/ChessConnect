@@ -49,6 +49,8 @@ export class AvailabilityManagementComponent implements OnInit {
   readonly daysOfWeek = DAYS_OF_WEEK;
   readonly hours = HOURS;
   readonly minutes = MINUTES;
+  // Start hours limited to 00-23 (last slot starts at 23:00, ends at 00:00)
+  readonly availableStartHours = HOURS;
 
   myAvailabilities = this.availabilityService.myAvailabilities;
   loading = this.availabilityService.loading;
@@ -61,8 +63,6 @@ export class AvailabilityManagementComponent implements OnInit {
   selectedDate = '';
   startHour = '09';
   startMinute = '00';
-  endHour = '10';
-  endMinute = '00';
   submitting = false;
 
   ngOnInit(): void {
@@ -89,8 +89,6 @@ export class AvailabilityManagementComponent implements OnInit {
     this.selectedDate = '';
     this.startHour = '09';
     this.startMinute = '00';
-    this.endHour = '10';
-    this.endMinute = '00';
   }
 
   get startTime(): string {
@@ -98,7 +96,10 @@ export class AvailabilityManagementComponent implements OnInit {
   }
 
   get endTime(): string {
-    return `${this.endHour}:${this.endMinute}`;
+    // Calculate end time as start time + 1 hour
+    const startH = parseInt(this.startHour, 10);
+    const endH = (startH + 1) % 24;
+    return `${endH.toString().padStart(2, '0')}:${this.startMinute}`;
   }
 
   onRecurringChange(): void {
@@ -110,8 +111,7 @@ export class AvailabilityManagementComponent implements OnInit {
   }
 
   isFormValid(): boolean {
-    if (!this.startTime || !this.endTime) return false;
-    if (this.startTime >= this.endTime) return false;
+    if (!this.startTime) return false;
     if (!this.isRecurring && !this.selectedDate) return false;
     return true;
   }

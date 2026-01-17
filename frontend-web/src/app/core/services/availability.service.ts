@@ -35,7 +35,8 @@ export class AvailabilityService {
       }),
       catchError(error => {
         this.loadingSignal.set(false);
-        this.errorSignal.set('Erreur lors de la création du créneau');
+        const message = error.error?.error || error.error?.message || 'Erreur lors de la creation du creneau';
+        this.errorSignal.set(message);
         throw error;
       })
     );

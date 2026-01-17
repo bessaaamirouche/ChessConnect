@@ -45,9 +45,31 @@
           </div>
 
           @if (authService.isStudent()) {
-            <a [routerLink]="['/book', teacher.id]" class="btn btn--primary btn--lg">
-              Réserver un cours
-            </a>
+            <div class="profile__actions">
+              <a [routerLink]="['/book', teacher.id]" class="btn btn--primary btn--lg">
+                Réserver un cours
+              </a>
+              <div class="profile__buttons">
+                <button
+                  class="btn-icon"
+                  [class.btn-icon--active]="isFavorite()"
+                  (click)="toggleFavorite()"
+                  [title]="isFavorite() ? 'Retirer des favoris' : 'Ajouter aux favoris'"
+                >
+                  <span class="icon-heart">{{ isFavorite() ? '&#9829;' : '&#9825;' }}</span>
+                </button>
+                @if (isFavorite()) {
+                  <button
+                    class="btn-icon"
+                    [class.btn-icon--active]="notifyEnabled()"
+                    (click)="toggleNotifications()"
+                    [title]="notifyEnabled() ? 'Désactiver les notifications' : 'Recevoir un email lors de nouveaux créneaux'"
+                  >
+                    <span class="icon-bell">{{ notifyEnabled() ? '&#128276;' : '&#128277;' }}</span>
+                  </button>
+                }
+              </div>
+            </div>
           }
         </div>
 

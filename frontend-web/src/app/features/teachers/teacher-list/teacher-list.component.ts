@@ -1,9 +1,10 @@
-import { Component, OnInit, signal, computed, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, signal, computed, ChangeDetectionStrategy, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TeacherService } from '../../../core/services/teacher.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { FavoriteService } from '../../../core/services/favorite.service';
+import { SeoService } from '../../../core/services/seo.service';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   heroAcademicCap,
@@ -41,6 +42,8 @@ import {
   styleUrl: './teacher-list.component.scss'
 })
 export class TeacherListComponent implements OnInit {
+  private seoService = inject(SeoService);
+
   searchQuery = signal('');
   minRate = signal<number | null>(null);
   maxRate = signal<number | null>(null);
@@ -81,6 +84,7 @@ export class TeacherListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.seoService.setTeachersListPage();
     this.teacherService.loadTeachers().subscribe();
     if (this.authService.isStudent()) {
       this.favoriteService.loadFavorites().subscribe();

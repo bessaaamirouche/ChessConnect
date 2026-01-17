@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /lessons
+Disallow: /book/
+Disallow: /progress
+Disallow: /quiz
+Disallow: /subscription
+Disallow: /availability
+Disallow: /settings
+Disallow: /admin
+
+Sitemap: https://mychess.fr/sitemap.xml

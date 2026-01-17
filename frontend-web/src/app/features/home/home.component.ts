@@ -1,6 +1,8 @@
-import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { SeoService } from '../../core/services/seo.service';
+import { StructuredDataService } from '../../core/services/structured-data.service';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   heroUserGroup,
@@ -40,11 +42,18 @@ type Section = 'home' | 'profils' | 'apprentis' | 'fonctionnement' | 'contact';
   styleUrl: './home.component.scss'
 })
 export class HomeComponent {
+  private seoService = inject(SeoService);
+  private structuredDataService = inject(StructuredDataService);
+
   activeSection = signal<Section>('home');
   isTransitioning = signal(false);
   mobileMenuOpen = signal(false);
 
-  constructor(public authService: AuthService) {}
+  constructor(public authService: AuthService) {
+    this.seoService.setHomePage();
+    this.structuredDataService.setOrganizationSchema();
+    this.structuredDataService.setCourseSchema();
+  }
 
   toggleMobileMenu(): void {
     this.mobileMenuOpen.update(v => !v);

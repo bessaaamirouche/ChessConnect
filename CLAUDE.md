@@ -173,7 +173,7 @@ Le frontend demarre sur `http://localhost:4200`
 - **Quiz d'Evaluation:** 25 questions (5 par niveau) pour determiner le niveau initial
 - **Reservations:** Sessions d'une heure via Jitsi Meet
 - **Disponibilites:** Le prof cree des creneaux d'au moins 1h pour permettre une reservation
-- **Abonnements:** 69€/mois (1 cours/sem), 129€/mois (2 cours/sem), 179€/mois (3 cours/sem)
+- **Abonnements:** 69€/mois (3 cours/mois), 129€/mois (6 cours/mois), 179€/mois (9 cours/mois)
 - **Commission:** 10% preleves par la plateforme
 
 ## API Endpoints

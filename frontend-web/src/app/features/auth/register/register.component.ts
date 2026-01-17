@@ -1,7 +1,8 @@
-import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { SeoService } from '../../../core/services/seo.service';
 import { UserRole, AVAILABLE_LANGUAGES } from '../../../core/models/user.model';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { heroAcademicCap, heroUserGroup, heroPlayCircle, heroArrowRight } from '@ng-icons/heroicons/outline';
@@ -16,6 +17,8 @@ import { heroAcademicCap, heroUserGroup, heroPlayCircle, heroArrowRight } from '
   styleUrl: './register.component.scss'
 })
 export class RegisterComponent {
+  private seoService = inject(SeoService);
+
   registerForm: FormGroup;
   loading = signal(false);
   error = signal<string | null>(null);
@@ -29,6 +32,7 @@ export class RegisterComponent {
     private authService: AuthService,
     private router: Router
   ) {
+    this.seoService.setRegisterPage();
     this.registerForm = this.fb.group({
       firstName: ['', [Validators.required, Validators.minLength(2)]],
       lastName: ['', [Validators.required, Validators.minLength(2)]],

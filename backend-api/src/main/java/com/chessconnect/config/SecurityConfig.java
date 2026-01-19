@@ -70,12 +70,15 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of(
-                "http://localhost:4200",
+        // Use patterns to work better with reverse proxies
+        configuration.setAllowedOriginPatterns(List.of(
+                "http://localhost:*",
                 "http://mychess.fr",
                 "https://mychess.fr",
                 "http://www.mychess.fr",
-                "https://www.mychess.fr"
+                "https://www.mychess.fr",
+                "http://*.mychess.fr",
+                "https://*.mychess.fr"
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));

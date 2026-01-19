@@ -102,4 +102,5 @@ spring:
 
 logging:
   level:
-    com.chessconnect: INFO
+    com.chessconnect: DEBUG
+    org.springframework.security: DEBUG

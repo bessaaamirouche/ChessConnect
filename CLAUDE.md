@@ -336,3 +336,72 @@ Verifier que `FRONTEND_URL` dans `docker-compose.yml` correspond a l'URL utilise
 ### 9. Langues Parlees du Professeur
 - Le professeur renseigne les langues qu'il parle a l'inscription ou dans ses preferences
 - Les langues sont affichees sur son profil
+
+### 10. compte admin du site
+📋 Spécifications – Écran d’administration
+🔐 Accès
+
+Un écran d’administration accessible uniquement à l’administrateur du site.
+
+📊 Tableau de bord
+
+L’écran d’administration doit afficher un tableau de bord comprenant :
+
+La liste des cours à venir
+
+La liste des cours effectués
+
+Pour chaque cours :
+
+Enseignant
+
+Élève
+
+Date
+
+Heure
+
+💰 Facturation
+
+Un récapitulatif mensuel et actuelle de la facturation
+
+Vue globale + détail par enseignant
+
+Total des cours effectués par mois
+
+Montant total à payer par enseignant
+
+💳 Paiement des enseignants
+
+Pour chaque enseignant, l’administrateur doit disposer d’un bouton permettant :
+
+D’effectuer le paiement via Stripe , bien-sur le prof doit renseigner son rib et ses infos entreprise dans son espace (mon profil)
+
+Paiement correspondant à l’ensemble des cours réalisés durant le mois avec facture
+
+Confirmation visuelle du paiement (payé / non payé)
+
+👨‍🏫 Gestion des enseignants
+
+L’administrateur peut :
+
+Désactiver le profil d’un enseignant
+Supprimer le compte d'un élève ou prof avec un modale de confirmation ( voulez-vous vraiment supprimer ce compte? oui/non)
+
+Un enseignant désactivé :
+
+Reste visible dans la liste des enseignants
+
+Ne peut plus se connecter au site
+
+Ne peut plus donner de cours
+
+🎥 Enregistrement des appels vidéo
+
+Lorsqu’un appel vidéo est lancé, la session doit être :
+
+Enregistrée automatiquement
+
+Stockée sur le serveur
+
+Accessible ultérieurement pour consultation , par l'admin en cas d'infraction du prof ( signalé par l'étudiant) et accessible dans l'historique des cours de chaque élève pour revisionner le cours , histoire de réviser 

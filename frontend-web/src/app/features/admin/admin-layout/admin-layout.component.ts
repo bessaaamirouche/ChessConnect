@@ -6,6 +6,7 @@ import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   heroChartBarSquare,
   heroUsers,
+  heroCalendarDays,
   heroBanknotes,
   heroCog6Tooth,
   heroArrowRightOnRectangle
@@ -18,6 +19,7 @@ import {
   viewProviders: [provideIcons({
     heroChartBarSquare,
     heroUsers,
+    heroCalendarDays,
     heroBanknotes,
     heroCog6Tooth,
     heroArrowRightOnRectangle
@@ -38,6 +40,10 @@ import {
           <a routerLink="/admin/users" routerLinkActive="active" class="admin-sidebar__link">
             <ng-icon name="heroUsers"></ng-icon>
             <span>Utilisateurs</span>
+          </a>
+          <a routerLink="/admin/lessons" routerLinkActive="active" class="admin-sidebar__link">
+            <ng-icon name="heroCalendarDays"></ng-icon>
+            <span>Cours</span>
           </a>
           <a routerLink="/admin/accounting" routerLinkActive="active" class="admin-sidebar__link">
             <ng-icon name="heroBanknotes"></ng-icon>

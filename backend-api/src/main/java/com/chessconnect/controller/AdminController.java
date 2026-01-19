@@ -1,6 +1,7 @@
 package com.chessconnect.controller;
 
 import com.chessconnect.dto.admin.*;
+import com.chessconnect.dto.lesson.LessonResponse;
 import com.chessconnect.model.Payment;
 import com.chessconnect.model.Subscription;
 import com.chessconnect.service.AdminService;
@@ -71,6 +72,33 @@ public class AdminController {
         return ResponseEntity.ok(Map.of("message", "User reactivated successfully"));
     }
 
+    /**
+     * Delete a user permanently
+     */
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
+        adminService.deleteUser(id);
+        return ResponseEntity.ok(Map.of("message", "User deleted successfully"));
+    }
+
+    // ============= LESSONS =============
+
+    /**
+     * Get upcoming lessons (PENDING or CONFIRMED)
+     */
+    @GetMapping("/lessons/upcoming")
+    public ResponseEntity<List<LessonResponse>> getUpcomingLessons() {
+        return ResponseEntity.ok(adminService.getUpcomingLessons());
+    }
+
+    /**
+     * Get completed lessons
+     */
+    @GetMapping("/lessons/completed")
+    public ResponseEntity<List<LessonResponse>> getCompletedLessons() {
+        return ResponseEntity.ok(adminService.getCompletedLessons());
+    }
+
     // ============= ACCOUNTING =============
 
     /**
@@ -82,11 +110,27 @@ public class AdminController {
     }
 
     /**
-     * Get all teacher balances
+     * Get all teacher balances with banking info and payout status
      */
     @GetMapping("/accounting/teachers")
     public ResponseEntity<List<TeacherBalanceListResponse>> getTeacherBalances() {
         return ResponseEntity.ok(adminService.getTeacherBalances());
+    }
+
+    /**
+     * Mark a teacher as paid for a specific month
+     */
+    @PostMapping("/accounting/teachers/{teacherId}/pay")
+    public ResponseEntity<?> markTeacherPaid(
+            @PathVariable Long teacherId,
+            @RequestBody Map<String, String> request
+    ) {
+        String yearMonth = request.getOrDefault("yearMonth", java.time.YearMonth.now().toString());
+        String paymentReference = request.getOrDefault("paymentReference", "");
+        String notes = request.getOrDefault("notes", "");
+
+        adminService.markTeacherPaid(teacherId, yearMonth, paymentReference, notes);
+        return ResponseEntity.ok(Map.of("message", "Teacher marked as paid successfully"));
     }
 
     /**

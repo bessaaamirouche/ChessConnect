@@ -9,5 +9,15 @@ public record TeacherBalanceListResponse(
         Integer pendingBalanceCents,
         Integer totalEarnedCents,
         Integer totalWithdrawnCents,
-        Integer lessonsCompleted
+        Integer lessonsCompleted,
+        // Banking info
+        String iban,
+        String bic,
+        String accountHolderName,
+        String siret,
+        String companyName,
+        // Payout status for current month
+        Boolean currentMonthPaid,
+        Integer currentMonthEarningsCents,
+        Integer currentMonthLessonsCount
 ) {}

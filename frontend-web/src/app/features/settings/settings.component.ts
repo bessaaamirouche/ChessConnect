@@ -5,6 +5,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { HttpClient } from '@angular/common/http';
 import { CalendarService, CalendarStatus } from '../../core/services/calendar.service';
+import { AVAILABLE_LANGUAGES } from '../../core/models/user.model';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   heroChartBarSquare,
@@ -51,6 +52,10 @@ export class SettingsComponent implements OnInit {
 
   emailRemindersEnabled = signal(true);
 
+  // Languages
+  availableLanguages = AVAILABLE_LANGUAGES;
+  selectedLanguages = signal<string[]>(['FR']);
+
   // Google Calendar
   calendarStatus = signal<CalendarStatus>({ configured: false, connected: false, enabled: false });
   calendarLoading = signal(false);
@@ -72,6 +77,12 @@ export class SettingsComponent implements OnInit {
       hourlyRate: [50],
       acceptsSubscription: [true],
       bio: [''],
+      // Teacher banking fields
+      iban: [''],
+      bic: [''],
+      accountHolderName: [''],
+      siret: [''],
+      companyName: [''],
       // Student fields
       birthDate: [''],
       eloRating: [null],
@@ -107,13 +118,40 @@ export class SettingsComponent implements OnInit {
         hourlyRate: user.hourlyRateCents ? user.hourlyRateCents / 100 : 50,
         acceptsSubscription: user.acceptsSubscription ?? true,
         bio: user.bio || '',
+        // Banking fields
+        iban: user.iban || '',
+        bic: user.bic || '',
+        accountHolderName: user.accountHolderName || '',
+        siret: user.siret || '',
+        companyName: user.companyName || '',
+        // Student fields
         birthDate: user.birthDate || '',
         eloRating: user.eloRating || null,
         knowsElo: !!user.eloRating
       });
       // Load email reminder preference
       this.emailRemindersEnabled.set(user.emailRemindersEnabled !== false);
+      // Load languages for teachers
+      if (user.languages && user.languages.length > 0) {
+        this.selectedLanguages.set(user.languages);
+      }
     }
+  }
+
+  toggleLanguage(langCode: string): void {
+    const current = this.selectedLanguages();
+    if (current.includes(langCode)) {
+      // Don't allow removing all languages
+      if (current.length > 1) {
+        this.selectedLanguages.set(current.filter(l => l !== langCode));
+      }
+    } else {
+      this.selectedLanguages.set([...current, langCode]);
+    }
+  }
+
+  isLanguageSelected(langCode: string): boolean {
+    return this.selectedLanguages().includes(langCode);
   }
 
   isStudent(): boolean {
@@ -141,6 +179,13 @@ export class SettingsComponent implements OnInit {
       payload.hourlyRateCents = formValue.hourlyRate * 100;
       payload.acceptsSubscription = formValue.acceptsSubscription;
       payload.bio = formValue.bio;
+      payload.languages = this.selectedLanguages();
+      // Banking fields
+      payload.iban = formValue.iban;
+      payload.bic = formValue.bic;
+      payload.accountHolderName = formValue.accountHolderName;
+      payload.siret = formValue.siret;
+      payload.companyName = formValue.companyName;
     }
 
     if (this.isStudent()) {

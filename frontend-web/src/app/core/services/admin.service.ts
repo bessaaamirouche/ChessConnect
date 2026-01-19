@@ -48,6 +48,42 @@ export interface TeacherBalanceResponse {
   totalEarnedCents: number;
   totalWithdrawnCents: number;
   lessonsCompleted: number;
+  // Banking info
+  iban?: string;
+  bic?: string;
+  accountHolderName?: string;
+  siret?: string;
+  companyName?: string;
+  // Current month payout
+  currentMonthPaid: boolean;
+  currentMonthEarningsCents: number;
+  currentMonthLessonsCount: number;
+}
+
+export interface AdminLessonResponse {
+  id: number;
+  studentId: number;
+  studentName: string;
+  studentLevel?: string;
+  studentAge?: number;
+  studentElo?: number;
+  teacherId: number;
+  teacherName: string;
+  scheduledAt: string;
+  durationMinutes: number;
+  zoomLink?: string;
+  status: string;
+  priceCents?: number;
+  commissionCents?: number;
+  teacherEarningsCents?: number;
+  isFromSubscription?: boolean;
+  notes?: string;
+  cancellationReason?: string;
+  cancelledBy?: string;
+  refundPercentage?: number;
+  refundedAmountCents?: number;
+  teacherObservations?: string;
+  createdAt: string;
 }
 
 export interface Page<T> {
@@ -91,6 +127,19 @@ export class AdminService {
     return this.http.patch(`${this.apiUrl}/users/${id}/activate`, {});
   }
 
+  deleteUser(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/users/${id}`);
+  }
+
+  // Lessons
+  getUpcomingLessons(): Observable<AdminLessonResponse[]> {
+    return this.http.get<AdminLessonResponse[]>(`${this.apiUrl}/lessons/upcoming`);
+  }
+
+  getCompletedLessons(): Observable<AdminLessonResponse[]> {
+    return this.http.get<AdminLessonResponse[]>(`${this.apiUrl}/lessons/completed`);
+  }
+
   // Accounting
   getAccountingOverview(): Observable<AccountingResponse> {
     return this.http.get<AccountingResponse>(`${this.apiUrl}/accounting/revenue`);
@@ -98,6 +147,14 @@ export class AdminService {
 
   getTeacherBalances(): Observable<TeacherBalanceResponse[]> {
     return this.http.get<TeacherBalanceResponse[]>(`${this.apiUrl}/accounting/teachers`);
+  }
+
+  markTeacherPaid(teacherId: number, yearMonth?: string, paymentReference?: string, notes?: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/accounting/teachers/${teacherId}/pay`, {
+      yearMonth: yearMonth || new Date().toISOString().slice(0, 7),
+      paymentReference: paymentReference || '',
+      notes: notes || ''
+    });
   }
 
   getPayments(page = 0, size = 20): Observable<Page<any>> {

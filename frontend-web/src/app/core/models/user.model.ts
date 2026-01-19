@@ -16,6 +16,12 @@ export interface User {
   languages?: string[];
   averageRating?: number;
   reviewCount?: number;
+  // Teacher banking fields
+  iban?: string;
+  bic?: string;
+  accountHolderName?: string;
+  siret?: string;
+  companyName?: string;
   // Student fields
   birthDate?: string;
   eloRating?: number;

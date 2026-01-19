@@ -1,6 +1,7 @@
 package com.chessconnect.service;
 
 import com.chessconnect.dto.admin.*;
+import com.chessconnect.dto.lesson.LessonResponse;
 import com.chessconnect.model.Lesson;
 import com.chessconnect.model.Payment;
 import com.chessconnect.model.Subscription;
@@ -8,6 +9,7 @@ import com.chessconnect.model.TeacherBalance;
 import com.chessconnect.model.User;
 import com.chessconnect.model.enums.LessonStatus;
 import com.chessconnect.model.enums.UserRole;
+import com.chessconnect.model.TeacherPayout;
 import com.chessconnect.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -31,6 +35,7 @@ public class AdminService {
     private final PaymentRepository paymentRepository;
     private final TeacherBalanceRepository teacherBalanceRepository;
     private final RatingRepository ratingRepository;
+    private final TeacherPayoutRepository teacherPayoutRepository;
 
     public AdminService(
             UserRepository userRepository,
@@ -38,7 +43,8 @@ public class AdminService {
             SubscriptionRepository subscriptionRepository,
             PaymentRepository paymentRepository,
             TeacherBalanceRepository teacherBalanceRepository,
-            RatingRepository ratingRepository
+            RatingRepository ratingRepository,
+            TeacherPayoutRepository teacherPayoutRepository
     ) {
         this.userRepository = userRepository;
         this.lessonRepository = lessonRepository;
@@ -46,6 +52,7 @@ public class AdminService {
         this.paymentRepository = paymentRepository;
         this.teacherBalanceRepository = teacherBalanceRepository;
         this.ratingRepository = ratingRepository;
+        this.teacherPayoutRepository = teacherPayoutRepository;
     }
 
     /**
@@ -118,6 +125,58 @@ public class AdminService {
     }
 
     /**
+     * Delete a user permanently.
+     * Checks for pending/confirmed lessons before deletion.
+     */
+    @Transactional
+    public void deleteUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        // Prevent deleting admin users
+        if (user.getRole() == UserRole.ADMIN) {
+            throw new IllegalArgumentException("Cannot delete admin users");
+        }
+
+        // Check for active lessons (PENDING or CONFIRMED)
+        List<Lesson> activeLessons = lessonRepository.findAll().stream()
+                .filter(l -> (l.getStudent().getId().equals(userId) || l.getTeacher().getId().equals(userId))
+                        && (l.getStatus() == LessonStatus.PENDING || l.getStatus() == LessonStatus.CONFIRMED))
+                .toList();
+
+        if (!activeLessons.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Impossible de supprimer cet utilisateur: " + activeLessons.size() + " cours en attente ou confirmes");
+        }
+
+        log.info("Deleting user {} ({} {})", userId, user.getFirstName(), user.getLastName());
+        userRepository.delete(user);
+    }
+
+    /**
+     * Get upcoming lessons (PENDING or CONFIRMED) - ordered by scheduled date ascending
+     */
+    public List<LessonResponse> getUpcomingLessons() {
+        return lessonRepository.findAll().stream()
+                .filter(l -> l.getStatus() == LessonStatus.PENDING || l.getStatus() == LessonStatus.CONFIRMED)
+                .filter(l -> l.getScheduledAt().isAfter(LocalDateTime.now().minusHours(1)))
+                .sorted(Comparator.comparing(Lesson::getScheduledAt))
+                .map(LessonResponse::from)
+                .toList();
+    }
+
+    /**
+     * Get completed lessons - ordered by scheduled date descending
+     */
+    public List<LessonResponse> getCompletedLessons() {
+        return lessonRepository.findAll().stream()
+                .filter(l -> l.getStatus() == LessonStatus.COMPLETED)
+                .sorted(Comparator.comparing(Lesson::getScheduledAt).reversed())
+                .map(LessonResponse::from)
+                .toList();
+    }
+
+    /**
      * Get accounting/revenue overview
      */
     public AccountingResponse getAccountingOverview() {
@@ -154,12 +213,36 @@ public class AdminService {
     }
 
     /**
-     * Get all teacher balances
+     * Get all teacher balances with banking info and current month payout status
      */
     public List<TeacherBalanceListResponse> getTeacherBalances() {
         List<TeacherBalance> balances = teacherBalanceRepository.findAll();
+        String currentYearMonth = YearMonth.now().format(DateTimeFormatter.ofPattern("yyyy-MM"));
+
+        // Get current month lessons for all teachers
+        YearMonth currentMonth = YearMonth.now();
+        LocalDateTime monthStart = currentMonth.atDay(1).atStartOfDay();
+        LocalDateTime monthEnd = currentMonth.atEndOfMonth().atTime(23, 59, 59);
+
         return balances.stream().map(balance -> {
             User teacher = balance.getTeacher();
+
+            // Calculate current month earnings
+            List<Lesson> currentMonthLessons = lessonRepository.findAll().stream()
+                    .filter(l -> l.getTeacher().getId().equals(teacher.getId()))
+                    .filter(l -> l.getStatus() == LessonStatus.COMPLETED)
+                    .filter(l -> l.getScheduledAt().isAfter(monthStart) && l.getScheduledAt().isBefore(monthEnd))
+                    .toList();
+
+            int currentMonthEarnings = currentMonthLessons.stream()
+                    .mapToInt(l -> l.getTeacherEarningsCents() != null ? l.getTeacherEarningsCents() : 0)
+                    .sum();
+
+            // Check if paid for current month
+            TeacherPayout payout = teacherPayoutRepository
+                    .findByTeacherIdAndYearMonth(teacher.getId(), currentYearMonth)
+                    .orElse(null);
+
             return new TeacherBalanceListResponse(
                     teacher.getId(),
                     teacher.getFirstName(),
@@ -169,9 +252,63 @@ public class AdminService {
                     balance.getPendingBalanceCents(),
                     balance.getTotalEarnedCents(),
                     balance.getTotalWithdrawnCents(),
-                    balance.getLessonsCompleted()
+                    balance.getLessonsCompleted(),
+                    // Banking info
+                    teacher.getIban(),
+                    teacher.getBic(),
+                    teacher.getAccountHolderName(),
+                    teacher.getSiret(),
+                    teacher.getCompanyName(),
+                    // Current month payout status
+                    payout != null && payout.getIsPaid(),
+                    currentMonthEarnings,
+                    currentMonthLessons.size()
             );
         }).toList();
+    }
+
+    /**
+     * Mark a teacher as paid for a specific month
+     */
+    @Transactional
+    public void markTeacherPaid(Long teacherId, String yearMonth, String paymentReference, String notes) {
+        User teacher = userRepository.findById(teacherId)
+                .orElseThrow(() -> new IllegalArgumentException("Teacher not found"));
+
+        // Get or create payout record
+        TeacherPayout payout = teacherPayoutRepository
+                .findByTeacherIdAndYearMonth(teacherId, yearMonth)
+                .orElseGet(() -> {
+                    TeacherPayout newPayout = new TeacherPayout();
+                    newPayout.setTeacher(teacher);
+                    newPayout.setYearMonth(yearMonth);
+                    return newPayout;
+                });
+
+        // Calculate earnings for that month
+        YearMonth ym = YearMonth.parse(yearMonth);
+        LocalDateTime monthStart = ym.atDay(1).atStartOfDay();
+        LocalDateTime monthEnd = ym.atEndOfMonth().atTime(23, 59, 59);
+
+        List<Lesson> monthLessons = lessonRepository.findAll().stream()
+                .filter(l -> l.getTeacher().getId().equals(teacherId))
+                .filter(l -> l.getStatus() == LessonStatus.COMPLETED)
+                .filter(l -> l.getScheduledAt().isAfter(monthStart) && l.getScheduledAt().isBefore(monthEnd))
+                .toList();
+
+        int earnings = monthLessons.stream()
+                .mapToInt(l -> l.getTeacherEarningsCents() != null ? l.getTeacherEarningsCents() : 0)
+                .sum();
+
+        payout.setAmountCents(earnings);
+        payout.setLessonsCount(monthLessons.size());
+        payout.setIsPaid(true);
+        payout.setPaidAt(LocalDateTime.now());
+        payout.setPaymentReference(paymentReference);
+        payout.setNotes(notes);
+
+        teacherPayoutRepository.save(payout);
+        log.info("Marked teacher {} as paid for {}: {} cents", teacherId, yearMonth, earnings);
     }
 
     /**

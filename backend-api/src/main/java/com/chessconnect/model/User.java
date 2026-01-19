@@ -72,6 +72,22 @@ public class User {
     @Column(name = "is_suspended")
     private Boolean isSuspended = false;
 
+    // Teacher banking information
+    @Column(name = "iban")
+    private String iban;
+
+    @Column(name = "bic")
+    private String bic;
+
+    @Column(name = "account_holder_name")
+    private String accountHolderName;
+
+    @Column(name = "siret")
+    private String siret;
+
+    @Column(name = "company_name")
+    private String companyName;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -175,4 +191,19 @@ public class User {
 
     public Boolean getIsSuspended() { return isSuspended; }
     public void setIsSuspended(Boolean isSuspended) { this.isSuspended = isSuspended; }
+
+    public String getIban() { return iban; }
+    public void setIban(String iban) { this.iban = iban; }
+
+    public String getBic() { return bic; }
+    public void setBic(String bic) { this.bic = bic; }
+
+    public String getAccountHolderName() { return accountHolderName; }
+    public void setAccountHolderName(String accountHolderName) { this.accountHolderName = accountHolderName; }
+
+    public String getSiret() { return siret; }
+    public void setSiret(String siret) { this.siret = siret; }
+
+    public String getCompanyName() { return companyName; }
+    public void setCompanyName(String companyName) { this.companyName = companyName; }
 }

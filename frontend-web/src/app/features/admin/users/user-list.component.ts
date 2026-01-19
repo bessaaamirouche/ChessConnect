@@ -59,7 +59,7 @@ import { AdminService, UserListResponse, Page } from '../../../core/services/adm
                       <span class="badge badge--success">Actif</span>
                     }
                   </td>
-                  <td>
+                  <td class="actions-cell">
                     @if (user.isSuspended) {
                       <button
                         class="btn btn--sm btn--success"
@@ -77,6 +77,14 @@ import { AdminService, UserListResponse, Page } from '../../../core/services/adm
                         Suspendre
                       </button>
                     }
+                    <button
+                      class="btn btn--sm btn--danger"
+                      (click)="confirmDeleteUser(user)"
+                      [disabled]="actionLoading()"
+                      title="Supprimer definitivement"
+                    >
+                      Supprimer
+                    </button>
                   </td>
                 </tr>
               }
@@ -103,6 +111,26 @@ import { AdminService, UserListResponse, Page } from '../../../core/services/adm
             </button>
           </div>
         }
+      }
+
+      @if (showDeleteModal()) {
+        <div class="modal-overlay" (click)="cancelDelete()">
+          <div class="modal" (click)="$event.stopPropagation()">
+            <h3>Confirmer la suppression</h3>
+            <p>Voulez-vous vraiment supprimer le compte de <strong>{{ userToDelete()?.firstName }} {{ userToDelete()?.lastName }}</strong> ?</p>
+            <p class="warning">Cette action est irreversible.</p>
+            <div class="modal-actions">
+              <button class="btn btn--ghost" (click)="cancelDelete()">Non, annuler</button>
+              <button class="btn btn--danger" (click)="deleteUser()" [disabled]="actionLoading()">
+                @if (actionLoading()) {
+                  Suppression...
+                } @else {
+                  Oui, supprimer
+                }
+              </button>
+            </div>
+          </div>
+        </div>
       }
     </div>
   `,
@@ -234,6 +262,64 @@ import { AdminService, UserListResponse, Page } from '../../../core/services/adm
       font-size: 0.75rem;
     }
 
+    .btn--danger {
+      background: #dc2626;
+      color: white;
+      border: none;
+
+      &:hover:not(:disabled) {
+        background: #b91c1c;
+      }
+    }
+
+    .actions-cell {
+      display: flex;
+      gap: var(--space-sm);
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal {
+      background: var(--bg-secondary);
+      border-radius: var(--radius-lg);
+      padding: var(--space-xl);
+      max-width: 400px;
+      width: 90%;
+
+      h3 {
+        margin-bottom: var(--space-md);
+        color: var(--text-primary);
+      }
+
+      p {
+        color: var(--text-secondary);
+        margin-bottom: var(--space-sm);
+      }
+
+      .warning {
+        color: var(--error);
+        font-weight: 500;
+      }
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: var(--space-md);
+      justify-content: flex-end;
+      margin-top: var(--space-lg);
+    }
+
     .pagination {
       display: flex;
       align-items: center;
@@ -262,6 +348,8 @@ export class UserListComponent implements OnInit {
   actionLoading = signal(false);
   currentPage = signal(0);
   roleFilter = '';
+  showDeleteModal = signal(false);
+  userToDelete = signal<UserListResponse | null>(null);
 
   constructor(private adminService: AdminService) {}
 
@@ -320,6 +408,35 @@ export class UserListComponent implements OnInit {
       error: () => {
         this.actionLoading.set(false);
         alert('Erreur lors de la reactivation');
+      }
+    });
+  }
+
+  confirmDeleteUser(user: UserListResponse): void {
+    this.userToDelete.set(user);
+    this.showDeleteModal.set(true);
+  }
+
+  cancelDelete(): void {
+    this.showDeleteModal.set(false);
+    this.userToDelete.set(null);
+  }
+
+  deleteUser(): void {
+    const user = this.userToDelete();
+    if (!user) return;
+
+    this.actionLoading.set(true);
+    this.adminService.deleteUser(user.id).subscribe({
+      next: () => {
+        this.showDeleteModal.set(false);
+        this.userToDelete.set(null);
+        this.loadUsers(this.currentPage());
+        this.actionLoading.set(false);
+      },
+      error: (err) => {
+        this.actionLoading.set(false);
+        alert(err.error?.message || 'Erreur lors de la suppression');
       }
     });
   }

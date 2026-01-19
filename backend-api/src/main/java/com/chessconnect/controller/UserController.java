@@ -65,6 +65,25 @@ public class UserController {
             if (request.getBio() != null) {
                 user.setBio(request.getBio());
             }
+            if (request.getLanguages() != null && !request.getLanguages().isEmpty()) {
+                user.setLanguages(String.join(",", request.getLanguages()));
+            }
+            // Banking fields
+            if (request.getIban() != null) {
+                user.setIban(request.getIban());
+            }
+            if (request.getBic() != null) {
+                user.setBic(request.getBic());
+            }
+            if (request.getAccountHolderName() != null) {
+                user.setAccountHolderName(request.getAccountHolderName());
+            }
+            if (request.getSiret() != null) {
+                user.setSiret(request.getSiret());
+            }
+            if (request.getCompanyName() != null) {
+                user.setCompanyName(request.getCompanyName());
+            }
         }
 
         // Student-specific fields
@@ -143,6 +162,12 @@ public class UserController {
                 .acceptsSubscription(user.getAcceptsSubscription())
                 .bio(user.getBio())
                 .avatarUrl(user.getAvatarUrl())
+                .languages(TeacherProfileResponse.parseLanguages(user.getLanguages()))
+                .iban(user.getIban())
+                .bic(user.getBic())
+                .accountHolderName(user.getAccountHolderName())
+                .siret(user.getSiret())
+                .companyName(user.getCompanyName())
                 .birthDate(user.getBirthDate())
                 .eloRating(user.getEloRating())
                 .emailRemindersEnabled(user.getEmailRemindersEnabled())

@@ -1,0 +1,355 @@
+import { Component, OnInit, signal } from '@angular/core';
+import { CommonModule, DatePipe } from '@angular/common';
+import { AdminService, AdminLessonResponse } from '../../../core/services/admin.service';
+
+@Component({
+  selector: 'app-admin-lessons',
+  standalone: true,
+  imports: [CommonModule, DatePipe],
+  template: `
+    <div class="admin-lessons">
+      <header class="page-header">
+        <h1>Cours</h1>
+        <div class="tabs">
+          <button
+            class="tab"
+            [class.tab--active]="activeTab() === 'upcoming'"
+            (click)="setTab('upcoming')"
+          >
+            A venir ({{ upcomingLessons().length }})
+          </button>
+          <button
+            class="tab"
+            [class.tab--active]="activeTab() === 'completed'"
+            (click)="setTab('completed')"
+          >
+            Effectues ({{ completedLessons().length }})
+          </button>
+        </div>
+      </header>
+
+      @if (loading()) {
+        <div class="loading">Chargement...</div>
+      } @else {
+        <div class="table-container">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Heure</th>
+                <th>Professeur</th>
+                <th>Eleve</th>
+                <th>Statut</th>
+                <th>Prix</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (lesson of currentLessons(); track lesson.id) {
+                <tr>
+                  <td>{{ lesson.scheduledAt | date:'dd/MM/yyyy' }}</td>
+                  <td>{{ lesson.scheduledAt | date:'HH:mm' }}</td>
+                  <td>{{ lesson.teacherName }}</td>
+                  <td>
+                    <div class="student-info">
+                      <span>{{ lesson.studentName }}</span>
+                      @if (lesson.studentLevel) {
+                        <span class="badge badge--level">{{ lesson.studentLevel }}</span>
+                      }
+                    </div>
+                  </td>
+                  <td>
+                    <span class="badge" [class]="getStatusClass(lesson.status)">
+                      {{ getStatusLabel(lesson.status) }}
+                    </span>
+                  </td>
+                  <td>
+                    @if (lesson.priceCents) {
+                      {{ formatPrice(lesson.priceCents) }}
+                      @if (lesson.isFromSubscription) {
+                        <span class="badge badge--subscription">Abo</span>
+                      }
+                    } @else {
+                      -
+                    }
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="6" class="empty-state">
+                    Aucun cours {{ activeTab() === 'upcoming' ? 'a venir' : 'effectue' }}
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        @if (activeTab() === 'completed' && completedLessons().length > 0) {
+          <div class="summary-card">
+            <h3>Resume des cours effectues</h3>
+            <div class="summary-stats">
+              <div class="stat">
+                <span class="stat__value">{{ completedLessons().length }}</span>
+                <span class="stat__label">Cours</span>
+              </div>
+              <div class="stat">
+                <span class="stat__value">{{ formatPrice(totalRevenue()) }}</span>
+                <span class="stat__label">CA Total</span>
+              </div>
+              <div class="stat">
+                <span class="stat__value">{{ formatPrice(totalCommissions()) }}</span>
+                <span class="stat__label">Commissions</span>
+              </div>
+            </div>
+          </div>
+        }
+      }
+    </div>
+  `,
+  styles: [`
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-lg);
+
+      h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+      }
+    }
+
+    .tabs {
+      display: flex;
+      gap: var(--space-xs);
+    }
+
+    .tab {
+      padding: 8px 16px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      background: transparent;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+
+      &:hover {
+        background: var(--bg-tertiary);
+      }
+
+      &--active {
+        background: rgba(212, 168, 75, 0.1);
+        border-color: var(--gold-500);
+        color: var(--gold-400);
+      }
+    }
+
+    .table-container {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+
+      th, td {
+        padding: var(--space-md);
+        text-align: left;
+        border-bottom: 1px solid var(--border-subtle);
+      }
+
+      th {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-muted);
+        background: var(--bg-tertiary);
+      }
+
+      tbody tr:hover {
+        background: var(--bg-tertiary);
+      }
+
+      tbody tr:last-child td {
+        border-bottom: none;
+      }
+    }
+
+    .student-info {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-radius: var(--radius-sm);
+
+      &--pending {
+        background: rgba(251, 191, 36, 0.1);
+        color: #fbbf24;
+      }
+
+      &--confirmed {
+        background: rgba(59, 130, 246, 0.1);
+        color: #3b82f6;
+      }
+
+      &--completed {
+        background: var(--success-muted);
+        color: var(--success);
+      }
+
+      &--cancelled {
+        background: var(--error-muted);
+        color: var(--error);
+      }
+
+      &--level {
+        background: rgba(139, 92, 246, 0.1);
+        color: #8b5cf6;
+      }
+
+      &--subscription {
+        background: rgba(212, 168, 75, 0.1);
+        color: var(--gold-500);
+        margin-left: var(--space-xs);
+      }
+    }
+
+    .empty-state {
+      text-align: center;
+      color: var(--text-muted);
+      padding: var(--space-2xl) !important;
+    }
+
+    .loading {
+      text-align: center;
+      padding: var(--space-2xl);
+      color: var(--text-muted);
+    }
+
+    .summary-card {
+      margin-top: var(--space-lg);
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+
+      h3 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: var(--space-md);
+        color: var(--text-primary);
+      }
+    }
+
+    .summary-stats {
+      display: flex;
+      gap: var(--space-xl);
+    }
+
+    .stat {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+
+      &__value {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--gold-400);
+      }
+
+      &__label {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+    }
+  `]
+})
+export class AdminLessonsComponent implements OnInit {
+  upcomingLessons = signal<AdminLessonResponse[]>([]);
+  completedLessons = signal<AdminLessonResponse[]>([]);
+  loading = signal(true);
+  activeTab = signal<'upcoming' | 'completed'>('upcoming');
+
+  constructor(private adminService: AdminService) {}
+
+  ngOnInit(): void {
+    this.loadLessons();
+  }
+
+  loadLessons(): void {
+    this.loading.set(true);
+
+    // Load both upcoming and completed lessons
+    this.adminService.getUpcomingLessons().subscribe({
+      next: (lessons) => this.upcomingLessons.set(lessons),
+      error: () => this.upcomingLessons.set([])
+    });
+
+    this.adminService.getCompletedLessons().subscribe({
+      next: (lessons) => {
+        this.completedLessons.set(lessons);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.completedLessons.set([]);
+        this.loading.set(false);
+      }
+    });
+  }
+
+  setTab(tab: 'upcoming' | 'completed'): void {
+    this.activeTab.set(tab);
+  }
+
+  currentLessons(): AdminLessonResponse[] {
+    return this.activeTab() === 'upcoming' ? this.upcomingLessons() : this.completedLessons();
+  }
+
+  getStatusClass(status: string): string {
+    const classes: Record<string, string> = {
+      PENDING: 'badge--pending',
+      CONFIRMED: 'badge--confirmed',
+      COMPLETED: 'badge--completed',
+      CANCELLED: 'badge--cancelled'
+    };
+    return classes[status] || '';
+  }
+
+  getStatusLabel(status: string): string {
+    const labels: Record<string, string> = {
+      PENDING: 'En attente',
+      CONFIRMED: 'Confirme',
+      COMPLETED: 'Termine',
+      CANCELLED: 'Annule'
+    };
+    return labels[status] || status;
+  }
+
+  formatPrice(cents: number): string {
+    return (cents / 100).toFixed(2) + ' €';
+  }
+
+  totalRevenue(): number {
+    return this.completedLessons().reduce((sum, l) => sum + (l.priceCents || 0), 0);
+  }
+
+  totalCommissions(): number {
+    return this.completedLessons().reduce((sum, l) => sum + (l.commissionCents || 0), 0);
+  }
+}

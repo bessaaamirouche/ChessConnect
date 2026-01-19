@@ -24,6 +24,11 @@ export const adminRoutes: Routes = [
           .then(m => m.UserListComponent)
       },
       {
+        path: 'lessons',
+        loadComponent: () => import('./lessons/admin-lessons.component')
+          .then(m => m.AdminLessonsComponent)
+      },
+      {
         path: 'accounting',
         loadComponent: () => import('./accounting/accounting.component')
           .then(m => m.AccountingComponent)

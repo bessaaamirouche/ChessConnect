@@ -57,7 +57,7 @@ import { AdminService, AccountingResponse, TeacherBalanceResponse } from '../../
 
         <!-- Teacher Balances -->
         <section class="section">
-          <h2>Soldes des professeurs</h2>
+          <h2>Soldes des professeurs - {{ currentMonthLabel() }}</h2>
           @if (balances().length === 0) {
             <p class="empty">Aucun professeur avec un solde.</p>
           } @else {
@@ -66,10 +66,11 @@ import { AdminService, AccountingResponse, TeacherBalanceResponse } from '../../
                 <thead>
                   <tr>
                     <th>Professeur</th>
-                    <th>Solde disponible</th>
-                    <th>En attente</th>
+                    <th>Ce mois</th>
                     <th>Total gagne</th>
-                    <th>Cours termines</th>
+                    <th>Infos bancaires</th>
+                    <th>Statut</th>
+                    <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -79,12 +80,54 @@ import { AdminService, AccountingResponse, TeacherBalanceResponse } from '../../
                         <div class="user-info">
                           <strong>{{ balance.firstName }} {{ balance.lastName }}</strong>
                           <span class="text-muted">{{ balance.email }}</span>
+                          @if (balance.companyName) {
+                            <span class="text-muted">{{ balance.companyName }}</span>
+                          }
                         </div>
                       </td>
-                      <td class="amount amount--success">{{ formatCents(balance.availableBalanceCents) }}</td>
-                      <td class="amount">{{ formatCents(balance.pendingBalanceCents) }}</td>
+                      <td>
+                        <div class="month-info">
+                          <span class="amount amount--primary">{{ formatCents(balance.currentMonthEarningsCents) }}</span>
+                          <span class="text-muted small">{{ balance.currentMonthLessonsCount }} cours</span>
+                        </div>
+                      </td>
                       <td class="amount">{{ formatCents(balance.totalEarnedCents) }}</td>
-                      <td>{{ balance.lessonsCompleted }}</td>
+                      <td>
+                        @if (balance.iban) {
+                          <div class="banking-info">
+                            <span class="iban">{{ maskIban(balance.iban) }}</span>
+                            @if (balance.siret) {
+                              <span class="text-muted small">SIRET: {{ balance.siret }}</span>
+                            }
+                          </div>
+                        } @else {
+                          <span class="badge badge--warning">Non renseigne</span>
+                        }
+                      </td>
+                      <td>
+                        @if (balance.currentMonthPaid) {
+                          <span class="badge badge--success">Paye</span>
+                        } @else if (balance.currentMonthEarningsCents > 0) {
+                          <span class="badge badge--pending">A payer</span>
+                        } @else {
+                          <span class="badge badge--muted">-</span>
+                        }
+                      </td>
+                      <td>
+                        @if (!balance.currentMonthPaid && balance.currentMonthEarningsCents > 0 && balance.iban) {
+                          <button
+                            class="btn btn--sm btn--primary"
+                            (click)="markAsPaid(balance)"
+                            [disabled]="payingTeacher() === balance.teacherId"
+                          >
+                            @if (payingTeacher() === balance.teacherId) {
+                              ...
+                            } @else {
+                              Marquer paye
+                            }
+                          </button>
+                        }
+                      </td>
                     </tr>
                   }
                 </tbody>
@@ -245,6 +288,82 @@ import { AdminService, AccountingResponse, TeacherBalanceResponse } from '../../
       &--success {
         color: var(--success);
       }
+
+      &--primary {
+        color: var(--gold-400);
+      }
+    }
+
+    .month-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .banking-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .iban {
+      font-family: var(--font-mono, monospace);
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+    }
+
+    .small {
+      font-size: 0.75rem;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-radius: var(--radius-sm);
+
+      &--success {
+        background: var(--success-muted);
+        color: var(--success);
+      }
+
+      &--pending {
+        background: rgba(251, 191, 36, 0.1);
+        color: #fbbf24;
+      }
+
+      &--warning {
+        background: rgba(251, 146, 60, 0.1);
+        color: #fb923c;
+      }
+
+      &--muted {
+        background: var(--bg-tertiary);
+        color: var(--text-muted);
+      }
+    }
+
+    .btn--sm {
+      padding: 6px 12px;
+      font-size: 0.75rem;
+    }
+
+    .btn--primary {
+      background: var(--gold-500);
+      color: var(--bg-primary);
+      border: none;
+
+      &:hover:not(:disabled) {
+        background: var(--gold-400);
+      }
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
     }
 
     .empty {
@@ -266,6 +385,7 @@ export class AccountingComponent implements OnInit {
   accounting = signal<AccountingResponse | null>(null);
   balances = signal<TeacherBalanceResponse[]>([]);
   loading = signal(true);
+  payingTeacher = signal<number | null>(null);
 
   constructor(private adminService: AdminService) {}
 
@@ -291,5 +411,35 @@ export class AccountingComponent implements OnInit {
 
   formatCents(cents: number): string {
     return (cents / 100).toFixed(2) + ' EUR';
+  }
+
+  currentMonthLabel(): string {
+    const date = new Date();
+    return date.toLocaleString('fr-FR', { month: 'long', year: 'numeric' });
+  }
+
+  maskIban(iban: string): string {
+    if (!iban) return '';
+    // Show first 4 and last 4 characters, mask the rest
+    if (iban.length <= 8) return iban;
+    return iban.slice(0, 4) + '****' + iban.slice(-4);
+  }
+
+  markAsPaid(balance: TeacherBalanceResponse): void {
+    if (!confirm(`Confirmer le paiement de ${this.formatCents(balance.currentMonthEarningsCents)} a ${balance.firstName} ${balance.lastName} ?`)) {
+      return;
+    }
+
+    this.payingTeacher.set(balance.teacherId);
+    this.adminService.markTeacherPaid(balance.teacherId).subscribe({
+      next: () => {
+        this.payingTeacher.set(null);
+        this.loadData();
+      },
+      error: (err) => {
+        this.payingTeacher.set(null);
+        alert(err.error?.message || 'Erreur lors du paiement');
+      }
+    });
   }
 }

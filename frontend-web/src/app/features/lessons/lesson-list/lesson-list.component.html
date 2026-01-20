@@ -340,4 +340,28 @@
       (closed)="closeVideoCall()"
     ></app-video-call>
   }
+
+  <!-- Video Player Modal -->
+  @if (showVideoPlayer()) {
+    <div class="video-player-overlay" (click)="closeVideoPlayer()">
+      <div class="video-player-modal" (click)="$event.stopPropagation()">
+        <div class="video-player-header">
+          <h3>Enregistrement du cours</h3>
+          <button class="video-player-close" (click)="closeVideoPlayer()">
+            <ng-icon name="heroXMark" size="24"></ng-icon>
+          </button>
+        </div>
+        <div class="video-player-content">
+          <video
+            [src]="videoPlayerUrl()"
+            controls
+            autoplay
+            class="video-player"
+          >
+            Votre navigateur ne supporte pas la lecture de vidéos.
+          </video>
+        </div>
+      </div>
+    </div>
+  }
 </div>

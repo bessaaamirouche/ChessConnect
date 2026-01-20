@@ -90,6 +90,10 @@ export class LessonListComponent implements OnInit {
   videoCallUserName = signal('');
   videoCallTitle = signal('');
 
+  // Video player
+  showVideoPlayer = signal(false);
+  videoPlayerUrl = signal('');
+
   constructor(
     public lessonService: LessonService,
     public authService: AuthService,
@@ -188,8 +192,14 @@ export class LessonListComponent implements OnInit {
 
   openRecording(lesson: Lesson): void {
     if (lesson.recordingUrl) {
-      window.open(lesson.recordingUrl, '_blank');
+      this.videoPlayerUrl.set(lesson.recordingUrl);
+      this.showVideoPlayer.set(true);
     }
+  }
+
+  closeVideoPlayer(): void {
+    this.showVideoPlayer.set(false);
+    this.videoPlayerUrl.set('');
   }
 
   // Check if it's time to join the lesson (15 min before until end)

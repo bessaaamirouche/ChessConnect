@@ -117,6 +117,28 @@ import { AdminService, AdminLessonResponse } from '../../../core/services/admin.
           </div>
         }
       }
+
+      <!-- Video Player Modal -->
+      @if (showVideoPlayer()) {
+        <div class="video-player-overlay" (click)="closeVideoPlayer()">
+          <div class="video-player-modal" (click)="$event.stopPropagation()">
+            <div class="video-player-header">
+              <h3>Enregistrement du cours</h3>
+              <button class="video-player-close" (click)="closeVideoPlayer()">✕</button>
+            </div>
+            <div class="video-player-content">
+              <video
+                [src]="videoPlayerUrl()"
+                controls
+                autoplay
+                class="video-player"
+              >
+                Votre navigateur ne supporte pas la lecture de vidéos.
+              </video>
+            </div>
+          </div>
+        </div>
+      }
     </div>
   `,
   styles: [`
@@ -271,6 +293,71 @@ import { AdminService, AdminLessonResponse } from '../../../core/services/admin.
       }
     }
 
+    .video-player-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 1100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .video-player-modal {
+      width: 100%;
+      max-width: 1000px;
+      background: var(--bg-secondary);
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--border-subtle);
+      overflow: hidden;
+    }
+
+    .video-player-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 1.5rem;
+      background: var(--bg-tertiary);
+      border-bottom: 1px solid var(--border-subtle);
+
+      h3 {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+    }
+
+    .video-player-close {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: none;
+      border-radius: var(--radius-md);
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 1.25rem;
+      transition: all var(--transition-fast);
+
+      &:hover {
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+      }
+    }
+
+    .video-player-content {
+      background: #000;
+    }
+
+    .video-player {
+      width: 100%;
+      max-height: 70vh;
+      display: block;
+    }
+
     .summary-card {
       margin-top: var(--space-lg);
       background: var(--bg-secondary);
@@ -316,6 +403,10 @@ export class AdminLessonsComponent implements OnInit {
   completedLessons = signal<AdminLessonResponse[]>([]);
   loading = signal(true);
   activeTab = signal<'upcoming' | 'completed'>('upcoming');
+
+  // Video player
+  showVideoPlayer = signal(false);
+  videoPlayerUrl = signal('');
 
   constructor(private adminService: AdminService) {}
 
@@ -386,7 +477,13 @@ export class AdminLessonsComponent implements OnInit {
 
   openRecording(lesson: AdminLessonResponse): void {
     if (lesson.recordingUrl) {
-      window.open(lesson.recordingUrl, '_blank');
+      this.videoPlayerUrl.set(lesson.recordingUrl);
+      this.showVideoPlayer.set(true);
     }
+  }
+
+  closeVideoPlayer(): void {
+    this.showVideoPlayer.set(false);
+    this.videoPlayerUrl.set('');
   }
 }

@@ -75,7 +75,6 @@ public class LessonCompletionScheduler {
 
     private void completeLesson(Lesson lesson) {
         lesson.setStatus(LessonStatus.COMPLETED);
-        lesson.setCompletedAt(LocalDateTime.now());
 
         // Credit teacher earnings
         if (!Boolean.TRUE.equals(lesson.getEarningsCredited())) {

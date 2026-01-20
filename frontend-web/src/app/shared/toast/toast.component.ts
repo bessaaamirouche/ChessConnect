@@ -1,5 +1,6 @@
 import { Component, inject } from '@angular/core';
-import { ToastService } from '../../core/services/toast.service';
+import { Router } from '@angular/router';
+import { ToastService, Toast } from '../../core/services/toast.service';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   heroCheckCircle,
@@ -7,7 +8,8 @@ import {
   heroExclamationTriangle,
   heroXCircle,
   heroXMark,
-  heroAcademicCap
+  heroAcademicCap,
+  heroChevronRight
 } from '@ng-icons/heroicons/outline';
 
 @Component({
@@ -20,16 +22,26 @@ import {
     heroExclamationTriangle,
     heroXCircle,
     heroXMark,
-    heroAcademicCap
+    heroAcademicCap,
+    heroChevronRight
   })],
   template: `
     <div class="toast-container">
       @for (toast of toastService.toasts(); track toast.id) {
-        <div class="toast toast--{{ toast.type }}" (click)="toastService.dismiss(toast.id)">
+        <div
+          class="toast toast--{{ toast.type }}"
+          [class.toast--clickable]="toast.link"
+          (click)="onToastClick(toast)"
+        >
           <div class="toast__icon-wrapper">
             <ng-icon [name]="getIcon(toast.type)" class="toast__icon" size="22"></ng-icon>
           </div>
           <span class="toast__message">{{ toast.message }}</span>
+          @if (toast.link) {
+            <span class="toast__action">
+              <ng-icon name="heroChevronRight" size="18"></ng-icon>
+            </span>
+          }
           <button class="toast__close" (click)="toastService.dismiss(toast.id); $event.stopPropagation()">
             <ng-icon name="heroXMark" size="18"></ng-icon>
           </button>
@@ -141,6 +153,22 @@ import {
       background: var(--bg-tertiary, #1e1e24);
     }
 
+    .toast--clickable {
+      cursor: pointer;
+    }
+
+    .toast--clickable:hover {
+      transform: translateX(-4px) scale(1.01);
+      border-color: var(--gold-500, #d4a84b);
+    }
+
+    .toast__action {
+      display: flex;
+      align-items: center;
+      color: var(--gold-400, #e5c67a);
+      margin-left: auto;
+    }
+
     @media (max-width: 480px) {
       .toast-container {
         left: 1rem;
@@ -166,6 +194,7 @@ import {
 })
 export class ToastComponent {
   toastService = inject(ToastService);
+  private router = inject(Router);
 
   getIcon(type: string): string {
     switch (type) {
@@ -174,5 +203,12 @@ export class ToastComponent {
       case 'error': return 'heroXCircle';
       default: return 'heroAcademicCap'; // Chess teacher icon for info
     }
+  }
+
+  onToastClick(toast: Toast): void {
+    if (toast.link) {
+      this.router.navigateByUrl(toast.link);
+    }
+    this.toastService.dismiss(toast.id);
   }
 }

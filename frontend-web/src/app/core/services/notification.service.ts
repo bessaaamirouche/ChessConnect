@@ -148,15 +148,20 @@ export class NotificationService implements OnDestroy {
     });
 
     if (newOnes.length > 0) {
-      const byTeacher = new Map<string, number>();
+      const byTeacher = new Map<string, { count: number; teacherId: number }>();
       newOnes.forEach(a => {
-        const count = byTeacher.get(a.teacherName) || 0;
-        byTeacher.set(a.teacherName, count + 1);
+        const existing = byTeacher.get(a.teacherName);
+        if (existing) {
+          existing.count++;
+        } else {
+          byTeacher.set(a.teacherName, { count: 1, teacherId: a.teacherId });
+        }
       });
 
-      byTeacher.forEach((count, teacherName) => {
+      byTeacher.forEach(({ teacherId }, teacherName) => {
         const message = `M. ${teacherName} vient d'ajouter une disponibilite`;
-        this.toastService.info(message, 8000);
+        const link = `/teachers/${teacherId}`;
+        this.toastService.info(message, 8000, link);
       });
     }
   }
@@ -172,10 +177,10 @@ export class NotificationService implements OnDestroy {
 
         if (newLesson.status === 'CONFIRMED') {
           const message = `M. ${newLesson.teacherName} a confirme votre cours`;
-          this.toastService.success(message, 8000);
+          this.toastService.success(message, 8000, '/lessons');
         } else if (newLesson.status === 'CANCELLED') {
           const message = `M. ${newLesson.teacherName} a annule votre cours`;
-          this.toastService.error(message, 10000);
+          this.toastService.error(message, 10000, '/lessons');
         }
       }
     });
@@ -196,7 +201,7 @@ export class NotificationService implements OnDestroy {
     newReservations.forEach(lesson => {
       console.log('[Notification] New reservation from:', lesson.studentName);
       const message = `Nouvelle reservation de ${lesson.studentName}`;
-      this.toastService.info(message, 8000);
+      this.toastService.info(message, 8000, '/lessons');
     });
   }
 
@@ -211,7 +216,7 @@ export class NotificationService implements OnDestroy {
 
         if (newLesson.status === 'CANCELLED') {
           const message = `${newLesson.studentName} a annule son cours`;
-          this.toastService.error(message, 10000);
+          this.toastService.error(message, 10000, '/lessons');
         }
       }
     });

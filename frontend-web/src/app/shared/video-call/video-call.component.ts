@@ -180,7 +180,7 @@ export class VideoCallComponent implements OnInit, OnDestroy {
     }
 
     const script = document.createElement('script');
-    script.src = 'https://meet.jit.si/external_api.js';
+    script.src = 'https://meet.mychess.fr/external_api.js';
     script.async = true;
     script.onload = () => this.initJitsi();
     script.onerror = () => {
@@ -191,7 +191,7 @@ export class VideoCallComponent implements OnInit, OnDestroy {
   }
 
   private initJitsi(): void {
-    const domain = 'meet.jit.si';
+    const domain = 'meet.mychess.fr';
     const options = {
       roomName: `ChessConnect_${this.roomName}`,
       parentNode: document.getElementById('jitsi-container'),

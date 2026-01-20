@@ -162,7 +162,7 @@ $text-muted: #6b6965;
     bottom: 0;
     width: 300px;
     max-width: 85vw;
-    background: $bg-dark;
+    background: #0a0a0c; // Explicit opaque dark background
     border-left: 1px solid rgba($gold, 0.2);
     padding: 100px var(--space-lg) var(--space-lg);
     display: flex;
@@ -171,6 +171,7 @@ $text-muted: #6b6965;
     transform: translateX(100%);
     transition: transform 0.3s ease;
     z-index: 1002;
+    overflow-y: auto;
 
     &.active {
       transform: translateX(0);
@@ -186,9 +187,10 @@ $text-muted: #6b6965;
       flex-direction: row;
       gap: var(--space-xs);
       transform: none;
+      overflow: visible;
     }
 
-    a {
+    a:not(.nav__btn) {
       color: $ivory-muted;
       font-size: 0.9375rem;
       font-weight: 500;
@@ -213,6 +215,26 @@ $text-muted: #6b6965;
 
     @include respond-to(lg) {
       display: none;
+    }
+
+    .nav__btn {
+      display: block;
+      width: 100%;
+      text-align: center;
+      padding: var(--space-md) var(--space-lg);
+      font-size: 1rem;
+
+      &--primary {
+        background: $gold;
+        color: #0a0a0c; // Explicit dark text
+        font-weight: 700;
+      }
+
+      &--ghost {
+        color: $ivory;
+        background: rgba($gold, 0.1);
+        border: 1px solid rgba($gold, 0.3);
+      }
     }
   }
 
@@ -705,17 +727,15 @@ $text-muted: #6b6965;
 
   &--featured {
     .level-item__badge {
-      width: 80px;
-      height: 80px;
-      font-size: 2.5rem;
-      box-shadow: 0 0 40px rgba($gold, 0.4);
+      // Same size as others, just add glow effect
+      box-shadow: 0 0 30px rgba($gold, 0.4);
     }
 
     .level-item__content {
-      background: $bg-card; // Opaque background instead of transparent
+      background: $bg-card;
       border-color: rgba($gold, 0.3);
       position: relative;
-      z-index: 2; // Above the timeline line
+      z-index: 2;
     }
   }
 

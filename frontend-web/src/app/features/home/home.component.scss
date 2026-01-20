@@ -289,8 +289,57 @@ $text-muted: #6b6965;
   &__pattern {
     position: absolute;
     inset: 0;
+    opacity: 0.04;
+    // CSS Chessboard pattern
+    background-image:
+      linear-gradient(45deg, rgba($gold, 0.5) 25%, transparent 25%),
+      linear-gradient(-45deg, rgba($gold, 0.5) 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, rgba($gold, 0.5) 75%),
+      linear-gradient(-45deg, transparent 75%, rgba($gold, 0.5) 75%);
+    background-size: 60px 60px;
+    background-position: 0 0, 0 30px, 30px -30px, -30px 0px;
+    transform: perspective(500px) rotateX(60deg) scale(2.5);
+    transform-origin: center top;
+  }
+
+  // Floating chess pieces decoration
+  &__decor {
+    position: absolute;
+    font-size: 8rem;
     opacity: 0.03;
-    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d4a84b' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    color: $gold;
+    pointer-events: none;
+    z-index: 0;
+
+    &--king {
+      top: 15%;
+      left: 5%;
+      animation: float 8s ease-in-out infinite;
+    }
+
+    &--queen {
+      top: 20%;
+      right: 8%;
+      animation: float 10s ease-in-out infinite reverse;
+    }
+
+    &--knight {
+      bottom: 25%;
+      left: 10%;
+      font-size: 6rem;
+      animation: float 7s ease-in-out infinite 1s;
+    }
+
+    &--rook {
+      bottom: 20%;
+      right: 5%;
+      font-size: 7rem;
+      animation: float 9s ease-in-out infinite 0.5s;
+    }
+
+    @include respond-down(md) {
+      display: none;
+    }
   }
 
   &__content {

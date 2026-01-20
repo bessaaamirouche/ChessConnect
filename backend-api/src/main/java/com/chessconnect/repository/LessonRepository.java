@@ -62,6 +62,9 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
     // For auto-cancellation of unconfirmed lessons
     List<Lesson> findByStatusAndCreatedAtBefore(LessonStatus status, LocalDateTime dateTime);
 
+    // For auto-completion of lessons after 45 minutes
+    List<Lesson> findByStatusAndScheduledAtBefore(LessonStatus status, LocalDateTime dateTime);
+
     // For migration: find completed lessons that haven't been credited yet
     @Query("SELECT l FROM Lesson l WHERE l.status = 'COMPLETED' AND (l.earningsCredited IS NULL OR l.earningsCredited = false)")
     List<Lesson> findCompletedLessonsNotCredited();

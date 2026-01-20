@@ -57,14 +57,20 @@ public class AdminService {
 
     /**
      * Get all users with pagination and optional role filter
+     * Note: ADMIN users are excluded from the list
      */
     public Page<UserListResponse> getUsers(Pageable pageable, String roleFilter) {
         Page<User> users;
         if (roleFilter != null && !roleFilter.isBlank()) {
             UserRole role = UserRole.valueOf(roleFilter.toUpperCase());
+            // Don't allow filtering by ADMIN role
+            if (role == UserRole.ADMIN) {
+                return Page.empty(pageable);
+            }
             users = userRepository.findByRole(role, pageable);
         } else {
-            users = userRepository.findAll(pageable);
+            // Exclude ADMIN users from the list
+            users = userRepository.findByRoleNot(UserRole.ADMIN, pageable);
         }
 
         return users.map(user -> {

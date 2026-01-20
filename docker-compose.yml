@@ -31,7 +31,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/chessconnect
       SPRING_DATASOURCE_USERNAME: chess
       SPRING_DATASOURCE_PASSWORD: chess123
-      FRONTEND_URL: https://mychess.fr
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:4200}
       # Stripe API Keys - Set via .env file or environment variables
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
       STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY}
@@ -45,6 +45,8 @@ services:
       # Google Calendar Configuration
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      # Admin Configuration
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-bessaa.amirouche@gmail.com}
     ports:
       - "8282:8282"
     depends_on:

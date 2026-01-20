@@ -57,6 +57,8 @@ public class SecurityConfig {
                         .requestMatchers("/progress/levels/**").permitAll()
                         .requestMatchers("/availabilities/teacher/**").permitAll()
                         .requestMatchers("/payments/admin/**").permitAll()
+                        .requestMatchers("/contact/**").permitAll()
+                        .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

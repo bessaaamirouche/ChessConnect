@@ -48,6 +48,15 @@ docker compose logs -f
 docker compose down -v
 ```
 
+### Comptes de Test
+
+Apres le premier demarrage, creez un compte via l'interface:
+
+1. Allez sur http://localhost:4200
+2. Cliquez sur "S'inscrire"
+3. Choisissez "Eleve" ou "Professeur"
+4. Remplissez le formulaire
+
 ## Deploiement sur VPS
 
 ### 1. Installer Docker sur le serveur
@@ -103,6 +112,16 @@ sudo ufw allow 8282
 - **Paiements Stripe** : Paiements securises integres (mode test)
 - **Video Jitsi Meet** : Cours en visioconference (ouvre dans un nouvel onglet)
 - **Notifications en temps reel** : Alertes pour nouvelles disponibilites et reservations
+
+### Systeme d'annulation et remboursement
+
+- **Prof ne confirme pas sous 24h** : Annulation auto + remboursement 100%
+- **Prof annule** : Remboursement 100%
+- **Eleve annule > 24h avant** : Remboursement 100%
+- **Eleve annule 2-24h avant** : Remboursement 50%
+- **Eleve annule < 2h avant** : Pas de remboursement
+- **Cours abonnement** : Quota restaure (sauf annulation tardive eleve)
+- Affichage dynamique du statut : "Annule par moi" / "Annule par le prof" / "Annule par l'eleve" / "Annule (auto)"
 
 ## Mode Developpement (sans Docker)
 
@@ -164,7 +183,7 @@ Le frontend demarre sur `http://localhost:4200`
 ├── start.sh                  # Script de demarrage Docker
 ├── stop.sh                   # Script d'arret Docker
 ├── .env                      # Variables d'environnement (a creer)
-└── README.md
+└── CLAUDE.md
 ```
 
 ## Specifications Metier
@@ -175,6 +194,24 @@ Le frontend demarre sur `http://localhost:4200`
 - **Disponibilites:** Le prof cree des creneaux d'au moins 1h pour permettre une reservation
 - **Abonnements:** 69€/mois (3 cours/mois), 129€/mois (6 cours/mois), 179€/mois (9 cours/mois)
 - **Commission:** 10% preleves par la plateforme
+
+### Gestion des cours (Lessons)
+
+- Reservation de cours avec un professeur
+- Confirmation/Annulation par le professeur
+- Statuts : PENDING, CONFIRMED, COMPLETED, CANCELLED, NO_SHOW
+- Affichage des informations eleve pour le prof (niveau, age, ELO)
+- Raison d'annulation visible (tooltip)
+- Suppression de l'historique
+- Visioconference integree (Jitsi)
+
+### Progression (Learning Path)
+
+- Niveaux d'echecs : Pion, Cavalier, Fou, Tour, Dame
+- Cours par niveau (grades) avec accordeon
+- Statuts cours : LOCKED, IN_PROGRESS, PENDING_VALIDATION, COMPLETED
+- Validation des cours par le professeur uniquement
+- Modale profil eleve (cote prof) avec progression et validation
 
 ## API Endpoints
 
@@ -256,7 +293,7 @@ Variables configurees dans `docker-compose.yml` :
 | Composant | Technologies |
 |-----------|-------------|
 | Backend   | Spring Boot 3.2, Spring Security (JWT), Spring Data JPA |
-| Frontend  | Angular 17, Signals, Standalone Components |
+| Frontend  | Angular 17, Signals, Standalone Components, RxJS, ng-icons, SCSS |
 | Database  | PostgreSQL 16 |
 | DevOps    | Docker, Docker Compose, Nginx |
 | Paiements | Stripe (Embedded Checkout) |
@@ -280,6 +317,33 @@ Variables configurees dans `docker-compose.yml` :
 ### Le backend ne demarre pas
 ```bash
 docker logs chessconnect-backend --tail 50
+```
+
+### Les conteneurs ne demarrent pas
+```bash
+# Verifier l'etat des conteneurs
+docker compose ps
+
+# Voir les logs d'erreur
+docker compose logs backend
+docker compose logs frontend
+docker compose logs postgres
+```
+
+### Reinitialiser l'application
+```bash
+# Arreter et supprimer tout (y compris la base de donnees)
+docker compose down -v
+
+# Reconstruire et redemarrer
+docker compose up --build -d
+```
+
+### Port deja utilise
+Si le port 4200, 8282 ou 5433 est deja utilise, modifiez les ports dans `docker-compose.yml`:
+```yaml
+ports:
+  - "NOUVEAU_PORT:PORT_INTERNE"
 ```
 
 ### Probleme de fuseau horaire
@@ -337,71 +401,41 @@ Verifier que `FRONTEND_URL` dans `docker-compose.yml` correspond a l'URL utilise
 - Le professeur renseigne les langues qu'il parle a l'inscription ou dans ses preferences
 - Les langues sont affichees sur son profil
 
-### 10. compte admin du site
-📋 Spécifications – Écran d’administration
-🔐 Accès
+### 10. Compte Admin du Site
 
-Un écran d’administration accessible uniquement à l’administrateur du site.
+**Acces**
+Un ecran d'administration accessible uniquement a l'administrateur du site.
 
-📊 Tableau de bord
+**Tableau de bord**
+L'ecran d'administration doit afficher un tableau de bord comprenant :
+- La liste des cours a venir
+- La liste des cours effectues
+- Pour chaque cours : Enseignant, Eleve, Date, Heure
 
-L’écran d’administration doit afficher un tableau de bord comprenant :
+**Facturation**
+- Un recapitulatif mensuel et actuelle de la facturation
+- Vue globale + detail par enseignant
+- Total des cours effectues par mois
+- Montant total a payer par enseignant
 
-La liste des cours à venir
+**Paiement des enseignants**
+Pour chaque enseignant, l'administrateur doit disposer d'un bouton permettant :
+- D'effectuer le paiement via Stripe (le prof doit renseigner son RIB et ses infos entreprise dans son espace profil)
+- Paiement correspondant a l'ensemble des cours realises durant le mois avec facture
+- Confirmation visuelle du paiement (paye / non paye)
 
-La liste des cours effectués
+**Gestion des enseignants**
+L'administrateur peut :
+- Desactiver le profil d'un enseignant
+- Supprimer le compte d'un eleve ou prof avec un modale de confirmation ("Voulez-vous vraiment supprimer ce compte? oui/non")
 
-Pour chaque cours :
+Un enseignant desactive :
+- Reste visible dans la liste des enseignants
+- Ne peut plus se connecter au site
+- Ne peut plus donner de cours
 
-Enseignant
-
-Élève
-
-Date
-
-Heure
-
-💰 Facturation
-
-Un récapitulatif mensuel et actuelle de la facturation
-
-Vue globale + détail par enseignant
-
-Total des cours effectués par mois
-
-Montant total à payer par enseignant
-
-💳 Paiement des enseignants
-
-Pour chaque enseignant, l’administrateur doit disposer d’un bouton permettant :
-
-D’effectuer le paiement via Stripe , bien-sur le prof doit renseigner son rib et ses infos entreprise dans son espace (mon profil)
-
-Paiement correspondant à l’ensemble des cours réalisés durant le mois avec facture
-
-Confirmation visuelle du paiement (payé / non payé)
-
-👨‍🏫 Gestion des enseignants
-
-L’administrateur peut :
-
-Désactiver le profil d’un enseignant
-Supprimer le compte d'un élève ou prof avec un modale de confirmation ( voulez-vous vraiment supprimer ce compte? oui/non)
-
-Un enseignant désactivé :
-
-Reste visible dans la liste des enseignants
-
-Ne peut plus se connecter au site
-
-Ne peut plus donner de cours
-
-🎥 Enregistrement des appels vidéo
-
-Lorsqu’un appel vidéo est lancé, la session doit être :
-
-Enregistrée automatiquement
-
-Stockée sur le serveur
-
-Accessible ultérieurement pour consultation , par l'admin en cas d'infraction du prof ( signalé par l'étudiant) et accessible dans l'historique des cours de chaque élève pour revisionner le cours , histoire de réviser 
+**Enregistrement des appels video**
+Lorsqu'un appel video est lance, la session doit etre :
+- Enregistree automatiquement
+- Stockee sur le serveur
+- Accessible ulterieurement pour consultation par l'admin en cas d'infraction du prof (signale par l'etudiant) et accessible dans l'historique des cours de chaque eleve pour revisionner le cours

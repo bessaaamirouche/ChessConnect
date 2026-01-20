@@ -3,6 +3,7 @@ package com.chessconnect.service;
 import com.chessconnect.dto.auth.AuthResponse;
 import com.chessconnect.dto.auth.LoginRequest;
 import com.chessconnect.dto.auth.RegisterRequest;
+import com.chessconnect.exception.AccountSuspendedException;
 import com.chessconnect.model.Progress;
 import com.chessconnect.model.User;
 import com.chessconnect.model.enums.ChessLevel;
@@ -97,6 +98,11 @@ public class AuthService {
 
         User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new IllegalArgumentException("Email ou mot de passe incorrect"));
+
+        // Check if account is suspended
+        if (Boolean.TRUE.equals(user.getIsSuspended())) {
+            throw new AccountSuspendedException("Votre compte a ete suspendu. Contactez l'administrateur pour plus d'informations.");
+        }
 
         UserDetailsImpl userDetails = new UserDetailsImpl(user);
         String token = jwtService.generateToken(userDetails);

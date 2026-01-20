@@ -103,4 +103,16 @@ public class EmailService {
         sendEmail(to, teacherName + " a publie de nouveaux creneaux - ChessConnect",
                 "new-availability-notification", variables);
     }
+
+    @Async
+    public void sendContactAdminEmail(String adminEmail, String senderName, String senderEmail,
+                                       String subject, String messageContent) {
+        Map<String, Object> variables = Map.of(
+                "senderName", senderName,
+                "senderEmail", senderEmail,
+                "subject", subject,
+                "messageContent", messageContent
+        );
+        sendEmail(adminEmail, "[ChessConnect] " + subject, "contact-admin", variables);
+    }
 }

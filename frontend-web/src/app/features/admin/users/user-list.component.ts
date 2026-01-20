@@ -16,7 +16,6 @@ import { AdminService, UserListResponse, Page } from '../../../core/services/adm
             <option value="">Tous les roles</option>
             <option value="STUDENT">Eleves</option>
             <option value="TEACHER">Professeurs</option>
-            <option value="ADMIN">Admins</option>
           </select>
         </div>
       </header>
@@ -59,32 +58,34 @@ import { AdminService, UserListResponse, Page } from '../../../core/services/adm
                       <span class="badge badge--success">Actif</span>
                     }
                   </td>
-                  <td class="actions-cell">
-                    @if (user.isSuspended) {
+                  <td>
+                    <div class="actions-cell">
+                      @if (user.isSuspended) {
+                        <button
+                          class="btn btn--sm btn--success"
+                          (click)="activateUser(user)"
+                          [disabled]="actionLoading()"
+                        >
+                          Reactiver
+                        </button>
+                      } @else {
+                        <button
+                          class="btn btn--sm btn--error"
+                          (click)="suspendUser(user)"
+                          [disabled]="actionLoading()"
+                        >
+                          Suspendre
+                        </button>
+                      }
                       <button
-                        class="btn btn--sm btn--success"
-                        (click)="activateUser(user)"
+                        class="btn btn--sm btn--danger"
+                        (click)="confirmDeleteUser(user)"
                         [disabled]="actionLoading()"
+                        title="Supprimer definitivement"
                       >
-                        Reactiver
+                        Supprimer
                       </button>
-                    } @else {
-                      <button
-                        class="btn btn--sm btn--error"
-                        (click)="suspendUser(user)"
-                        [disabled]="actionLoading()"
-                      >
-                        Suspendre
-                      </button>
-                    }
-                    <button
-                      class="btn btn--sm btn--danger"
-                      (click)="confirmDeleteUser(user)"
-                      [disabled]="actionLoading()"
-                      title="Supprimer definitivement"
-                    >
-                      Supprimer
-                    </button>
+                    </div>
                   </td>
                 </tr>
               }
@@ -162,11 +163,13 @@ import { AdminService, UserListResponse, Page } from '../../../core/services/adm
     .table {
       width: 100%;
       border-collapse: collapse;
+      table-layout: fixed;
 
       th, td {
         padding: var(--space-md);
         text-align: left;
         border-bottom: 1px solid var(--border-subtle);
+        vertical-align: middle;
       }
 
       th {
@@ -177,6 +180,14 @@ import { AdminService, UserListResponse, Page } from '../../../core/services/adm
         color: var(--text-muted);
         background: var(--bg-tertiary);
       }
+
+      // Column widths
+      th:nth-child(1), td:nth-child(1) { width: 25%; } // Utilisateur
+      th:nth-child(2), td:nth-child(2) { width: 12%; } // Role
+      th:nth-child(3), td:nth-child(3) { width: 8%; }  // Cours
+      th:nth-child(4), td:nth-child(4) { width: 12%; } // Inscription
+      th:nth-child(5), td:nth-child(5) { width: 10%; } // Statut
+      th:nth-child(6), td:nth-child(6) { width: 33%; } // Actions
 
       tbody tr:hover {
         background: var(--bg-tertiary);
@@ -275,6 +286,8 @@ import { AdminService, UserListResponse, Page } from '../../../core/services/adm
     .actions-cell {
       display: flex;
       gap: var(--space-sm);
+      align-items: center;
+      flex-wrap: nowrap;
     }
 
     .modal-overlay {

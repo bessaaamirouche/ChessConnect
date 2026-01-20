@@ -126,3 +126,63 @@
     border: 1px solid rgba(74, 222, 128, 0.3);
   }
 }
+
+// Suspension notice styles
+.suspension-notice {
+  text-align: center;
+  padding: var(--space-sm) 0;
+
+  &__icon {
+    color: var(--warning, #f59e0b);
+    margin-bottom: var(--space-sm);
+
+    svg {
+      width: 48px;
+      height: 48px;
+    }
+  }
+
+  &__title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--space-xs);
+  }
+
+  &__message {
+    color: var(--text-primary);
+    font-size: 0.9375rem;
+    margin-bottom: var(--space-xs);
+  }
+
+  &__help {
+    color: var(--text-secondary);
+    font-size: 0.8125rem;
+    margin-bottom: var(--space-md);
+    line-height: 1.5;
+  }
+
+  .btn {
+    margin-top: var(--space-xs);
+  }
+}
+
+// Contact form styles
+.contact-form-container {
+  padding: var(--space-xs) 0;
+}
+
+.contact-form__title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--space-md);
+  text-align: center;
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 100px;
+  font-family: inherit;
+  line-height: 1.5;
+}

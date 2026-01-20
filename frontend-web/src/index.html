@@ -2,29 +2,99 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8">
-  <title>ChessConnect - Cours d'Échecs en Ligne</title>
+  <title>ChessConnect - Cours d'Échecs en Ligne avec Professeurs Certifiés</title>
   <base href="/">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Plateforme de cours d'échecs en ligne avec les meilleurs professeurs. Progressez du niveau Pion au niveau Dame.">
-  <meta name="theme-color" content="#0d0d0f">
-  <meta name="robots" content="index, follow">
-  <link rel="canonical" href="https://mychess.fr/">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
 
-  <!-- Open Graph -->
+  <!-- Mobile & Viewport -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="ChessConnect">
+  <meta name="format-detection" content="telephone=no">
+
+  <!-- Theme & Colors -->
+  <meta name="theme-color" content="#0a0a0c" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#d4a84b" media="(prefers-color-scheme: light)">
+  <meta name="msapplication-TileColor" content="#0a0a0c">
+  <meta name="msapplication-navbutton-color" content="#d4a84b">
+
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Apprenez les échecs en ligne avec des professeurs certifiés. Cours particuliers en visioconférence, progression personnalisée du niveau Pion au niveau Dame. Réservez votre premier cours gratuit.">
+  <meta name="keywords" content="cours échecs en ligne, apprendre échecs, professeur échecs, leçons échecs, cours particuliers échecs, échecs débutant, progresser aux échecs">
+  <meta name="author" content="ChessConnect">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <meta name="googlebot" content="index, follow">
+  <link rel="canonical" href="https://mychess.fr/">
+
+  <!-- Favicon & Icons -->
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/icons/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-touch-icon.png">
+  <link rel="manifest" href="manifest.webmanifest">
+
+  <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="ChessConnect">
-  <meta property="og:title" content="ChessConnect - Cours d'Échecs en Ligne">
-  <meta property="og:description" content="Plateforme de cours d'échecs en ligne avec les meilleurs professeurs. Progressez du niveau Pion au niveau Dame.">
+  <meta property="og:title" content="ChessConnect - Cours d'Échecs en Ligne avec Professeurs Certifiés">
+  <meta property="og:description" content="Apprenez les échecs en ligne avec des professeurs certifiés. Cours particuliers en visioconférence, progression personnalisée. Réservez votre premier cours gratuit.">
   <meta property="og:url" content="https://mychess.fr/">
   <meta property="og:locale" content="fr_FR">
+  <meta property="og:image" content="https://mychess.fr/assets/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="ChessConnect - Plateforme de cours d'échecs en ligne">
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@chessconnect">
   <meta name="twitter:title" content="ChessConnect - Cours d'Échecs en Ligne">
-  <meta name="twitter:description" content="Plateforme de cours d'échecs en ligne avec les meilleurs professeurs. Progressez du niveau Pion au niveau Dame.">
+  <meta name="twitter:description" content="Apprenez les échecs en ligne avec des professeurs certifiés. Progression personnalisée du niveau Pion au niveau Dame.">
+  <meta name="twitter:image" content="https://mychess.fr/assets/og-image.jpg">
+
+  <!-- Preconnect for performance -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+
+  <!-- Structured Data - Organization -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "ChessConnect",
+    "url": "https://mychess.fr",
+    "logo": "https://mychess.fr/assets/logo.png",
+    "description": "Plateforme de cours d'échecs en ligne avec des professeurs certifiés",
+    "sameAs": [],
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "contactType": "customer service",
+      "availableLanguage": "French"
+    }
+  }
+  </script>
+
+  <!-- Structured Data - WebSite with SearchAction -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "ChessConnect",
+    "url": "https://mychess.fr",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://mychess.fr/teachers?search={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
 </head>
 <body>
   <app-root></app-root>
+  <noscript>
+    <p>ChessConnect nécessite JavaScript pour fonctionner. Veuillez activer JavaScript dans votre navigateur.</p>
+  </noscript>
 </body>
 </html>

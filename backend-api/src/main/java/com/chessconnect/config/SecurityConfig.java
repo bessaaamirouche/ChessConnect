@@ -58,6 +58,8 @@ public class SecurityConfig {
                         .requestMatchers("/availabilities/teacher/**").permitAll()
                         .requestMatchers("/payments/admin/**").permitAll()
                         .requestMatchers("/contact/**").permitAll()
+                        .requestMatchers("/recordings/webhook").permitAll()
+                        .requestMatchers("/recordings/video/**").permitAll()
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated()
                 )

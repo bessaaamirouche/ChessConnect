@@ -23,6 +23,7 @@ export interface Lesson {
   refundPercentage?: number;
   refundedAmountCents?: number;
   teacherObservations?: string;
+  recordingUrl?: string;
   createdAt: string;
 }
 

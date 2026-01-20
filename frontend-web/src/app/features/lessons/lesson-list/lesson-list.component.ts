@@ -186,6 +186,12 @@ export class LessonListComponent implements OnInit {
     this.videoCallTitle.set('');
   }
 
+  openRecording(lesson: Lesson): void {
+    if (lesson.recordingUrl) {
+      window.open(lesson.recordingUrl, '_blank');
+    }
+  }
+
   // Check if it's time to join the lesson (15 min before until end)
   canJoinLesson(lesson: Lesson): boolean {
     const now = new Date();

@@ -84,6 +84,9 @@ public class Lesson {
     @Column(name = "teacher_observations", columnDefinition = "TEXT")
     private String teacherObservations;
 
+    @Column(name = "recording_url")
+    private String recordingUrl;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -178,6 +181,9 @@ public class Lesson {
 
     public String getTeacherObservations() { return teacherObservations; }
     public void setTeacherObservations(String teacherObservations) { this.teacherObservations = teacherObservations; }
+
+    public String getRecordingUrl() { return recordingUrl; }
+    public void setRecordingUrl(String recordingUrl) { this.recordingUrl = recordingUrl; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }

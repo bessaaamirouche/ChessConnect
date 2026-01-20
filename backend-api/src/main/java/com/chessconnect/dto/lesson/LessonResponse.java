@@ -30,6 +30,7 @@ public record LessonResponse(
         Integer refundPercentage,
         Integer refundedAmountCents,
         String teacherObservations,
+        String recordingUrl,
         LocalDateTime createdAt
 ) {
     public static LessonResponse from(Lesson lesson) {
@@ -60,6 +61,7 @@ public record LessonResponse(
                 lesson.getRefundPercentage(),
                 lesson.getRefundedAmountCents(),
                 lesson.getTeacherObservations(),
+                lesson.getRecordingUrl(),
                 lesson.getCreatedAt()
         );
     }

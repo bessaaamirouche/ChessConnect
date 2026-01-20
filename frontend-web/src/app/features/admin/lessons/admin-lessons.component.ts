@@ -41,6 +41,7 @@ import { AdminService, AdminLessonResponse } from '../../../core/services/admin.
                 <th>Eleve</th>
                 <th>Statut</th>
                 <th>Prix</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -72,10 +73,22 @@ import { AdminService, AdminLessonResponse } from '../../../core/services/admin.
                       -
                     }
                   </td>
+                  <td>
+                    @if (lesson.status === 'COMPLETED' && lesson.recordingUrl) {
+                      <button class="btn-recording" (click)="openRecording(lesson)" title="Voir l'enregistrement">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <polygon points="23 7 16 12 23 17 23 7"></polygon>
+                          <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+                        </svg>
+                      </button>
+                    } @else {
+                      -
+                    }
+                  </td>
                 </tr>
               } @empty {
                 <tr>
-                  <td colspan="6" class="empty-state">
+                  <td colspan="7" class="empty-state">
                     Aucun cours {{ activeTab() === 'upcoming' ? 'a venir' : 'effectue' }}
                   </td>
                 </tr>
@@ -240,6 +253,24 @@ import { AdminService, AdminLessonResponse } from '../../../core/services/admin.
       color: var(--text-muted);
     }
 
+    .btn-recording {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      background: rgba(34, 197, 94, 0.1);
+      border: none;
+      border-radius: var(--radius-md);
+      color: #22c55e;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+
+      &:hover {
+        background: rgba(34, 197, 94, 0.2);
+      }
+    }
+
     .summary-card {
       margin-top: var(--space-lg);
       background: var(--bg-secondary);
@@ -351,5 +382,11 @@ export class AdminLessonsComponent implements OnInit {
 
   totalCommissions(): number {
     return this.completedLessons().reduce((sum, l) => sum + (l.commissionCents || 0), 0);
+  }
+
+  openRecording(lesson: AdminLessonResponse): void {
+    if (lesson.recordingUrl) {
+      window.open(lesson.recordingUrl, '_blank');
+    }
   }
 }

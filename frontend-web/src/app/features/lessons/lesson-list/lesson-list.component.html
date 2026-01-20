@@ -227,6 +227,15 @@
                     <ng-icon name="heroBookOpen" size="14"></ng-icon>
                   </button>
                 }
+                @if (lesson.status === 'COMPLETED' && lesson.recordingUrl) {
+                  <button
+                    class="history-card__action-btn history-card__action-btn--recording"
+                    (click)="openRecording(lesson)"
+                    title="Voir l'enregistrement"
+                  >
+                    <ng-icon name="heroVideoCamera" size="14"></ng-icon>
+                  </button>
+                }
                 <button
                   class="history-card__action-btn history-card__action-btn--delete"
                   (click)="deleteLesson(lesson.id)"

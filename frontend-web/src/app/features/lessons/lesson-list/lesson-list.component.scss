@@ -570,3 +570,12 @@
     color: var(--gold-400);
   }
 }
+
+// Recording button style
+.history-card__action-btn--recording {
+  color: var(--success);
+
+  &:hover {
+    background: rgba(34, 197, 94, 0.15);
+  }
+}

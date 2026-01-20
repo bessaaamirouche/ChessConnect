@@ -113,6 +113,11 @@
     @include gold-text;
   }
 
+  &__logo-img {
+    height: 40px;
+    width: auto;
+  }
+
   &__nav {
     display: none;
     gap: var(--space-xl);
@@ -159,6 +164,15 @@
 
   @include respond-to(lg) {
     display: block;
+  }
+
+  &__logo {
+    display: block;
+  }
+
+  &__logo-img {
+    height: 36px;
+    width: auto;
   }
 
   &__section {

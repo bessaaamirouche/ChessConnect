@@ -38,6 +38,11 @@
     @include gold-text;
   }
 
+  &__logo-img {
+    height: 32px;
+    width: auto;
+  }
+
   &__hamburger {
     display: flex;
     flex-direction: column;

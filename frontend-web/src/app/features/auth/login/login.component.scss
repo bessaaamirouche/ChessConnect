@@ -52,6 +52,15 @@
     }
   }
 
+  &__logo-img {
+    height: 48px;
+    width: auto;
+
+    @include respond-to(sm) {
+      height: 56px;
+    }
+  }
+
   h1 {
     margin-bottom: 0;
     font-size: 1.125rem;

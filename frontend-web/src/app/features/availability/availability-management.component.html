@@ -4,7 +4,9 @@
     <button class="burger-btn" (click)="toggleSidebar()">
       <ng-icon name="heroBars3" size="24"></ng-icon>
     </button>
-    <a routerLink="/" class="mobile-header__logo">ChessConnect</a>
+    <a routerLink="/" class="mobile-header__logo">
+      <img src="assets/logo.png" alt="ChessConnect" class="mobile-header__logo-img">
+    </a>
   </header>
 
   <!-- Sidebar Overlay -->
@@ -15,7 +17,9 @@
   <!-- Sidebar -->
   <aside class="sidebar" [class.sidebar--open]="sidebarOpen()">
     <div class="sidebar__header">
-      <a routerLink="/" class="sidebar__logo">ChessConnect</a>
+      <a routerLink="/" class="sidebar__logo">
+        <img src="assets/logo.png" alt="ChessConnect" class="sidebar__logo-img">
+      </a>
     </div>
 
     <nav class="sidebar__nav">

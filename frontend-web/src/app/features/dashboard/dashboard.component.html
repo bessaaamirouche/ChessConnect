@@ -1,7 +1,9 @@
 <div class="dashboard">
   <!-- Mobile Header -->
   <header class="mobile-header">
-    <a routerLink="/" class="mobile-header__logo">ChessConnect</a>
+    <a routerLink="/" class="mobile-header__logo">
+      <img src="assets/logo.png" alt="ChessConnect" class="mobile-header__logo-img">
+    </a>
     <button class="mobile-header__hamburger" [class.active]="mobileMenuOpen()" (click)="toggleMobileMenu()">
       <span></span>
       <span></span>
@@ -15,7 +17,9 @@
   <!-- Sidebar -->
   <aside class="sidebar" [class.active]="mobileMenuOpen()">
     <div class="sidebar__header">
-      <a routerLink="/" class="sidebar__logo">ChessConnect</a>
+      <a routerLink="/" class="sidebar__logo">
+        <img src="assets/logo.png" alt="ChessConnect" class="sidebar__logo-img">
+      </a>
       <button class="sidebar__close" (click)="closeMobileMenu()">✕</button>
     </div>
 

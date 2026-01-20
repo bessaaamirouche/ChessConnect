@@ -1,58 +1,115 @@
-import { Component, signal, ChangeDetectionStrategy, inject } from '@angular/core';
+import {
+  Component,
+  signal,
+  ChangeDetectionStrategy,
+  inject,
+  OnInit,
+  OnDestroy,
+  PLATFORM_ID
+} from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { SeoService } from '../../core/services/seo.service';
 import { StructuredDataService } from '../../core/services/structured-data.service';
+import { ScrollRevealDirective, StaggerRevealDirective } from '../../shared/directives/scroll-reveal.directive';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   heroUserGroup,
   heroAcademicCap,
-  heroGlobeAlt,
-  heroTrophy,
-  heroChatBubbleLeftRight,
-  heroPlayCircle,
   heroVideoCamera,
   heroClock,
   heroShieldCheck,
-  heroCheck,
+  heroTrophy,
   heroArrowRight
 } from '@ng-icons/heroicons/outline';
-
-type Section = 'home' | 'profils' | 'apprentis' | 'fonctionnement' | 'contact';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterLink, NgIconComponent],
+  imports: [
+    RouterLink,
+    NgIconComponent,
+    ScrollRevealDirective,
+    StaggerRevealDirective
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({
     heroUserGroup,
     heroAcademicCap,
-    heroGlobeAlt,
-    heroTrophy,
-    heroChatBubbleLeftRight,
-    heroPlayCircle,
     heroVideoCamera,
     heroClock,
     heroShieldCheck,
-    heroCheck,
+    heroTrophy,
     heroArrowRight
   })],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit, OnDestroy {
   private seoService = inject(SeoService);
   private structuredDataService = inject(StructuredDataService);
+  private platformId = inject(PLATFORM_ID);
 
-  activeSection = signal<Section>('home');
-  isTransitioning = signal(false);
+  // Signals
   mobileMenuOpen = signal(false);
+  isScrolled = signal(false);
+  scrollProgress = signal(0);
+
+  // Scroll listener reference for cleanup
+  private scrollListener: (() => void) | null = null;
+  private rafId: number | null = null;
 
   constructor(public authService: AuthService) {
     this.seoService.setHomePage();
     this.structuredDataService.setOrganizationSchema();
     this.structuredDataService.setCourseSchema();
+  }
+
+  ngOnInit(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      this.setupScrollListener();
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.removeScrollListener();
+  }
+
+  private setupScrollListener(): void {
+    this.scrollListener = () => {
+      if (this.rafId) {
+        cancelAnimationFrame(this.rafId);
+      }
+      this.rafId = requestAnimationFrame(() => this.handleScroll());
+    };
+
+    window.addEventListener('scroll', this.scrollListener, { passive: true });
+    // Initial check
+    this.handleScroll();
+  }
+
+  private removeScrollListener(): void {
+    if (this.scrollListener) {
+      window.removeEventListener('scroll', this.scrollListener);
+      this.scrollListener = null;
+    }
+    if (this.rafId) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
+    }
+  }
+
+  private handleScroll(): void {
+    const scrollY = window.scrollY;
+    const documentHeight = document.documentElement.scrollHeight - window.innerHeight;
+
+    // Update isScrolled for navbar background
+    this.isScrolled.set(scrollY > 50);
+
+    // Update scroll progress (0 to 1)
+    const progress = documentHeight > 0 ? Math.min(scrollY / documentHeight, 1) : 0;
+    this.scrollProgress.set(progress);
   }
 
   toggleMobileMenu(): void {
@@ -63,21 +120,19 @@ export class HomeComponent {
     this.mobileMenuOpen.set(false);
   }
 
-  navigateTo(section: Section): void {
-    if (this.activeSection() === section || this.isTransitioning()) return;
+  scrollToSection(sectionId: string): void {
+    if (!isPlatformBrowser(this.platformId)) return;
 
-    this.isTransitioning.set(true);
+    const element = document.getElementById(sectionId);
+    if (element) {
+      const navHeight = 80; // Account for fixed navbar
+      const elementPosition = element.getBoundingClientRect().top + window.scrollY;
+      const offsetPosition = elementPosition - navHeight;
 
-    // Petite pause pour l'animation
-    setTimeout(() => {
-      this.activeSection.set(section);
-      setTimeout(() => {
-        this.isTransitioning.set(false);
-      }, 300);
-    }, 150);
-  }
-
-  isActive(section: Section): boolean {
-    return this.activeSection() === section;
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    }
   }
 }

@@ -1,0 +1,402 @@
+// ================================================
+// ChessConnect - Animation System
+// Apple-style scroll animations
+// ================================================
+
+// === Animation Variables ===
+:root {
+  --animation-duration: 0.8s;
+  --animation-duration-fast: 0.4s;
+  --animation-duration-slow: 1.2s;
+  --animation-easing: cubic-bezier(0.16, 1, 0.3, 1);
+  --animation-easing-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+// === Keyframes ===
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(60px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-60px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-60px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(60px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes scaleInUp {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes rotateIn {
+  from {
+    opacity: 0;
+    transform: rotate(-10deg) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(0) scale(1);
+  }
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+// === Reveal Animation Classes ===
+// These classes define initial hidden state
+
+.reveal {
+  opacity: 0;
+  transition:
+    opacity var(--animation-duration) var(--animation-easing),
+    transform var(--animation-duration) var(--animation-easing);
+  will-change: opacity, transform;
+
+  &.reveal--visible {
+    opacity: 1;
+    transform: none !important;
+  }
+}
+
+.reveal-up {
+  @extend .reveal;
+  transform: translateY(60px);
+}
+
+.reveal-down {
+  @extend .reveal;
+  transform: translateY(-60px);
+}
+
+.reveal-left {
+  @extend .reveal;
+  transform: translateX(-60px);
+}
+
+.reveal-right {
+  @extend .reveal;
+  transform: translateX(60px);
+}
+
+.reveal-scale {
+  @extend .reveal;
+  transform: scale(0.9);
+}
+
+.reveal-scale-up {
+  @extend .reveal;
+  transform: scale(0.95) translateY(40px);
+}
+
+// === Stagger Animation for Children ===
+.stagger-children {
+  > * {
+    opacity: 0;
+    transform: translateY(40px);
+    transition:
+      opacity var(--animation-duration) var(--animation-easing),
+      transform var(--animation-duration) var(--animation-easing);
+  }
+
+  &.stagger--visible > * {
+    opacity: 1;
+    transform: translateY(0);
+
+    @for $i from 1 through 10 {
+      &:nth-child(#{$i}) {
+        transition-delay: #{($i - 1) * 0.1}s;
+      }
+    }
+  }
+}
+
+// === Parallax Classes ===
+.parallax {
+  will-change: transform;
+  transition: transform 0.1s linear;
+}
+
+.parallax-slow {
+  --parallax-speed: 0.3;
+}
+
+.parallax-medium {
+  --parallax-speed: 0.5;
+}
+
+.parallax-fast {
+  --parallax-speed: 0.7;
+}
+
+// === Delay Utility Classes ===
+.delay-100 { transition-delay: 0.1s !important; }
+.delay-200 { transition-delay: 0.2s !important; }
+.delay-300 { transition-delay: 0.3s !important; }
+.delay-400 { transition-delay: 0.4s !important; }
+.delay-500 { transition-delay: 0.5s !important; }
+.delay-600 { transition-delay: 0.6s !important; }
+.delay-700 { transition-delay: 0.7s !important; }
+.delay-800 { transition-delay: 0.8s !important; }
+
+// === Duration Utility Classes ===
+.duration-fast {
+  --animation-duration: 0.4s;
+}
+
+.duration-slow {
+  --animation-duration: 1.2s;
+}
+
+// === Hover Animations ===
+.hover-float {
+  transition: transform var(--transition-base);
+
+  &:hover {
+    transform: translateY(-8px);
+  }
+}
+
+.hover-scale {
+  transition: transform var(--transition-base);
+
+  &:hover {
+    transform: scale(1.05);
+  }
+}
+
+.hover-glow {
+  transition: box-shadow var(--transition-base);
+
+  &:hover {
+    box-shadow: 0 0 30px rgba(212, 168, 75, 0.4);
+  }
+}
+
+// === Text Animation Classes ===
+.text-gradient-animate {
+  background: linear-gradient(
+    90deg,
+    var(--gold-300),
+    var(--gold-500),
+    var(--gold-300)
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 3s linear infinite;
+}
+
+// === Loading States ===
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--bg-tertiary) 25%,
+    var(--bg-elevated) 50%,
+    var(--bg-tertiary) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--radius-md);
+}
+
+// === Scroll Progress Indicator ===
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: var(--bg-tertiary);
+  z-index: var(--z-sticky);
+
+  &__bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold-400), var(--gold-300));
+    transform-origin: left;
+    transition: transform 0.1s linear;
+  }
+}
+
+// === Section Transitions ===
+.section-fullscreen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+// === Background Animations ===
+.bg-gradient-animate {
+  background: linear-gradient(
+    -45deg,
+    var(--bg-primary),
+    var(--bg-secondary),
+    var(--bg-tertiary),
+    var(--bg-secondary)
+  );
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+}
+
+// === Hero-specific Animations ===
+.hero-title {
+  .word {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(40px);
+    animation: fadeInUp 0.8s var(--animation-easing) forwards;
+
+    @for $i from 1 through 10 {
+      &:nth-child(#{$i}) {
+        animation-delay: #{($i - 1) * 0.1}s;
+      }
+    }
+  }
+}
+
+.hero-subtitle {
+  opacity: 0;
+  animation: fadeInUp 0.8s var(--animation-easing) 0.5s forwards;
+}
+
+.hero-cta {
+  opacity: 0;
+  animation: fadeInUp 0.8s var(--animation-easing) 0.7s forwards;
+}
+
+// === Reduced Motion ===
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .reveal,
+  .reveal-up,
+  .reveal-down,
+  .reveal-left,
+  .reveal-right,
+  .reveal-scale,
+  .reveal-scale-up {
+    opacity: 1;
+    transform: none;
+  }
+
+  .stagger-children > * {
+    opacity: 1;
+    transform: none;
+  }
+}

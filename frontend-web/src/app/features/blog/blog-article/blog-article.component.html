@@ -1,0 +1,124 @@
+<div class="article-page">
+  @if (loading()) {
+    <div class="loading">
+      <div class="loading__spinner"></div>
+      <p>Chargement de l'article...</p>
+    </div>
+  } @else if (error()) {
+    <div class="error">
+      <h2>Article non trouve</h2>
+      <p>L'article que vous recherchez n'existe pas ou a ete supprime.</p>
+      <a routerLink="/blog" class="btn btn--primary">Retour au blog</a>
+    </div>
+  } @else if (article()) {
+    <!-- Hero -->
+    <header class="article-hero">
+      @if (article()!.coverImage) {
+        <div class="article-hero__image">
+          <img [src]="article()!.coverImage" [alt]="article()!.title">
+          <div class="article-hero__overlay"></div>
+        </div>
+      }
+      <div class="article-hero__content">
+        <a routerLink="/blog" class="article-hero__back">
+          <ng-icon name="heroArrowLeft" size="20"></ng-icon>
+          Retour au blog
+        </a>
+        <span
+          class="article-hero__category"
+          [style.background-color]="getCategoryColor(article()!.category)"
+        >
+          {{ getCategoryLabel(article()!.category) }}
+        </span>
+        <h1 class="article-hero__title" appScrollReveal="fade-up">{{ article()!.title }}</h1>
+        <div class="article-hero__meta" appScrollReveal="fade-up" [revealDelay]="100">
+          <span class="article-hero__author">Par {{ article()!.author }}</span>
+          <span class="article-hero__separator">•</span>
+          <span class="article-hero__date">{{ formatDate(article()!.publishedAt) }}</span>
+          <span class="article-hero__separator">•</span>
+          <span class="article-hero__reading">
+            <ng-icon name="heroClock" size="16"></ng-icon>
+            {{ article()!.readingTimeMinutes }} min de lecture
+          </span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Content -->
+    <main class="article-content">
+      <div class="article-content__container">
+        <article class="article-body" appScrollReveal="fade-up" [revealDelay]="200">
+          <div class="prose" [innerHTML]="article()!.content"></div>
+        </article>
+
+        <!-- Share -->
+        <div class="article-share" appScrollReveal="fade-up">
+          <span>Partager cet article</span>
+          <div class="article-share__buttons">
+            <button class="article-share__btn" (click)="shareOnTwitter()">Twitter</button>
+            <button class="article-share__btn" (click)="shareOnLinkedIn()">LinkedIn</button>
+            <button class="article-share__btn" (click)="shareOnFacebook()">Facebook</button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Related Articles -->
+    @if (article()!.relatedArticles && article()!.relatedArticles.length > 0) {
+      <section class="related-articles">
+        <div class="related-articles__container">
+          <h2 class="related-articles__title" appScrollReveal="fade-up">Articles similaires</h2>
+          <div class="related-articles__grid">
+            @for (related of article()!.relatedArticles; track related.id) {
+              <article class="related-card" appScrollReveal="fade-up">
+                <a [routerLink]="['/blog', related.slug]" class="related-card__link">
+                  @if (related.coverImage) {
+                    <div class="related-card__image">
+                      <img [src]="related.coverImage" [alt]="related.title" loading="lazy">
+                    </div>
+                  }
+                  <div class="related-card__content">
+                    <span
+                      class="related-card__category"
+                      [style.background-color]="getCategoryColor(related.category)"
+                    >
+                      {{ getCategoryLabel(related.category) }}
+                    </span>
+                    <h3 class="related-card__title">{{ related.title }}</h3>
+                    <span class="related-card__reading">
+                      <ng-icon name="heroClock" size="14"></ng-icon>
+                      {{ related.readingTimeMinutes }} min
+                    </span>
+                  </div>
+                </a>
+              </article>
+            }
+          </div>
+        </div>
+      </section>
+    }
+
+    <!-- CTA -->
+    <section class="article-cta" appScrollReveal="scale-up">
+      <div class="article-cta__container">
+        <h2>Pret a progresser aux echecs ?</h2>
+        <p>Rejoignez ChessConnect et apprenez avec nos maitres certifies.</p>
+        <a routerLink="/register" class="btn btn--primary btn--lg">
+          Commencer maintenant
+          <ng-icon name="heroArrowRight" size="20"></ng-icon>
+        </a>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="article-footer">
+      <div class="article-footer__container">
+        <p>&copy; 2026 ChessConnect. Tous droits reserves.</p>
+        <div class="article-footer__links">
+          <a routerLink="/">Accueil</a>
+          <a routerLink="/blog">Blog</a>
+        </div>
+      </div>
+    </footer>
+  }
+</div>

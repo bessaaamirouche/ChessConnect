@@ -94,6 +94,14 @@ export const routes: Routes = [
     loadChildren: () => import('./features/admin/admin.routes').then(m => m.adminRoutes)
   },
   {
+    path: 'blog',
+    loadComponent: () => import('./features/blog/blog-list/blog-list.component').then(m => m.BlogListComponent)
+  },
+  {
+    path: 'blog/:slug',
+    loadComponent: () => import('./features/blog/blog-article/blog-article.component').then(m => m.BlogArticleComponent)
+  },
+  {
     path: '**',
     redirectTo: ''
   }

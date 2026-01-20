@@ -134,4 +134,164 @@ export class SeoService {
       this.document.head.appendChild(link);
     }
   }
+
+  /**
+   * Update meta tags for articles (used by blog components)
+   */
+  updateMetaTags(config: {
+    title: string;
+    description: string;
+    keywords?: string;
+    image?: string;
+    url?: string;
+    type?: string;
+    publishedTime?: string;
+    author?: string;
+  }): void {
+    // Update title
+    this.title.setTitle(config.title);
+
+    // Update meta description
+    this.meta.updateTag({ name: 'description', content: config.description });
+
+    // Update keywords if provided
+    if (config.keywords) {
+      this.meta.updateTag({ name: 'keywords', content: config.keywords });
+    }
+
+    // Update robots
+    this.meta.updateTag({ name: 'robots', content: 'index, follow' });
+
+    // Update canonical link
+    const url = config.url || `${this.baseUrl}${typeof window !== 'undefined' ? window.location.pathname : ''}`;
+    this.updateCanonicalUrl(url);
+
+    // Update Open Graph tags
+    this.meta.updateTag({ property: 'og:title', content: config.title });
+    this.meta.updateTag({ property: 'og:description', content: config.description });
+    this.meta.updateTag({ property: 'og:url', content: url });
+    this.meta.updateTag({ property: 'og:type', content: config.type || 'article' });
+    this.meta.updateTag({ property: 'og:site_name', content: this.siteName });
+    this.meta.updateTag({ property: 'og:locale', content: 'fr_FR' });
+
+    if (config.image) {
+      this.meta.updateTag({ property: 'og:image', content: config.image });
+    }
+
+    if (config.publishedTime) {
+      this.meta.updateTag({ property: 'article:published_time', content: config.publishedTime });
+    }
+
+    if (config.author) {
+      this.meta.updateTag({ property: 'article:author', content: config.author });
+    }
+
+    // Update Twitter Card tags
+    this.meta.updateTag({ name: 'twitter:card', content: config.image ? 'summary_large_image' : 'summary' });
+    this.meta.updateTag({ name: 'twitter:title', content: config.title });
+    this.meta.updateTag({ name: 'twitter:description', content: config.description });
+
+    if (config.image) {
+      this.meta.updateTag({ name: 'twitter:image', content: config.image });
+    }
+  }
+
+  /**
+   * Set blog list page SEO
+   */
+  setBlogListPage(): void {
+    const pageTitle = 'Blog Echecs - Conseils et Strategies | ChessConnect';
+    const description = 'Decouvrez nos articles sur les echecs : strategies, ouvertures, conseils pour progresser. Apprenez des meilleurs professeurs d\'echecs en ligne.';
+
+    this.updateTags({
+      title: pageTitle,
+      description,
+      url: `${this.baseUrl}/blog`,
+      type: 'website'
+    });
+  }
+
+  /**
+   * Add JSON-LD structured data for articles
+   */
+  setArticleStructuredData(article: {
+    title: string;
+    description: string;
+    author: string;
+    publishedAt: string;
+    image?: string;
+    slug: string;
+  }): void {
+    // Remove existing script if any
+    const existingScript = this.document.querySelector('script[type="application/ld+json"]#article-schema');
+    if (existingScript) {
+      existingScript.remove();
+    }
+
+    const structuredData = {
+      '@context': 'https://schema.org',
+      '@type': 'Article',
+      'headline': article.title,
+      'description': article.description,
+      'author': {
+        '@type': 'Person',
+        'name': article.author
+      },
+      'publisher': {
+        '@type': 'Organization',
+        'name': 'ChessConnect',
+        'logo': {
+          '@type': 'ImageObject',
+          'url': `${this.baseUrl}/assets/logo.png`
+        }
+      },
+      'datePublished': article.publishedAt,
+      'mainEntityOfPage': {
+        '@type': 'WebPage',
+        '@id': `${this.baseUrl}/blog/${article.slug}`
+      }
+    };
+
+    if (article.image) {
+      (structuredData as any)['image'] = article.image;
+    }
+
+    const script = this.document.createElement('script');
+    script.type = 'application/ld+json';
+    script.id = 'article-schema';
+    script.text = JSON.stringify(structuredData);
+    this.document.head.appendChild(script);
+  }
+
+  /**
+   * Set organization structured data (for homepage)
+   */
+  setOrganizationStructuredData(): void {
+    // Remove existing script if any
+    const existingScript = this.document.querySelector('script[type="application/ld+json"]#org-schema');
+    if (existingScript) {
+      existingScript.remove();
+    }
+
+    const structuredData = {
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      'name': 'ChessConnect',
+      'url': this.baseUrl,
+      'logo': `${this.baseUrl}/assets/logo.png`,
+      'description': 'Plateforme de cours d\'echecs en ligne avec des professeurs qualifies',
+      'sameAs': [],
+      'contactPoint': {
+        '@type': 'ContactPoint',
+        'contactType': 'customer service',
+        'availableLanguage': 'French'
+      }
+    };
+
+    const script = this.document.createElement('script');
+    script.type = 'application/ld+json';
+    script.id = 'org-schema';
+    script.text = JSON.stringify(structuredData);
+    this.document.head.appendChild(script);
+  }
 }

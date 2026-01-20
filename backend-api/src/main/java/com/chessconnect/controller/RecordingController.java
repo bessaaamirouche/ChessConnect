@@ -83,23 +83,7 @@ public class RecordingController {
         }
 
         // Find the recording file
-        // Room name format: "Lesson-{id}" or "ChessConnect_Lesson-{id}"
-        String[] possibleRoomNames = {
-            "Lesson-" + lessonId,
-            "ChessConnect_Lesson-" + lessonId
-        };
-
-        File recordingFile = null;
-        for (String roomName : possibleRoomNames) {
-            Path roomDir = Paths.get(RECORDINGS_BASE_PATH, roomName);
-            if (Files.exists(roomDir)) {
-                File[] mp4Files = roomDir.toFile().listFiles((dir, name) -> name.endsWith(".mp4"));
-                if (mp4Files != null && mp4Files.length > 0) {
-                    recordingFile = mp4Files[0]; // Take the first mp4 file
-                    break;
-                }
-            }
-        }
+        File recordingFile = findRecordingFile(lessonId);
 
         if (recordingFile == null || !recordingFile.exists()) {
             log.warn("Recording file not found for lesson {}", lessonId);
@@ -113,13 +97,67 @@ public class RecordingController {
                 .body(resource);
     }
 
+    private File findRecordingFile(Long lessonId) {
+        File baseDir = new File(RECORDINGS_BASE_PATH);
+        if (!baseDir.exists() || !baseDir.isDirectory()) {
+            return null;
+        }
+
+        // Search for directories matching patterns:
+        // - "Lesson-{id}"
+        // - "ChessConnect_Lesson-{id}"
+        // - "chessconnect-{id}-*" (new format with timestamp)
+        File[] matchingDirs = baseDir.listFiles((dir, name) -> {
+            if (name.equals("Lesson-" + lessonId)) return true;
+            if (name.equals("ChessConnect_Lesson-" + lessonId)) return true;
+            if (name.startsWith("chessconnect-" + lessonId + "-")) return true;
+            return false;
+        });
+
+        if (matchingDirs == null || matchingDirs.length == 0) {
+            return null;
+        }
+
+        // Find the most recent directory (in case of multiple recordings)
+        File latestDir = matchingDirs[0];
+        for (File dir : matchingDirs) {
+            if (dir.lastModified() > latestDir.lastModified()) {
+                latestDir = dir;
+            }
+        }
+
+        // Find mp4 file in the directory
+        File[] mp4Files = latestDir.listFiles((dir, name) -> name.endsWith(".mp4"));
+        if (mp4Files != null && mp4Files.length > 0) {
+            return mp4Files[0];
+        }
+
+        return null;
+    }
+
     private Long extractLessonId(String roomName) {
-        // Try patterns: "Lesson-123", "ChessConnect_Lesson-123"
-        Pattern pattern = Pattern.compile("Lesson-(\\d+)");
-        Matcher matcher = pattern.matcher(roomName);
-        if (matcher.find()) {
+        // Try patterns:
+        // - "Lesson-123"
+        // - "ChessConnect_Lesson-123"
+        // - "chessconnect-123-1234567890" (new format with timestamp)
+
+        // Try new format first: chessconnect-{id}-{timestamp}
+        Pattern newPattern = Pattern.compile("chessconnect-(\\d+)-\\d+");
+        Matcher newMatcher = newPattern.matcher(roomName);
+        if (newMatcher.find()) {
             try {
-                return Long.parseLong(matcher.group(1));
+                return Long.parseLong(newMatcher.group(1));
+            } catch (NumberFormatException e) {
+                // Continue to try other patterns
+            }
+        }
+
+        // Try old format: Lesson-{id}
+        Pattern oldPattern = Pattern.compile("Lesson-(\\d+)");
+        Matcher oldMatcher = oldPattern.matcher(roomName);
+        if (oldMatcher.find()) {
+            try {
+                return Long.parseLong(oldMatcher.group(1));
             } catch (NumberFormatException e) {
                 return null;
             }

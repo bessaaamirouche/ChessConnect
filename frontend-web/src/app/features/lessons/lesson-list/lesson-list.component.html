@@ -320,13 +320,4 @@
     ></app-rating-modal>
   }
 
-  <!-- Video Call -->
-  @if (showVideoCall()) {
-    <app-video-call
-      [roomName]="videoCallRoomName()"
-      [userName]="videoCallUserName()"
-      [title]="videoCallTitle()"
-      (closed)="closeVideoCall()"
-    ></app-video-call>
-  }
 </div>

@@ -9,7 +9,6 @@ import { LESSON_STATUS_LABELS, Lesson } from '../../../core/models/lesson.model'
 import { ConfirmModalComponent } from '../../../shared/confirm-modal/confirm-modal.component';
 import { StudentProfileModalComponent } from '../../../shared/student-profile-modal/student-profile-modal.component';
 import { RatingModalComponent } from '../../../shared/rating-modal/rating-modal.component';
-import { VideoCallComponent } from '../../../shared/video-call/video-call.component';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   heroCalendarDays,
@@ -38,7 +37,7 @@ import { CHESS_LEVELS } from '../../../core/models/user.model';
 @Component({
   selector: 'app-lesson-list',
   standalone: true,
-  imports: [RouterLink, DatePipe, FormsModule, ConfirmModalComponent, NgIconComponent, StudentProfileModalComponent, RatingModalComponent, VideoCallComponent],
+  imports: [RouterLink, DatePipe, FormsModule, ConfirmModalComponent, NgIconComponent, StudentProfileModalComponent, RatingModalComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({
     heroCalendarDays,
@@ -84,11 +83,6 @@ export class LessonListComponent implements OnInit {
   ratingTeacherName = signal('');
   ratedLessons = signal<Set<number>>(new Set());
 
-  // Video call
-  showVideoCall = signal(false);
-  videoCallRoomName = signal('');
-  videoCallUserName = signal('');
-  videoCallTitle = signal('');
 
 
   constructor(
@@ -169,22 +163,9 @@ export class LessonListComponent implements OnInit {
   }
 
   openVideoCall(lesson: Lesson): void {
-    const roomName = lesson.zoomLink?.split('/').pop() || `Lesson-${lesson.id}`;
-    const userName = this.authService.currentUser()?.firstName + ' ' + this.authService.currentUser()?.lastName;
-    const isTeacher = this.authService.isTeacher();
-    const otherPerson = isTeacher ? lesson.studentName : lesson.teacherName;
-
-    this.videoCallRoomName.set(roomName);
-    this.videoCallUserName.set(userName || 'Participant');
-    this.videoCallTitle.set(`Cours avec ${otherPerson}`);
-    this.showVideoCall.set(true);
-  }
-
-  closeVideoCall(): void {
-    this.showVideoCall.set(false);
-    this.videoCallRoomName.set('');
-    this.videoCallUserName.set('');
-    this.videoCallTitle.set('');
+    const roomName = lesson.zoomLink?.split('/').pop() || `ChessConnect-Lesson-${lesson.id}`;
+    const jitsiUrl = `https://meet.mychess.fr/${roomName}`;
+    window.open(jitsiUrl, '_blank');
   }
 
   // Check if it's time to join the lesson (15 min before until end)

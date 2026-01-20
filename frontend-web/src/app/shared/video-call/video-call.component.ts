@@ -229,6 +229,18 @@ export class VideoCallComponent implements OnInit, OnDestroy {
         clearTimeout(this.loadTimeout);
       }
       this.loading.set(false);
+
+      // Auto-start recording
+      setTimeout(() => {
+        console.log('[Jitsi] Starting automatic recording...');
+        this.api.executeCommand('startRecording', {
+          mode: 'file'
+        });
+      }, 2000);
+    });
+
+    this.api.addEventListener('recordingStatusChanged', (event: any) => {
+      console.log('[Jitsi] Recording status changed:', event);
     });
 
     this.api.addEventListener('participantJoined', (event: any) => {

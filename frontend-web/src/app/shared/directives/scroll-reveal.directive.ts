@@ -29,7 +29,7 @@ export class ScrollRevealDirective implements OnInit, OnDestroy {
   @Input('appScrollReveal') animation: RevealAnimation = 'fade-up';
   @Input() revealDelay = 0;
   @Input() revealThreshold = 0.15;
-  @Input() revealOnce = true;
+  @Input() revealOnce = false; // Changed to false for reverse animations by default
 
   ngOnInit(): void {
     if (!isPlatformBrowser(this.platformId)) {
@@ -68,7 +68,7 @@ export class ScrollRevealDirective implements OnInit, OnDestroy {
   private createObserver(): void {
     const options: IntersectionObserverInit = {
       root: null,
-      rootMargin: '0px 0px -50px 0px',
+      rootMargin: '50px 0px -100px 0px', // More margin for smoother reveal/hide
       threshold: this.revealThreshold
     };
 
@@ -81,7 +81,15 @@ export class ScrollRevealDirective implements OnInit, OnDestroy {
             this.observer?.unobserve(entry.target);
           }
         } else if (!this.revealOnce) {
+          // Reset the delay to 0 when hiding for immediate effect
+          (entry.target as HTMLElement).style.transitionDelay = '0ms';
           entry.target.classList.remove('reveal--visible');
+          // Restore delay after hiding
+          setTimeout(() => {
+            if (this.revealDelay > 0) {
+              (entry.target as HTMLElement).style.transitionDelay = `${this.revealDelay}ms`;
+            }
+          }, 50);
         }
       });
     }, options);
@@ -103,7 +111,7 @@ export class StaggerRevealDirective implements OnInit, OnDestroy {
   private observer: IntersectionObserver | null = null;
 
   @Input() staggerThreshold = 0.1;
-  @Input() staggerOnce = true;
+  @Input() staggerOnce = false; // Changed to false for reverse animations
 
   ngOnInit(): void {
     if (!isPlatformBrowser(this.platformId)) {
@@ -123,7 +131,7 @@ export class StaggerRevealDirective implements OnInit, OnDestroy {
   private createObserver(): void {
     const options: IntersectionObserverInit = {
       root: null,
-      rootMargin: '0px 0px -50px 0px',
+      rootMargin: '50px 0px -100px 0px',
       threshold: this.staggerThreshold
     };
 

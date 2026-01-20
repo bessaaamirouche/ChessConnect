@@ -331,16 +331,6 @@
     ></app-rating-modal>
   }
 
-  <!-- Video Call -->
-  @if (showVideoCall()) {
-    <app-video-call
-      [roomName]="videoCallRoomName()"
-      [userName]="videoCallUserName()"
-      [title]="videoCallTitle()"
-      (closed)="closeVideoCall()"
-    ></app-video-call>
-  }
-
   <!-- Video Player Modal -->
   @if (showVideoPlayer()) {
     <div class="video-player-overlay" (click)="closeVideoPlayer()">

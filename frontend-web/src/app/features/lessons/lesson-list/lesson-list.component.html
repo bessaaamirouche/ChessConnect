@@ -359,4 +359,16 @@
       </div>
     </div>
   }
+
+  <!-- Video Call Modal (Jitsi iframe) -->
+  @if (showVideoCall()) {
+    <app-video-call
+      [roomName]="videoCallRoomName()"
+      [userName]="authService.currentUser()?.firstName + ' ' + authService.currentUser()?.lastName"
+      [title]="videoCallTitle()"
+      [isTeacher]="authService.isTeacher()"
+      [jwtToken]="videoCallToken()"
+      (closed)="closeVideoCall()"
+    ></app-video-call>
+  }
 </div>

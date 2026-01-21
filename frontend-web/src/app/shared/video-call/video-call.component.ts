@@ -138,6 +138,7 @@ export class VideoCallComponent implements OnInit, OnDestroy {
   @Input() userName!: string;
   @Input() title = 'Cours d\'échecs';
   @Input() isTeacher = false;
+  @Input() jwtToken?: string;
   @Output() closed = new EventEmitter<void>();
 
   loading = signal(true);
@@ -193,12 +194,11 @@ export class VideoCallComponent implements OnInit, OnDestroy {
 
   private initJitsi(): void {
     const domain = 'meet.mychess.fr';
-    const options = {
-      roomName: `mychess_${this.roomName}`,
+    const options: any = {
+      roomName: this.roomName,
       parentNode: document.getElementById('jitsi-container'),
       userInfo: {
-        displayName: this.userName,
-        moderator: this.isTeacher
+        displayName: this.userName
       },
       configOverwrite: {
         startWithAudioMuted: false,
@@ -211,7 +211,7 @@ export class VideoCallComponent implements OnInit, OnDestroy {
         TOOLBAR_BUTTONS: [
           'microphone', 'camera', 'desktop', 'fullscreen',
           'fodeviceselection', 'hangup', 'chat', 'settings',
-          'videoquality', 'tileview'
+          'videoquality', 'tileview', 'recording'
         ],
         SETTINGS_SECTIONS: ['devices', 'language'],
         SHOW_JITSI_WATERMARK: false,
@@ -222,7 +222,13 @@ export class VideoCallComponent implements OnInit, OnDestroy {
       }
     };
 
-    console.log('[Jitsi] Creating API with room:', options.roomName);
+    // Ajouter le token JWT si disponible (pour authentification et role moderateur)
+    if (this.jwtToken) {
+      options.jwt = this.jwtToken;
+      console.log('[Jitsi] Using JWT token for authentication');
+    }
+
+    console.log('[Jitsi] Creating API with room:', options.roomName, 'isTeacher:', this.isTeacher);
     this.api = new JitsiMeetExternalAPI(domain, options);
 
     this.api.addEventListener('videoConferenceJoined', (event: any) => {
@@ -232,13 +238,15 @@ export class VideoCallComponent implements OnInit, OnDestroy {
       }
       this.loading.set(false);
 
-      // Auto-start recording
-      setTimeout(() => {
-        console.log('[Jitsi] Starting automatic recording...');
-        this.api.executeCommand('startRecording', {
-          mode: 'file'
-        });
-      }, 2000);
+      // Auto-start recording only if teacher (moderator)
+      if (this.isTeacher) {
+        setTimeout(() => {
+          console.log('[Jitsi] Teacher detected - Starting automatic recording...');
+          this.api.executeCommand('startRecording', {
+            mode: 'file'
+          });
+        }, 3000);
+      }
     });
 
     this.api.addEventListener('recordingStatusChanged', (event: any) => {

@@ -11,6 +11,7 @@ import { LESSON_STATUS_LABELS, Lesson } from '../../../core/models/lesson.model'
 import { ConfirmModalComponent } from '../../../shared/confirm-modal/confirm-modal.component';
 import { StudentProfileModalComponent } from '../../../shared/student-profile-modal/student-profile-modal.component';
 import { RatingModalComponent } from '../../../shared/rating-modal/rating-modal.component';
+import { VideoCallComponent } from '../../../shared/video-call/video-call.component';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   heroCalendarDays,
@@ -39,7 +40,7 @@ import { CHESS_LEVELS } from '../../../core/models/user.model';
 @Component({
   selector: 'app-lesson-list',
   standalone: true,
-  imports: [RouterLink, DatePipe, FormsModule, ConfirmModalComponent, NgIconComponent, StudentProfileModalComponent, RatingModalComponent],
+  imports: [RouterLink, DatePipe, FormsModule, ConfirmModalComponent, NgIconComponent, StudentProfileModalComponent, RatingModalComponent, VideoCallComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({
     heroCalendarDays,
@@ -88,6 +89,12 @@ export class LessonListComponent implements OnInit {
   // Video player
   showVideoPlayer = signal(false);
   videoPlayerUrl = signal('');
+
+  // Video call (iframe)
+  showVideoCall = signal(false);
+  videoCallRoomName = signal('');
+  videoCallToken = signal('');
+  videoCallTitle = signal('');
 
   constructor(
     public lessonService: LessonService,
@@ -172,25 +179,34 @@ export class LessonListComponent implements OnInit {
 
   openVideoCall(lesson: Lesson): void {
     const roomName = lesson.zoomLink?.split('/').pop() || `mychess-lesson-${lesson.id}`;
+    const title = this.authService.isStudent()
+      ? `Cours avec ${lesson.teacherName}`
+      : `Cours avec ${lesson.studentName}`;
 
     // Obtenir le token JWT pour Jitsi (avec role moderateur pour les profs)
     this.jitsiService.getToken(roomName).subscribe({
       next: (response) => {
-        const url = this.jitsiService.buildJitsiUrl(response.token, roomName);
-        window.open(url, '_blank');
+        this.videoCallRoomName.set(roomName);
+        this.videoCallToken.set(response.token);
+        this.videoCallTitle.set(title);
+        this.showVideoCall.set(true);
       },
       error: (err) => {
         console.error('Erreur lors de la generation du token Jitsi:', err);
-        // Fallback sans token (mode anonyme)
-        const userName = this.authService.currentUser()?.firstName + ' ' + this.authService.currentUser()?.lastName;
-        const baseUrl = `https://meet.mychess.fr/${roomName}`;
-        const config = [
-          'config.prejoinPageEnabled=false',
-          `userInfo.displayName="${encodeURIComponent(userName || 'Participant')}"`
-        ].join('&');
-        window.open(`${baseUrl}#${config}`, '_blank');
+        // Fallback sans token
+        this.videoCallRoomName.set(roomName);
+        this.videoCallToken.set('');
+        this.videoCallTitle.set(title);
+        this.showVideoCall.set(true);
       }
     });
+  }
+
+  closeVideoCall(): void {
+    this.showVideoCall.set(false);
+    this.videoCallRoomName.set('');
+    this.videoCallToken.set('');
+    this.videoCallTitle.set('');
   }
 
   openRecording(lesson: Lesson): void {

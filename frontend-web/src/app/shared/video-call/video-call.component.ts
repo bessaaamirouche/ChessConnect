@@ -1,9 +1,8 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, signal, PLATFORM_ID, Inject } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, signal, PLATFORM_ID, Inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { heroXMark, heroVideoCamera } from '@ng-icons/heroicons/outline';
-
-declare var JitsiMeetExternalAPI: any;
 
 @Component({
   selector: 'app-video-call',
@@ -23,19 +22,13 @@ declare var JitsiMeetExternalAPI: any;
           </button>
         </div>
         <div class="video-call-content">
-          @if (loading()) {
-            <div class="video-call-loading">
-              <span class="spinner spinner--lg"></span>
-              <p>Connexion en cours...</p>
-            </div>
+          @if (iframeUrl()) {
+            <iframe
+              [src]="iframeUrl()"
+              allow="camera; microphone; fullscreen; display-capture; autoplay"
+              class="jitsi-iframe"
+            ></iframe>
           }
-          @if (error()) {
-            <div class="video-call-error">
-              <p>{{ error() }}</p>
-              <button class="btn btn--primary" (click)="retry()">Réessayer</button>
-            </div>
-          }
-          <div id="jitsi-container" [style.display]="loading() || error() ? 'none' : 'block'"></div>
         </div>
       </div>
     </div>
@@ -105,35 +98,14 @@ declare var JitsiMeetExternalAPI: any;
       background: #000;
     }
 
-    .video-call-loading,
-    .video-call-error {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      text-align: center;
-      color: var(--text-secondary);
-
-      p {
-        margin-top: 1rem;
-      }
-    }
-
-    .video-call-error {
-      color: var(--color-error, #ef4444);
-
-      button {
-        margin-top: 1rem;
-      }
-    }
-
-    #jitsi-container {
+    .jitsi-iframe {
       width: 100%;
       height: 100%;
+      border: none;
     }
   `]
 })
-export class VideoCallComponent implements OnInit, OnDestroy {
+export class VideoCallComponent implements OnInit {
   @Input() roomName!: string;
   @Input() userName!: string;
   @Input() title = 'Cours d\'échecs';
@@ -141,160 +113,59 @@ export class VideoCallComponent implements OnInit, OnDestroy {
   @Input() jwtToken?: string;
   @Output() closed = new EventEmitter<void>();
 
-  loading = signal(true);
-  error = signal<string | null>(null);
-  private api: any;
+  iframeUrl = signal<SafeResourceUrl | null>(null);
   private isBrowser: boolean;
-  private loadTimeout: any;
 
-  constructor(@Inject(PLATFORM_ID) platformId: Object) {
+  constructor(
+    @Inject(PLATFORM_ID) platformId: Object,
+    private sanitizer: DomSanitizer
+  ) {
     this.isBrowser = isPlatformBrowser(platformId);
   }
 
   ngOnInit(): void {
     if (this.isBrowser) {
-      this.loadJitsiScript();
+      this.buildIframeUrl();
     }
   }
 
-  ngOnDestroy(): void {
-    if (this.loadTimeout) {
-      clearTimeout(this.loadTimeout);
-    }
-    if (this.api) {
-      this.api.dispose();
-    }
-  }
+  private buildIframeUrl(): void {
+    // Construire l'URL Jitsi avec les configs
+    const baseUrl = `https://meet.mychess.fr/${this.roomName}`;
+    const params = new URLSearchParams();
 
-  private loadJitsiScript(): void {
-    // Timeout after 30 seconds
-    this.loadTimeout = setTimeout(() => {
-      if (this.loading()) {
-        console.error('[Jitsi] Connection timeout after 30s');
-        this.loading.set(false);
-        this.error.set('La connexion a échoué. Vérifiez votre connexion internet.');
-      }
-    }, 30000);
-
-    if (typeof JitsiMeetExternalAPI !== 'undefined') {
-      this.initJitsi();
-      return;
-    }
-
-    const script = document.createElement('script');
-    script.src = 'https://meet.mychess.fr/external_api.js';
-    script.async = true;
-    script.onload = () => this.initJitsi();
-    script.onerror = () => {
-      this.loading.set(false);
-      this.error.set('Impossible de charger le service vidéo.');
-    };
-    document.head.appendChild(script);
-  }
-
-  private initJitsi(): void {
-    const domain = 'meet.mychess.fr';
-    const options: any = {
-      roomName: this.roomName,
-      parentNode: document.getElementById('jitsi-container'),
-      userInfo: {
-        displayName: this.userName
-      },
-      configOverwrite: {
-        startWithAudioMuted: false,
-        startWithVideoMuted: false,
-        prejoinPageEnabled: false,
-        disableDeepLinking: true,
-        defaultLanguage: 'fr'
-      },
-      interfaceConfigOverwrite: {
-        TOOLBAR_BUTTONS: [
-          'microphone', 'camera', 'desktop', 'fullscreen',
-          'fodeviceselection', 'hangup', 'chat', 'settings',
-          'videoquality', 'tileview', 'recording'
-        ],
-        SETTINGS_SECTIONS: ['devices', 'language'],
-        SHOW_JITSI_WATERMARK: false,
-        SHOW_BRAND_WATERMARK: false,
-        BRAND_WATERMARK_LINK: '',
-        DEFAULT_BACKGROUND: '#1e1e24',
-        DISABLE_JOIN_LEAVE_NOTIFICATIONS: true
-      }
-    };
-
-    // Ajouter le token JWT si disponible (pour authentification et role moderateur)
+    // Ajouter le JWT si disponible
     if (this.jwtToken) {
-      options.jwt = this.jwtToken;
-      console.log('[Jitsi] Using JWT token for authentication');
+      params.set('jwt', this.jwtToken);
     }
 
-    console.log('[Jitsi] Creating API with room:', options.roomName, 'isTeacher:', this.isTeacher);
-    this.api = new JitsiMeetExternalAPI(domain, options);
+    // Configurations Jitsi via URL hash
+    const configParams = [
+      'config.prejoinPageEnabled=false',
+      'config.startWithAudioMuted=false',
+      'config.startWithVideoMuted=false',
+      'config.disableDeepLinking=true',
+      'config.defaultLanguage=fr',
+      `userInfo.displayName=${encodeURIComponent(this.userName)}`,
+      'interfaceConfig.SHOW_JITSI_WATERMARK=false',
+      'interfaceConfig.SHOW_BRAND_WATERMARK=false',
+      'interfaceConfig.DEFAULT_BACKGROUND=#1e1e24'
+    ];
 
-    this.api.addEventListener('videoConferenceJoined', (event: any) => {
-      console.log('[Jitsi] Conference joined:', event);
-      if (this.loadTimeout) {
-        clearTimeout(this.loadTimeout);
-      }
-      this.loading.set(false);
+    const queryString = params.toString();
+    const hashString = configParams.join('&');
 
-      // Auto-start recording only if teacher (moderator)
-      if (this.isTeacher) {
-        setTimeout(() => {
-          console.log('[Jitsi] Teacher detected - Starting automatic recording...');
-          this.api.executeCommand('startRecording', {
-            mode: 'file'
-          });
-        }, 3000);
-      }
-    });
+    let url = baseUrl;
+    if (queryString) {
+      url += '?' + queryString;
+    }
+    url += '#' + hashString;
 
-    this.api.addEventListener('recordingStatusChanged', (event: any) => {
-      console.log('[Jitsi] Recording status changed:', event);
-    });
-
-    this.api.addEventListener('participantJoined', (event: any) => {
-      console.log('[Jitsi] Participant joined:', event);
-    });
-
-    this.api.addEventListener('videoConferenceLeft', () => {
-      console.log('[Jitsi] Conference left');
-      this.onClose();
-    });
-
-    this.api.addEventListener('readyToClose', () => {
-      console.log('[Jitsi] Ready to close');
-      this.onClose();
-    });
-
-    this.api.addEventListener('errorOccurred', (event: any) => {
-      console.error('[Jitsi] Error:', event);
-      this.loading.set(false);
-      this.error.set('Une erreur est survenue lors de la connexion.');
-    });
-
-    // Additional debug events
-    this.api.addEventListener('browserSupport', (event: any) => {
-      console.log('[Jitsi] Browser support:', event);
-    });
-
-    this.api.addEventListener('log', (event: any) => {
-      if (event.logLevel === 'error') {
-        console.error('[Jitsi Log]', event);
-      }
-    });
+    console.log('[Jitsi] Opening iframe with URL:', url);
+    this.iframeUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(url));
   }
 
   onClose(): void {
-    if (this.api) {
-      this.api.dispose();
-    }
     this.closed.emit();
-  }
-
-  retry(): void {
-    this.error.set(null);
-    this.loading.set(true);
-    this.loadJitsiScript();
   }
 }

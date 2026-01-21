@@ -47,6 +47,10 @@ services:
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
       # Admin Configuration
       ADMIN_EMAIL: ${ADMIN_EMAIL:-bessaa.amirouche@gmail.com}
+      # Jitsi Configuration
+      JITSI_APP_ID: ${JITSI_APP_ID:-mychess}
+      JITSI_APP_SECRET: ${JITSI_APP_SECRET:-cb2431b0b8102427d94c0365abc301e8b9714d5d5eca6526e115de638f8ae77d}
+      JITSI_DOMAIN: ${JITSI_DOMAIN:-meet.mychess.fr}
     ports:
       - "8282:8282"
     depends_on:

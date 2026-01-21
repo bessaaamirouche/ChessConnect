@@ -6,6 +6,7 @@ import { LessonService } from '../../../core/services/lesson.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { RatingService } from '../../../core/services/rating.service';
 import { SeoService } from '../../../core/services/seo.service';
+import { JitsiService } from '../../../core/services/jitsi.service';
 import { LESSON_STATUS_LABELS, Lesson } from '../../../core/models/lesson.model';
 import { ConfirmModalComponent } from '../../../shared/confirm-modal/confirm-modal.component';
 import { StudentProfileModalComponent } from '../../../shared/student-profile-modal/student-profile-modal.component';
@@ -92,7 +93,8 @@ export class LessonListComponent implements OnInit {
     public lessonService: LessonService,
     public authService: AuthService,
     private ratingService: RatingService,
-    private seoService: SeoService
+    private seoService: SeoService,
+    private jitsiService: JitsiService
   ) {
     this.seoService.setLessonsPage();
   }
@@ -169,20 +171,26 @@ export class LessonListComponent implements OnInit {
   }
 
   openVideoCall(lesson: Lesson): void {
-    const roomName = lesson.zoomLink?.split('/').pop() || `chessconnect-${lesson.id}-${Date.now()}`;
-    const userName = this.authService.currentUser()?.firstName + ' ' + this.authService.currentUser()?.lastName;
+    const roomName = lesson.zoomLink?.split('/').pop() || `mychess-lesson-${lesson.id}`;
 
-    // Build Jitsi URL with config parameters
-    const baseUrl = `https://meet.mychess.fr/${roomName}`;
-    const config = [
-      'config.prejoinPageEnabled=false',
-      'config.startWithAudioMuted=false',
-      'config.startWithVideoMuted=false',
-      `userInfo.displayName="${encodeURIComponent(userName || 'Participant')}"`
-    ].join('&');
-
-    const url = `${baseUrl}#${config}`;
-    window.open(url, '_blank');
+    // Obtenir le token JWT pour Jitsi (avec role moderateur pour les profs)
+    this.jitsiService.getToken(roomName).subscribe({
+      next: (response) => {
+        const url = this.jitsiService.buildJitsiUrl(response.token, roomName);
+        window.open(url, '_blank');
+      },
+      error: (err) => {
+        console.error('Erreur lors de la generation du token Jitsi:', err);
+        // Fallback sans token (mode anonyme)
+        const userName = this.authService.currentUser()?.firstName + ' ' + this.authService.currentUser()?.lastName;
+        const baseUrl = `https://meet.mychess.fr/${roomName}`;
+        const config = [
+          'config.prejoinPageEnabled=false',
+          `userInfo.displayName="${encodeURIComponent(userName || 'Participant')}"`
+        ].join('&');
+        window.open(`${baseUrl}#${config}`, '_blank');
+      }
+    });
   }
 
   openRecording(lesson: Lesson): void {

@@ -73,6 +73,12 @@ google:
   client-id: ${GOOGLE_CLIENT_ID:}
   client-secret: ${GOOGLE_CLIENT_SECRET:}
 
+# Jitsi Configuration
+jitsi:
+  app-id: ${JITSI_APP_ID:mychess}
+  app-secret: ${JITSI_APP_SECRET:cb2431b0b8102427d94c0365abc301e8b9714d5d5eca6526e115de638f8ae77d}
+  domain: ${JITSI_DOMAIN:meet.mychess.fr}
+
 # Logging
 logging:
   level:

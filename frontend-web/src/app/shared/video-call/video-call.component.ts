@@ -137,6 +137,7 @@ export class VideoCallComponent implements OnInit, OnDestroy {
   @Input() roomName!: string;
   @Input() userName!: string;
   @Input() title = 'Cours d\'échecs';
+  @Input() isTeacher = false;
   @Output() closed = new EventEmitter<void>();
 
   loading = signal(true);
@@ -196,7 +197,8 @@ export class VideoCallComponent implements OnInit, OnDestroy {
       roomName: `mychess_${this.roomName}`,
       parentNode: document.getElementById('jitsi-container'),
       userInfo: {
-        displayName: this.userName
+        displayName: this.userName,
+        moderator: this.isTeacher
       },
       configOverwrite: {
         startWithAudioMuted: false,

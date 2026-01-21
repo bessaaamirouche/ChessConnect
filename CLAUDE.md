@@ -429,6 +429,13 @@ Verifier que `FRONTEND_URL` dans `docker-compose.yml` correspond a l'URL utilise
 - La commande `startRecording` est appelee mais Jitsi necessite une configuration serveur specifique (Jibri) pour l'enregistrement
 - A investiguer : configuration Jibri sur le serveur meet.mychess.fr ou solution alternative
 
+### Paiement des professeurs via Stripe
+- **Statut** : Non implemente
+- Actuellement le bouton "Marquer comme paye" ne fait que changer le statut visuellement
+- **Requis** : Un vrai bouton qui effectue un virement Stripe (Stripe Connect / Transfer) vers le compte du professeur sans quitter l'application
+- Le professeur doit pouvoir renseigner ses informations bancaires (RIB, infos entreprise) dans son profil
+- A implementer : Stripe Connect Onboarding pour les profs + API Transfer pour les paiements admin
+
 ## Fonctionnalites a Implementer
 
 ### 1. Evaluation des Professeurs

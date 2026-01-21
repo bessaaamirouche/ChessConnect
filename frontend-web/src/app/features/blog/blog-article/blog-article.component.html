@@ -15,7 +15,7 @@
     <header class="article-hero">
       @if (article()!.coverImage) {
         <div class="article-hero__image">
-          <img [src]="article()!.coverImage" [alt]="article()!.title">
+          <img [src]="article()!.coverImage" loading="lazy" [alt]="article()!.title">
           <div class="article-hero__overlay"></div>
         </div>
       }

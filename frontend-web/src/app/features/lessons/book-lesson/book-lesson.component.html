@@ -59,7 +59,7 @@
           <div class="booking-card__teacher">
             <div class="avatar avatar--md avatar--gold">
               @if (teacherService.selectedTeacher()?.avatarUrl) {
-                <img [src]="teacherService.selectedTeacher()?.avatarUrl" [alt]="teacherService.selectedTeacher()?.firstName">
+                <img [src]="teacherService.selectedTeacher()?.avatarUrl" loading="lazy" [alt]="teacherService.selectedTeacher()?.firstName">
               } @else {
                 {{ getInitials(teacherService.selectedTeacher()?.firstName || '', teacherService.selectedTeacher()?.lastName || '') }}
               }

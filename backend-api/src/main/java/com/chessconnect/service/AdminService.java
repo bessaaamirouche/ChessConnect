@@ -38,6 +38,12 @@ public class AdminService {
     private final RatingRepository ratingRepository;
     private final TeacherPayoutRepository teacherPayoutRepository;
     private final StripeConnectService stripeConnectService;
+    private final AvailabilityRepository availabilityRepository;
+    private final FavoriteTeacherRepository favoriteTeacherRepository;
+    private final QuizResultRepository quizResultRepository;
+    private final UserCourseProgressRepository userCourseProgressRepository;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
+    private final ProgressRepository progressRepository;
 
     public AdminService(
             UserRepository userRepository,
@@ -47,7 +53,13 @@ public class AdminService {
             TeacherBalanceRepository teacherBalanceRepository,
             RatingRepository ratingRepository,
             TeacherPayoutRepository teacherPayoutRepository,
-            StripeConnectService stripeConnectService
+            StripeConnectService stripeConnectService,
+            AvailabilityRepository availabilityRepository,
+            FavoriteTeacherRepository favoriteTeacherRepository,
+            QuizResultRepository quizResultRepository,
+            UserCourseProgressRepository userCourseProgressRepository,
+            PasswordResetTokenRepository passwordResetTokenRepository,
+            ProgressRepository progressRepository
     ) {
         this.userRepository = userRepository;
         this.lessonRepository = lessonRepository;
@@ -57,6 +69,12 @@ public class AdminService {
         this.ratingRepository = ratingRepository;
         this.teacherPayoutRepository = teacherPayoutRepository;
         this.stripeConnectService = stripeConnectService;
+        this.availabilityRepository = availabilityRepository;
+        this.favoriteTeacherRepository = favoriteTeacherRepository;
+        this.quizResultRepository = quizResultRepository;
+        this.userCourseProgressRepository = userCourseProgressRepository;
+        this.passwordResetTokenRepository = passwordResetTokenRepository;
+        this.progressRepository = progressRepository;
     }
 
     /**
@@ -137,6 +155,7 @@ public class AdminService {
     /**
      * Delete a user permanently.
      * Checks for pending/confirmed lessons before deletion.
+     * Deletes all related data in correct order to avoid FK constraint violations.
      */
     @Transactional
     public void deleteUser(Long userId) {
@@ -159,8 +178,64 @@ public class AdminService {
                     "Impossible de supprimer cet utilisateur: " + activeLessons.size() + " cours en attente ou confirmes");
         }
 
-        log.info("Deleting user {} ({} {})", userId, user.getFirstName(), user.getLastName());
+        log.info("Deleting user {} ({} {}) and all related data...", userId, user.getFirstName(), user.getLastName());
+
+        // Delete all related data in correct order (FK dependencies)
+        // 1. Password reset tokens
+        passwordResetTokenRepository.deleteByUserId(userId);
+        log.debug("Deleted password reset tokens for user {}", userId);
+
+        // 2. Ratings (as student who gave ratings, or as teacher who received ratings)
+        ratingRepository.deleteByStudentId(userId);
+        ratingRepository.deleteByTeacherId(userId);
+        log.debug("Deleted ratings for user {}", userId);
+
+        // 3. Favorite teachers (as student or as teacher)
+        favoriteTeacherRepository.deleteByStudentId(userId);
+        favoriteTeacherRepository.deleteByTeacherId(userId);
+        log.debug("Deleted favorite teachers for user {}", userId);
+
+        // 4. Quiz results
+        quizResultRepository.deleteByStudentId(userId);
+        log.debug("Deleted quiz results for user {}", userId);
+
+        // 5. User course progress
+        userCourseProgressRepository.deleteByUserId(userId);
+        log.debug("Deleted user course progress for user {}", userId);
+
+        // 6. Payments (as payer or as teacher receiving payment)
+        paymentRepository.deleteByPayerId(userId);
+        paymentRepository.deleteByTeacherId(userId);
+        log.debug("Deleted payments for user {}", userId);
+
+        // 7. Teacher-specific data (if user is a teacher)
+        if (user.getRole() == UserRole.TEACHER) {
+            availabilityRepository.deleteByTeacherId(userId);
+            log.debug("Deleted availabilities for teacher {}", userId);
+
+            teacherPayoutRepository.deleteByTeacherId(userId);
+            log.debug("Deleted teacher payouts for teacher {}", userId);
+
+            teacherBalanceRepository.deleteByTeacherId(userId);
+            log.debug("Deleted teacher balance for teacher {}", userId);
+        }
+
+        // 8. Lessons (as student or teacher) - must be after ratings/payments that reference lessons
+        lessonRepository.deleteByStudentId(userId);
+        lessonRepository.deleteByTeacherId(userId);
+        log.debug("Deleted lessons for user {}", userId);
+
+        // 9. Subscriptions
+        subscriptionRepository.deleteByStudentId(userId);
+        log.debug("Deleted subscriptions for user {}", userId);
+
+        // 10. Progress
+        progressRepository.deleteByStudentId(userId);
+        log.debug("Deleted progress for user {}", userId);
+
+        // 11. Finally delete the user
         userRepository.delete(user);
+        log.info("User {} deleted successfully", userId);
     }
 
     /**

@@ -202,18 +202,116 @@
     <section class="section">
       <div class="section__header">
         <h2 class="section__title">Historique</h2>
+        <span class="section__count">{{ filteredHistory().length }} cours</span>
       </div>
-      <p class="section__desc">Vos cours passés</p>
+
+      <!-- Filters -->
+      @if (lessonService.lessonHistory().length > 0) {
+        <div class="history-filters">
+          <div class="history-filters__row">
+            <div class="filter-group">
+              <label class="filter-label">
+                <ng-icon name="heroMagnifyingGlass" size="14"></ng-icon>
+                {{ authService.isStudent() ? 'Coach' : 'Joueur' }}
+              </label>
+              <select
+                class="filter-select"
+                [ngModel]="historyFilterPerson()"
+                (ngModelChange)="historyFilterPerson.set($event)"
+              >
+                <option value="">Tous</option>
+                @for (person of uniquePersons(); track person) {
+                  <option [value]="person">{{ person }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label">
+                <ng-icon name="heroCalendarDays" size="14"></ng-icon>
+                Mois
+              </label>
+              <select
+                class="filter-select"
+                [ngModel]="historyFilterMonth()"
+                (ngModelChange)="historyFilterMonth.set($event)"
+              >
+                <option value="">Tous</option>
+                @for (month of uniqueMonths(); track month) {
+                  <option [value]="month">{{ formatMonth(month) }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="filter-group filter-group--checkbox">
+              <label class="filter-checkbox">
+                <input
+                  type="checkbox"
+                  [ngModel]="historyFilterHasRecording()"
+                  (ngModelChange)="historyFilterHasRecording.set($event)"
+                >
+                <ng-icon name="heroPlayCircle" size="14"></ng-icon>
+                Avec enregistrement
+              </label>
+            </div>
+
+            @if (historyFilterPerson() || historyFilterMonth() || historyFilterHasRecording()) {
+              <button class="filter-clear" (click)="clearHistoryFilters()">
+                <ng-icon name="heroXMark" size="14"></ng-icon>
+                Effacer
+              </button>
+            }
+          </div>
+        </div>
+      }
 
       @if (lessonService.lessonHistory().length === 0) {
         <div class="empty-state">
           <div class="empty-state__icon"><ng-icon name="heroBookOpen" size="48"></ng-icon></div>
-          <p class="empty-state__description">Aucun cours passé</p>
+          <p class="empty-state__description">Aucun cours passe</p>
+        </div>
+      } @else if (filteredHistory().length === 0) {
+        <div class="empty-state">
+          <div class="empty-state__icon"><ng-icon name="heroFunnel" size="48"></ng-icon></div>
+          <p class="empty-state__description">Aucun cours ne correspond aux filtres</p>
+          <button class="btn btn--ghost btn--sm" (click)="clearHistoryFilters()">Effacer les filtres</button>
         </div>
       } @else {
         <div class="history-grid">
-          @for (lesson of lessonService.lessonHistory(); track lesson.id) {
-            <div class="history-card">
+          @for (lesson of filteredHistory(); track lesson.id) {
+            <div class="history-card" [class.history-card--has-recording]="lesson.recordingUrl">
+              <!-- Recording badge -->
+              @if (lesson.status === 'COMPLETED' && lesson.recordingUrl) {
+                <button
+                  class="history-card__play-btn"
+                  (click)="openRecording(lesson)"
+                  title="Revoir le cours"
+                >
+                  <ng-icon name="heroPlayCircle" size="32"></ng-icon>
+                  <span>Revoir</span>
+                </button>
+              }
+
+              <div class="history-card__header">
+                <div class="history-card__date-block">
+                  <span class="history-card__day">{{ lesson.scheduledAt | date:'d' }}</span>
+                  <span class="history-card__month">{{ lesson.scheduledAt | date:'MMM' }}</span>
+                </div>
+                <div class="history-card__info">
+                  <div class="history-card__person">
+                    @if (authService.isStudent()) {
+                      {{ lesson.teacherName }}
+                    } @else {
+                      {{ lesson.studentName }}
+                    }
+                  </div>
+                  <div class="history-card__time">{{ lesson.scheduledAt | date:'HH:mm' }} - {{ lesson.scheduledAt | date:'yyyy' }}</div>
+                </div>
+                <span class="badge badge--sm" [class]="statusLabels[lesson.status].cssClass">
+                  {{ getStatusLabel(lesson) }}
+                </span>
+              </div>
+
               <div class="history-card__actions">
                 @if (canRateLesson(lesson)) {
                   <button
@@ -221,7 +319,7 @@
                     (click)="openRatingModal(lesson)"
                     title="Evaluer ce cours"
                   >
-                    &#9733;
+                    <span class="star">&#9733;</span> Evaluer
                   </button>
                 }
                 @if (lesson.status === 'CANCELLED' && lesson.cancellationReason) {
@@ -239,16 +337,7 @@
                     (click)="toggleObservations(lesson.id)"
                     title="Voir les observations"
                   >
-                    <ng-icon name="heroBookOpen" size="14"></ng-icon>
-                  </button>
-                }
-                @if (lesson.status === 'COMPLETED' && lesson.recordingUrl) {
-                  <button
-                    class="history-card__action-btn history-card__action-btn--recording"
-                    (click)="openRecording(lesson)"
-                    title="Voir l'enregistrement"
-                  >
-                    <ng-icon name="heroVideoCamera" size="14"></ng-icon>
+                    <ng-icon name="heroBookOpen" size="14"></ng-icon> Notes
                   </button>
                 }
                 <button
@@ -259,6 +348,7 @@
                   <ng-icon name="heroTrash" size="14"></ng-icon>
                 </button>
               </div>
+
               @if (visibleReasonId() === lesson.id) {
                 <div class="history-card__tooltip">
                   <div class="history-card__tooltip-header">Raison de l'annulation</div>
@@ -271,18 +361,6 @@
                   <div class="history-card__tooltip-content">{{ lesson.teacherObservations }}</div>
                 </div>
               }
-              <div class="history-card__date">{{ lesson.scheduledAt | date:'d MMM yyyy' }}</div>
-              <div class="history-card__time">{{ lesson.scheduledAt | date:'HH:mm' }}</div>
-              <div class="history-card__person">
-                @if (authService.isStudent()) {
-                  {{ lesson.teacherName }}
-                } @else {
-                  {{ lesson.studentName }}
-                }
-              </div>
-              <span class="badge" [class]="statusLabels[lesson.status].cssClass">
-                {{ getStatusLabel(lesson) }}
-              </span>
             </div>
           }
         </div>

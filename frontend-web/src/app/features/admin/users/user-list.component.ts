@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, inject, computed } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminService, UserListResponse, Page } from '../../../core/services/admin.service';
@@ -13,6 +13,22 @@ import { DialogService } from '../../../core/services/dialog.service';
       <header class="page-header">
         <h1>Utilisateurs</h1>
         <div class="filters">
+          <div class="search-box">
+            <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.3-4.3"></path>
+            </svg>
+            <input
+              type="text"
+              [(ngModel)]="searchQuery"
+              (input)="onSearchChange()"
+              placeholder="Rechercher par nom, prenom, email..."
+              class="search-input"
+            >
+            @if (searchQuery) {
+              <button class="search-clear" (click)="clearSearch()">×</button>
+            }
+          </div>
           <select [(ngModel)]="roleFilter" (change)="loadUsers(0)" class="input input--sm">
             <option value="">Tous les roles</option>
             <option value="STUDENT">Joueurs</option>
@@ -25,6 +41,9 @@ import { DialogService } from '../../../core/services/dialog.service';
         <div class="loading">Chargement...</div>
       } @else {
         <div class="table-container">
+          <div class="table-header">
+            <span class="results-count">{{ filteredUsers().length }} resultat(s)</span>
+          </div>
           <table class="table">
             <thead>
               <tr>
@@ -37,7 +56,7 @@ import { DialogService } from '../../../core/services/dialog.service';
               </tr>
             </thead>
             <tbody>
-              @for (user of users()?.content || []; track user.id) {
+              @for (user of filteredUsers(); track user.id) {
                 <tr>
                   <td>
                     <div class="user-info">
@@ -369,6 +388,80 @@ import { DialogService } from '../../../core/services/dialog.service';
       padding: 8px 12px;
       font-size: 0.875rem;
     }
+
+    .search-box {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .search-input {
+      padding: 8px 36px 8px 36px;
+      font-size: 0.875rem;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      min-width: 280px;
+      transition: all var(--transition-fast);
+
+      &::placeholder {
+        color: var(--text-muted);
+      }
+
+      &:focus {
+        outline: none;
+        border-color: var(--gold-500);
+        background: var(--bg-secondary);
+      }
+
+      @media (max-width: 767px) {
+        min-width: 200px;
+      }
+    }
+
+    .search-clear {
+      position: absolute;
+      right: 8px;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-tertiary);
+      border: none;
+      border-radius: 50%;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1;
+
+      &:hover {
+        background: var(--border-subtle);
+        color: var(--text-primary);
+      }
+    }
+
+    .table-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--space-sm) var(--space-md);
+      background: var(--bg-tertiary);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .results-count {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
   `]
 })
 export class UserListComponent implements OnInit {
@@ -377,15 +470,41 @@ export class UserListComponent implements OnInit {
   actionLoading = signal(false);
   currentPage = signal(0);
   roleFilter = '';
+  searchQuery = '';
   showDeleteModal = signal(false);
   userToDelete = signal<UserListResponse | null>(null);
 
   private dialogService = inject(DialogService);
 
+  // Filtered users based on search query
+  filteredUsers = computed(() => {
+    const allUsers = this.users()?.content || [];
+    const query = this.searchQuery.toLowerCase().trim();
+
+    if (!query) return allUsers;
+
+    return allUsers.filter(user => {
+      const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
+      const email = user.email.toLowerCase();
+      return fullName.includes(query) ||
+             user.firstName.toLowerCase().includes(query) ||
+             user.lastName.toLowerCase().includes(query) ||
+             email.includes(query);
+    });
+  });
+
   constructor(private adminService: AdminService) {}
 
   ngOnInit(): void {
     this.loadUsers(0);
+  }
+
+  onSearchChange(): void {
+    // Search is computed, no action needed
+  }
+
+  clearSearch(): void {
+    this.searchQuery = '';
   }
 
   loadUsers(page: number): void {

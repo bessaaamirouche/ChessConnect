@@ -17,4 +17,6 @@ public interface TeacherPayoutRepository extends JpaRepository<TeacherPayout, Lo
     List<TeacherPayout> findByYearMonth(String yearMonth);
 
     List<TeacherPayout> findByIsPaidFalse();
+
+    void deleteByTeacherId(Long teacherId);
 }

@@ -83,4 +83,8 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
 
     @Query("SELECT COUNT(l) FROM Lesson l WHERE l.scheduledAt BETWEEN :start AND :end")
     Long countByScheduledAtBetween(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+
+    void deleteByStudentId(Long studentId);
+
+    void deleteByTeacherId(Long teacherId);
 }

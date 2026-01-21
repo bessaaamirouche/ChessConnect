@@ -25,4 +25,8 @@ public interface RatingRepository extends JpaRepository<Rating, Long> {
     Integer getReviewCountForTeacher(@Param("teacherId") Long teacherId);
 
     List<Rating> findByStudentIdOrderByCreatedAtDesc(Long studentId);
+
+    void deleteByTeacherId(Long teacherId);
+
+    void deleteByStudentId(Long studentId);
 }

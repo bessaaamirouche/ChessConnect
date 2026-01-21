@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, signal, ViewChild, ChangeDetectionStrategy, computed } from '@angular/core';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -33,7 +33,10 @@ import {
   heroUser,
   heroChartBar,
   heroInformationCircle,
-  heroTrash
+  heroTrash,
+  heroPlayCircle,
+  heroFunnel,
+  heroMagnifyingGlass
 } from '@ng-icons/heroicons/outline';
 import { CHESS_LEVELS } from '../../../core/models/user.model';
 
@@ -62,7 +65,10 @@ import { CHESS_LEVELS } from '../../../core/models/user.model';
     heroUser,
     heroChartBar,
     heroInformationCircle,
-    heroTrash
+    heroTrash,
+    heroPlayCircle,
+    heroFunnel,
+    heroMagnifyingGlass
   })],
   templateUrl: './lesson-list.component.html',
   styleUrl: './lesson-list.component.scss'
@@ -95,6 +101,62 @@ export class LessonListComponent implements OnInit {
   videoCallRoomName = signal('');
   videoCallToken = signal('');
   videoCallTitle = signal('');
+
+  // History filters
+  historyFilterPerson = signal<string>('');
+  historyFilterMonth = signal<string>('');
+  historyFilterHasRecording = signal<boolean>(false);
+
+  // Computed filtered history
+  filteredHistory = computed(() => {
+    let lessons = this.lessonService.lessonHistory();
+    const filterPerson = this.historyFilterPerson();
+    const filterMonth = this.historyFilterMonth();
+    const filterHasRecording = this.historyFilterHasRecording();
+
+    if (filterPerson) {
+      lessons = lessons.filter(l => {
+        const personName = this.authService.isStudent() ? l.teacherName : l.studentName;
+        return personName.toLowerCase().includes(filterPerson.toLowerCase());
+      });
+    }
+
+    if (filterMonth) {
+      lessons = lessons.filter(l => {
+        const lessonDate = new Date(l.scheduledAt);
+        const lessonMonth = `${lessonDate.getFullYear()}-${String(lessonDate.getMonth() + 1).padStart(2, '0')}`;
+        return lessonMonth === filterMonth;
+      });
+    }
+
+    if (filterHasRecording) {
+      lessons = lessons.filter(l => l.recordingUrl);
+    }
+
+    return lessons;
+  });
+
+  // Get unique persons (coaches or students) for filter
+  uniquePersons = computed(() => {
+    const lessons = this.lessonService.lessonHistory();
+    const persons = new Set<string>();
+    lessons.forEach(l => {
+      const name = this.authService.isStudent() ? l.teacherName : l.studentName;
+      if (name) persons.add(name);
+    });
+    return Array.from(persons).sort();
+  });
+
+  // Get unique months for filter
+  uniqueMonths = computed(() => {
+    const lessons = this.lessonService.lessonHistory();
+    const months = new Set<string>();
+    lessons.forEach(l => {
+      const date = new Date(l.scheduledAt);
+      months.add(`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`);
+    });
+    return Array.from(months).sort().reverse();
+  });
 
   constructor(
     public lessonService: LessonService,
@@ -371,6 +433,18 @@ export class LessonListComponent implements OnInit {
     return lesson.status === 'COMPLETED' &&
            this.authService.isStudent() &&
            !this.ratedLessons().has(lesson.id);
+  }
+
+  formatMonth(monthStr: string): string {
+    const [year, month] = monthStr.split('-');
+    const date = new Date(parseInt(year), parseInt(month) - 1);
+    return date.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+  }
+
+  clearHistoryFilters(): void {
+    this.historyFilterPerson.set('');
+    this.historyFilterMonth.set('');
+    this.historyFilterHasRecording.set(false);
   }
 
   checkIfLessonRated(lessonId: number): void {

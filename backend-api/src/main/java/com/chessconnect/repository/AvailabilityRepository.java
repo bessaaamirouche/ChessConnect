@@ -38,4 +38,6 @@ public interface AvailabilityRepository extends JpaRepository<Availability, Long
     );
 
     void deleteByTeacherIdAndId(Long teacherId, Long id);
+
+    void deleteByTeacherId(Long teacherId);
 }

@@ -28,4 +28,6 @@ public interface UserCourseProgressRepository extends JpaRepository<UserCoursePr
     long countByUserIdAndStatus(@Param("userId") Long userId, @Param("status") CourseStatus status);
 
     boolean existsByUserIdAndCourseId(Long userId, Long courseId);
+
+    void deleteByUserId(Long userId);
 }

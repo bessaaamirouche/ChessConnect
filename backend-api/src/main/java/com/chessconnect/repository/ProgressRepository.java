@@ -10,4 +10,6 @@ import java.util.Optional;
 public interface ProgressRepository extends JpaRepository<Progress, Long> {
 
     Optional<Progress> findByStudentId(Long studentId);
+
+    void deleteByStudentId(Long studentId);
 }

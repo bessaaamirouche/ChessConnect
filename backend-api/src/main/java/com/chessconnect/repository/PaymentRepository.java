@@ -38,4 +38,8 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
     @Query("SELECT COALESCE(SUM(p.commissionCents), 0) FROM Payment p WHERE p.status = 'COMPLETED'")
     Integer getTotalPlatformCommissions();
+
+    void deleteByPayerId(Long payerId);
+
+    void deleteByTeacherId(Long teacherId);
 }

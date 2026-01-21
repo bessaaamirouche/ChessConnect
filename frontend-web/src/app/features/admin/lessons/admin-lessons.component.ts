@@ -1,30 +1,48 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { AdminService, AdminLessonResponse } from '../../../core/services/admin.service';
 
 @Component({
   selector: 'app-admin-lessons',
   standalone: true,
-  imports: [CommonModule, DatePipe],
+  imports: [CommonModule, DatePipe, FormsModule],
   template: `
     <div class="admin-lessons">
       <header class="page-header">
         <h1>Cours</h1>
-        <div class="tabs">
-          <button
-            class="tab"
-            [class.tab--active]="activeTab() === 'upcoming'"
-            (click)="setTab('upcoming')"
-          >
-            A venir ({{ upcomingLessons().length }})
-          </button>
-          <button
-            class="tab"
-            [class.tab--active]="activeTab() === 'completed'"
-            (click)="setTab('completed')"
-          >
-            Effectues ({{ completedLessons().length }})
-          </button>
+        <div class="header-controls">
+          <div class="search-box">
+            <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.3-4.3"></path>
+            </svg>
+            <input
+              type="text"
+              [(ngModel)]="searchQuery"
+              placeholder="Rechercher coach ou joueur..."
+              class="search-input"
+            >
+            @if (searchQuery) {
+              <button class="search-clear" (click)="searchQuery = ''">×</button>
+            }
+          </div>
+          <div class="tabs">
+            <button
+              class="tab"
+              [class.tab--active]="activeTab() === 'upcoming'"
+              (click)="setTab('upcoming')"
+            >
+              A venir ({{ upcomingLessons().length }})
+            </button>
+            <button
+              class="tab"
+              [class.tab--active]="activeTab() === 'completed'"
+              (click)="setTab('completed')"
+            >
+              Effectues ({{ completedLessons().length }})
+            </button>
+          </div>
         </div>
       </header>
 
@@ -32,6 +50,9 @@ import { AdminService, AdminLessonResponse } from '../../../core/services/admin.
         <div class="loading">Chargement...</div>
       } @else {
         <div class="table-container">
+          <div class="table-header">
+            <span class="results-count">{{ filteredLessons().length }} resultat(s)</span>
+          </div>
           <table class="table">
             <thead>
               <tr>
@@ -45,7 +66,7 @@ import { AdminService, AdminLessonResponse } from '../../../core/services/admin.
               </tr>
             </thead>
             <tbody>
-              @for (lesson of currentLessons(); track lesson.id) {
+              @for (lesson of filteredLessons(); track lesson.id) {
                 <tr>
                   <td>{{ lesson.scheduledAt | date:'dd/MM/yyyy' }}</td>
                   <td>{{ lesson.scheduledAt | date:'HH:mm' }}</td>
@@ -160,6 +181,93 @@ import { AdminService, AdminLessonResponse } from '../../../core/services/admin.
           font-size: 1.25rem;
         }
       }
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      flex-wrap: wrap;
+
+      @media (max-width: 767px) {
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+
+    .search-box {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .search-input {
+      padding: 8px 36px 8px 36px;
+      font-size: 0.875rem;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      min-width: 240px;
+      transition: all var(--transition-fast);
+
+      &::placeholder {
+        color: var(--text-muted);
+      }
+
+      &:focus {
+        outline: none;
+        border-color: var(--gold-500);
+        background: var(--bg-secondary);
+      }
+
+      @media (max-width: 767px) {
+        min-width: 100%;
+      }
+    }
+
+    .search-clear {
+      position: absolute;
+      right: 8px;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-tertiary);
+      border: none;
+      border-radius: 50%;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1;
+
+      &:hover {
+        background: var(--border-subtle);
+        color: var(--text-primary);
+      }
+    }
+
+    .table-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--space-sm) var(--space-md);
+      background: var(--bg-tertiary);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .results-count {
+      font-size: 0.75rem;
+      color: var(--text-muted);
     }
 
     .tabs {
@@ -473,10 +581,25 @@ export class AdminLessonsComponent implements OnInit {
   completedLessons = signal<AdminLessonResponse[]>([]);
   loading = signal(true);
   activeTab = signal<'upcoming' | 'completed'>('upcoming');
+  searchQuery = '';
 
   // Video player
   showVideoPlayer = signal(false);
   videoPlayerUrl = signal('');
+
+  // Filtered lessons based on search query and active tab
+  filteredLessons = computed(() => {
+    const lessons = this.activeTab() === 'upcoming' ? this.upcomingLessons() : this.completedLessons();
+    const query = this.searchQuery.toLowerCase().trim();
+
+    if (!query) return lessons;
+
+    return lessons.filter(lesson => {
+      const teacherName = lesson.teacherName?.toLowerCase() || '';
+      const studentName = lesson.studentName?.toLowerCase() || '';
+      return teacherName.includes(query) || studentName.includes(query);
+    });
+  });
 
   constructor(private adminService: AdminService) {}
 

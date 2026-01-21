@@ -9,4 +9,6 @@ import java.util.Optional;
 @Repository
 public interface TeacherBalanceRepository extends JpaRepository<TeacherBalance, Long> {
     Optional<TeacherBalance> findByTeacherId(Long teacherId);
+
+    void deleteByTeacherId(Long teacherId);
 }

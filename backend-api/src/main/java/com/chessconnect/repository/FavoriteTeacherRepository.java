@@ -23,4 +23,8 @@ public interface FavoriteTeacherRepository extends JpaRepository<FavoriteTeacher
 
     // Count favorites for a teacher
     long countByTeacherId(Long teacherId);
+
+    void deleteByStudentId(Long studentId);
+
+    void deleteByTeacherId(Long teacherId);
 }

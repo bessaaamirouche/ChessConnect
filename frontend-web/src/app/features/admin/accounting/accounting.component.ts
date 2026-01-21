@@ -1,12 +1,13 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, inject, computed } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { AdminService, AccountingResponse, TeacherBalanceResponse } from '../../../core/services/admin.service';
 import { DialogService } from '../../../core/services/dialog.service';
 
 @Component({
   selector: 'app-accounting',
   standalone: true,
-  imports: [CommonModule, DecimalPipe],
+  imports: [CommonModule, DecimalPipe, FormsModule],
   template: `
     <div class="accounting">
       <header class="page-header">
@@ -58,11 +59,31 @@ import { DialogService } from '../../../core/services/dialog.service';
 
         <!-- Teacher Balances -->
         <section class="section">
-          <h2>Soldes des coachs - {{ currentMonthLabel() }}</h2>
+          <div class="section-header">
+            <h2>Soldes des coachs - {{ currentMonthLabel() }}</h2>
+            <div class="search-box">
+              <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.3-4.3"></path>
+              </svg>
+              <input
+                type="text"
+                [(ngModel)]="searchQuery"
+                placeholder="Rechercher un coach..."
+                class="search-input"
+              >
+              @if (searchQuery) {
+                <button class="search-clear" (click)="searchQuery = ''">×</button>
+              }
+            </div>
+          </div>
           @if (balances().length === 0) {
             <p class="empty">Aucun coach avec un solde.</p>
           } @else {
             <div class="table-container">
+              <div class="table-header">
+                <span class="results-count">{{ filteredBalances().length }} resultat(s)</span>
+              </div>
               <table class="table">
                 <thead>
                   <tr>
@@ -75,7 +96,7 @@ import { DialogService } from '../../../core/services/dialog.service';
                   </tr>
                 </thead>
                 <tbody>
-                  @for (balance of balances(); track balance.teacherId) {
+                  @for (balance of filteredBalances(); track balance.teacherId) {
                     <tr>
                       <td>
                         <div class="user-info">
@@ -177,6 +198,98 @@ import { DialogService } from '../../../core/services/dialog.service';
       @media (max-width: 767px) {
         margin-bottom: var(--space-xl);
       }
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-md);
+      flex-wrap: wrap;
+      gap: var(--space-md);
+
+      h2 {
+        margin-bottom: 0;
+      }
+
+      @media (max-width: 767px) {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+
+    .search-box {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .search-input {
+      padding: 8px 36px 8px 36px;
+      font-size: 0.875rem;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      min-width: 220px;
+      transition: all var(--transition-fast);
+
+      &::placeholder {
+        color: var(--text-muted);
+      }
+
+      &:focus {
+        outline: none;
+        border-color: var(--gold-500);
+        background: var(--bg-secondary);
+      }
+
+      @media (max-width: 767px) {
+        min-width: 100%;
+      }
+    }
+
+    .search-clear {
+      position: absolute;
+      right: 8px;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-tertiary);
+      border: none;
+      border-radius: 50%;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1;
+
+      &:hover {
+        background: var(--border-subtle);
+        color: var(--text-primary);
+      }
+    }
+
+    .table-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--space-sm) var(--space-md);
+      background: var(--bg-tertiary);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .results-count {
+      font-size: 0.75rem;
+      color: var(--text-muted);
     }
 
     .stats-grid {
@@ -463,7 +576,27 @@ export class AccountingComponent implements OnInit {
   balances = signal<TeacherBalanceResponse[]>([]);
   loading = signal(true);
   payingTeacher = signal<number | null>(null);
+  searchQuery = '';
   private dialogService = inject(DialogService);
+
+  // Filtered balances based on search query
+  filteredBalances = computed(() => {
+    const allBalances = this.balances();
+    const query = this.searchQuery.toLowerCase().trim();
+
+    if (!query) return allBalances;
+
+    return allBalances.filter(balance => {
+      const fullName = `${balance.firstName} ${balance.lastName}`.toLowerCase();
+      const email = balance.email?.toLowerCase() || '';
+      const companyName = balance.companyName?.toLowerCase() || '';
+      return fullName.includes(query) ||
+             balance.firstName.toLowerCase().includes(query) ||
+             balance.lastName.toLowerCase().includes(query) ||
+             email.includes(query) ||
+             companyName.includes(query);
+    });
+  });
 
   constructor(private adminService: AdminService) {}
 

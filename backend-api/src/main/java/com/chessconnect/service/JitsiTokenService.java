@@ -3,6 +3,7 @@ package com.chessconnect.service;
 import com.chessconnect.model.User;
 import com.chessconnect.model.enums.UserRole;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -27,7 +28,9 @@ public class JitsiTokenService {
     private String jitsiDomain;
 
     public String generateToken(User user, String roomName) {
-        SecretKey key = Keys.hmacShaKeyFor(appSecret.getBytes(StandardCharsets.UTF_8));
+        // Utiliser seulement les 32 premiers caractères pour garantir HS256
+        String secret256 = appSecret.length() > 32 ? appSecret.substring(0, 32) : appSecret;
+        SecretKey key = Keys.hmacShaKeyFor(secret256.getBytes(StandardCharsets.UTF_8));
 
         Instant now = Instant.now();
         Instant expiry = now.plusSeconds(3600); // Token valide 1 heure

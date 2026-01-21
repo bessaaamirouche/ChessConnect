@@ -1,5 +1,5 @@
 import { Component, OnInit, signal, ViewChild, ChangeDetectionStrategy } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LessonService } from '../../../core/services/lesson.service';
@@ -101,13 +101,31 @@ export class LessonListComponent implements OnInit {
     public authService: AuthService,
     private ratingService: RatingService,
     private seoService: SeoService,
-    private jitsiService: JitsiService
+    private jitsiService: JitsiService,
+    private route: ActivatedRoute,
+    private router: Router
   ) {
     this.seoService.setLessonsPage();
   }
 
   ngOnInit(): void {
-    this.lessonService.loadUpcomingLessons().subscribe();
+    this.lessonService.loadUpcomingLessons().subscribe({
+      next: () => {
+        // Check if we should auto-open a video call (from notification click)
+        this.route.queryParams.subscribe(params => {
+          const openCallId = params['openCall'];
+          if (openCallId) {
+            const lessonId = parseInt(openCallId, 10);
+            const lesson = this.lessonService.upcomingLessons().find(l => l.id === lessonId);
+            if (lesson && lesson.status === 'CONFIRMED' && lesson.teacherJoinedAt) {
+              // Clear the query param and open the video call
+              this.router.navigate([], { queryParams: {}, replaceUrl: true });
+              setTimeout(() => this.openVideoCall(lesson), 500);
+            }
+          }
+        });
+      }
+    });
     this.lessonService.loadLessonHistory().subscribe();
   }
 

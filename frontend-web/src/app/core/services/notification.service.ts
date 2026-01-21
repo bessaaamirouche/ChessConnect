@@ -16,6 +16,7 @@ interface LessonInfo {
   status: string;
   teacherName: string;
   studentName: string;
+  teacherJoinedAt?: string;
 }
 
 interface Teacher {
@@ -183,6 +184,13 @@ export class NotificationService implements OnDestroy {
           this.toastService.error(message, 10000, '/lessons');
         }
       }
+
+      // Check if teacher just joined the video call
+      if (previousLesson && !previousLesson.teacherJoinedAt && newLesson.teacherJoinedAt) {
+        console.log('[Notification] Teacher joined video call for lesson:', id);
+        const message = `M. ${newLesson.teacherName} vous attend dans l'appel video`;
+        this.toastService.success(message, 15000, `/lessons?openCall=${id}`);
+      }
     });
   }
 
@@ -278,7 +286,8 @@ export class NotificationService implements OnDestroy {
             id: l.id,
             status: l.status,
             teacherName: l.teacherName?.split(' ').pop() || 'Coach', // Get last name
-            studentName: l.studentName || 'Joueur'
+            studentName: l.studentName || 'Joueur',
+            teacherJoinedAt: l.teacherJoinedAt || undefined
           });
         });
         return lessonsMap;

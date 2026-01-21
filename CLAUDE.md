@@ -244,6 +244,9 @@ Le frontend demarre sur `http://localhost:4200`
 - **Design responsive** : Optimise pour mobile avec touch targets accessibles
 - **Landing page** : Style Apple avec animations au scroll, sections plein ecran
 - **Theme sombre** : Interface elegante avec accents dores
+- **Notifications toast** : Cliquables sans fleches, croix pour fermer
+- **Menu hamburger mobile** : Fixe, semi-transparent (30% opacite), toujours visible
+- **Footer** : Logo et tagline sur la meme ligne
 
 ## API Endpoints
 
@@ -359,15 +362,15 @@ Variables configurees dans `docker-compose.yml` :
 
 ## Logo et Assets
 
-Le logo mychess a ete genere avec Sharp :
+Le logo mychess :
 
-- **Design** : Cavalier d'echecs stylise en degrade dore sur fond sombre
-- **Couleurs** : Or (#f5d485 → #d4a84b → #b8860b) sur noir (#1a1a1f)
+- **Design** : Cavalier d'echecs en bois avec texture effet bois moderne
+- **Couleurs** : Degrade brun/orange (#8B4513 → #CD853F → #DEB887)
+- **Fond** : Transparent
 - **Fichiers** :
-  - `logo.svg` - Vectoriel principal
-  - `logo.png` - 400x400 avec texte
+  - `logo.png` - Logo cavalier seul avec fond transparent (248x375)
   - `og-image.jpg` - 1200x630 pour partage social
-  - `icons/icon-*.png` - PWA (72-512px) sans texte
+  - `icons/icon-*.png` - PWA (72-512px)
   - `icons/apple-touch-icon.png` - 180x180
   - `icons/favicon-*.png` - 16x16, 32x32
   - `favicon.ico` - Multi-resolution

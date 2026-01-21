@@ -41,15 +41,16 @@ public class RecordingController {
         String filename = payload.get("filename");
         String filePath = payload.get("path");
         String roomName = payload.get("room");
+        String videoUrl = payload.get("url"); // URL directe envoyée par finalize.sh
 
-        log.info("Recording webhook received: room={}, filename={}, path={}", roomName, filename, filePath);
+        log.info("Recording webhook received: room={}, filename={}, path={}, url={}", roomName, filename, filePath, videoUrl);
 
         if (roomName == null || filename == null) {
             log.warn("Invalid webhook payload: missing room or filename");
             return ResponseEntity.badRequest().body("Missing room or filename");
         }
 
-        // Extract lesson ID from room name (format: "mychess-lesson-{id}")
+        // Extract lesson ID from room name (format: "chessconnect-{id}-{timestamp}")
         Long lessonId = extractLessonId(roomName);
         if (lessonId == null) {
             log.warn("Could not extract lesson ID from room name: {}", roomName);
@@ -63,9 +64,8 @@ public class RecordingController {
             return ResponseEntity.ok().body("Lesson not found");
         }
 
-        // Set the recording URL pointing to the Jitsi server
-        // Format: https://meet.mychess.fr/recordings/{roomName}/{filename}
-        String recordingUrl = "https://meet.mychess.fr/recordings/" + roomName + "/" + filename;
+        // Use the URL from finalize.sh if provided, otherwise construct it
+        String recordingUrl = videoUrl != null ? videoUrl : "https://meet.mychess.fr/recordings/" + roomName + "/" + filename;
         lesson.setRecordingUrl(recordingUrl);
         lessonRepository.save(lesson);
 

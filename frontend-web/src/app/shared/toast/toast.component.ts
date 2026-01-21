@@ -8,8 +8,7 @@ import {
   heroExclamationTriangle,
   heroXCircle,
   heroXMark,
-  heroAcademicCap,
-  heroChevronRight
+  heroAcademicCap
 } from '@ng-icons/heroicons/outline';
 
 @Component({
@@ -22,8 +21,7 @@ import {
     heroExclamationTriangle,
     heroXCircle,
     heroXMark,
-    heroAcademicCap,
-    heroChevronRight
+    heroAcademicCap
   })],
   template: `
     <div class="toast-container">
@@ -37,11 +35,6 @@ import {
             <ng-icon [name]="getIcon(toast.type)" class="toast__icon" size="22"></ng-icon>
           </div>
           <span class="toast__message">{{ toast.message }}</span>
-          @if (toast.link) {
-            <span class="toast__action">
-              <ng-icon name="heroChevronRight" size="18"></ng-icon>
-            </span>
-          }
           <button class="toast__close" (click)="toastService.dismiss(toast.id); $event.stopPropagation()">
             <ng-icon name="heroXMark" size="18"></ng-icon>
           </button>
@@ -160,13 +153,6 @@ import {
     .toast--clickable:hover {
       transform: translateX(-4px) scale(1.01);
       border-color: var(--gold-500, #d4a84b);
-    }
-
-    .toast__action {
-      display: flex;
-      align-items: center;
-      color: var(--gold-400, #e5c67a);
-      margin-left: auto;
     }
 
     @media (max-width: 480px) {

@@ -1,7 +1,8 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminService, UserListResponse, Page } from '../../../core/services/admin.service';
+import { DialogService } from '../../../core/services/dialog.service';
 
 @Component({
   selector: 'app-user-list',
@@ -379,6 +380,8 @@ export class UserListComponent implements OnInit {
   showDeleteModal = signal(false);
   userToDelete = signal<UserListResponse | null>(null);
 
+  private dialogService = inject(DialogService);
+
   constructor(private adminService: AdminService) {}
 
   ngOnInit(): void {
@@ -409,8 +412,12 @@ export class UserListComponent implements OnInit {
     return labels[role] || role;
   }
 
-  suspendUser(user: UserListResponse): void {
-    const reason = prompt('Motif de suspension:');
+  async suspendUser(user: UserListResponse): Promise<void> {
+    const reason = await this.dialogService.prompt(
+      `Pourquoi suspendre ${user.firstName} ${user.lastName} ?`,
+      'Suspension utilisateur',
+      { inputLabel: 'Motif de suspension', inputPlaceholder: 'Ex: Comportement inapproprie...', variant: 'warning' }
+    );
     if (!reason) return;
 
     this.actionLoading.set(true);
@@ -421,7 +428,7 @@ export class UserListComponent implements OnInit {
       },
       error: () => {
         this.actionLoading.set(false);
-        alert('Erreur lors de la suspension');
+        this.dialogService.alert('Erreur lors de la suspension', 'Erreur', { variant: 'danger' });
       }
     });
   }
@@ -435,7 +442,7 @@ export class UserListComponent implements OnInit {
       },
       error: () => {
         this.actionLoading.set(false);
-        alert('Erreur lors de la reactivation');
+        this.dialogService.alert('Erreur lors de la reactivation', 'Erreur', { variant: 'danger' });
       }
     });
   }
@@ -464,7 +471,7 @@ export class UserListComponent implements OnInit {
       },
       error: (err) => {
         this.actionLoading.set(false);
-        alert(err.error?.message || 'Erreur lors de la suppression');
+        this.dialogService.alert(err.error?.message || 'Erreur lors de la suppression', 'Erreur', { variant: 'danger' });
       }
     });
   }

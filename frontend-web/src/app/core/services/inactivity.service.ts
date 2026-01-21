@@ -1,5 +1,6 @@
-import { Injectable, NgZone, OnDestroy } from '@angular/core';
+import { Injectable, NgZone, OnDestroy, inject } from '@angular/core';
 import { AuthService } from './auth.service';
+import { DialogService } from './dialog.service';
 import { Router } from '@angular/router';
 
 @Injectable({
@@ -14,6 +15,7 @@ export class InactivityService implements OnDestroy {
   private warningTimeoutId: any;
   private isWarningShown = false;
   private boundResetTimer: () => void;
+  private dialogService = inject(DialogService);
 
   constructor(
     private authService: AuthService,
@@ -125,10 +127,16 @@ export class InactivityService implements OnDestroy {
     if (this.isWarningShown) return;
     this.isWarningShown = true;
 
-    this.ngZone.run(() => {
-      const stay = confirm('Vous allez être déconnecté dans 5 minutes pour inactivité. Voulez-vous rester connecté ?');
+    this.ngZone.run(async () => {
+      const stay = await this.dialogService.confirm(
+        'Vous allez etre deconnecte dans 5 minutes pour inactivite. Voulez-vous rester connecte ?',
+        'Session inactive',
+        { confirmText: 'Rester connecte', cancelText: 'Se deconnecter', variant: 'warning' }
+      );
       if (stay) {
         this.resetTimer();
+      } else {
+        this.logoutDueToInactivity();
       }
     });
   }
@@ -137,7 +145,11 @@ export class InactivityService implements OnDestroy {
     this.stopWatching();
     this.clearStoredActivity();
     this.authService.logout();
-    alert('Vous avez été déconnecté pour inactivité (plus d\'une heure sans activité).');
+    this.dialogService.alert(
+      'Vous avez ete deconnecte pour inactivite (plus d\'une heure sans activite).',
+      'Deconnexion',
+      { variant: 'warning' }
+    );
   }
 
   private clearTimers(): void {

@@ -1,6 +1,7 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { AdminService, AccountingResponse, TeacherBalanceResponse } from '../../../core/services/admin.service';
+import { DialogService } from '../../../core/services/dialog.service';
 
 @Component({
   selector: 'app-accounting',
@@ -462,6 +463,7 @@ export class AccountingComponent implements OnInit {
   balances = signal<TeacherBalanceResponse[]>([]);
   loading = signal(true);
   payingTeacher = signal<number | null>(null);
+  private dialogService = inject(DialogService);
 
   constructor(private adminService: AdminService) {}
 
@@ -501,10 +503,13 @@ export class AccountingComponent implements OnInit {
     return iban.slice(0, 4) + '****' + iban.slice(-4);
   }
 
-  markAsPaid(balance: TeacherBalanceResponse): void {
-    if (!confirm(`Confirmer le virement de ${this.formatCents(balance.currentMonthEarningsCents)} a ${balance.firstName} ${balance.lastName} ?`)) {
-      return;
-    }
+  async markAsPaid(balance: TeacherBalanceResponse): Promise<void> {
+    const confirmed = await this.dialogService.confirm(
+      `Confirmer le virement de ${this.formatCents(balance.currentMonthEarningsCents)} a ${balance.firstName} ${balance.lastName} ?`,
+      'Confirmer le virement',
+      { confirmText: 'Effectuer le virement', cancelText: 'Annuler', variant: 'info' }
+    );
+    if (!confirmed) return;
 
     this.payingTeacher.set(balance.teacherId);
     this.adminService.markTeacherPaid(balance.teacherId).subscribe({
@@ -514,15 +519,15 @@ export class AccountingComponent implements OnInit {
           const msg = response.stripeTransferId
             ? `Virement effectue avec succes ! Ref: ${response.stripeTransferId}`
             : 'Virement effectue avec succes !';
-          alert(msg);
+          this.dialogService.alert(msg, 'Succes', { variant: 'success' });
           this.loadData();
         } else {
-          alert(response.message || 'Erreur lors du virement');
+          this.dialogService.alert(response.message || 'Erreur lors du virement', 'Erreur', { variant: 'danger' });
         }
       },
       error: (err) => {
         this.payingTeacher.set(null);
-        alert(err.error?.message || 'Erreur lors du virement');
+        this.dialogService.alert(err.error?.message || 'Erreur lors du virement', 'Erreur', { variant: 'danger' });
       }
     });
   }

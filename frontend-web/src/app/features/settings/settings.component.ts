@@ -1,9 +1,10 @@
-import { Component, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, signal, ChangeDetectionStrategy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { SeoService } from '../../core/services/seo.service';
+import { DialogService } from '../../core/services/dialog.service';
 import { HttpClient } from '@angular/common/http';
 import { CalendarService, CalendarStatus } from '../../core/services/calendar.service';
 import { StripeConnectService, StripeConnectStatus } from '../../core/services/stripe-connect.service';
@@ -69,6 +70,8 @@ export class SettingsComponent implements OnInit {
   stripeConnectLoading = signal(false);
   stripeConnectSuccess = signal<string | null>(null);
   stripeConnectError = signal<string | null>(null);
+
+  private dialogService = inject(DialogService);
 
   constructor(
     private fb: FormBuilder,
@@ -411,10 +414,13 @@ export class SettingsComponent implements OnInit {
     });
   }
 
-  disconnectStripeConnect(): void {
-    if (!confirm('Etes-vous sur de vouloir deconnecter votre compte ? Vous ne pourrez plus recevoir de paiements.')) {
-      return;
-    }
+  async disconnectStripeConnect(): Promise<void> {
+    const confirmed = await this.dialogService.confirm(
+      'Etes-vous sur de vouloir deconnecter votre compte ? Vous ne pourrez plus recevoir de paiements.',
+      'Deconnexion Stripe',
+      { confirmText: 'Deconnecter', cancelText: 'Annuler', variant: 'danger' }
+    );
+    if (!confirmed) return;
 
     this.stripeConnectLoading.set(true);
     this.stripeConnectError.set(null);

@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ToastComponent } from './shared/toast/toast.component';
+import { GlobalDialogComponent } from './shared/global-dialog/global-dialog.component';
 import { AuthService } from './core/services/auth.service';
 import { NotificationService } from './core/services/notification.service';
 import { InactivityService } from './core/services/inactivity.service';
@@ -9,10 +10,11 @@ import { interval, Subscription } from 'rxjs';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, ToastComponent],
+  imports: [RouterOutlet, ToastComponent, GlobalDialogComponent],
   template: `
     <router-outlet></router-outlet>
     <app-toast></app-toast>
+    <app-global-dialog></app-global-dialog>
   `,
   styles: []
 })

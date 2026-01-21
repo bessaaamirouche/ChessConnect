@@ -91,18 +91,22 @@ $text-muted: #6b6965;
   }
 
   &__hamburger {
+    position: fixed;
+    top: var(--space-md);
+    right: var(--space-lg);
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 5px;
-    width: 44px;
-    height: 44px;
-    background: rgba($gold, 0.1);
-    border: 1px solid rgba($gold, 0.2);
+    gap: 4px;
+    width: 36px;
+    height: 36px;
+    background: rgba($bg-dark, 0.7);
+    border: 1px solid rgba($gold, 0.3);
     border-radius: var(--radius-md);
     cursor: pointer;
-    z-index: 1003;
+    z-index: 9999;
+    backdrop-filter: blur(10px);
 
     @include respond-to(lg) {
       display: none;
@@ -110,7 +114,7 @@ $text-muted: #6b6965;
 
     span {
       display: block;
-      width: 20px;
+      width: 16px;
       height: 2px;
       background: $gold;
       border-radius: 2px;
@@ -118,20 +122,20 @@ $text-muted: #6b6965;
     }
 
     &.active {
-      background: $gold;
+      background: rgba($gold, 0.9);
 
       span {
         background: $bg-dark;
       }
 
       span:nth-child(1) {
-        transform: rotate(45deg) translate(5px, 5px);
+        transform: rotate(45deg) translate(4px, 4px);
       }
       span:nth-child(2) {
         opacity: 0;
       }
       span:nth-child(3) {
-        transform: rotate(-45deg) translate(5px, -5px);
+        transform: rotate(-45deg) translate(4px, -4px);
       }
     }
   }

@@ -21,6 +21,7 @@ import {
   heroClock,
   heroShieldCheck,
   heroTrophy,
+  heroArrowRight,
   heroGift
 } from '@ng-icons/heroicons/outline';
 
@@ -41,6 +42,7 @@ import {
     heroClock,
     heroShieldCheck,
     heroTrophy,
+    heroArrowRight,
     heroGift
   })],
   templateUrl: './home.component.html',

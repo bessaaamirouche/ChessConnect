@@ -154,7 +154,7 @@
             <div class="teacher-card__header">
               <div class="avatar">
                 @if (teacher.avatarUrl) {
-                  <img [src]="teacher.avatarUrl" loading="lazy" [alt]="teacher.firstName">
+                  <img [src]="teacher.avatarUrl" [alt]="teacher.firstName">
                 } @else {
                   {{ getInitials(teacher.firstName, teacher.lastName) }}
                 }

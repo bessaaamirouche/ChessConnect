@@ -32,7 +32,7 @@ export class BlogListComponent implements OnInit {
 
   ngOnInit(): void {
     this.seoService.updateMetaTags({
-      title: 'Blog - ChessConnect | Conseils et strategies aux echecs',
+      title: 'Blog - mychess | Conseils et strategies aux echecs',
       description: 'Decouvrez nos articles sur les echecs : conseils pour debutants, strategies avancees, ouvertures, finales et bien plus encore.',
       keywords: 'blog echecs, conseils echecs, strategie echecs, apprendre echecs'
     });

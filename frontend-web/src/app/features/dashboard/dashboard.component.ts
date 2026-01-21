@@ -359,7 +359,7 @@ export class DashboardComponent implements OnInit {
   // Generate Google Meet link as Zoom alternative
   generateMeetLink(lesson: Lesson): string {
     const date = new Date(lesson.scheduledAt);
-    const title = encodeURIComponent(`Cours d'échecs - ChessConnect`);
+    const title = encodeURIComponent(`Cours d'échecs - mychess`);
     return `https://meet.google.com/new?hs=122&authuser=0`;
   }
 

@@ -1,4 +1,4 @@
-# ChessConnect - Plateforme de Cours d'Echecs
+# mychess - Plateforme de Cours d'Echecs
 
 Plateforme de mise en relation Profs/Eleves d'echecs avec systeme de progression standardise.
 
@@ -8,8 +8,8 @@ Plateforme de mise en relation Profs/Eleves d'echecs avec systeme de progression
 
 ```bash
 # 1. Cloner le projet
-git clone https://github.com/bessaaamirouche/ChessConnect.git
-cd ChessConnect
+git clone https://github.com/bessaaamirouche/mychess.git
+cd mychess
 
 # 2. Configurer Stripe (obligatoire pour les paiements)
 cat > .env << 'EOF'
@@ -69,8 +69,8 @@ sudo usermod -aG docker $USER && newgrp docker
 ### 2. Cloner et configurer
 
 ```bash
-git clone https://github.com/bessaaamirouche/ChessConnect.git
-cd ChessConnect
+git clone https://github.com/bessaaamirouche/mychess.git
+cd mychess
 
 # Creer le fichier .env avec vos cles Stripe
 cat > .env << 'EOF'
@@ -101,7 +101,8 @@ sudo ufw allow 8282
 
 ## Fonctionnalites
 
-- **Inscription Eleve/Professeur** : Creation de compte avec roles
+- **Inscription Eleve/Professeur** : Creation de compte avec roles et badges visuels
+- **Premier Cours Offert** : Les nouveaux eleves beneficient d'un premier cours gratuit
 - **Quiz d'Evaluation** : Determinez votre niveau d'echecs (Pion, Cavalier, Fou, Tour, Dame)
 - **Parcours d'Apprentissage** : 50 cours structures par niveau
 - **Reservation de Cours** : Reservez des sessions avec des professeurs
@@ -110,8 +111,10 @@ sudo ufw allow 8282
 - **Suivi de Progression** : Suivez votre parcours d'apprentissage
 - **Abonnements** : 3 formules (1, 2 ou 3 cours/semaine)
 - **Paiements Stripe** : Paiements securises integres (mode test)
-- **Video Jitsi Meet** : Cours en visioconference (ouvre dans un nouvel onglet)
+- **Video Jitsi Meet** : Cours en visioconference integree
 - **Notifications en temps reel** : Alertes pour nouvelles disponibilites et reservations
+- **Blog SEO** : Articles optimises pour le referencement
+- **Design Apple-like** : Animations scroll, sections immersives, effets parallax
 
 ### Systeme d'annulation et remboursement
 
@@ -122,6 +125,14 @@ sudo ufw allow 8282
 - **Eleve annule < 2h avant** : Pas de remboursement
 - **Cours abonnement** : Quota restaure (sauf annulation tardive eleve)
 - Affichage dynamique du statut : "Annule par moi" / "Annule par le prof" / "Annule par l'eleve" / "Annule (auto)"
+
+### Premier Cours Offert
+
+- Les nouveaux eleves peuvent reserver leur premier cours gratuitement
+- Banniere promotionnelle sur la page de reservation
+- Bouton vert "Reserver gratuitement" au lieu du paiement classique
+- Tracking via le champ `hasUsedFreeTrial` sur le User
+- Endpoints API : `GET /api/lessons/free-trial/eligible`, `POST /api/lessons/free-trial/book`
 
 ## Mode Developpement (sans Docker)
 
@@ -152,31 +163,43 @@ Le frontend demarre sur `http://localhost:4200`
 ## Structure du Projet
 
 ```
-/ChessConnect
+/mychess
 ├── /backend-api              # API Spring Boot
 │   ├── /src/main/java/com/chessconnect
 │   │   ├── /config           # SecurityConfig, StripeConfig, QuizDataInitializer
 │   │   ├── /controller       # REST Controllers
 │   │   ├── /dto              # Data Transfer Objects
-│   │   ├── /model            # Entites JPA
+│   │   ├── /model            # Entites JPA (User avec hasUsedFreeTrial)
 │   │   ├── /repository       # Repositories Spring Data
 │   │   ├── /security         # JWT (JwtService, JwtAuthenticationFilter)
-│   │   └── /service          # Services metier
+│   │   └── /service          # Services metier (LessonService avec free trial)
 │   ├── Dockerfile
 │   └── pom.xml
 ├── /frontend-web             # Application Angular 17
 │   ├── /src/app
 │   │   ├── /core             # Services, Guards, Interceptors, Models
 │   │   ├── /features         # Composants par fonctionnalite
-│   │   │   ├── /auth         # Login, Register
+│   │   │   ├── /admin        # Back-office administrateur
+│   │   │   ├── /auth         # Login, Register, Forgot/Reset Password
 │   │   │   ├── /availability # Gestion des disponibilites (prof)
-│   │   │   ├── /dashboard    # Tableau de bord
-│   │   │   ├── /lessons      # Reservation et liste des cours
+│   │   │   ├── /blog         # Articles SEO (liste + detail)
+│   │   │   ├── /dashboard    # Tableau de bord avec badges de role
+│   │   │   ├── /home         # Landing page style Apple
+│   │   │   ├── /lessons      # Reservation (avec premier cours offert) et liste
 │   │   │   ├── /progress     # Suivi de progression
 │   │   │   ├── /quiz         # Quiz d'evaluation de niveau
 │   │   │   ├── /subscription # Gestion des abonnements
 │   │   │   └── /teachers     # Liste et profil des profs
-│   │   └── /shared           # Composants partages (toast, modals, etc.)
+│   │   └── /shared           # Composants partages (toast, modals, video-call, etc.)
+│   ├── /src/assets
+│   │   ├── logo.svg          # Logo vectoriel mychess
+│   │   ├── logo.png          # Logo PNG 400x400
+│   │   ├── og-image.jpg      # Image Open Graph 1200x630
+│   │   └── /icons            # Icones PWA (72-512px), favicons, apple-touch-icon
+│   ├── /src/styles
+│   │   ├── _variables.scss   # Variables CSS et theme
+│   │   ├── _animations.scss  # Animations scroll reveal
+│   │   └── _mobile.scss      # Styles responsive mobile
 │   ├── Dockerfile
 │   └── package.json
 ├── docker-compose.yml
@@ -194,10 +217,12 @@ Le frontend demarre sur `http://localhost:4200`
 - **Disponibilites:** Le prof cree des creneaux d'au moins 1h pour permettre une reservation
 - **Abonnements:** 69€/mois (3 cours/mois), 129€/mois (6 cours/mois), 179€/mois (9 cours/mois)
 - **Commission:** 10% preleves par la plateforme
+- **Premier Cours Offert:** Un cours gratuit pour les nouveaux eleves
 
 ### Gestion des cours (Lessons)
 
 - Reservation de cours avec un professeur
+- Premier cours offert pour les nouveaux eleves
 - Confirmation/Annulation par le professeur
 - Statuts : PENDING, CONFIRMED, COMPLETED, CANCELLED, NO_SHOW
 - Affichage des informations eleve pour le prof (niveau, age, ELO)
@@ -212,6 +237,13 @@ Le frontend demarre sur `http://localhost:4200`
 - Statuts cours : LOCKED, IN_PROGRESS, PENDING_VALIDATION, COMPLETED
 - Validation des cours par le professeur uniquement
 - Modale profil eleve (cote prof) avec progression et validation
+
+### Interface Utilisateur
+
+- **Badges de role** : Eleve (bleu), Professeur (violet), Admin (dore) dans la sidebar
+- **Design responsive** : Optimise pour mobile avec touch targets accessibles
+- **Landing page** : Style Apple avec animations au scroll, sections plein ecran
+- **Theme sombre** : Interface elegante avec accents dores
 
 ## API Endpoints
 
@@ -249,14 +281,16 @@ Le frontend demarre sur `http://localhost:4200`
 | GET     | `/teacher/{id}/slots` | Creneaux disponibles d'un prof  | Non     |
 
 ### Cours (`/api/lessons`)
-| Methode | Endpoint          | Description                     | Auth    |
-|---------|-------------------|---------------------------------|---------|
-| POST    | `/book`           | Reserver un cours               | STUDENT |
-| GET     | `/upcoming`       | Cours a venir                   | JWT     |
-| GET     | `/history`        | Historique des cours            | JWT     |
-| PATCH   | `/{id}/confirm`   | Confirmer un cours              | TEACHER |
-| PATCH   | `/{id}/cancel`    | Annuler un cours                | JWT     |
-| PATCH   | `/{id}/complete`  | Marquer comme termine           | TEACHER |
+| Methode | Endpoint               | Description                     | Auth    |
+|---------|------------------------|---------------------------------|---------|
+| POST    | `/book`                | Reserver un cours               | STUDENT |
+| GET     | `/free-trial/eligible` | Verifier eligibilite 1er cours  | STUDENT |
+| POST    | `/free-trial/book`     | Reserver le 1er cours gratuit   | STUDENT |
+| GET     | `/upcoming`            | Cours a venir                   | JWT     |
+| GET     | `/history`             | Historique des cours            | JWT     |
+| PATCH   | `/{id}/confirm`        | Confirmer un cours              | TEACHER |
+| PATCH   | `/{id}/cancel`         | Annuler un cours                | JWT     |
+| PATCH   | `/{id}/complete`       | Marquer comme termine           | TEACHER |
 
 ### Paiements (`/api/payments`)
 | Methode | Endpoint                | Description                     | Auth    |
@@ -266,6 +300,16 @@ Le frontend demarre sur `http://localhost:4200`
 | POST    | `/checkout/subscription`| Creer session Stripe Checkout   | STUDENT |
 | POST    | `/checkout/lesson`      | Payer un cours a l'unite        | STUDENT |
 | GET     | `/subscription`         | Abonnement actif                | STUDENT |
+
+### Articles/Blog (`/api/articles`)
+| Methode | Endpoint              | Description                     | Auth    |
+|---------|-----------------------|---------------------------------|---------|
+| GET     | `/`                   | Liste des articles publies      | Non     |
+| GET     | `/{slug}`             | Detail d'un article par slug    | Non     |
+| GET     | `/category/{cat}`     | Articles par categorie          | Non     |
+| POST    | `/`                   | Creer un article                | ADMIN   |
+| PUT     | `/{id}`               | Modifier un article             | ADMIN   |
+| DELETE  | `/{id}`               | Supprimer un article            | ADMIN   |
 
 ## Variables d'Environnement
 
@@ -298,6 +342,7 @@ Variables configurees dans `docker-compose.yml` :
 | DevOps    | Docker, Docker Compose, Nginx |
 | Paiements | Stripe (Embedded Checkout) |
 | Video     | Jitsi Meet (gratuit, sans compte) |
+| Images    | Sharp (generation logo/icones) |
 
 ## Architecture Docker
 
@@ -311,6 +356,21 @@ Variables configurees dans `docker-compose.yml` :
         │   Proxy /api/*        │
         └───────────────────────┘
 ```
+
+## Logo et Assets
+
+Le logo mychess a ete genere avec Sharp :
+
+- **Design** : Cavalier d'echecs stylise en degrade dore sur fond sombre
+- **Couleurs** : Or (#f5d485 → #d4a84b → #b8860b) sur noir (#1a1a1f)
+- **Fichiers** :
+  - `logo.svg` - Vectoriel principal
+  - `logo.png` - 400x400 avec texte
+  - `og-image.jpg` - 1200x630 pour partage social
+  - `icons/icon-*.png` - PWA (72-512px) sans texte
+  - `icons/apple-touch-icon.png` - 180x180
+  - `icons/favicon-*.png` - 16x16, 32x32
+  - `favicon.ico` - Multi-resolution
 
 ## Troubleshooting
 
@@ -371,70 +431,14 @@ Verifier que `FRONTEND_URL` dans `docker-compose.yml` correspond a l'URL utilise
 - L'eleve peut mettre un professeur en favori pour le voir en haut de la liste lors de la reservation
 - Bouton "S'abonner" pour recevoir un email quand le professeur publie de nouveaux creneaux
 
-### 3. Mot de Passe Oublie
-- Ajouter un lien "Mot de passe oublie ?" sur la page de connexion
-- Envoyer un token par email pour reinitialiser le mot de passe
-
-### 4. Integration Google Calendar
+### 3. Integration Google Calendar
 - Ajouter automatiquement les creneaux reserves dans l'agenda Google de l'eleve et du professeur
 
-### 5. Rappel par Email
+### 4. Rappel par Email
 - Envoyer un email de rappel 1 heure avant le cours
 - Option configurable dans les preferences utilisateur
 
-### 6. Back-Office Administrateur
-- Gestion des eleves et professeurs
-- Comptabilite : CA, commissions (10%)
-- Gestion des remboursements avec motif
-- Modification des abonnements
-- Restrictions et moderation
-
-### 7. Gestion des Conflits Horaires (Etudiant)
-- Un etudiant ne peut pas reserver le meme creneau horaire chez deux professeurs differents
-- Il doit annuler la premiere reservation pour pouvoir en faire une autre au meme horaire
-
-### 8. Gestion des Conflits de Creneaux (Professeur)
-- Les creneaux de disponibilite d'un professeur ne doivent pas se chevaucher
-- Afficher un message d'erreur en cas de conflit
-
-### 9. Langues Parlees du Professeur
-- Le professeur renseigne les langues qu'il parle a l'inscription ou dans ses preferences
-- Les langues sont affichees sur son profil
-
-### 10. Compte Admin du Site
-
-**Acces**
-Un ecran d'administration accessible uniquement a l'administrateur du site.
-
-**Tableau de bord**
-L'ecran d'administration doit afficher un tableau de bord comprenant :
-- La liste des cours a venir
-- La liste des cours effectues
-- Pour chaque cours : Enseignant, Eleve, Date, Heure
-
-**Facturation**
-- Un recapitulatif mensuel et actuelle de la facturation
-- Vue globale + detail par enseignant
-- Total des cours effectues par mois
-- Montant total a payer par enseignant
-
-**Paiement des enseignants**
-Pour chaque enseignant, l'administrateur doit disposer d'un bouton permettant :
-- D'effectuer le paiement via Stripe (le prof doit renseigner son RIB et ses infos entreprise dans son espace profil)
-- Paiement correspondant a l'ensemble des cours realises durant le mois avec facture
-- Confirmation visuelle du paiement (paye / non paye)
-
-**Gestion des enseignants**
-L'administrateur peut :
-- Desactiver le profil d'un enseignant
-- Supprimer le compte d'un eleve ou prof avec un modale de confirmation ("Voulez-vous vraiment supprimer ce compte? oui/non")
-
-Un enseignant desactive :
-- Reste visible dans la liste des enseignants
-- Ne peut plus se connecter au site
-- Ne peut plus donner de cours
-
-**Enregistrement des appels video**
+### 5. Enregistrement des appels video
 Lorsqu'un appel video est lance, la session doit etre :
 - Enregistree automatiquement
 - Stockee sur le serveur

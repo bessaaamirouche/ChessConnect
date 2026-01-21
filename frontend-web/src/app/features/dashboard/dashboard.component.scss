@@ -129,11 +129,13 @@
 
   &__header {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
+    gap: var(--space-sm);
     padding-bottom: var(--space-xl);
     border-bottom: 1px solid var(--border-subtle);
     margin-bottom: var(--space-xl);
+    flex-wrap: wrap;
   }
 
   &__logo {
@@ -141,6 +143,28 @@
     font-size: 1.5rem;
     font-weight: 700;
     @include gold-text;
+  }
+
+  &__badge {
+    display: inline-block;
+    padding: 4px 10px;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-radius: var(--radius-full);
+
+    &--student {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(37, 99, 235, 0.15) 100%);
+      color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    &--teacher {
+      background: linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(147, 51, 234, 0.15) 100%);
+      color: #c084fc;
+      border: 1px solid rgba(168, 85, 247, 0.3);
+    }
   }
 
   &__close {

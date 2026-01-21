@@ -395,6 +395,75 @@
   }
 }
 
+// Free trial banner
+.free-trial-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(16, 185, 129, 0.1) 100%);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-md);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+    animation: shimmer 2s infinite;
+  }
+
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+
+  &__icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(34, 197, 94, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--success);
+    flex-shrink: 0;
+  }
+
+  &__content {
+    flex: 1;
+
+    strong {
+      display: block;
+      font-size: 1rem;
+      color: var(--success);
+      margin-bottom: 2px;
+    }
+
+    p {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      margin: 0;
+    }
+  }
+
+  &__sparkle {
+    color: var(--gold-400);
+    animation: sparkle 1.5s ease-in-out infinite;
+  }
+
+  @keyframes sparkle {
+    0%, 100% { opacity: 0.5; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.2); }
+  }
+}
+
 // Price summary
 .price-summary {
   background: var(--bg-tertiary);
@@ -411,9 +480,48 @@
   }
 
   &__value {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
     font-weight: 600;
     color: var(--gold-400);
     font-size: 1rem;
+  }
+
+  &__free {
+    color: var(--success);
+    font-weight: 700;
+    font-size: 1.125rem;
+  }
+
+  &__original {
+    color: var(--text-muted);
+    text-decoration: line-through;
+    font-size: 0.875rem;
+    font-weight: 400;
+  }
+}
+
+// Free trial button variant
+.btn--free-trial {
+  background: linear-gradient(135deg, var(--success) 0%, #10b981 100%);
+  color: white;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  font-weight: 600;
+  box-shadow: 0 4px 14px rgba(34, 197, 94, 0.35);
+
+  &:hover:not(:disabled) {
+    background: linear-gradient(135deg, #16a34a 0%, #059669 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
   }
 }
 

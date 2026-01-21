@@ -20,7 +20,7 @@ export class StructuredDataService {
     const schema = {
       '@context': 'https://schema.org',
       '@type': 'Organization',
-      name: 'ChessConnect',
+      name: 'mychess',
       alternateName: 'MyChess',
       url: this.baseUrl,
       description: 'Plateforme de cours d\'échecs en ligne avec les meilleurs professeurs. Progressez du niveau Pion au niveau Dame.',
@@ -42,7 +42,7 @@ export class StructuredDataService {
       description: teacher.bio || `Professeur d'échecs disponible pour des cours particuliers en visioconférence.`,
       worksFor: {
         '@type': 'Organization',
-        name: 'ChessConnect',
+        name: 'mychess',
         url: this.baseUrl
       }
     };
@@ -58,7 +58,7 @@ export class StructuredDataService {
       description: 'Apprenez les échecs avec des professeurs qualifiés. Progression structurée du niveau Pion au niveau Dame.',
       provider: {
         '@type': 'Organization',
-        name: 'ChessConnect',
+        name: 'mychess',
         url: this.baseUrl
       },
       hasCourseInstance: {

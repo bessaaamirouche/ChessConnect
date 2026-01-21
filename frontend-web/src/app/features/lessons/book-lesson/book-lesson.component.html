@@ -3,7 +3,7 @@
   <aside class="sidebar">
     <div class="sidebar__header">
       <a routerLink="/" class="sidebar__logo">
-        <img src="assets/logo.png" alt="ChessConnect" class="sidebar__logo-img">
+        <img src="assets/logo.png" alt="mychess" class="sidebar__logo-img">
       </a>
     </div>
 
@@ -72,6 +72,20 @@
             </div>
           </div>
 
+          <!-- Free Trial Banner -->
+          @if (freeTrialEligible()) {
+            <div class="free-trial-banner">
+              <div class="free-trial-banner__icon">
+                <ng-icon name="heroGift" size="24"></ng-icon>
+              </div>
+              <div class="free-trial-banner__content">
+                <strong>Premier cours offert !</strong>
+                <p>Profitez de votre premier cours gratuit pour decouvrir mychess</p>
+              </div>
+              <ng-icon name="heroSparkles" size="20" class="free-trial-banner__sparkle"></ng-icon>
+            </div>
+          }
+
           <!-- Subscription Status -->
           @if (teacherAcceptsSubscription()) {
             <div class="subscription-info">
@@ -83,7 +97,7 @@
                     <p>{{ paymentService.activeSubscription()?.remainingLessons }} cours restants</p>
                   </div>
                 </div>
-              } @else {
+              } @else if (!freeTrialEligible()) {
                 <div class="subscription-info__card subscription-info__card--none">
                   <span class="subscription-info__icon"><ng-icon name="heroCreditCard" size="18"></ng-icon></span>
                   <div>
@@ -93,7 +107,7 @@
                 </div>
               }
             </div>
-          } @else {
+          } @else if (!freeTrialEligible()) {
             <div class="subscription-info">
               <div class="subscription-info__card subscription-info__card--payment">
                 <span class="subscription-info__icon"><ng-icon name="heroBanknotes" size="18"></ng-icon></span>
@@ -194,7 +208,10 @@
               <div class="price-summary__row">
                 <span>Prix</span>
                 <span class="price-summary__value">
-                  @if (!requiresPayment()) {
+                  @if (freeTrialEligible() && useFreeTrialSignal()) {
+                    <span class="price-summary__free">GRATUIT</span>
+                    <span class="price-summary__original">{{ formatPrice(teacherService.selectedTeacher()?.hourlyRateCents) }}</span>
+                  } @else if (!requiresPayment()) {
                     Inclus
                   } @else {
                     {{ formatPrice(teacherService.selectedTeacher()?.hourlyRateCents) }}
@@ -205,18 +222,25 @@
 
             <button
               type="submit"
-              class="btn btn--primary btn--block"
+              class="btn btn--block"
+              [class.btn--primary]="!freeTrialEligible() || !useFreeTrialSignal()"
+              [class.btn--free-trial]="freeTrialEligible() && useFreeTrialSignal()"
               [disabled]="!selectedSlot() || loading()"
             >
               @if (loading()) {
                 <span class="spinner spinner--sm"></span>
-                @if (requiresPayment()) {
+                @if (freeTrialEligible() && useFreeTrialSignal()) {
+                  Reservation...
+                } @else if (requiresPayment()) {
                   Redirection...
                 } @else {
                   Reservation...
                 }
               } @else {
-                @if (requiresPayment()) {
+                @if (freeTrialEligible() && useFreeTrialSignal()) {
+                  <ng-icon name="heroGift" size="18"></ng-icon>
+                  Reserver mon cours gratuit
+                } @else if (requiresPayment()) {
                   Payer {{ formatPrice(teacherService.selectedTeacher()?.hourlyRateCents) }}
                 } @else {
                   Confirmer

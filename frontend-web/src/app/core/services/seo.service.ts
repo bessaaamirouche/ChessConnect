@@ -19,10 +19,10 @@ export class SeoService {
   private document = inject(DOCUMENT);
 
   private readonly baseUrl = 'https://mychess.fr';
-  private readonly siteName = 'ChessConnect';
+  private readonly siteName = 'mychess';
 
   setHomePage(): void {
-    const pageTitle = 'ChessConnect - Cours d\'Échecs en Ligne avec les Meilleurs Professeurs';
+    const pageTitle = 'mychess - Cours d\'Échecs en Ligne avec les Meilleurs Professeurs';
     const description = 'Apprenez les échecs avec des professeurs qualifiés. Cours particuliers en visioconférence, progression du niveau Pion au niveau Dame. Réservez votre première leçon.';
 
     this.updateTags({
@@ -34,7 +34,7 @@ export class SeoService {
   }
 
   setTeachersListPage(): void {
-    const pageTitle = 'Nos Professeurs d\'Échecs - ChessConnect';
+    const pageTitle = 'Nos Professeurs d\'Échecs - mychess';
     const description = 'Découvrez nos professeurs d\'échecs qualifiés. Trouvez le professeur idéal pour progresser aux échecs avec des cours particuliers en ligne.';
 
     this.updateTags({
@@ -47,7 +47,7 @@ export class SeoService {
 
   setTeacherProfilePage(teacher: Teacher): void {
     const fullName = `${teacher.firstName} ${teacher.lastName}`;
-    const pageTitle = `${fullName} - Professeur d'Échecs | ChessConnect`;
+    const pageTitle = `${fullName} - Professeur d'Échecs | mychess`;
     const description = teacher.bio
       ? teacher.bio.substring(0, 155) + (teacher.bio.length > 155 ? '...' : '')
       : `Réservez un cours d'échecs avec ${fullName}. Professeur qualifié disponible pour des cours particuliers en visioconférence.`;
@@ -61,8 +61,8 @@ export class SeoService {
   }
 
   setRegisterPage(): void {
-    const pageTitle = 'Inscription - ChessConnect';
-    const description = 'Créez votre compte ChessConnect. Inscrivez-vous comme élève ou professeur d\'échecs et commencez votre parcours d\'apprentissage.';
+    const pageTitle = 'Inscription - mychess';
+    const description = 'Créez votre compte mychess. Inscrivez-vous comme élève ou professeur d\'échecs et commencez votre parcours d\'apprentissage.';
 
     this.updateTags({
       title: pageTitle,
@@ -73,8 +73,8 @@ export class SeoService {
   }
 
   setLoginPage(): void {
-    const pageTitle = 'Connexion - ChessConnect';
-    const description = 'Connectez-vous à votre compte ChessConnect pour accéder à vos cours d\'échecs.';
+    const pageTitle = 'Connexion - mychess';
+    const description = 'Connectez-vous à votre compte mychess pour accéder à vos cours d\'échecs.';
 
     this.updateTags({
       title: pageTitle,
@@ -200,7 +200,7 @@ export class SeoService {
    * Set blog list page SEO
    */
   setBlogListPage(): void {
-    const pageTitle = 'Blog Echecs - Conseils et Strategies | ChessConnect';
+    const pageTitle = 'Blog Echecs - Conseils et Strategies | mychess';
     const description = 'Decouvrez nos articles sur les echecs : strategies, ouvertures, conseils pour progresser. Apprenez des meilleurs professeurs d\'echecs en ligne.';
 
     this.updateTags({
@@ -239,7 +239,7 @@ export class SeoService {
       },
       'publisher': {
         '@type': 'Organization',
-        'name': 'ChessConnect',
+        'name': 'mychess',
         'logo': {
           '@type': 'ImageObject',
           'url': `${this.baseUrl}/assets/logo.png`
@@ -276,7 +276,7 @@ export class SeoService {
     const structuredData = {
       '@context': 'https://schema.org',
       '@type': 'Organization',
-      'name': 'ChessConnect',
+      'name': 'mychess',
       'url': this.baseUrl,
       'logo': `${this.baseUrl}/assets/logo.png`,
       'description': 'Plateforme de cours d\'echecs en ligne avec des professeurs qualifies',

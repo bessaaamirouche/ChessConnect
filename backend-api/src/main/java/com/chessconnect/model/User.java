@@ -88,6 +88,10 @@ public class User {
     @Column(name = "company_name")
     private String companyName;
 
+    // First free trial lesson tracking
+    @Column(name = "has_used_free_trial")
+    private Boolean hasUsedFreeTrial = false;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -206,4 +210,7 @@ public class User {
 
     public String getCompanyName() { return companyName; }
     public void setCompanyName(String companyName) { this.companyName = companyName; }
+
+    public Boolean getHasUsedFreeTrial() { return hasUsedFreeTrial; }
+    public void setHasUsedFreeTrial(Boolean hasUsedFreeTrial) { this.hasUsedFreeTrial = hasUsedFreeTrial; }
 }

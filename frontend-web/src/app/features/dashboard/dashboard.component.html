@@ -2,7 +2,7 @@
   <!-- Mobile Header -->
   <header class="mobile-header">
     <a routerLink="/" class="mobile-header__logo">
-      <img src="assets/logo.png" alt="ChessConnect" class="mobile-header__logo-img">
+      <img src="assets/logo.png" alt="mychess" class="mobile-header__logo-img">
     </a>
     <button class="mobile-header__hamburger" [class.active]="mobileMenuOpen()" (click)="toggleMobileMenu()">
       <span></span>
@@ -18,8 +18,13 @@
   <aside class="sidebar" [class.active]="mobileMenuOpen()">
     <div class="sidebar__header">
       <a routerLink="/" class="sidebar__logo">
-        <img src="assets/logo.png" alt="ChessConnect" class="sidebar__logo-img">
+        <img src="assets/logo.png" alt="mychess" class="sidebar__logo-img">
       </a>
+      @if (authService.isStudent()) {
+        <span class="sidebar__badge sidebar__badge--student">Eleve</span>
+      } @else if (authService.isTeacher()) {
+        <span class="sidebar__badge sidebar__badge--teacher">Professeur</span>
+      }
       <button class="sidebar__close" (click)="closeMobileMenu()">✕</button>
     </div>
 

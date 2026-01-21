@@ -193,7 +193,7 @@ export class VideoCallComponent implements OnInit, OnDestroy {
   private initJitsi(): void {
     const domain = 'meet.mychess.fr';
     const options = {
-      roomName: `ChessConnect_${this.roomName}`,
+      roomName: `mychess_${this.roomName}`,
       parentNode: document.getElementById('jitsi-container'),
       userInfo: {
         displayName: this.userName

@@ -1,6 +1,6 @@
 {
-  "name": "ChessConnect - Cours d'Échecs en Ligne",
-  "short_name": "ChessConnect",
+  "name": "mychess - Cours d'Échecs en Ligne",
+  "short_name": "mychess",
   "description": "Apprenez les échecs en ligne avec des professeurs certifiés. Progression personnalisée du niveau Pion au niveau Dame.",
   "start_url": "/",
   "display": "standalone",
@@ -66,14 +66,14 @@
       "sizes": "750x1334",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "Page d'accueil ChessConnect"
+      "label": "Page d'accueil mychess"
     },
     {
       "src": "assets/screenshots/desktop-home.png",
       "sizes": "1920x1080",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "Page d'accueil ChessConnect"
+      "label": "Page d'accueil mychess"
     }
   ],
   "shortcuts": [

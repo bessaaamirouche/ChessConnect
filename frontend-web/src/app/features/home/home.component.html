@@ -8,7 +8,7 @@
   <nav class="nav" [class.nav--scrolled]="isScrolled()">
     <div class="nav__container">
       <a routerLink="/" class="nav__logo">
-        <img src="assets/logo.png" alt="ChessConnect" class="nav__logo-img">
+        <img src="assets/logo.png" alt="mychess" class="nav__logo-img">
       </a>
 
       <!-- Mobile hamburger -->
@@ -80,6 +80,11 @@
           a votre rythme grace a un parcours personnalise.
         </p>
 
+        <div class="hero__free-trial" appScrollReveal="fade-up" [revealDelay]="250">
+          <ng-icon name="heroGift" size="20"></ng-icon>
+          <span>Premier cours <strong>100% gratuit</strong> pour tous les nouveaux eleves !</span>
+        </div>
+
         <div class="hero__cta" appScrollReveal="fade-up" [revealDelay]="300">
           <a routerLink="/register" class="btn btn--primary btn--lg">
             Commencer gratuitement
@@ -120,7 +125,7 @@
     <section class="section section--features" id="features">
       <div class="section__container">
         <div class="section__header" appScrollReveal="fade-up">
-          <span class="section__eyebrow">Pourquoi ChessConnect</span>
+          <span class="section__eyebrow">Pourquoi mychess</span>
           <h2 class="section__title">Une experience<br><span class="gold-text">d'apprentissage unique</span></h2>
           <p class="section__subtitle">
             Tout ce dont vous avez besoin pour progresser aux echecs,<br class="hide-mobile">
@@ -338,7 +343,7 @@
       <div class="section__container">
         <div class="section__header" appScrollReveal="fade-up">
           <span class="section__eyebrow">Temoignages</span>
-          <h2 class="section__title">Ils ont progresse<br><span class="gold-text">avec ChessConnect</span></h2>
+          <h2 class="section__title">Ils ont progresse<br><span class="gold-text">avec mychess</span></h2>
         </div>
 
         <div class="testimonials-grid" appStaggerReveal>
@@ -399,7 +404,7 @@
         <div class="cta-content" appScrollReveal="scale-up">
           <h2 class="cta-content__title">Pret a maitriser les echecs ?</h2>
           <p class="cta-content__subtitle">
-            Rejoignez plus de 500 eleves qui progressent chaque jour avec ChessConnect.
+            Rejoignez plus de 500 eleves qui progressent chaque jour avec mychess.
           </p>
           <div class="cta-content__buttons">
             <a routerLink="/register" class="btn btn--primary btn--xl">
@@ -417,7 +422,7 @@
   <footer class="footer">
     <div class="footer__container">
       <div class="footer__brand">
-        <img src="assets/logo.png" alt="ChessConnect" class="footer__logo">
+        <img src="assets/logo.png" alt="mychess" class="footer__logo">
         <p class="footer__tagline">La plateforme de cours d'echecs en ligne n°1 en France.</p>
       </div>
 
@@ -436,13 +441,13 @@
         </div>
         <div class="footer__column">
           <h4>Contact</h4>
-          <a href="mailto:support@chessconnect.fr">support&#64;chessconnect.fr</a>
-          <a href="mailto:partenaires@chessconnect.fr">partenaires&#64;chessconnect.fr</a>
+          <a href="mailto:support@mychess.fr">support&#64;mychess.fr</a>
+          <a href="mailto:partenaires@mychess.fr">partenaires&#64;mychess.fr</a>
         </div>
       </div>
 
       <div class="footer__bottom">
-        <p class="footer__copyright">&copy; 2026 ChessConnect. Tous droits reserves.</p>
+        <p class="footer__copyright">&copy; 2026 mychess. Tous droits reserves.</p>
         <div class="footer__legal">
           <a href="#">Confidentialite</a>
           <a href="#">CGU</a>

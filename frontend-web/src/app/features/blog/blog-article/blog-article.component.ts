@@ -46,7 +46,7 @@ export class BlogArticleComponent implements OnInit {
 
         // Update SEO meta tags
         this.seoService.updateMetaTags({
-          title: `${article.title} - ChessConnect Blog`,
+          title: `${article.title} - mychess Blog`,
           description: article.metaDescription || article.excerpt,
           keywords: article.metaKeywords,
           image: article.coverImage,

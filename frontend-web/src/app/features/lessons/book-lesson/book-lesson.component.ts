@@ -20,7 +20,9 @@ import {
   heroAcademicCap,
   heroUserCircle,
   heroArrowRightOnRectangle,
-  heroArrowLeft
+  heroArrowLeft,
+  heroGift,
+  heroSparkles
 } from '@ng-icons/heroicons/outline';
 
 @Component({
@@ -37,7 +39,9 @@ import {
     heroAcademicCap,
     heroUserCircle,
     heroArrowRightOnRectangle,
-    heroArrowLeft
+    heroArrowLeft,
+    heroGift,
+    heroSparkles
   })],
   templateUrl: './book-lesson.component.html',
   styleUrl: './book-lesson.component.scss'
@@ -48,11 +52,15 @@ export class BookLessonComponent implements OnInit {
   success = signal(false);
   selectedSlot = signal<TimeSlot | null>(null);
   useSubscriptionSignal = signal(true);
+  useFreeTrialSignal = signal(true);
 
   // Embedded checkout
   showCheckout = signal(false);
   checkoutClientSecret = signal<string | null>(null);
   checkoutSessionId = signal<string | null>(null);
+
+  // Free trial eligibility
+  freeTrialEligible = this.lessonService.freeTrialEligible;
 
   teacherSlots = this.availabilityService.teacherSlots;
   slotsLoading = this.availabilityService.loading;
@@ -84,6 +92,11 @@ export class BookLessonComponent implements OnInit {
   requiresPayment = computed(() => {
     const teacher = this.teacherService.selectedTeacher();
     if (!teacher) return false;
+
+    // If eligible for free trial and user wants to use it, no payment required
+    if (this.freeTrialEligible() && this.useFreeTrialSignal()) {
+      return false;
+    }
 
     // If teacher doesn't accept subscription, payment is required
     if (!teacher.acceptsSubscription) return true;
@@ -129,6 +142,9 @@ export class BookLessonComponent implements OnInit {
 
     // Load active subscription
     this.paymentService.loadActiveSubscription().subscribe();
+
+    // Check free trial eligibility
+    this.lessonService.checkFreeTrialEligibility().subscribe();
 
     // Sync checkbox with signal
     this.bookingForm.get('useSubscription')?.valueChanges.subscribe(value => {
@@ -186,6 +202,10 @@ export class BookLessonComponent implements OnInit {
     this.selectedSlot.set(slot);
   }
 
+  toggleFreeTrial(value: boolean): void {
+    this.useFreeTrialSignal.set(value);
+  }
+
   isSlotSelected(slot: TimeSlot): boolean {
     const selected = this.selectedSlot();
     return selected !== null &&
@@ -202,6 +222,28 @@ export class BookLessonComponent implements OnInit {
     const { notes, useSubscription } = this.bookingForm.value;
 
     this.loading.set(true);
+
+    // If eligible for free trial and user wants it, book free trial
+    if (this.freeTrialEligible() && this.useFreeTrialSignal()) {
+      this.lessonService.bookFreeTrialLesson({
+        teacherId: teacher.id,
+        scheduledAt,
+        notes,
+        useSubscription: false
+      }).subscribe({
+        next: () => {
+          this.success.set(true);
+          this.loading.set(false);
+          setTimeout(() => {
+            this.router.navigate(['/dashboard']);
+          }, 2000);
+        },
+        error: () => {
+          this.loading.set(false);
+        }
+      });
+      return;
+    }
 
     // If payment is required, use embedded checkout
     if (this.requiresPayment()) {

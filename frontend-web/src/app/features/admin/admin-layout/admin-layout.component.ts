@@ -28,7 +28,7 @@ import {
     <div class="admin-layout">
       <aside class="admin-sidebar">
         <div class="admin-sidebar__header">
-          <a routerLink="/" class="admin-sidebar__logo">ChessConnect</a>
+          <a routerLink="/" class="admin-sidebar__logo">mychess</a>
           <span class="admin-sidebar__badge">Admin</span>
         </div>
 

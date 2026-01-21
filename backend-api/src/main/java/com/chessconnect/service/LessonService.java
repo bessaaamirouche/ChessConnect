@@ -128,6 +128,72 @@ public class LessonService {
         return LessonResponse.from(savedLesson);
     }
 
+    /**
+     * Book a free trial lesson for first-time students.
+     * Each student is eligible for one free trial lesson.
+     */
+    @Transactional
+    public LessonResponse bookFreeTrialLesson(Long studentId, BookLessonRequest request) {
+        User student = userRepository.findById(studentId)
+                .orElseThrow(() -> new IllegalArgumentException("Student not found"));
+
+        if (student.getRole() != UserRole.STUDENT) {
+            throw new IllegalArgumentException("Only students can book lessons");
+        }
+
+        // Check if student has already used their free trial
+        if (Boolean.TRUE.equals(student.getHasUsedFreeTrial())) {
+            throw new IllegalArgumentException("Vous avez déjà utilisé votre cours d'essai gratuit");
+        }
+
+        User teacher = userRepository.findById(request.teacherId())
+                .orElseThrow(() -> new IllegalArgumentException("Teacher not found"));
+
+        if (teacher.getRole() != UserRole.TEACHER) {
+            throw new IllegalArgumentException("Selected user is not a teacher");
+        }
+
+        // Validate that the lesson end time is still in the future
+        LocalDateTime lessonEnd = request.scheduledAt().plusMinutes(request.durationMinutes());
+        if (!lessonEnd.isAfter(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Lesson must end in the future");
+        }
+
+        checkTeacherAvailability(teacher.getId(), request.scheduledAt(), request.durationMinutes());
+        checkStudentTimeConflict(studentId, request.scheduledAt(), request.durationMinutes());
+
+        // Create the free trial lesson
+        Lesson lesson = new Lesson();
+        lesson.setStudent(student);
+        lesson.setTeacher(teacher);
+        lesson.setScheduledAt(request.scheduledAt());
+        lesson.setDurationMinutes(request.durationMinutes());
+        lesson.setNotes(request.notes() != null ? request.notes() + " [Cours d'essai gratuit]" : "[Cours d'essai gratuit]");
+        lesson.setStatus(LessonStatus.PENDING);
+        lesson.setIsFromSubscription(false);
+        lesson.setPriceCents(0); // Free!
+
+        Lesson savedLesson = lessonRepository.save(lesson);
+
+        // Mark free trial as used
+        student.setHasUsedFreeTrial(true);
+        userRepository.save(student);
+
+        log.info("Free trial lesson {} booked for student {} with teacher {}",
+                savedLesson.getId(), studentId, teacher.getId());
+
+        return LessonResponse.from(savedLesson);
+    }
+
+    /**
+     * Check if a student is eligible for a free trial lesson.
+     */
+    public boolean isEligibleForFreeTrial(Long studentId) {
+        return userRepository.findById(studentId)
+                .map(user -> user.getRole() == UserRole.STUDENT && !Boolean.TRUE.equals(user.getHasUsedFreeTrial()))
+                .orElse(false);
+    }
+
     @Transactional
     public LessonResponse updateLessonStatus(Long lessonId, Long userId, UpdateLessonStatusRequest request) {
         Lesson lesson = lessonRepository.findById(lessonId)

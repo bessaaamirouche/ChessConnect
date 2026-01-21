@@ -1124,22 +1124,26 @@ $text-muted: #6b6965;
   }
 
   &__brand {
-    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-md);
     margin-bottom: var(--space-2xl);
 
     @include respond-to(md) {
-      text-align: left;
+      justify-content: flex-start;
     }
   }
 
   &__logo {
     height: 40px;
-    margin-bottom: var(--space-md);
+    flex-shrink: 0;
   }
 
   &__tagline {
     font-size: 0.9375rem;
     color: $ivory-muted;
+    margin: 0;
   }
 
   &__links {

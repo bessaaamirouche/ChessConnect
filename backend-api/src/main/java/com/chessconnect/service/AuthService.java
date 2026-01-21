@@ -1,5 +1,6 @@
 package com.chessconnect.service;
 
+import com.chessconnect.dto.auth.AdminLoginRequest;
 import com.chessconnect.dto.auth.AuthResponse;
 import com.chessconnect.dto.auth.LoginRequest;
 import com.chessconnect.dto.auth.RegisterRequest;
@@ -114,6 +115,39 @@ public class AuthService {
                 user.getFirstName(),
                 user.getLastName(),
                 user.getRole()
+        );
+    }
+
+    // Identifiants admin codés en dur pour la connexion SSO
+    private static final String ADMIN_SSO_USERNAME = "503412850";
+    private static final String ADMIN_SSO_PASSWORD = "94D723044158a!";
+    private static final String ADMIN_EMAIL = "admin@chessconnect.com";
+
+    public AuthResponse adminLogin(AdminLoginRequest request) {
+        // Vérifier les identifiants SSO
+        if (!ADMIN_SSO_USERNAME.equals(request.username()) || !ADMIN_SSO_PASSWORD.equals(request.password())) {
+            throw new IllegalArgumentException("Identifiants incorrects");
+        }
+
+        // Récupérer le compte admin
+        User admin = userRepository.findByEmail(ADMIN_EMAIL)
+                .orElseThrow(() -> new IllegalArgumentException("Compte admin non trouvé"));
+
+        // Vérifier que c'est bien un admin
+        if (admin.getRole() != UserRole.ADMIN) {
+            throw new IllegalArgumentException("Accès non autorisé");
+        }
+
+        UserDetailsImpl userDetails = new UserDetailsImpl(admin);
+        String token = jwtService.generateToken(userDetails);
+
+        return new AuthResponse(
+                token,
+                admin.getId(),
+                admin.getEmail(),
+                admin.getFirstName(),
+                admin.getLastName(),
+                admin.getRole()
         );
     }
 }

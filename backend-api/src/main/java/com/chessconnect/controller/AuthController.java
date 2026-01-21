@@ -1,5 +1,6 @@
 package com.chessconnect.controller;
 
+import com.chessconnect.dto.auth.AdminLoginRequest;
 import com.chessconnect.dto.auth.AuthResponse;
 import com.chessconnect.dto.auth.ForgotPasswordRequest;
 import com.chessconnect.dto.auth.LoginRequest;
@@ -33,6 +34,11 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         return ResponseEntity.ok(authService.login(request));
+    }
+
+    @PostMapping("/admin-login")
+    public ResponseEntity<AuthResponse> adminLogin(@Valid @RequestBody AdminLoginRequest request) {
+        return ResponseEntity.ok(authService.adminLogin(request));
     }
 
     @PostMapping("/forgot-password")

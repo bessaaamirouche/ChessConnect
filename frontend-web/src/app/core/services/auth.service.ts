@@ -35,6 +35,12 @@ export class AuthService {
     );
   }
 
+  adminLogin(request: { username: string; password: string }): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/admin-login`, request).pipe(
+      tap(response => this.handleAuthResponse(response))
+    );
+  }
+
   register(request: RegisterRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/register`, request).pipe(
       tap(response => this.handleAuthResponse(response))

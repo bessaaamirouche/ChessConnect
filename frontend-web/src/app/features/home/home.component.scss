@@ -399,8 +399,8 @@ $text-muted: #6b6965;
       font-weight: 700;
       line-height: 1.1;
       letter-spacing: -0.02em;
-      word-wrap: break-word;
-      overflow-wrap: break-word;
+      hyphens: none;
+      word-break: normal;
 
       @include respond-down(sm) {
         font-size: 1.75rem;
@@ -589,12 +589,16 @@ $text-muted: #6b6965;
     font-weight: 700;
     line-height: 1.2;
     margin-bottom: var(--space-md);
-    word-wrap: break-word;
-    overflow-wrap: break-word;
+    hyphens: none;
+    word-break: normal;
 
     @include respond-down(sm) {
-      font-size: 1.5rem;
-      line-height: 1.3;
+      font-size: 1.375rem;
+      line-height: 1.35;
+
+      br {
+        display: none; // Remove forced line breaks on mobile
+      }
     }
   }
 

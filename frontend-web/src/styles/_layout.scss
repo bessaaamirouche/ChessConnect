@@ -166,6 +166,14 @@
     display: block;
   }
 
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    margin-bottom: var(--space-xl);
+    flex-wrap: wrap;
+  }
+
   &__logo {
     display: block;
   }
@@ -173,6 +181,34 @@
   &__logo-img {
     height: 36px;
     width: auto;
+  }
+
+  &__badge {
+    display: inline-block;
+    padding: 4px 10px;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-radius: var(--radius-full);
+
+    &--student {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(37, 99, 235, 0.15) 100%);
+      color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    &--teacher {
+      background: linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(147, 51, 234, 0.15) 100%);
+      color: #c084fc;
+      border: 1px solid rgba(168, 85, 247, 0.3);
+    }
+
+    &--admin {
+      background: linear-gradient(135deg, rgba(212, 168, 75, 0.2) 0%, rgba(184, 134, 11, 0.15) 100%);
+      color: var(--gold-400);
+      border: 1px solid rgba(212, 168, 75, 0.3);
+    }
   }
 
   &__section {

@@ -4,6 +4,7 @@ import { DatePipe, DecimalPipe } from '@angular/common';
 import { ProgressService, LevelInfo } from '../../core/services/progress.service';
 import { AuthService } from '../../core/services/auth.service';
 import { LearningPathService } from '../../core/services/learning-path.service';
+import { SeoService } from '../../core/services/seo.service';
 import { CHESS_LEVELS, ChessLevel } from '../../core/models/user.model';
 import { Course } from '../../core/models/learning-path.model';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
@@ -61,10 +62,12 @@ export class ProgressComponent implements OnInit {
   constructor(
     public progressService: ProgressService,
     public authService: AuthService,
-    public learningPathService: LearningPathService
+    public learningPathService: LearningPathService,
+    private seoService: SeoService
   ) {}
 
   ngOnInit(): void {
+    this.seoService.setProgressPage();
     this.progressService.loadMyProgress().subscribe();
     this.progressService.loadAllLevels().subscribe();
     this.learningPathService.loadLearningPath().subscribe();

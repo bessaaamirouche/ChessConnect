@@ -211,6 +211,51 @@ export class SeoService {
     });
   }
 
+  // === Internal pages (noIndex) ===
+
+  setDashboardPage(): void {
+    this.title.setTitle('Tableau de bord - mychess');
+    this.meta.updateTag({ name: 'robots', content: 'noindex, nofollow' });
+  }
+
+  setLessonsPage(): void {
+    this.title.setTitle('Mes cours - mychess');
+    this.meta.updateTag({ name: 'robots', content: 'noindex, nofollow' });
+  }
+
+  setProgressPage(): void {
+    this.title.setTitle('Ma progression - mychess');
+    this.meta.updateTag({ name: 'robots', content: 'noindex, nofollow' });
+  }
+
+  setQuizPage(): void {
+    this.title.setTitle('Quiz d\'évaluation - mychess');
+    this.meta.updateTag({ name: 'robots', content: 'noindex, nofollow' });
+  }
+
+  setSubscriptionPage(): void {
+    this.title.setTitle('Mon abonnement - mychess');
+    this.meta.updateTag({ name: 'robots', content: 'noindex, nofollow' });
+  }
+
+  setSettingsPage(): void {
+    this.title.setTitle('Paramètres - mychess');
+    this.meta.updateTag({ name: 'robots', content: 'noindex, nofollow' });
+  }
+
+  setAvailabilityPage(): void {
+    this.title.setTitle('Mes disponibilités - mychess');
+    this.meta.updateTag({ name: 'robots', content: 'noindex, nofollow' });
+  }
+
+  setBookLessonPage(teacherName?: string): void {
+    const title = teacherName
+      ? `Réserver avec ${teacherName} - mychess`
+      : 'Réserver un cours - mychess';
+    this.title.setTitle(title);
+    this.meta.updateTag({ name: 'robots', content: 'noindex, nofollow' });
+  }
+
   /**
    * Add JSON-LD structured data for articles
    */

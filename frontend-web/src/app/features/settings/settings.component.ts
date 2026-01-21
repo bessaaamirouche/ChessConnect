@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { SeoService } from '../../core/services/seo.service';
 import { HttpClient } from '@angular/common/http';
 import { CalendarService, CalendarStatus } from '../../core/services/calendar.service';
 import { AVAILABLE_LANGUAGES } from '../../core/models/user.model';
@@ -67,8 +68,10 @@ export class SettingsComponent implements OnInit {
     public authService: AuthService,
     private http: HttpClient,
     private calendarService: CalendarService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private seoService: SeoService
   ) {
+    this.seoService.setSettingsPage();
     this.profileForm = this.fb.group({
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],

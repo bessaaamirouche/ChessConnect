@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AvailabilityService } from '../../core/services/availability.service';
+import { SeoService } from '../../core/services/seo.service';
 import { AuthService } from '../../core/services/auth.service';
 import { DAYS_OF_WEEK, HOURS, MINUTES, DayOfWeek, AvailabilityRequest } from '../../core/models/availability.model';
 import { ConfirmModalComponent } from '../../shared/confirm-modal/confirm-modal.component';
@@ -44,6 +45,7 @@ export class AvailabilityManagementComponent implements OnInit {
   @ViewChild('confirmModal') confirmModal!: ConfirmModalComponent;
 
   private availabilityService = inject(AvailabilityService);
+  private seoService = inject(SeoService);
   authService = inject(AuthService);
 
   readonly daysOfWeek = DAYS_OF_WEEK;
@@ -66,6 +68,7 @@ export class AvailabilityManagementComponent implements OnInit {
   submitting = false;
 
   ngOnInit(): void {
+    this.seoService.setAvailabilityPage();
     this.loadAvailabilities();
   }
 

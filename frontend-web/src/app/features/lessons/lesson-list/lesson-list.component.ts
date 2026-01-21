@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { LessonService } from '../../../core/services/lesson.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { RatingService } from '../../../core/services/rating.service';
+import { SeoService } from '../../../core/services/seo.service';
 import { LESSON_STATUS_LABELS, Lesson } from '../../../core/models/lesson.model';
 import { ConfirmModalComponent } from '../../../shared/confirm-modal/confirm-modal.component';
 import { StudentProfileModalComponent } from '../../../shared/student-profile-modal/student-profile-modal.component';
@@ -90,8 +91,11 @@ export class LessonListComponent implements OnInit {
   constructor(
     public lessonService: LessonService,
     public authService: AuthService,
-    private ratingService: RatingService
-  ) {}
+    private ratingService: RatingService,
+    private seoService: SeoService
+  ) {
+    this.seoService.setLessonsPage();
+  }
 
   ngOnInit(): void {
     this.lessonService.loadUpcomingLessons().subscribe();

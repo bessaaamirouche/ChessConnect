@@ -1,6 +1,7 @@
 import { Component, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { QuizService } from '../../core/services/quiz.service';
+import { SeoService } from '../../core/services/seo.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ProgressService } from '../../core/services/progress.service';
 import { CHESS_LEVELS, ChessLevel } from '../../core/models/user.model';
@@ -53,8 +54,11 @@ export class QuizComponent implements OnInit {
     public quizService: QuizService,
     public authService: AuthService,
     public progressService: ProgressService,
-    private router: Router
-  ) {}
+    private router: Router,
+    private seoService: SeoService
+  ) {
+    this.seoService.setQuizPage();
+  }
 
   ngOnInit(): void {
     // Check if user already has a result

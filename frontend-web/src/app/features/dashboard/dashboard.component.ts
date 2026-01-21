@@ -7,6 +7,7 @@ import { LessonService } from '../../core/services/lesson.service';
 import { ProgressService } from '../../core/services/progress.service';
 import { PaymentService } from '../../core/services/payment.service';
 import { TeacherService } from '../../core/services/teacher.service';
+import { SeoService } from '../../core/services/seo.service';
 import { LESSON_STATUS_LABELS, Lesson } from '../../core/models/lesson.model';
 import { CHESS_LEVELS } from '../../core/models/user.model';
 import { DatePipe, DecimalPipe } from '@angular/common';
@@ -104,8 +105,10 @@ export class DashboardComponent implements OnInit {
     public paymentService: PaymentService,
     public teacherService: TeacherService,
     private fb: FormBuilder,
-    private http: HttpClient
+    private http: HttpClient,
+    private seoService: SeoService
   ) {
+    this.seoService.setDashboardPage();
     this.settingsForm = this.fb.group({
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],

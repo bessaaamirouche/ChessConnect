@@ -3,6 +3,7 @@ import { RouterLink, Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { PaymentService, SubscriptionPlanResponseDto } from '../../core/services/payment.service';
 import { AuthService } from '../../core/services/auth.service';
+import { SeoService } from '../../core/services/seo.service';
 import { SubscriptionPlan } from '../../core/models/subscription.model';
 import { EmbeddedCheckoutComponent } from '../../shared/embedded-checkout/embedded-checkout.component';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
@@ -57,8 +58,11 @@ export class SubscriptionComponent implements OnInit {
   constructor(
     public paymentService: PaymentService,
     public authService: AuthService,
-    private router: Router
-  ) {}
+    private router: Router,
+    private seoService: SeoService
+  ) {
+    this.seoService.setSubscriptionPage();
+  }
 
   ngOnInit(): void {
     this.paymentService.loadPlans().subscribe();

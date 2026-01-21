@@ -284,6 +284,28 @@
   }
 }
 
+// === CTA Containers - Center on Mobile ===
+@media (max-width: 767px) {
+  .hero__cta,
+  .section__cta,
+  .cta-content__buttons,
+  [class*="__cta"],
+  [class*="__buttons"] {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+
+    .btn {
+      width: 100%;
+      max-width: 280px;
+      justify-content: center;
+      text-align: center;
+    }
+  }
+}
+
 // === Utility Classes for Mobile ===
 .hide-mobile {
   @media (max-width: 767px) {

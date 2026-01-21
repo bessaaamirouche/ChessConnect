@@ -54,6 +54,13 @@ export class LoginComponent {
 
     this.authService.login(this.loginForm.value).subscribe({
       next: () => {
+        // Bloquer l'accès admin depuis la page de connexion publique
+        if (this.authService.isAdmin()) {
+          this.authService.logout();
+          this.error.set('Accès non autorisé');
+          this.loading.set(false);
+          return;
+        }
         this.router.navigate([this.authService.getRedirectRoute()]);
       },
       error: (err) => {

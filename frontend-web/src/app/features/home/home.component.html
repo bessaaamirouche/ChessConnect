@@ -25,6 +25,7 @@
         <a href="#features" (click)="scrollToSection('features'); closeMobileMenu()">Avantages</a>
         <a href="#levels" (click)="scrollToSection('levels'); closeMobileMenu()">Parcours</a>
         <a href="#how-it-works" (click)="scrollToSection('how-it-works'); closeMobileMenu()">Fonctionnement</a>
+        <a routerLink="/pricing" (click)="closeMobileMenu()">Tarifs</a>
         <a routerLink="/blog" (click)="closeMobileMenu()">Blog</a>
 
         <!-- Mobile-only auth buttons -->
@@ -94,24 +95,6 @@
           </a>
         </div>
 
-        <div class="hero__stats" appScrollReveal="fade-up" [revealDelay]="400" appStaggerReveal>
-          <div class="hero__stat">
-            <span class="hero__stat-value">500+</span>
-            <span class="hero__stat-label">Joueurs actifs</span>
-          </div>
-          <div class="hero__stat">
-            <span class="hero__stat-value">50+</span>
-            <span class="hero__stat-label">Coachs certifies</span>
-          </div>
-          <div class="hero__stat">
-            <span class="hero__stat-value">4.9/5</span>
-            <span class="hero__stat-label">Note moyenne</span>
-          </div>
-          <div class="hero__stat">
-            <span class="hero__stat-value">24/7</span>
-            <span class="hero__stat-label">Disponibilite</span>
-          </div>
-        </div>
       </div>
 
       <div class="hero__scroll-indicator">
@@ -402,7 +385,7 @@
         <div class="cta-content" appScrollReveal="scale-up">
           <h2 class="cta-content__title">Pret a maitriser les echecs ?</h2>
           <p class="cta-content__subtitle">
-            Rejoignez plus de 500 joueurs qui progressent chaque jour avec mychess.
+            Rejoignez notre communaute de joueurs qui progressent chaque jour avec mychess.
           </p>
           <div class="cta-content__buttons">
             <a routerLink="/register" class="btn btn--primary btn--xl">
@@ -427,6 +410,7 @@
         <div class="footer__column">
           <h4>Plateforme</h4>
           <a routerLink="/teachers">Nos coachs</a>
+          <a routerLink="/pricing">Tarifs</a>
           <a routerLink="/register">S'inscrire</a>
           <a routerLink="/login">Connexion</a>
         </div>

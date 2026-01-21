@@ -1,0 +1,63 @@
+<div class="auth-page">
+  <div class="auth-card card">
+    <div class="auth-card__header">
+      <div class="auth-card__logo">
+        <img src="assets/logo.png" alt="mychess" class="auth-card__logo-img">
+      </div>
+      <h1 class="heading-3">Administration</h1>
+    </div>
+
+    @if (error()) {
+      <div class="alert alert--error">
+        {{ error() }}
+      </div>
+    }
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
+      <div class="form-group">
+        <label class="form-group__label" for="username">Identifiant</label>
+        <input
+          type="text"
+          id="username"
+          formControlName="username"
+          class="input"
+          [class.input--error]="loginForm.get('username')?.invalid && loginForm.get('username')?.touched"
+          placeholder="Identifiant"
+          autocomplete="off"
+        >
+        @if (loginForm.get('username')?.invalid && loginForm.get('username')?.touched) {
+          <span class="form-group__error">Identifiant requis</span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label class="form-group__label" for="password">Mot de passe</label>
+        <input
+          type="password"
+          id="password"
+          formControlName="password"
+          class="input"
+          [class.input--error]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+          placeholder="••••••••"
+          autocomplete="off"
+        >
+        @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
+          <span class="form-group__error">Mot de passe requis</span>
+        }
+      </div>
+
+      <button
+        type="submit"
+        class="btn btn--primary btn--block btn--lg"
+        [disabled]="loginForm.invalid || loading()"
+      >
+        @if (loading()) {
+          <span class="spinner spinner--sm"></span>
+          Connexion...
+        } @else {
+          Se connecter
+        }
+      </button>
+    </form>
+  </div>
+</div>

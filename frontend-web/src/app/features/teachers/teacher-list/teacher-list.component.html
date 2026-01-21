@@ -1,58 +1,60 @@
-<div class="dashboard">
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <div class="sidebar__header">
-      <a routerLink="/" class="sidebar__logo">
-        <img src="assets/logo.png" alt="mychess" class="sidebar__logo-img">
-      </a>
-      @if (authService.isStudent()) {
-        <span class="sidebar__badge sidebar__badge--student">Joueur</span>
-      } @else if (authService.isTeacher()) {
-        <span class="sidebar__badge sidebar__badge--teacher">Coach</span>
-      }
-    </div>
-
-    <nav class="sidebar__nav">
-      <div class="sidebar__section">
-        <span class="sidebar__section-title">Menu</span>
-        <a routerLink="/dashboard" class="sidebar__link">
-          <ng-icon name="heroChartBarSquare" class="sidebar__icon"></ng-icon> Mon Espace
+@if (authService.isAuthenticated()) {
+  <!-- Authenticated: Dashboard layout with sidebar -->
+  <div class="dashboard">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar__header">
+        <a routerLink="/" class="sidebar__logo">
+          <img src="assets/logo.png" alt="mychess" class="sidebar__logo-img">
         </a>
-        <a routerLink="/lessons" class="sidebar__link">
-          <ng-icon name="heroCalendarDays" class="sidebar__icon"></ng-icon> Mes Cours
-        </a>
-        @if (authService.isTeacher()) {
-          <a routerLink="/availability" class="sidebar__link">
-            <ng-icon name="heroClipboardDocumentList" class="sidebar__icon"></ng-icon> Mes Disponibilités
-          </a>
-        }
         @if (authService.isStudent()) {
-          <a routerLink="/progress" class="sidebar__link">
-            <ng-icon name="heroTrophy" class="sidebar__icon"></ng-icon> Ma Progression
-          </a>
-          <a routerLink="/subscription" class="sidebar__link">
-            <ng-icon name="heroCreditCard" class="sidebar__icon"></ng-icon> Abonnement
-          </a>
-          <a routerLink="/teachers" class="sidebar__link active">
-            <ng-icon name="heroAcademicCap" class="sidebar__icon"></ng-icon> Trouver un Coach
-          </a>
+          <span class="sidebar__badge sidebar__badge--student">Joueur</span>
+        } @else if (authService.isTeacher()) {
+          <span class="sidebar__badge sidebar__badge--teacher">Coach</span>
         }
       </div>
 
-      <div class="sidebar__section">
-        <span class="sidebar__section-title">Compte</span>
-        <a routerLink="/settings" class="sidebar__link">
-          <ng-icon name="heroUserCircle" class="sidebar__icon"></ng-icon> Mon Profil
-        </a>
-        <button class="sidebar__link" (click)="logout()">
-          <ng-icon name="heroArrowRightOnRectangle" class="sidebar__icon"></ng-icon> Déconnexion
-        </button>
-      </div>
-    </nav>
-  </aside>
+      <nav class="sidebar__nav">
+        <div class="sidebar__section">
+          <span class="sidebar__section-title">Menu</span>
+          <a routerLink="/dashboard" class="sidebar__link">
+            <ng-icon name="heroChartBarSquare" class="sidebar__icon"></ng-icon> Mon Espace
+          </a>
+          <a routerLink="/lessons" class="sidebar__link">
+            <ng-icon name="heroCalendarDays" class="sidebar__icon"></ng-icon> Mes Cours
+          </a>
+          @if (authService.isTeacher()) {
+            <a routerLink="/availability" class="sidebar__link">
+              <ng-icon name="heroClipboardDocumentList" class="sidebar__icon"></ng-icon> Mes Disponibilités
+            </a>
+          }
+          @if (authService.isStudent()) {
+            <a routerLink="/progress" class="sidebar__link">
+              <ng-icon name="heroTrophy" class="sidebar__icon"></ng-icon> Ma Progression
+            </a>
+            <a routerLink="/subscription" class="sidebar__link">
+              <ng-icon name="heroCreditCard" class="sidebar__icon"></ng-icon> Abonnement
+            </a>
+            <a routerLink="/teachers" class="sidebar__link active">
+              <ng-icon name="heroAcademicCap" class="sidebar__icon"></ng-icon> Trouver un Coach
+            </a>
+          }
+        </div>
 
-  <!-- Main Content -->
-  <main class="main-content">
+        <div class="sidebar__section">
+          <span class="sidebar__section-title">Compte</span>
+          <a routerLink="/settings" class="sidebar__link">
+            <ng-icon name="heroUserCircle" class="sidebar__icon"></ng-icon> Mon Profil
+          </a>
+          <button class="sidebar__link" (click)="logout()">
+            <ng-icon name="heroArrowRightOnRectangle" class="sidebar__icon"></ng-icon> Déconnexion
+          </button>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
     <header class="page-header">
       <div>
         <h1 class="page-header__title">Nos Coachs d'Échecs</h1>
@@ -189,7 +191,7 @@
 
             <div class="teacher-card__actions">
               <a [routerLink]="['/teachers', teacher.id]" class="btn btn--ghost btn--sm">
-                Voir le coachil
+                Voir le profil
               </a>
               @if (authService.isStudent()) {
                 <a [routerLink]="['/book', teacher.id]" class="btn btn--primary btn--sm">
@@ -203,3 +205,187 @@
     }
   </main>
 </div>
+} @else {
+  <!-- Public: Simple page layout without sidebar -->
+  <div class="public-page">
+    <!-- Public Navbar -->
+    <nav class="public-nav">
+      <div class="public-nav__container">
+        <a routerLink="/" class="public-nav__logo">
+          <img src="assets/logo.png" alt="mychess" class="public-nav__logo-img">
+        </a>
+        <div class="public-nav__links">
+          <a routerLink="/" class="public-nav__link">Accueil</a>
+          <a routerLink="/pricing" class="public-nav__link">Tarifs</a>
+          <a routerLink="/blog" class="public-nav__link">Blog</a>
+        </div>
+        <div class="public-nav__actions">
+          <a routerLink="/login" class="btn btn--ghost btn--sm">Connexion</a>
+          <a routerLink="/register" class="btn btn--primary btn--sm">S'inscrire</a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="public-content">
+      <header class="public-header">
+        <h1 class="public-header__title">Nos Coachs d'Échecs</h1>
+        <p class="public-header__subtitle">Trouvez le coach parfait pour progresser à votre rythme</p>
+      </header>
+
+      <!-- Search & Filters -->
+      <div class="search-section">
+        <div class="search-bar">
+          <ng-icon name="heroMagnifyingGlass" class="search-bar__icon"></ng-icon>
+          <input
+            type="text"
+            class="search-bar__input"
+            placeholder="Rechercher par nom ou prénom..."
+            [ngModel]="searchQuery()"
+            (ngModelChange)="searchQuery.set($event)"
+          >
+          @if (searchQuery()) {
+            <button class="search-bar__clear" (click)="searchQuery.set('')">
+              <ng-icon name="heroXMark" size="18"></ng-icon>
+            </button>
+          }
+        </div>
+
+        <div class="filters">
+          <div class="filter-group">
+            <label class="filter-group__label">Tarif min</label>
+            <div class="filter-group__input">
+              <input
+                type="number"
+                placeholder="0"
+                min="0"
+                [ngModel]="minRate()"
+                (ngModelChange)="minRate.set($event)"
+              >
+              <span>€/h</span>
+            </div>
+          </div>
+          <div class="filter-group">
+            <label class="filter-group__label">Tarif max</label>
+            <div class="filter-group__input">
+              <input
+                type="number"
+                placeholder="200"
+                min="0"
+                [ngModel]="maxRate()"
+                (ngModelChange)="maxRate.set($event)"
+              >
+              <span>€/h</span>
+            </div>
+          </div>
+          @if (hasActiveFilters()) {
+            <button class="btn btn--ghost btn--sm" (click)="clearFilters()">
+              Réinitialiser
+            </button>
+          }
+        </div>
+
+        <div class="search-results">
+          {{ filteredTeachers().length }} coach{{ filteredTeachers().length > 1 ? 's' : '' }} trouvé{{ filteredTeachers().length > 1 ? 's' : '' }}
+        </div>
+      </div>
+
+      @if (teacherService.loading()) {
+        <div class="loading-state">
+          <span class="spinner spinner--lg"></span>
+        </div>
+      } @else if (filteredTeachers().length === 0) {
+        <div class="empty-state">
+          <div class="empty-state__icon"><ng-icon name="heroAcademicCap" size="48"></ng-icon></div>
+          @if (hasActiveFilters()) {
+            <h3 class="empty-state__title">Aucun résultat</h3>
+            <p class="empty-state__description">
+              Essayez de modifier vos critères de recherche
+            </p>
+            <button class="btn btn--primary" (click)="clearFilters()">Réinitialiser les filtres</button>
+          } @else {
+            <h3 class="empty-state__title">Aucun coach disponible</h3>
+            <p class="empty-state__description">
+              Revenez bientôt, de nouveaux coachs rejoignent la plateforme régulièrement !
+            </p>
+          }
+        </div>
+      } @else {
+        <div class="teachers-grid">
+          @for (teacher of filteredTeachers(); track teacher.id) {
+            <div class="teacher-card">
+              <div class="teacher-card__header">
+                <div class="avatar">
+                  @if (teacher.avatarUrl) {
+                    <img [src]="teacher.avatarUrl" [alt]="teacher.firstName">
+                  } @else {
+                    {{ getInitials(teacher.firstName, teacher.lastName) }}
+                  }
+                </div>
+                <div class="teacher-card__info">
+                  <h3 class="teacher-card__name">
+                    {{ teacher.firstName }} {{ teacher.lastName }}
+                  </h3>
+                  <span class="teacher-card__rate">
+                    {{ formatPrice(teacher.hourlyRateCents) }}
+                  </span>
+                  @if (teacher.averageRating) {
+                    <span class="teacher-card__rating">
+                      &#9733; {{ teacher.averageRating.toFixed(1) }}
+                      <span class="review-count">({{ teacher.reviewCount }})</span>
+                    </span>
+                  }
+                </div>
+              </div>
+
+              @if (teacher.bio) {
+                <p class="teacher-card__bio">
+                  {{ teacher.bio }}
+                </p>
+              }
+
+              <div class="teacher-card__badges">
+                @if (teacher.acceptsSubscription) {
+                  <span class="badge badge--gold">Accepte les abos</span>
+                }
+              </div>
+
+              <div class="teacher-card__actions">
+                <a [routerLink]="['/teachers', teacher.id]" class="btn btn--ghost btn--sm">
+                  Voir le profil
+                </a>
+                <a routerLink="/register" class="btn btn--primary btn--sm">
+                  Réserver
+                </a>
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- CTA Section -->
+      <div class="public-cta">
+        <h2>Prêt à progresser aux échecs ?</h2>
+        <p>Inscrivez-vous gratuitement et réservez votre premier cours offert</p>
+        <a routerLink="/register" class="btn btn--primary btn--lg">Commencer maintenant</a>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="public-footer">
+      <div class="public-footer__container">
+        <div class="public-footer__brand">
+          <img src="assets/logo.png" alt="mychess" class="public-footer__logo">
+          <p>La plateforme de cours d'échecs en ligne n°1 en France.</p>
+        </div>
+        <div class="public-footer__links">
+          <a routerLink="/">Accueil</a>
+          <a routerLink="/pricing">Tarifs</a>
+          <a routerLink="/blog">Blog</a>
+          <a routerLink="/register">S'inscrire</a>
+        </div>
+        <p class="public-footer__copyright">© 2026 mychess. Tous droits réservés.</p>
+      </div>
+    </footer>
+  </div>
+}

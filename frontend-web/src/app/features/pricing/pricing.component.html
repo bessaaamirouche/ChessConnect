@@ -1,0 +1,189 @@
+<div class="pricing-page">
+  <!-- Public Navbar -->
+  <nav class="public-nav">
+    <div class="public-nav__container">
+      <a routerLink="/" class="public-nav__logo">
+        <img src="assets/logo.png" alt="mychess" class="public-nav__logo-img">
+      </a>
+      <div class="public-nav__links">
+        <a routerLink="/" class="public-nav__link">Accueil</a>
+        <a routerLink="/teachers" class="public-nav__link">Coachs</a>
+        <a routerLink="/blog" class="public-nav__link">Blog</a>
+      </div>
+      <div class="public-nav__actions">
+        @if (authService.isAuthenticated()) {
+          <a routerLink="/dashboard" class="btn btn--primary btn--sm">Mon Espace</a>
+        } @else {
+          <a routerLink="/login" class="btn btn--ghost btn--sm">Connexion</a>
+          <a routerLink="/register" class="btn btn--primary btn--sm">S'inscrire</a>
+        }
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="pricing-content">
+    <!-- Hero Section -->
+    <header class="pricing-hero">
+      <div class="pricing-hero__badge">
+        <ng-icon name="heroGift" size="16"></ng-icon>
+        <span>Premier cours offert</span>
+      </div>
+      <h1 class="pricing-hero__title">Nos Tarifs</h1>
+      <p class="pricing-hero__subtitle">
+        Des formules adaptées à vos objectifs, sans engagement
+      </p>
+    </header>
+
+    <!-- Free Trial Banner -->
+    <div class="free-trial-banner">
+      <div class="free-trial-banner__content">
+        <ng-icon name="heroGift" size="24"></ng-icon>
+        <div>
+          <h3>Premier cours 100% gratuit</h3>
+          <p>Testez notre plateforme sans engagement. Inscrivez-vous et réservez votre premier cours offert !</p>
+        </div>
+      </div>
+      <a routerLink="/register" class="btn btn--primary">Commencer gratuitement</a>
+    </div>
+
+    <!-- Plans Section -->
+    <section class="plans-section">
+      <h2 class="section-title">Abonnements mensuels</h2>
+      <p class="section-subtitle">Progressez régulièrement avec nos formules d'abonnement</p>
+
+      @if (paymentService.loading()) {
+        <div class="loading-state">
+          <span class="spinner spinner--lg"></span>
+        </div>
+      } @else {
+        <div class="plans-grid">
+          @for (plan of paymentService.plans(); track plan.code) {
+            <div class="plan-card" [class.plan-card--popular]="plan.popular">
+              @if (plan.popular) {
+                <div class="plan-card__badge">Le plus populaire</div>
+              }
+
+              <div class="plan-card__header">
+                <h3 class="plan-card__name">{{ plan.name }}</h3>
+                <div class="plan-card__price">
+                  <span class="plan-card__price-amount">{{ formatPrice(plan.priceCents) }}</span>
+                  <span class="plan-card__price-period">/mois</span>
+                </div>
+                <p class="plan-card__quota">{{ plan.monthlyQuota }} cours par mois</p>
+              </div>
+
+              <ul class="plan-card__features">
+                @for (feature of plan.features; track feature) {
+                  <li>
+                    <ng-icon name="heroCheck" class="plan-card__feature-check"></ng-icon>
+                    {{ feature }}
+                  </li>
+                }
+              </ul>
+
+              @if (authService.isAuthenticated()) {
+                <a
+                  routerLink="/subscription"
+                  class="btn plan-card__btn"
+                  [class.btn--primary]="plan.popular"
+                  [class.btn--outline]="!plan.popular"
+                >
+                  S'abonner
+                </a>
+              } @else {
+                <a
+                  routerLink="/register"
+                  class="btn plan-card__btn"
+                  [class.btn--primary]="plan.popular"
+                  [class.btn--outline]="!plan.popular"
+                >
+                  Commencer
+                </a>
+              }
+            </div>
+          }
+        </div>
+      }
+    </section>
+
+    <!-- Single Lesson Section -->
+    <section class="single-lesson-section">
+      <h2 class="section-title">Cours à l'unité</h2>
+      <p class="section-subtitle">Réservez des cours ponctuels avec le coach de votre choix</p>
+
+      <div class="single-lesson-card">
+        <div class="single-lesson-card__content">
+          <div class="single-lesson-card__info">
+            <h3>Cours individuel</h3>
+            <p>1 heure avec un coach certifié</p>
+          </div>
+          <div class="single-lesson-card__price">
+            <span class="price-range">30€ - 80€</span>
+            <span class="price-note">selon le coach</span>
+          </div>
+        </div>
+        <ul class="single-lesson-card__features">
+          <li><ng-icon name="heroCheck" size="16"></ng-icon> Visioconférence HD intégrée</li>
+          <li><ng-icon name="heroCheck" size="16"></ng-icon> Choisissez votre coach</li>
+          <li><ng-icon name="heroCheck" size="16"></ng-icon> Flexibilité totale</li>
+          <li><ng-icon name="heroCheck" size="16"></ng-icon> Paiement sécurisé Stripe</li>
+        </ul>
+        <a routerLink="/teachers" class="btn btn--outline btn--lg">Voir les coachs</a>
+      </div>
+    </section>
+
+    <!-- Benefits Section -->
+    <section class="benefits-section">
+      <h2 class="section-title">Pourquoi s'abonner ?</h2>
+
+      <div class="benefits-grid">
+        <div class="benefit-card">
+          <div class="benefit-card__icon"><ng-icon name="heroBanknotes" size="32"></ng-icon></div>
+          <h4>Économisez jusqu'à 30%</h4>
+          <p>Les cours en abonnement sont moins chers que les cours ponctuels</p>
+        </div>
+        <div class="benefit-card">
+          <div class="benefit-card__icon"><ng-icon name="heroArrowTrendingUp" size="32"></ng-icon></div>
+          <h4>Progression régulière</h4>
+          <p>Un rythme constant pour progresser efficacement</p>
+        </div>
+        <div class="benefit-card">
+          <div class="benefit-card__icon"><ng-icon name="heroCalendarDays" size="32"></ng-icon></div>
+          <h4>Flexibilité totale</h4>
+          <p>Choisissez vos créneaux et vos coachs librement</p>
+        </div>
+        <div class="benefit-card">
+          <div class="benefit-card__icon"><ng-icon name="heroXMark" size="32"></ng-icon></div>
+          <h4>Sans engagement</h4>
+          <p>Annulez à tout moment, sans frais</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+      <h2>Prêt à progresser aux échecs ?</h2>
+      <p>Rejoignez notre communaute de joueurs qui progressent chaque jour avec mychess</p>
+      <a routerLink="/register" class="btn btn--primary btn--xl">Commencer maintenant</a>
+      <span class="cta-note">Premier cours offert. Sans engagement.</span>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="public-footer">
+    <div class="public-footer__container">
+      <div class="public-footer__brand">
+        <img src="assets/logo.png" alt="mychess" class="public-footer__logo">
+        <p>La plateforme de cours d'échecs en ligne n°1 en France.</p>
+      </div>
+      <div class="public-footer__links">
+        <a routerLink="/">Accueil</a>
+        <a routerLink="/teachers">Coachs</a>
+        <a routerLink="/blog">Blog</a>
+        <a routerLink="/register">S'inscrire</a>
+      </div>
+      <p class="public-footer__copyright">© 2026 mychess. Tous droits réservés.</p>
+    </div>
+  </footer>
+</div>

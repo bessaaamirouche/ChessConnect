@@ -6,8 +6,9 @@ import { Router } from '@angular/router';
   providedIn: 'root'
 })
 export class InactivityService implements OnDestroy {
-  private readonly INACTIVITY_TIMEOUT = 15 * 60 * 1000; // 15 minutes
-  private readonly WARNING_BEFORE = 60 * 1000; // 1 minute before logout
+  private readonly INACTIVITY_TIMEOUT = 60 * 60 * 1000; // 1 hour
+  private readonly WARNING_BEFORE = 5 * 60 * 1000; // 5 minutes before logout
+  private readonly LAST_ACTIVITY_KEY = 'chess_last_activity';
 
   private timeoutId: any;
   private warningTimeoutId: any;
@@ -27,6 +28,12 @@ export class InactivityService implements OnDestroy {
       return;
     }
 
+    // Check if user was inactive while away (tab closed, browser closed)
+    if (this.checkStoredActivity()) {
+      // User was inactive for too long - logout immediately
+      return;
+    }
+
     // Listen for user activity
     const events = ['mousedown', 'mousemove', 'keydown', 'scroll', 'touchstart', 'click'];
 
@@ -37,6 +44,47 @@ export class InactivityService implements OnDestroy {
     });
 
     this.resetTimer();
+  }
+
+  /**
+   * Check if user was inactive while the app was closed
+   * Returns true if user should be logged out
+   */
+  private checkStoredActivity(): boolean {
+    if (typeof window === 'undefined') return false;
+
+    const lastActivity = localStorage.getItem(this.LAST_ACTIVITY_KEY);
+    if (lastActivity) {
+      const lastActivityTime = parseInt(lastActivity, 10);
+      const timeSinceLastActivity = Date.now() - lastActivityTime;
+
+      if (timeSinceLastActivity >= this.INACTIVITY_TIMEOUT) {
+        // User was inactive for too long - logout
+        this.ngZone.run(() => {
+          this.logoutDueToInactivity();
+        });
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Store the last activity timestamp
+   */
+  private storeLastActivity(): void {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(this.LAST_ACTIVITY_KEY, Date.now().toString());
+    }
+  }
+
+  /**
+   * Clear stored activity timestamp
+   */
+  private clearStoredActivity(): void {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(this.LAST_ACTIVITY_KEY);
+    }
   }
 
   stopWatching(): void {
@@ -53,6 +101,9 @@ export class InactivityService implements OnDestroy {
       this.stopWatching();
       return;
     }
+
+    // Store the current activity time
+    this.storeLastActivity();
 
     this.clearTimers();
     this.isWarningShown = false;
@@ -75,7 +126,7 @@ export class InactivityService implements OnDestroy {
     this.isWarningShown = true;
 
     this.ngZone.run(() => {
-      const stay = confirm('Vous allez etre deconnecte dans 1 minute pour inactivite. Voulez-vous rester connecte ?');
+      const stay = confirm('Vous allez être déconnecté dans 5 minutes pour inactivité. Voulez-vous rester connecté ?');
       if (stay) {
         this.resetTimer();
       }
@@ -84,8 +135,9 @@ export class InactivityService implements OnDestroy {
 
   private logoutDueToInactivity(): void {
     this.stopWatching();
+    this.clearStoredActivity();
     this.authService.logout();
-    alert('Vous avez ete deconnecte pour inactivite.');
+    alert('Vous avez été déconnecté pour inactivité (plus d\'une heure sans activité).');
   }
 
   private clearTimers(): void {

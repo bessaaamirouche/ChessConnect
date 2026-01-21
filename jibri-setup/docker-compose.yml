@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  jibri:
+    image: jitsi/jibri:stable
+    container_name: jibri
+    restart: unless-stopped
+    volumes:
+      - /var/jibri/recordings:/config/recordings
+      - ./finalize.sh:/config/finalize.sh:ro
+      - /dev/shm:/dev/shm
+    environment:
+      # XMPP Configuration
+      - XMPP_AUTH_DOMAIN=auth.meet.mychess.fr
+      - XMPP_INTERNAL_MUC_DOMAIN=internal.auth.meet.mychess.fr
+      - XMPP_RECORDER_DOMAIN=recorder.meet.mychess.fr
+      - XMPP_SERVER=meet.mychess.fr
+      - XMPP_PORT=5222
+
+      # Jibri credentials (CHANGE THESE!)
+      - JIBRI_XMPP_USER=jibri
+      - JIBRI_XMPP_PASSWORD=${JIBRI_XMPP_PASSWORD:-CHANGE_ME_SECURE_PASSWORD}
+      - JIBRI_BREWERY_MUC=jibribrewery
+
+      # Recording settings
+      - JIBRI_RECORDING_DIR=/config/recordings
+      - JIBRI_FINALIZE_RECORDING_SCRIPT_PATH=/config/finalize.sh
+      - JIBRI_STRIP_DOMAIN_FROM_ROOM_NAME=false
+
+      # Display settings
+      - DISPLAY=:0
+      - TZ=Europe/Paris
+
+      # Recording quality (720p)
+      - JIBRI_RECORDING_RESOLUTION=1280x720
+      - JIBRI_USAGE_TIMEOUT=0
+
+    cap_add:
+      - SYS_ADMIN
+    shm_size: '2gb'
+    network_mode: host

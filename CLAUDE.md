@@ -421,6 +421,14 @@ cat .env
 ### CORS errors
 Verifier que `FRONTEND_URL` dans `docker-compose.yml` correspond a l'URL utilisee.
 
+## Problemes Connus
+
+### Enregistrement video Jitsi
+- **Statut** : Non fonctionnel
+- L'enregistrement automatique des cours via Jitsi Meet ne fonctionne pas encore
+- La commande `startRecording` est appelee mais Jitsi necessite une configuration serveur specifique (Jibri) pour l'enregistrement
+- A investiguer : configuration Jibri sur le serveur meet.mychess.fr ou solution alternative
+
 ## Fonctionnalites a Implementer
 
 ### 1. Evaluation des Professeurs

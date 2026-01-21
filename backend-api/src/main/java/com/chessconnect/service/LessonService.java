@@ -563,7 +563,7 @@ public class LessonService {
                     lesson.getId(), lesson.getCreatedAt());
 
             handleLessonCancellation(lesson, "SYSTEM",
-                    "Annulation automatique - le professeur n'a pas confirmé dans les 24h");
+                    "Annulation automatique - le coach n'a pas confirmé dans les 24h");
             lesson.setStatus(LessonStatus.CANCELLED);
             lessonRepository.save(lesson);
         }

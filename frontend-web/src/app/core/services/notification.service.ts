@@ -277,8 +277,8 @@ export class NotificationService implements OnDestroy {
           lessonsMap.set(l.id, {
             id: l.id,
             status: l.status,
-            teacherName: l.teacherName?.split(' ').pop() || 'Professeur', // Get last name
-            studentName: l.studentName || 'Eleve'
+            teacherName: l.teacherName?.split(' ').pop() || 'Coach', // Get last name
+            studentName: l.studentName || 'Joueur'
           });
         });
         return lessonsMap;

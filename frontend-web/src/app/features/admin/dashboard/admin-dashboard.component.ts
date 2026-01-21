@@ -22,7 +22,7 @@ import { AdminService, AdminStatsResponse } from '../../../core/services/admin.s
             <span class="stat-card__label">Utilisateurs</span>
             <span class="stat-card__value">{{ stats()!.totalUsers | number }}</span>
             <span class="stat-card__detail">
-              {{ stats()!.totalStudents }} eleves / {{ stats()!.totalTeachers }} profs
+              {{ stats()!.totalStudents }} joueurs / {{ stats()!.totalTeachers }} profs
             </span>
           </div>
 
@@ -57,7 +57,7 @@ import { AdminService, AdminStatsResponse } from '../../../core/services/admin.s
             </a>
             <a routerLink="/admin/accounting" class="action-card">
               <span class="action-card__title">Comptabilite</span>
-              <span class="action-card__desc">Revenus, commissions et soldes professeurs</span>
+              <span class="action-card__desc">Revenus, commissions et soldes coachs</span>
             </a>
           </div>
         </div>

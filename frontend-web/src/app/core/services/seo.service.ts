@@ -22,8 +22,8 @@ export class SeoService {
   private readonly siteName = 'mychess';
 
   setHomePage(): void {
-    const pageTitle = 'mychess - Cours d\'Échecs en Ligne avec les Meilleurs Professeurs';
-    const description = 'Apprenez les échecs avec des professeurs qualifiés. Cours particuliers en visioconférence, progression du niveau Pion au niveau Dame. Réservez votre première leçon.';
+    const pageTitle = 'mychess - Cours d\'Échecs en Ligne avec les Meilleurs Coachs';
+    const description = 'Apprenez les échecs avec des coachs qualifiés. Cours particuliers en visioconférence, progression du niveau Pion au niveau Dame. Réservez votre première leçon.';
 
     this.updateTags({
       title: pageTitle,
@@ -34,8 +34,8 @@ export class SeoService {
   }
 
   setTeachersListPage(): void {
-    const pageTitle = 'Nos Professeurs d\'Échecs - mychess';
-    const description = 'Découvrez nos professeurs d\'échecs qualifiés. Trouvez le professeur idéal pour progresser aux échecs avec des cours particuliers en ligne.';
+    const pageTitle = 'Nos Coachs d\'Échecs - mychess';
+    const description = 'Découvrez nos coachs d\'échecs qualifiés. Trouvez le coach idéal pour progresser aux échecs avec des cours particuliers en ligne.';
 
     this.updateTags({
       title: pageTitle,
@@ -47,10 +47,10 @@ export class SeoService {
 
   setTeacherProfilePage(teacher: Teacher): void {
     const fullName = `${teacher.firstName} ${teacher.lastName}`;
-    const pageTitle = `${fullName} - Professeur d'Échecs | mychess`;
+    const pageTitle = `${fullName} - Coach d'Échecs | mychess`;
     const description = teacher.bio
       ? teacher.bio.substring(0, 155) + (teacher.bio.length > 155 ? '...' : '')
-      : `Réservez un cours d'échecs avec ${fullName}. Professeur qualifié disponible pour des cours particuliers en visioconférence.`;
+      : `Réservez un cours d'échecs avec ${fullName}. Coach qualifié disponible pour des cours particuliers en visioconférence.`;
 
     this.updateTags({
       title: pageTitle,
@@ -62,7 +62,7 @@ export class SeoService {
 
   setRegisterPage(): void {
     const pageTitle = 'Inscription - mychess';
-    const description = 'Créez votre compte mychess. Inscrivez-vous comme élève ou professeur d\'échecs et commencez votre parcours d\'apprentissage.';
+    const description = 'Créez votre compte mychess. Inscrivez-vous comme joueur ou coach d\'échecs et commencez votre parcours d\'apprentissage.';
 
     this.updateTags({
       title: pageTitle,
@@ -201,7 +201,7 @@ export class SeoService {
    */
   setBlogListPage(): void {
     const pageTitle = 'Blog Echecs - Conseils et Strategies | mychess';
-    const description = 'Decouvrez nos articles sur les echecs : strategies, ouvertures, conseils pour progresser. Apprenez des meilleurs professeurs d\'echecs en ligne.';
+    const description = 'Decouvrez nos articles sur les echecs : strategies, ouvertures, conseils pour progresser. Apprenez des meilleurs coachs d\'echecs en ligne.';
 
     this.updateTags({
       title: pageTitle,
@@ -279,7 +279,7 @@ export class SeoService {
       'name': 'mychess',
       'url': this.baseUrl,
       'logo': `${this.baseUrl}/assets/logo.png`,
-      'description': 'Plateforme de cours d\'echecs en ligne avec des professeurs qualifies',
+      'description': 'Plateforme de cours d\'echecs en ligne avec des coachs qualifies',
       'sameAs': [],
       'contactPoint': {
         '@type': 'ContactPoint',

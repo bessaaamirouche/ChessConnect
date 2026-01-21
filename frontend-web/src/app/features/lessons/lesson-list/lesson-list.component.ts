@@ -245,10 +245,10 @@ export class LessonListComponent implements OnInit {
       const isTeacher = this.authService.isTeacher();
 
       if (lesson.cancelledBy === 'STUDENT') {
-        return isStudent ? 'Annulé par moi' : 'Annulé par l\'élève';
+        return isStudent ? 'Annulé par moi' : 'Annulé par l\'joueur';
       }
       if (lesson.cancelledBy === 'TEACHER') {
-        return isTeacher ? 'Annulé par moi' : 'Annulé par le prof';
+        return isTeacher ? 'Annulé par moi' : 'Annulé par le coach';
       }
       if (lesson.cancelledBy === 'SYSTEM') {
         return 'Annulé (auto)';

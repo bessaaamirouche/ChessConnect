@@ -29,7 +29,7 @@ import { AdminService, AccountingResponse, TeacherBalanceResponse } from '../../
                 <span class="stat-card__value">{{ formatCents(accounting()!.totalCommissionsCents) }}</span>
               </div>
               <div class="stat-card">
-                <span class="stat-card__label">Gains professeurs</span>
+                <span class="stat-card__label">Gains coachs</span>
                 <span class="stat-card__value">{{ formatCents(accounting()!.totalTeacherEarningsCents) }}</span>
               </div>
               <div class="stat-card stat-card--error">
@@ -57,15 +57,15 @@ import { AdminService, AccountingResponse, TeacherBalanceResponse } from '../../
 
         <!-- Teacher Balances -->
         <section class="section">
-          <h2>Soldes des professeurs - {{ currentMonthLabel() }}</h2>
+          <h2>Soldes des coachs - {{ currentMonthLabel() }}</h2>
           @if (balances().length === 0) {
-            <p class="empty">Aucun professeur avec un solde.</p>
+            <p class="empty">Aucun coach avec un solde.</p>
           } @else {
             <div class="table-container">
               <table class="table">
                 <thead>
                   <tr>
-                    <th>Professeur</th>
+                    <th>Coach</th>
                     <th>Ce mois</th>
                     <th>Total gagne</th>
                     <th>Infos bancaires</th>

@@ -79,14 +79,14 @@ public class ArticleDataInitializer implements CommandLineRunner {
         article3.setReadingTimeMinutes(12);
         articleRepository.save(article3);
 
-        // Article 4: Professeur en ligne
+        // Article 4: Coach en ligne
         Article article4 = new Article();
-        article4.setTitle("Trouver un professeur d'echecs en ligne : Le guide ultime");
-        article4.setSlug("trouver-professeur-echecs-en-ligne");
-        article4.setMetaDescription("Comment choisir le bon professeur d'echecs en ligne ? Criteres de selection, tarifs, formats de cours et avantages de l'apprentissage a distance.");
-        article4.setMetaKeywords("professeur echecs, cours echecs en ligne, coach echecs, apprendre echecs distance");
-        article4.setExcerpt("L'apprentissage en ligne a revolutionne la facon d'apprendre les echecs. Decouvrez comment trouver le professeur ideal pour accelerer votre progression.");
-        article4.setContent(getProfesseurArticleContent());
+        article4.setTitle("Trouver un coach d'echecs en ligne : Le guide ultime");
+        article4.setSlug("trouver-coach-echecs-en-ligne");
+        article4.setMetaDescription("Comment choisir le bon coach d'echecs en ligne ? Criteres de selection, tarifs, formats de cours et avantages de l'apprentissage a distance.");
+        article4.setMetaKeywords("coach echecs, cours echecs en ligne, coach echecs, apprendre echecs distance");
+        article4.setExcerpt("L'apprentissage en ligne a revolutionne la facon d'apprendre les echecs. Decouvrez comment trouver le coach ideal pour accelerer votre progression.");
+        article4.setContent(getCoachArticleContent());
         article4.setCoverImage("https://images.unsplash.com/photo-1560174038-da43ac74f01b?w=1200");
         article4.setAuthor("ChessConnect");
         article4.setCategory("conseils");
@@ -153,7 +153,7 @@ public class ArticleDataInitializer implements CommandLineRunner {
             1. **Jouez regulierement** : La pratique est essentielle
             2. **Analysez vos parties** : Comprenez vos erreurs
             3. **Etudiez les tactiques de base** : Fourchettes, clouages, enfilades
-            4. **Prenez des cours** : Un professeur accelerera votre progression
+            4. **Prenez des cours** : Un coach accelerera votre progression
 
             ## Conclusion
 
@@ -178,7 +178,7 @@ public class ArticleDataInitializer implements CommandLineRunner {
 
             ### 2. La Defense Sicilienne (1.e4 c5)
 
-            L'ouverture la plus populaire au niveau professionnel. Les noirs combattent immediatement pour le centre.
+            L'ouverture la plus populaire au niveau coachessionnel. Les noirs combattent immediatement pour le centre.
 
             **Avantages** : Positions dynamiques, nombreuses possibilites
             **Pour qui** : Joueurs aimant les positions tranchantes
@@ -221,7 +221,7 @@ public class ArticleDataInitializer implements CommandLineRunner {
         return """
             ## La methode ChessConnect pour progresser
 
-            Progresser aux echecs demande une approche structuree et de la regularite. Notre methode, testee par des centaines d'eleves, vous guide de debutant a expert.
+            Progresser aux echecs demande une approche structuree et de la regularite. Notre methode, testee par des centaines de joueurs, vous guide de debutant a expert.
 
             ## Les 5 niveaux de progression
 
@@ -266,7 +266,7 @@ public class ArticleDataInitializer implements CommandLineRunner {
             ### 3. Etude des finales
             Les finales sont souvent negligees mais cruciales. Maitrisez les finales de base (Roi et Tour, Roi et Pions).
 
-            ### 4. Cours avec un professeur
+            ### 4. Cours avec un coach
             Un coach identifie rapidement vos faiblesses et vous propose un plan de travail adapte.
 
             ## Le planning type
@@ -278,20 +278,20 @@ public class ArticleDataInitializer implements CommandLineRunner {
             | Mercredi | Partie en ligne + analyse | 1h |
             | Jeudi | Tactiques | 30 min |
             | Vendredi | Finales | 30 min |
-            | Samedi | Cours avec professeur | 1h |
+            | Samedi | Cours avec coach | 1h |
             | Dimanche | Tournoi en ligne | 2h |
 
             ## Conclusion
 
-            La progression aux echecs est un marathon, pas un sprint. Avec de la regularite et la bonne methode, vous atteindrez vos objectifs. Nos professeurs sont la pour vous accompagner a chaque etape.
+            La progression aux echecs est un marathon, pas un sprint. Avec de la regularite et la bonne methode, vous atteindrez vos objectifs. Nos coachs sont la pour vous accompagner a chaque etape.
             """;
     }
 
-    private String getProfesseurArticleContent() {
+    private String getCoachArticleContent() {
         return """
             ## Pourquoi prendre des cours d'echecs en ligne ?
 
-            L'apprentissage en ligne a revolutionne l'enseignement des echecs. Plus besoin de se deplacer dans un club : vous pouvez apprendre avec les meilleurs professeurs depuis votre salon.
+            L'apprentissage en ligne a revolutionne l'enseignement des echecs. Plus besoin de se deplacer dans un club : vous pouvez apprendre avec les meilleurs coachs depuis votre salon.
 
             ## Les avantages des cours en ligne
 
@@ -301,7 +301,7 @@ public class ArticleDataInitializer implements CommandLineRunner {
             - Possibilite de reporter facilement
 
             ### Qualite de l'enseignement
-            - Acces a des professeurs partout en France
+            - Acces a des coachs partout en France
             - Outils interactifs (ecran partage, analyse en temps reel)
             - Enregistrement des cours pour revision
 
@@ -310,22 +310,22 @@ public class ArticleDataInitializer implements CommandLineRunner {
             - Tarifs souvent plus avantageux
             - Formules d'abonnement flexibles
 
-            ## Comment choisir son professeur ?
+            ## Comment choisir son coach ?
 
             ### Les criteres essentiels
 
             1. **Le niveau de jeu**
-               - Verifiez le classement ELO du professeur
-               - Un bon professeur n'a pas besoin d'etre grand maitre
+               - Verifiez le classement ELO du coach
+               - Un bon coach n'a pas besoin d'etre grand maitre
                - L'important est qu'il soit significativement au-dessus de votre niveau
 
             2. **L'experience pedagogique**
                - Depuis combien de temps enseigne-t-il ?
-               - A-t-il des avis d'anciens eleves ?
+               - A-t-il des avis d'anciens joueurs ?
                - Est-il patient et pedagogue ?
 
             3. **La specialisation**
-               - Certains professeurs sont specialises (enfants, competition, etc.)
+               - Certains coachs sont specialises (enfants, competition, etc.)
                - Choisissez en fonction de vos objectifs
 
             4. **Le feeling**
@@ -343,14 +343,14 @@ public class ArticleDataInitializer implements CommandLineRunner {
 
             ## Pourquoi choisir ChessConnect ?
 
-            - **Professeurs verifies** : Tous nos coaches sont certifies
+            - **Coachs verifies** : Tous nos coaches sont certifies
             - **Flexibilite maximale** : Reservez 24h/24, 7j/7
             - **Progression suivie** : Un cursus adapte a votre niveau
             - **Satisfait ou rembourse** : Premier cours garanti
 
             ## Conclusion
 
-            Investir dans un professeur d'echecs est le moyen le plus efficace de progresser. Avec ChessConnect, trouvez le coach ideal et commencez votre progression des aujourd'hui.
+            Investir dans un coach d'echecs est le moyen le plus efficace de progresser. Avec ChessConnect, trouvez le coach ideal et commencez votre progression des aujourd'hui.
             """;
     }
 
@@ -398,7 +398,7 @@ public class ArticleDataInitializer implements CommandLineRunner {
             2. **Jouer avec lui** : Le partage est essentiel
             3. **Eviter la pression** : Le plaisir doit rester au centre
             4. **Celebrer les progres** : Meme les petites victoires comptent
-            5. **Trouver un bon professeur** : Un coach adapte fait toute la difference
+            5. **Trouver un bon coach** : Un coach adapte fait toute la difference
 
             ## Les echecs a l'ecole
 
@@ -409,7 +409,7 @@ public class ArticleDataInitializer implements CommandLineRunner {
 
             ## Conclusion
 
-            Les echecs sont un formidable outil de developpement pour les enfants. Chez ChessConnect, nos professeurs specialises savent rendre l'apprentissage passionnant et adapte a chaque jeune joueur.
+            Les echecs sont un formidable outil de developpement pour les enfants. Chez ChessConnect, nos coachs specialises savent rendre l'apprentissage passionnant et adapte a chaque jeune joueur.
             """;
     }
 }

@@ -21,7 +21,7 @@ import { PaymentService } from '../../core/services/payment.service';
           <p>Felicitations ! Votre abonnement <strong>{{ planName() }}</strong> est maintenant actif.</p>
           <p class="result-card__quota">Vous avez <strong>{{ monthlyQuota() }} cours</strong> disponibles ce mois.</p>
           <p class="result-card__details">
-            Vous pouvez desormais reserver vos cours avec les professeurs acceptant les abonnements.
+            Vous pouvez desormais reserver vos cours avec les coachs acceptant les abonnements.
           </p>
           <div class="result-card__actions">
             <a routerLink="/teachers" class="btn btn--primary btn--lg">Reserver un cours</a>

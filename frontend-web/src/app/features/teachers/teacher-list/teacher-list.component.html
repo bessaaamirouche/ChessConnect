@@ -6,9 +6,9 @@
         <img src="assets/logo.png" alt="mychess" class="sidebar__logo-img">
       </a>
       @if (authService.isStudent()) {
-        <span class="sidebar__badge sidebar__badge--student">Eleve</span>
+        <span class="sidebar__badge sidebar__badge--student">Joueur</span>
       } @else if (authService.isTeacher()) {
-        <span class="sidebar__badge sidebar__badge--teacher">Professeur</span>
+        <span class="sidebar__badge sidebar__badge--teacher">Coach</span>
       }
     </div>
 
@@ -34,7 +34,7 @@
             <ng-icon name="heroCreditCard" class="sidebar__icon"></ng-icon> Abonnement
           </a>
           <a routerLink="/teachers" class="sidebar__link active">
-            <ng-icon name="heroAcademicCap" class="sidebar__icon"></ng-icon> Trouver un Prof
+            <ng-icon name="heroAcademicCap" class="sidebar__icon"></ng-icon> Trouver un Coach
           </a>
         }
       </div>
@@ -55,7 +55,7 @@
   <main class="main-content">
     <header class="page-header">
       <div>
-        <h1 class="page-header__title">Nos Professeurs d'Échecs</h1>
+        <h1 class="page-header__title">Nos Coachs d'Échecs</h1>
         <p class="page-header__subtitle">Trouvez le coach parfait pour progresser à votre rythme</p>
       </div>
     </header>
@@ -113,7 +113,7 @@
       </div>
 
       <div class="search-results">
-        {{ filteredTeachers().length }} professeur{{ filteredTeachers().length > 1 ? 's' : '' }} trouvé{{ filteredTeachers().length > 1 ? 's' : '' }}
+        {{ filteredTeachers().length }} coach{{ filteredTeachers().length > 1 ? 's' : '' }} trouvé{{ filteredTeachers().length > 1 ? 's' : '' }}
       </div>
     </div>
 
@@ -131,9 +131,9 @@
           </p>
           <button class="btn btn--primary" (click)="clearFilters()">Réinitialiser les filtres</button>
         } @else {
-          <h3 class="empty-state__title">Aucun professeur disponible</h3>
+          <h3 class="empty-state__title">Aucun coach disponible</h3>
           <p class="empty-state__description">
-            Revenez bientôt, de nouveaux professeurs rejoignent la plateforme régulièrement !
+            Revenez bientôt, de nouveaux coachs rejoignent la plateforme régulièrement !
           </p>
         }
       </div>
@@ -189,7 +189,7 @@
 
             <div class="teacher-card__actions">
               <a [routerLink]="['/teachers', teacher.id]" class="btn btn--ghost btn--sm">
-                Voir le profil
+                Voir le coachil
               </a>
               @if (authService.isStudent()) {
                 <a [routerLink]="['/book', teacher.id]" class="btn btn--primary btn--sm">

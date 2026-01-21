@@ -2,7 +2,7 @@
   <div class="modal">
     <!-- Header -->
     <header class="modal__header">
-      <h2 class="modal__title">Profil de l'élève</h2>
+      <h2 class="modal__title">Profil de le joueur</h2>
       <button class="modal__close" (click)="closeModal()">
         <ng-icon name="heroXMark" size="24"></ng-icon>
       </button>
@@ -11,7 +11,7 @@
     @if (learningPathService.loading()) {
       <div class="modal__loading">
         <span class="spinner spinner--lg"></span>
-        <p>Chargement du profil...</p>
+        <p>Chargement du coachil...</p>
       </div>
     } @else if (learningPathService.studentProfile()) {
       <!-- Student Info -->

@@ -14,8 +14,8 @@ import { AdminService, UserListResponse, Page } from '../../../core/services/adm
         <div class="filters">
           <select [(ngModel)]="roleFilter" (change)="loadUsers(0)" class="input input--sm">
             <option value="">Tous les roles</option>
-            <option value="STUDENT">Eleves</option>
-            <option value="TEACHER">Professeurs</option>
+            <option value="STUDENT">Joueurs</option>
+            <option value="TEACHER">Coachs</option>
           </select>
         </div>
       </header>
@@ -387,8 +387,8 @@ export class UserListComponent implements OnInit {
 
   getRoleLabel(role: string): string {
     const labels: Record<string, string> = {
-      STUDENT: 'Eleve',
-      TEACHER: 'Professeur',
+      STUDENT: 'Joueur',
+      TEACHER: 'Coach',
       ADMIN: 'Admin'
     };
     return labels[role] || role;

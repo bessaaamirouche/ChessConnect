@@ -39,7 +39,7 @@ export class TeacherProfileComponent implements OnInit {
         this.structuredDataService.setTeacherSchema(teacher);
         this.structuredDataService.setBreadcrumbSchema([
           { name: 'Accueil', url: 'https://mychess.fr/' },
-          { name: 'Professeurs', url: 'https://mychess.fr/teachers' },
+          { name: 'Coachs', url: 'https://mychess.fr/teachers' },
           { name: `${teacher.firstName} ${teacher.lastName}`, url: `https://mychess.fr/teachers/${teacher.id}` }
         ]);
       });

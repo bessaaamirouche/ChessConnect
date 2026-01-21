@@ -21,9 +21,9 @@
         <img src="assets/logo.png" alt="mychess" class="sidebar__logo-img">
       </a>
       @if (authService.isStudent()) {
-        <span class="sidebar__badge sidebar__badge--student">Eleve</span>
+        <span class="sidebar__badge sidebar__badge--student">Joueur</span>
       } @else if (authService.isTeacher()) {
-        <span class="sidebar__badge sidebar__badge--teacher">Professeur</span>
+        <span class="sidebar__badge sidebar__badge--teacher">Coach</span>
       }
       <button class="sidebar__close" (click)="closeMobileMenu()">✕</button>
     </div>
@@ -50,7 +50,7 @@
             <ng-icon name="heroCreditCard" class="sidebar__icon"></ng-icon> Abonnement
           </a>
           <a routerLink="/teachers" class="sidebar__link" (click)="closeMobileMenu()">
-            <ng-icon name="heroAcademicCap" class="sidebar__icon"></ng-icon> Trouver un Prof
+            <ng-icon name="heroAcademicCap" class="sidebar__icon"></ng-icon> Trouver un Coach
           </a>
         }
       </div>
@@ -175,7 +175,7 @@
             </div>
             <div class="subscription-status-card__info">
               <span class="subscription-status-card__info-icon"><ng-icon name="heroCheck" size="18"></ng-icon></span>
-              <span>Reservez chez les profs acceptant les abonnements sans payer</span>
+              <span>Reservez chez les coachs acceptant les abonnements sans payer</span>
             </div>
           </div>
         </div>
@@ -244,13 +244,13 @@
           <h3 class="empty-state__title">Aucun cours prévu</h3>
           <p class="empty-state__description">
             @if (authService.isStudent()) {
-              Trouvez un professeur et réservez votre premier cours !
+              Trouvez un coach et réservez votre premier cours !
             } @else {
               Vos prochains cours apparaîtront ici
             }
           </p>
           @if (authService.isStudent()) {
-            <a routerLink="/teachers" class="btn btn--primary">Trouver un professeur</a>
+            <a routerLink="/teachers" class="btn btn--primary">Trouver un coach</a>
           }
         </div>
       } @else {
@@ -357,7 +357,7 @@
             <div class="form-group">
               <label class="checkbox">
                 <input type="checkbox" formControlName="acceptsSubscription">
-                <span>J'accepte les élèves avec abonnement</span>
+                <span>J'accepte les joueurs avec abonnement</span>
               </label>
             </div>
 
@@ -437,7 +437,7 @@
       <div class="settings-panel__content">
         <!-- Profile Section -->
         <section class="settings-section">
-          <h3>Informations du profil</h3>
+          <h3>Informations du coachil</h3>
 
           @if (settingsSuccess()) {
             <div class="alert alert--success">Profil mis a jour !</div>
@@ -470,7 +470,7 @@
               <div class="form-group">
                 <label class="checkbox">
                   <input type="checkbox" formControlName="acceptsSubscription">
-                  <span>J'accepte les eleves avec abonnement</span>
+                  <span>J'accepte les joueurs avec abonnement</span>
                 </label>
               </div>
 

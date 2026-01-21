@@ -109,7 +109,7 @@ export class LearningPathService {
         this.loadingSignal.set(false);
       }),
       catchError(error => {
-        this.errorSignal.set('Impossible de charger le profil');
+        this.errorSignal.set('Impossible de charger le coachil');
         this.loadingSignal.set(false);
         throw error;
       })

@@ -37,8 +37,8 @@ import { AdminService, AdminLessonResponse } from '../../../core/services/admin.
               <tr>
                 <th>Date</th>
                 <th>Heure</th>
-                <th>Professeur</th>
-                <th>Eleve</th>
+                <th>Coach</th>
+                <th>Joueur</th>
                 <th>Statut</th>
                 <th>Prix</th>
                 <th>Actions</th>

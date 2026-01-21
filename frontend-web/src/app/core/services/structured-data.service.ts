@@ -23,7 +23,7 @@ export class StructuredDataService {
       name: 'mychess',
       alternateName: 'MyChess',
       url: this.baseUrl,
-      description: 'Plateforme de cours d\'échecs en ligne avec les meilleurs professeurs. Progressez du niveau Pion au niveau Dame.',
+      description: 'Plateforme de cours d\'échecs en ligne avec les meilleurs coachs. Progressez du niveau Pion au niveau Dame.',
       foundingDate: '2024',
       areaServed: 'FR',
       serviceType: 'Cours d\'échecs en ligne'
@@ -38,8 +38,8 @@ export class StructuredDataService {
       '@type': 'Person',
       name: `${teacher.firstName} ${teacher.lastName}`,
       url: `${this.baseUrl}/teachers/${teacher.id}`,
-      jobTitle: 'Professeur d\'échecs',
-      description: teacher.bio || `Professeur d'échecs disponible pour des cours particuliers en visioconférence.`,
+      jobTitle: 'Coach d\'échecs',
+      description: teacher.bio || `Coach d'échecs disponible pour des cours particuliers en visioconférence.`,
       worksFor: {
         '@type': 'Organization',
         name: 'mychess',
@@ -55,7 +55,7 @@ export class StructuredDataService {
       '@context': 'https://schema.org',
       '@type': 'Course',
       name: 'Cours d\'Échecs en Ligne',
-      description: 'Apprenez les échecs avec des professeurs qualifiés. Progression structurée du niveau Pion au niveau Dame.',
+      description: 'Apprenez les échecs avec des coachs qualifiés. Progression structurée du niveau Pion au niveau Dame.',
       provider: {
         '@type': 'Organization',
         name: 'mychess',
@@ -66,7 +66,7 @@ export class StructuredDataService {
         courseMode: 'online',
         instructor: {
           '@type': 'Person',
-          name: 'Professeurs qualifiés'
+          name: 'Coachs qualifiés'
         }
       }
     };

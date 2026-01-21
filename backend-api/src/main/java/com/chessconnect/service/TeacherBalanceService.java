@@ -19,7 +19,7 @@ public class TeacherBalanceService {
 
     private static final Logger log = LoggerFactory.getLogger(TeacherBalanceService.class);
 
-    // Prix fixe pour un cours via abonnement (ce que le prof reçoit)
+    // Prix fixe pour un cours via abonnement (ce que le coach reçoit)
     public static final int SUBSCRIPTION_LESSON_PRICE_CENTS = 1500; // 15€
 
     private final TeacherBalanceRepository teacherBalanceRepository;
@@ -51,7 +51,7 @@ public class TeacherBalanceService {
 
         int earningsCents;
         if (Boolean.TRUE.equals(lesson.getIsFromSubscription())) {
-            // Pour les cours d'abonnement, le prof reçoit un montant fixe
+            // Pour les cours d'abonnement, le coach reçoit un montant fixe
             earningsCents = SUBSCRIPTION_LESSON_PRICE_CENTS;
             log.info("Crediting subscription lesson earnings: {}€ for teacher {}",
                     earningsCents / 100.0, teacherId);
@@ -61,12 +61,12 @@ public class TeacherBalanceService {
             if (teacherEarnings != null && teacherEarnings > 0) {
                 earningsCents = teacherEarnings;
             } else if (lesson.getPriceCents() != null && lesson.getPriceCents() > 0) {
-                // Fallback: calculer les gains à partir du prix (85% pour le prof)
+                // Fallback: calculer les gains à partir du prix (85% pour le coach)
                 earningsCents = (lesson.getPriceCents() * 85) / 100;
                 log.warn("TeacherEarningsCents was null for lesson {}, calculated from price: {}€",
                         lesson.getId(), earningsCents / 100.0);
             } else {
-                // Dernier recours: utiliser le tarif horaire du prof
+                // Dernier recours: utiliser le tarif horaire du coach
                 earningsCents = lesson.getTeacher().getHourlyRateCents() != null
                         ? (lesson.getTeacher().getHourlyRateCents() * 85) / 100
                         : 0;

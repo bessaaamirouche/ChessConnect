@@ -1,6 +1,6 @@
 # mychess - Plateforme de Cours d'Echecs
 
-Plateforme de mise en relation Profs/Eleves d'echecs avec systeme de progression standardise.
+Plateforme de mise en relation Profs/Joueurs d'echecs avec systeme de progression standardise.
 
 ## Demarrage Rapide (Docker)
 
@@ -54,7 +54,7 @@ Apres le premier demarrage, creez un compte via l'interface:
 
 1. Allez sur http://localhost:4200
 2. Cliquez sur "S'inscrire"
-3. Choisissez "Eleve" ou "Professeur"
+3. Choisissez "Joueur" ou "Coach"
 4. Remplissez le formulaire
 
 ## Deploiement sur VPS
@@ -101,12 +101,12 @@ sudo ufw allow 8282
 
 ## Fonctionnalites
 
-- **Inscription Eleve/Professeur** : Creation de compte avec roles et badges visuels
-- **Premier Cours Offert** : Les nouveaux eleves beneficient d'un premier cours gratuit
+- **Inscription Joueur/Coach** : Creation de compte avec roles et badges visuels
+- **Premier Cours Offert** : Les nouveaux joueurs beneficient d'un premier cours gratuit
 - **Quiz d'Evaluation** : Determinez votre niveau d'echecs (Pion, Cavalier, Fou, Tour, Dame)
 - **Parcours d'Apprentissage** : 50 cours structures par niveau
-- **Reservation de Cours** : Reservez des sessions avec des professeurs
-- **Disponibilites 24h/24** : Les professeurs peuvent creer des creneaux a n'importe quelle heure
+- **Reservation de Cours** : Reservez des sessions avec des coachs
+- **Disponibilites 24h/24** : Les coachs peuvent creer des creneaux a n'importe quelle heure
 - **Reservations urgentes** : Les creneaux restent visibles jusqu'a 5 min apres l'heure de debut
 - **Suivi de Progression** : Suivez votre parcours d'apprentissage
 - **Abonnements** : 3 formules (1, 2 ou 3 cours/semaine)
@@ -120,15 +120,15 @@ sudo ufw allow 8282
 
 - **Prof ne confirme pas sous 24h** : Annulation auto + remboursement 100%
 - **Prof annule** : Remboursement 100%
-- **Eleve annule > 24h avant** : Remboursement 100%
-- **Eleve annule 2-24h avant** : Remboursement 50%
-- **Eleve annule < 2h avant** : Pas de remboursement
-- **Cours abonnement** : Quota restaure (sauf annulation tardive eleve)
-- Affichage dynamique du statut : "Annule par moi" / "Annule par le prof" / "Annule par l'eleve" / "Annule (auto)"
+- **Joueur annule > 24h avant** : Remboursement 100%
+- **Joueur annule 2-24h avant** : Remboursement 50%
+- **Joueur annule < 2h avant** : Pas de remboursement
+- **Cours abonnement** : Quota restaure (sauf annulation tardive joueur)
+- Affichage dynamique du statut : "Annule par moi" / "Annule par le coach" / "Annule par le joueur" / "Annule (auto)"
 
 ### Premier Cours Offert
 
-- Les nouveaux eleves peuvent reserver leur premier cours gratuitement
+- Les nouveaux joueurs peuvent reserver leur premier cours gratuitement
 - Banniere promotionnelle sur la page de reservation
 - Bouton vert "Reserver gratuitement" au lieu du paiement classique
 - Tracking via le champ `hasUsedFreeTrial` sur le User
@@ -189,7 +189,7 @@ Le frontend demarre sur `http://localhost:4200`
 │   │   │   ├── /progress     # Suivi de progression
 │   │   │   ├── /quiz         # Quiz d'evaluation de niveau
 │   │   │   ├── /subscription # Gestion des abonnements
-│   │   │   └── /teachers     # Liste et profil des profs
+│   │   │   └── /teachers     # Liste et profil des coachs
 │   │   └── /shared           # Composants partages (toast, modals, video-call, etc.)
 │   ├── /src/assets
 │   │   ├── logo.svg          # Logo vectoriel mychess
@@ -211,21 +211,21 @@ Le frontend demarre sur `http://localhost:4200`
 
 ## Specifications Metier
 
-- **Cursus Standardise:** 5 niveaux (Pion, Cavalier, Fou, Tour, Dame). L'eleve progresse meme s'il change de prof.
+- **Cursus Standardise:** 5 niveaux (Pion, Cavalier, Fou, Tour, Dame). Le joueur progresse meme s'il change de prof.
 - **Quiz d'Evaluation:** 25 questions (5 par niveau) pour determiner le niveau initial
 - **Reservations:** Sessions d'une heure via Jitsi Meet
-- **Disponibilites:** Le prof cree des creneaux d'au moins 1h pour permettre une reservation
+- **Disponibilites:** Le coach cree des creneaux d'au moins 1h pour permettre une reservation
 - **Abonnements:** 69€/mois (3 cours/mois), 129€/mois (6 cours/mois), 179€/mois (9 cours/mois)
-- **Commission:** 10% preleves par la plateforme
-- **Premier Cours Offert:** Un cours gratuit pour les nouveaux eleves
+- **Commission:** 10% prjoueurs par la plateforme
+- **Premier Cours Offert:** Un cours gratuit pour les nouveaux joueurs
 
 ### Gestion des cours (Lessons)
 
-- Reservation de cours avec un professeur
-- Premier cours offert pour les nouveaux eleves
-- Confirmation/Annulation par le professeur
+- Reservation de cours avec un coach
+- Premier cours offert pour les nouveaux joueurs
+- Confirmation/Annulation par le coach
 - Statuts : PENDING, CONFIRMED, COMPLETED, CANCELLED, NO_SHOW
-- Affichage des informations eleve pour le prof (niveau, age, ELO)
+- Affichage des informations joueur pour le coach (niveau, age, ELO)
 - Raison d'annulation visible (tooltip)
 - Suppression de l'historique
 - Visioconference integree (Jitsi)
@@ -235,12 +235,12 @@ Le frontend demarre sur `http://localhost:4200`
 - Niveaux d'echecs : Pion, Cavalier, Fou, Tour, Dame
 - Cours par niveau (grades) avec accordeon
 - Statuts cours : LOCKED, IN_PROGRESS, PENDING_VALIDATION, COMPLETED
-- Validation des cours par le professeur uniquement
-- Modale profil eleve (cote prof) avec progression et validation
+- Validation des cours par le coach uniquement
+- Modale coachil joueur (cote prof) avec progression et validation
 
 ### Interface Utilisateur
 
-- **Badges de role** : Eleve (bleu), Professeur (violet), Admin (dore) dans la sidebar
+- **Badges de role** : Joueur (bleu), Coach (violet), Admin (dore) dans la sidebar
 - **Design responsive** : Optimise pour mobile avec touch targets accessibles
 - **Landing page** : Style Apple avec animations au scroll, sections plein ecran
 - **Theme sombre** : Interface elegante avec accents dores
@@ -266,11 +266,11 @@ Le frontend demarre sur `http://localhost:4200`
 | GET     | `/me`             | Ma progression                  | STUDENT |
 | GET     | `/learning-path`  | Parcours d'apprentissage        | STUDENT |
 
-### Professeurs (`/api/teachers`)
+### Coachs (`/api/teachers`)
 | Methode | Endpoint        | Description                        | Auth |
 |---------|-----------------|------------------------------------|------|
-| GET     | `/`             | Liste tous les professeurs         | Non  |
-| GET     | `/{id}`         | Detail d'un professeur             | Non  |
+| GET     | `/`             | Liste tous les coachs         | Non  |
+| GET     | `/{id}`         | Detail d'un coach             | Non  |
 
 ### Disponibilites (`/api/availabilities`)
 | Methode | Endpoint              | Description                     | Auth    |
@@ -278,7 +278,7 @@ Le frontend demarre sur `http://localhost:4200`
 | POST    | `/`                   | Creer une disponibilite         | TEACHER |
 | GET     | `/me`                 | Mes disponibilites              | TEACHER |
 | DELETE  | `/{id}`               | Supprimer une disponibilite     | TEACHER |
-| GET     | `/teacher/{id}/slots` | Creneaux disponibles d'un prof  | Non     |
+| GET     | `/teacher/{id}/slots` | Creneaux disponibles d'un coach  | Non     |
 
 ### Cours (`/api/lessons`)
 | Methode | Endpoint               | Description                     | Auth    |
@@ -429,25 +429,25 @@ Verifier que `FRONTEND_URL` dans `docker-compose.yml` correspond a l'URL utilise
 - La commande `startRecording` est appelee mais Jitsi necessite une configuration serveur specifique (Jibri) pour l'enregistrement
 - A investiguer : configuration Jibri sur le serveur meet.mychess.fr ou solution alternative
 
-### Paiement des professeurs via Stripe
+### Paiement des coachs via Stripe
 - **Statut** : Non implemente
 - Actuellement le bouton "Marquer comme paye" ne fait que changer le statut visuellement
-- **Requis** : Un vrai bouton qui effectue un virement Stripe (Stripe Connect / Transfer) vers le compte du professeur sans quitter l'application
-- Le professeur doit pouvoir renseigner ses informations bancaires (RIB, infos entreprise) dans son profil
-- A implementer : Stripe Connect Onboarding pour les profs + API Transfer pour les paiements admin
+- **Requis** : Un vrai bouton qui effectue un virement Stripe (Stripe Connect / Transfer) vers le compte du coach sans quitter l'application
+- Le coach doit pouvoir renseigner ses informations bancaires (RIB, infos entreprise) dans son profil
+- A implementer : Stripe Connect Onboarding pour les coachs + API Transfer pour les paiements admin
 
 ## Fonctionnalites a Implementer
 
-### 1. Evaluation des Professeurs
-- Apres la fin d'un cours, l'eleve peut evaluer le professeur sur 5 etoiles
-- La note moyenne est affichee sur le profil du professeur
+### 1. Evaluation des Coachs
+- Apres la fin d'un cours, le joueur peut evaluer le coach sur 5 etoiles
+- La note moyenne est affichee sur le coachil du coach
 
-### 2. Professeurs Favoris et Abonnement
-- L'eleve peut mettre un professeur en favori pour le voir en haut de la liste lors de la reservation
-- Bouton "S'abonner" pour recevoir un email quand le professeur publie de nouveaux creneaux
+### 2. Coachs Favoris et Abonnement
+- Le joueur peut mettre un coach en favori pour le voir en haut de la liste lors de la reservation
+- Bouton "S'abonner" pour recevoir un email quand le coach publie de nouveaux creneaux
 
 ### 3. Integration Google Calendar
-- Ajouter automatiquement les creneaux reserves dans l'agenda Google de l'eleve et du professeur
+- Ajouter automatiquement les creneaux reserves dans l'agenda Google de le joueur et du coach
 
 ### 4. Rappel par Email
 - Envoyer un email de rappel 1 heure avant le cours
@@ -457,4 +457,4 @@ Verifier que `FRONTEND_URL` dans `docker-compose.yml` correspond a l'URL utilise
 Lorsqu'un appel video est lance, la session doit etre :
 - Enregistree automatiquement
 - Stockee sur le serveur
-- Accessible ulterieurement pour consultation par l'admin en cas d'infraction du prof (signale par l'etudiant) et accessible dans l'historique des cours de chaque eleve pour revisionner le cours
+- Accessible ulterieurement pour consultation par l'admin en cas d'infraction du coach (signale par l'etudiant) et accessible dans l'historique des cours de chaque joueur pour revisionner le cours

@@ -47,17 +47,32 @@ $text-muted: #6b6965;
   padding: var(--space-md) var(--space-lg);
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 
+  // On mobile, hide the nav bar - only hamburger is visible (position: fixed separately)
+  @include respond-down(lg) {
+    background: transparent;
+    pointer-events: none; // Let clicks pass through except on children
+
+    .nav__logo,
+    .nav__actions {
+      display: none;
+    }
+
+    .nav__hamburger,
+    .nav__links,
+    .nav__mobile-overlay {
+      pointer-events: auto; // Re-enable clicks on these elements
+    }
+  }
+
   @include respond-to(lg) {
     padding: var(--space-lg) var(--space-xl);
   }
 
   &--scrolled {
-    background: rgba($bg-dark, 0.9);
-    backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba($gold, 0.1);
-    padding: var(--space-sm) var(--space-lg);
-
     @include respond-to(lg) {
+      background: rgba($bg-dark, 0.9);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba($gold, 0.1);
       padding: var(--space-md) var(--space-xl);
     }
   }

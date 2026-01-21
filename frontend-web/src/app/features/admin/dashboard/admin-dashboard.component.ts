@@ -77,13 +77,32 @@ import { AdminService, AdminStatsResponse } from '../../../core/services/admin.s
         font-weight: 700;
         margin-bottom: var(--space-xs);
       }
+
+      @media (max-width: 767px) {
+        margin-bottom: var(--space-lg);
+
+        h1 {
+          font-size: 1.25rem;
+        }
+      }
     }
 
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      grid-template-columns: repeat(4, 1fr);
       gap: var(--space-lg);
       margin-bottom: var(--space-2xl);
+
+      @media (max-width: 1023px) {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-md);
+      }
+
+      @media (max-width: 480px) {
+        grid-template-columns: 1fr;
+        gap: var(--space-sm);
+        margin-bottom: var(--space-xl);
+      }
     }
 
     .stat-card {
@@ -93,6 +112,10 @@ import { AdminService, AdminStatsResponse } from '../../../core/services/admin.s
       padding: var(--space-lg);
       display: flex;
       flex-direction: column;
+
+      @media (max-width: 767px) {
+        padding: var(--space-md);
+      }
 
       &--gold {
         border-color: var(--gold-500);
@@ -112,6 +135,10 @@ import { AdminService, AdminStatsResponse } from '../../../core/services/admin.s
         font-size: 1.75rem;
         font-weight: 700;
         color: var(--text-primary);
+
+        @media (max-width: 767px) {
+          font-size: 1.5rem;
+        }
       }
 
       &__detail {
@@ -131,8 +158,13 @@ import { AdminService, AdminStatsResponse } from '../../../core/services/admin.s
 
     .action-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      grid-template-columns: repeat(2, 1fr);
       gap: var(--space-md);
+
+      @media (max-width: 640px) {
+        grid-template-columns: 1fr;
+        gap: var(--space-sm);
+      }
     }
 
     .action-card {
@@ -142,6 +174,10 @@ import { AdminService, AdminStatsResponse } from '../../../core/services/admin.s
       padding: var(--space-lg);
       text-decoration: none;
       transition: all var(--transition-fast);
+
+      @media (max-width: 767px) {
+        padding: var(--space-md);
+      }
 
       &:hover {
         border-color: var(--gold-500);

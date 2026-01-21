@@ -11,6 +11,7 @@ import com.chessconnect.model.enums.LessonStatus;
 import com.chessconnect.model.enums.UserRole;
 import com.chessconnect.model.TeacherPayout;
 import com.chessconnect.repository.*;
+import com.stripe.model.Transfer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -36,6 +37,7 @@ public class AdminService {
     private final TeacherBalanceRepository teacherBalanceRepository;
     private final RatingRepository ratingRepository;
     private final TeacherPayoutRepository teacherPayoutRepository;
+    private final StripeConnectService stripeConnectService;
 
     public AdminService(
             UserRepository userRepository,
@@ -44,7 +46,8 @@ public class AdminService {
             PaymentRepository paymentRepository,
             TeacherBalanceRepository teacherBalanceRepository,
             RatingRepository ratingRepository,
-            TeacherPayoutRepository teacherPayoutRepository
+            TeacherPayoutRepository teacherPayoutRepository,
+            StripeConnectService stripeConnectService
     ) {
         this.userRepository = userRepository;
         this.lessonRepository = lessonRepository;
@@ -53,6 +56,7 @@ public class AdminService {
         this.teacherBalanceRepository = teacherBalanceRepository;
         this.ratingRepository = ratingRepository;
         this.teacherPayoutRepository = teacherPayoutRepository;
+        this.stripeConnectService = stripeConnectService;
     }
 
     /**
@@ -249,6 +253,12 @@ public class AdminService {
                     .findByTeacherIdAndYearMonth(teacher.getId(), currentYearMonth)
                     .orElse(null);
 
+            // Check Stripe Connect status
+            boolean stripeConnectEnabled = teacher.getStripeConnectAccountId() != null &&
+                    !teacher.getStripeConnectAccountId().isBlank();
+            boolean stripeConnectReady = stripeConnectEnabled &&
+                    Boolean.TRUE.equals(teacher.getStripeConnectOnboardingComplete());
+
             return new TeacherBalanceListResponse(
                     teacher.getId(),
                     teacher.getFirstName(),
@@ -268,18 +278,27 @@ public class AdminService {
                     // Current month payout status
                     payout != null && payout.getIsPaid(),
                     currentMonthEarnings,
-                    currentMonthLessons.size()
+                    currentMonthLessons.size(),
+                    // Stripe Connect status
+                    stripeConnectEnabled,
+                    stripeConnectReady
             );
         }).toList();
     }
 
     /**
-     * Mark a teacher as paid for a specific month
+     * Mark a teacher as paid for a specific month.
+     * This performs a real Stripe Connect transfer to the teacher's connected account.
      */
     @Transactional
-    public void markTeacherPaid(Long teacherId, String yearMonth, String paymentReference, String notes) {
+    public TeacherPayoutResult markTeacherPaid(Long teacherId, String yearMonth, String paymentReference, String notes) {
         User teacher = userRepository.findById(teacherId)
-                .orElseThrow(() -> new IllegalArgumentException("Teacher not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Coach non trouve"));
+
+        // Verify teacher has Stripe Connect set up
+        if (teacher.getStripeConnectAccountId() == null || teacher.getStripeConnectAccountId().isBlank()) {
+            throw new IllegalArgumentException("Le coach n'a pas configure son compte Stripe Connect");
+        }
 
         // Get or create payout record
         TeacherPayout payout = teacherPayoutRepository
@@ -290,6 +309,11 @@ public class AdminService {
                     newPayout.setYearMonth(yearMonth);
                     return newPayout;
                 });
+
+        // Check if already paid
+        if (payout.getIsPaid() != null && payout.getIsPaid()) {
+            throw new IllegalArgumentException("Le coach a deja ete paye pour ce mois");
+        }
 
         // Calculate earnings for that month
         YearMonth ym = YearMonth.parse(yearMonth);
@@ -306,16 +330,40 @@ public class AdminService {
                 .mapToInt(l -> l.getTeacherEarningsCents() != null ? l.getTeacherEarningsCents() : 0)
                 .sum();
 
+        if (earnings <= 0) {
+            throw new IllegalArgumentException("Aucun gain a transferer pour ce mois");
+        }
+
+        // Perform the Stripe transfer
+        String stripeTransferId = null;
+        try {
+            Transfer transfer = stripeConnectService.payTeacher(teacher, earnings, yearMonth);
+            stripeTransferId = transfer.getId();
+            log.info("Stripe transfer {} created for teacher {} - {} cents", stripeTransferId, teacherId, earnings);
+        } catch (Exception e) {
+            log.error("Failed to create Stripe transfer for teacher {}", teacherId, e);
+            throw new RuntimeException("Erreur lors du transfert Stripe: " + e.getMessage());
+        }
+
+        // Update payout record
         payout.setAmountCents(earnings);
         payout.setLessonsCount(monthLessons.size());
         payout.setIsPaid(true);
         payout.setPaidAt(LocalDateTime.now());
         payout.setPaymentReference(paymentReference);
         payout.setNotes(notes);
+        payout.setStripeTransferId(stripeTransferId);
 
         teacherPayoutRepository.save(payout);
-        log.info("Marked teacher {} as paid for {}: {} cents", teacherId, yearMonth, earnings);
+        log.info("Marked teacher {} as paid for {}: {} cents (transfer: {})", teacherId, yearMonth, earnings, stripeTransferId);
+
+        return new TeacherPayoutResult(earnings, stripeTransferId, monthLessons.size());
     }
+
+    /**
+     * Result record for teacher payout
+     */
+    public record TeacherPayoutResult(int amountCents, String stripeTransferId, int lessonsCount) {}
 
     /**
      * Get all subscriptions

@@ -118,19 +118,38 @@ public class AdminController {
     }
 
     /**
-     * Mark a teacher as paid for a specific month
+     * Mark a teacher as paid for a specific month.
+     * Performs a real Stripe Connect transfer to the teacher's account.
      */
     @PostMapping("/accounting/teachers/{teacherId}/pay")
     public ResponseEntity<?> markTeacherPaid(
             @PathVariable Long teacherId,
             @RequestBody Map<String, String> request
     ) {
-        String yearMonth = request.getOrDefault("yearMonth", java.time.YearMonth.now().toString());
-        String paymentReference = request.getOrDefault("paymentReference", "");
-        String notes = request.getOrDefault("notes", "");
+        try {
+            String yearMonth = request.getOrDefault("yearMonth", java.time.YearMonth.now().toString());
+            String paymentReference = request.getOrDefault("paymentReference", "");
+            String notes = request.getOrDefault("notes", "");
 
-        adminService.markTeacherPaid(teacherId, yearMonth, paymentReference, notes);
-        return ResponseEntity.ok(Map.of("message", "Teacher marked as paid successfully"));
+            var result = adminService.markTeacherPaid(teacherId, yearMonth, paymentReference, notes);
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", "Transfert effectue avec succes",
+                    "amountCents", result.amountCents(),
+                    "stripeTransferId", result.stripeTransferId() != null ? result.stripeTransferId() : "",
+                    "lessonsCount", result.lessonsCount()
+            ));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "message", e.getMessage()
+            ));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(500).body(Map.of(
+                    "success", false,
+                    "message", e.getMessage()
+            ));
+        }
     }
 
     /**

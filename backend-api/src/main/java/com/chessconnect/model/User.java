@@ -88,6 +88,13 @@ public class User {
     @Column(name = "company_name")
     private String companyName;
 
+    // Stripe Connect integration
+    @Column(name = "stripe_connect_account_id")
+    private String stripeConnectAccountId;
+
+    @Column(name = "stripe_connect_onboarding_complete")
+    private Boolean stripeConnectOnboardingComplete = false;
+
     // First free trial lesson tracking
     @Column(name = "has_used_free_trial")
     private Boolean hasUsedFreeTrial = false;
@@ -213,4 +220,10 @@ public class User {
 
     public Boolean getHasUsedFreeTrial() { return hasUsedFreeTrial; }
     public void setHasUsedFreeTrial(Boolean hasUsedFreeTrial) { this.hasUsedFreeTrial = hasUsedFreeTrial; }
+
+    public String getStripeConnectAccountId() { return stripeConnectAccountId; }
+    public void setStripeConnectAccountId(String stripeConnectAccountId) { this.stripeConnectAccountId = stripeConnectAccountId; }
+
+    public Boolean getStripeConnectOnboardingComplete() { return stripeConnectOnboardingComplete; }
+    public void setStripeConnectOnboardingComplete(Boolean stripeConnectOnboardingComplete) { this.stripeConnectOnboardingComplete = stripeConnectOnboardingComplete; }
 }

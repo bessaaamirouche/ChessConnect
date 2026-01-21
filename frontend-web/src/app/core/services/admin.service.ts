@@ -58,6 +58,17 @@ export interface TeacherBalanceResponse {
   currentMonthPaid: boolean;
   currentMonthEarningsCents: number;
   currentMonthLessonsCount: number;
+  // Stripe Connect status
+  stripeConnectEnabled?: boolean;
+  stripeConnectReady?: boolean;
+}
+
+export interface MarkTeacherPaidResponse {
+  success: boolean;
+  message: string;
+  amountCents?: number;
+  stripeTransferId?: string;
+  lessonsCount?: number;
 }
 
 export interface AdminLessonResponse {
@@ -150,8 +161,8 @@ export class AdminService {
     return this.http.get<TeacherBalanceResponse[]>(`${this.apiUrl}/accounting/teachers`);
   }
 
-  markTeacherPaid(teacherId: number, yearMonth?: string, paymentReference?: string, notes?: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/accounting/teachers/${teacherId}/pay`, {
+  markTeacherPaid(teacherId: number, yearMonth?: string, paymentReference?: string, notes?: string): Observable<MarkTeacherPaidResponse> {
+    return this.http.post<MarkTeacherPaidResponse>(`${this.apiUrl}/accounting/teachers/${teacherId}/pay`, {
       yearMonth: yearMonth || new Date().toISOString().slice(0, 7),
       paymentReference: paymentReference || '',
       notes: notes || ''

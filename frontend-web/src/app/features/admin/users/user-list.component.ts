@@ -141,10 +141,18 @@ import { AdminService, UserListResponse, Page } from '../../../core/services/adm
       justify-content: space-between;
       align-items: center;
       margin-bottom: var(--space-lg);
+      flex-wrap: wrap;
+      gap: var(--space-md);
 
       h1 {
         font-size: 1.5rem;
         font-weight: 700;
+      }
+
+      @media (max-width: 767px) {
+        h1 {
+          font-size: 1.25rem;
+        }
       }
     }
 
@@ -157,19 +165,30 @@ import { AdminService, UserListResponse, Page } from '../../../core/services/adm
       background: var(--bg-secondary);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-lg);
-      overflow: hidden;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+
+      @media (max-width: 767px) {
+        border-radius: var(--radius-md);
+      }
     }
 
     .table {
       width: 100%;
       border-collapse: collapse;
-      table-layout: fixed;
+      min-width: 700px;
 
       th, td {
         padding: var(--space-md);
         text-align: left;
         border-bottom: 1px solid var(--border-subtle);
         vertical-align: middle;
+        white-space: nowrap;
+
+        @media (max-width: 767px) {
+          padding: var(--space-sm);
+          font-size: 0.8125rem;
+        }
       }
 
       th {
@@ -179,15 +198,11 @@ import { AdminService, UserListResponse, Page } from '../../../core/services/adm
         letter-spacing: 0.05em;
         color: var(--text-muted);
         background: var(--bg-tertiary);
-      }
 
-      // Column widths
-      th:nth-child(1), td:nth-child(1) { width: 25%; } // Utilisateur
-      th:nth-child(2), td:nth-child(2) { width: 12%; } // Role
-      th:nth-child(3), td:nth-child(3) { width: 8%; }  // Cours
-      th:nth-child(4), td:nth-child(4) { width: 12%; } // Inscription
-      th:nth-child(5), td:nth-child(5) { width: 10%; } // Statut
-      th:nth-child(6), td:nth-child(6) { width: 33%; } // Actions
+        @media (max-width: 767px) {
+          font-size: 0.6875rem;
+        }
+      }
 
       tbody tr:hover {
         background: var(--bg-tertiary);

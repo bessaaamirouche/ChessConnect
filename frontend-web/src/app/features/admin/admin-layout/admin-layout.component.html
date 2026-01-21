@@ -1,0 +1,105 @@
+<div class="admin-layout">
+  <!-- Mobile Header -->
+  <header class="mobile-header">
+    <a routerLink="/" class="mobile-header__logo">
+      <img src="assets/logo.png" alt="mychess" class="mobile-header__logo-img">
+      <span class="mobile-header__badge">Admin</span>
+    </a>
+    <button
+      class="mobile-header__hamburger"
+      [class.active]="mobileMenuOpen()"
+      (click)="toggleMobileMenu()"
+      aria-label="Menu"
+    >
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </header>
+
+  <!-- Mobile Menu Overlay -->
+  <div
+    class="mobile-menu-overlay"
+    [class.active]="mobileMenuOpen()"
+    (click)="closeMobileMenu()"
+  ></div>
+
+  <!-- Sidebar -->
+  <aside class="admin-sidebar" [class.active]="mobileMenuOpen()">
+    <div class="admin-sidebar__header">
+      <div class="admin-sidebar__logo-wrapper">
+        <a routerLink="/" class="admin-sidebar__logo">
+          <img src="assets/logo.png" alt="mychess" class="admin-sidebar__logo-img">
+        </a>
+        <span class="admin-sidebar__badge">Administration</span>
+      </div>
+      <button class="admin-sidebar__close" (click)="closeMobileMenu()">
+        <ng-icon name="heroXMark"></ng-icon>
+      </button>
+    </div>
+
+    <nav class="admin-sidebar__nav">
+      <span class="admin-sidebar__section-title">Tableau de bord</span>
+
+      <a
+        routerLink="/admin/dashboard"
+        routerLinkActive="active"
+        class="admin-sidebar__link"
+        (click)="closeMobileMenu()"
+      >
+        <ng-icon name="heroChartBarSquare"></ng-icon>
+        <span>Vue d'ensemble</span>
+      </a>
+
+      <a
+        routerLink="/admin/users"
+        routerLinkActive="active"
+        class="admin-sidebar__link"
+        (click)="closeMobileMenu()"
+      >
+        <ng-icon name="heroUsers"></ng-icon>
+        <span>Utilisateurs</span>
+      </a>
+
+      <a
+        routerLink="/admin/lessons"
+        routerLinkActive="active"
+        class="admin-sidebar__link"
+        (click)="closeMobileMenu()"
+      >
+        <ng-icon name="heroCalendarDays"></ng-icon>
+        <span>Cours</span>
+      </a>
+
+      <a
+        routerLink="/admin/accounting"
+        routerLinkActive="active"
+        class="admin-sidebar__link"
+        (click)="closeMobileMenu()"
+      >
+        <ng-icon name="heroBanknotes"></ng-icon>
+        <span>Comptabilite</span>
+      </a>
+    </nav>
+
+    <div class="admin-sidebar__footer">
+      <a
+        routerLink="/settings"
+        class="admin-sidebar__link"
+        (click)="closeMobileMenu()"
+      >
+        <ng-icon name="heroCog6Tooth"></ng-icon>
+        <span>Parametres</span>
+      </a>
+      <button (click)="logout()" class="admin-sidebar__link">
+        <ng-icon name="heroArrowRightOnRectangle"></ng-icon>
+        <span>Deconnexion</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="admin-main">
+    <router-outlet></router-outlet>
+  </main>
+</div>

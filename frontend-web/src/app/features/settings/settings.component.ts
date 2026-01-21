@@ -6,6 +6,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { SeoService } from '../../core/services/seo.service';
 import { HttpClient } from '@angular/common/http';
 import { CalendarService, CalendarStatus } from '../../core/services/calendar.service';
+import { StripeConnectService, StripeConnectStatus } from '../../core/services/stripe-connect.service';
 import { AVAILABLE_LANGUAGES } from '../../core/models/user.model';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
@@ -63,11 +64,18 @@ export class SettingsComponent implements OnInit {
   calendarSuccess = signal<string | null>(null);
   calendarError = signal<string | null>(null);
 
+  // Stripe Connect (teachers only)
+  stripeConnectStatus = signal<StripeConnectStatus>({ connected: false, accountExists: false, isReady: false });
+  stripeConnectLoading = signal(false);
+  stripeConnectSuccess = signal<string | null>(null);
+  stripeConnectError = signal<string | null>(null);
+
   constructor(
     private fb: FormBuilder,
     public authService: AuthService,
     private http: HttpClient,
     private calendarService: CalendarService,
+    private stripeConnectService: StripeConnectService,
     private route: ActivatedRoute,
     private seoService: SeoService
   ) {
@@ -103,10 +111,29 @@ export class SettingsComponent implements OnInit {
     this.loadProfile();
     this.loadCalendarStatus();
 
-    // Handle Google Calendar OAuth callback
+    // Load Stripe Connect status for teachers
+    if (this.authService.isTeacher()) {
+      this.loadStripeConnectStatus();
+    }
+
+    // Handle OAuth callbacks and Stripe Connect returns
     this.route.queryParams.subscribe(params => {
       if (params['calendar'] === 'callback' && params['code']) {
         this.handleCalendarCallback(params['code']);
+      }
+
+      // Handle Stripe Connect return
+      if (params['stripe_connect'] === 'return') {
+        this.stripeConnectSuccess.set('Configuration terminee !');
+        this.loadStripeConnectStatus();
+        window.history.replaceState({}, '', '/settings');
+        setTimeout(() => this.stripeConnectSuccess.set(null), 3000);
+      }
+
+      // Handle Stripe Connect refresh (incomplete onboarding)
+      if (params['stripe_connect'] === 'refresh') {
+        this.stripeConnectError.set('Configuration incomplete. Veuillez reprendre le processus.');
+        window.history.replaceState({}, '', '/settings');
       }
     });
   }
@@ -337,5 +364,72 @@ export class SettingsComponent implements OnInit {
 
   logout(): void {
     this.authService.logout();
+  }
+
+  // Stripe Connect methods (teachers only)
+  loadStripeConnectStatus(): void {
+    this.stripeConnectService.getStatus().subscribe({
+      next: (status) => this.stripeConnectStatus.set(status),
+      error: () => this.stripeConnectStatus.set({ connected: false, accountExists: false, isReady: false })
+    });
+  }
+
+  startStripeConnectOnboarding(): void {
+    this.stripeConnectLoading.set(true);
+    this.stripeConnectError.set(null);
+
+    this.stripeConnectService.startOnboarding().subscribe({
+      next: (response) => {
+        this.stripeConnectLoading.set(false);
+        if (!response.success) {
+          this.stripeConnectError.set(response.message || 'Erreur lors de la configuration');
+        }
+        // If success, the service will redirect to Stripe
+      },
+      error: (err) => {
+        this.stripeConnectLoading.set(false);
+        this.stripeConnectError.set(err.error?.message || 'Erreur de connexion');
+      }
+    });
+  }
+
+  continueStripeConnectOnboarding(): void {
+    this.stripeConnectLoading.set(true);
+    this.stripeConnectError.set(null);
+
+    this.stripeConnectService.refreshOnboardingLink().subscribe({
+      next: (response) => {
+        this.stripeConnectLoading.set(false);
+        if (!response.success) {
+          this.stripeConnectError.set(response.message || 'Erreur lors de la reprise');
+        }
+      },
+      error: (err) => {
+        this.stripeConnectLoading.set(false);
+        this.stripeConnectError.set(err.error?.message || 'Erreur de connexion');
+      }
+    });
+  }
+
+  disconnectStripeConnect(): void {
+    if (!confirm('Etes-vous sur de vouloir deconnecter votre compte ? Vous ne pourrez plus recevoir de paiements.')) {
+      return;
+    }
+
+    this.stripeConnectLoading.set(true);
+    this.stripeConnectError.set(null);
+
+    this.stripeConnectService.disconnect().subscribe({
+      next: () => {
+        this.stripeConnectLoading.set(false);
+        this.stripeConnectSuccess.set('Compte deconnecte');
+        this.loadStripeConnectStatus();
+        setTimeout(() => this.stripeConnectSuccess.set(null), 3000);
+      },
+      error: (err) => {
+        this.stripeConnectLoading.set(false);
+        this.stripeConnectError.set(err.error?.message || 'Erreur lors de la deconnexion');
+      }
+    });
   }
 }

@@ -37,6 +37,9 @@ public class TeacherPayout {
     @Column(name = "notes")
     private String notes;
 
+    @Column(name = "stripe_transfer_id")
+    private String stripeTransferId;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -72,6 +75,9 @@ public class TeacherPayout {
 
     public String getNotes() { return notes; }
     public void setNotes(String notes) { this.notes = notes; }
+
+    public String getStripeTransferId() { return stripeTransferId; }
+    public void setStripeTransferId(String stripeTransferId) { this.stripeTransferId = stripeTransferId; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
 }

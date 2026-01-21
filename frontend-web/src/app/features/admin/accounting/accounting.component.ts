@@ -68,7 +68,7 @@ import { AdminService, AccountingResponse, TeacherBalanceResponse } from '../../
                     <th>Coach</th>
                     <th>Ce mois</th>
                     <th>Total gagne</th>
-                    <th>Infos bancaires</th>
+                    <th>Compte</th>
                     <th>Statut</th>
                     <th>Action</th>
                   </tr>
@@ -93,7 +93,11 @@ import { AdminService, AccountingResponse, TeacherBalanceResponse } from '../../
                       </td>
                       <td class="amount">{{ formatCents(balance.totalEarnedCents) }}</td>
                       <td>
-                        @if (balance.iban) {
+                        @if (balance.stripeConnectReady) {
+                          <span class="badge badge--success">Pret</span>
+                        } @else if (balance.stripeConnectEnabled) {
+                          <span class="badge badge--warning">Incomplet</span>
+                        } @else if (balance.iban) {
                           <div class="banking-info">
                             <span class="iban">{{ maskIban(balance.iban) }}</span>
                             @if (balance.siret) {
@@ -101,7 +105,7 @@ import { AdminService, AccountingResponse, TeacherBalanceResponse } from '../../
                             }
                           </div>
                         } @else {
-                          <span class="badge badge--warning">Non renseigne</span>
+                          <span class="badge badge--error">Non configure</span>
                         }
                       </td>
                       <td>
@@ -114,18 +118,22 @@ import { AdminService, AccountingResponse, TeacherBalanceResponse } from '../../
                         }
                       </td>
                       <td>
-                        @if (!balance.currentMonthPaid && balance.currentMonthEarningsCents > 0 && balance.iban) {
-                          <button
-                            class="btn btn--sm btn--primary"
-                            (click)="markAsPaid(balance)"
-                            [disabled]="payingTeacher() === balance.teacherId"
-                          >
-                            @if (payingTeacher() === balance.teacherId) {
-                              ...
-                            } @else {
-                              Marquer paye
-                            }
-                          </button>
+                        @if (!balance.currentMonthPaid && balance.currentMonthEarningsCents > 0) {
+                          @if (balance.stripeConnectReady) {
+                            <button
+                              class="btn btn--sm btn--primary"
+                              (click)="markAsPaid(balance)"
+                              [disabled]="payingTeacher() === balance.teacherId"
+                            >
+                              @if (payingTeacher() === balance.teacherId) {
+                                ...
+                              } @else {
+                                Virer
+                              }
+                            </button>
+                          } @else {
+                            <span class="text-muted small">Compte non configure</span>
+                          }
                         }
                       </td>
                     </tr>
@@ -146,6 +154,14 @@ import { AdminService, AccountingResponse, TeacherBalanceResponse } from '../../
         font-size: 1.5rem;
         font-weight: 700;
       }
+
+      @media (max-width: 767px) {
+        margin-bottom: var(--space-lg);
+
+        h1 {
+          font-size: 1.25rem;
+        }
+      }
     }
 
     .section {
@@ -156,13 +172,26 @@ import { AdminService, AccountingResponse, TeacherBalanceResponse } from '../../
         font-weight: 600;
         margin-bottom: var(--space-md);
       }
+
+      @media (max-width: 767px) {
+        margin-bottom: var(--space-xl);
+      }
     }
 
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      grid-template-columns: repeat(4, 1fr);
       gap: var(--space-md);
       margin-bottom: var(--space-lg);
+
+      @media (max-width: 1023px) {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      @media (max-width: 480px) {
+        grid-template-columns: 1fr;
+        gap: var(--space-sm);
+      }
     }
 
     .stat-card {
@@ -170,6 +199,10 @@ import { AdminService, AccountingResponse, TeacherBalanceResponse } from '../../
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-md);
       padding: var(--space-md);
+
+      @media (max-width: 767px) {
+        padding: var(--space-sm);
+      }
 
       &--gold {
         border-color: var(--gold-500);
@@ -195,6 +228,10 @@ import { AdminService, AccountingResponse, TeacherBalanceResponse } from '../../
         font-size: 1.25rem;
         font-weight: 700;
         color: var(--text-primary);
+
+        @media (max-width: 767px) {
+          font-size: 1.125rem;
+        }
       }
     }
 
@@ -205,10 +242,19 @@ import { AdminService, AccountingResponse, TeacherBalanceResponse } from '../../
       background: var(--bg-secondary);
       border-radius: var(--radius-md);
       border: 1px solid var(--border-subtle);
+
+      @media (max-width: 480px) {
+        flex-wrap: wrap;
+        gap: var(--space-md);
+      }
     }
 
     .lessons-stat {
       text-align: center;
+
+      @media (max-width: 480px) {
+        flex: 1 1 45%;
+      }
 
       &--success .lessons-stat__value {
         color: var(--success);
@@ -223,6 +269,10 @@ import { AdminService, AccountingResponse, TeacherBalanceResponse } from '../../
         font-size: 1.5rem;
         font-weight: 700;
         color: var(--text-primary);
+
+        @media (max-width: 767px) {
+          font-size: 1.25rem;
+        }
       }
 
       &__label {
@@ -235,17 +285,29 @@ import { AdminService, AccountingResponse, TeacherBalanceResponse } from '../../
       background: var(--bg-secondary);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-lg);
-      overflow: hidden;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+
+      @media (max-width: 767px) {
+        border-radius: var(--radius-md);
+      }
     }
 
     .table {
       width: 100%;
       border-collapse: collapse;
+      min-width: 600px;
 
       th, td {
         padding: var(--space-md);
         text-align: left;
         border-bottom: 1px solid var(--border-subtle);
+        white-space: nowrap;
+
+        @media (max-width: 767px) {
+          padding: var(--space-sm);
+          font-size: 0.8125rem;
+        }
       }
 
       th {
@@ -255,6 +317,10 @@ import { AdminService, AccountingResponse, TeacherBalanceResponse } from '../../
         letter-spacing: 0.05em;
         color: var(--text-muted);
         background: var(--bg-tertiary);
+
+        @media (max-width: 767px) {
+          font-size: 0.6875rem;
+        }
       }
 
       tbody tr:hover {
@@ -344,11 +410,17 @@ import { AdminService, AccountingResponse, TeacherBalanceResponse } from '../../
         background: var(--bg-tertiary);
         color: var(--text-muted);
       }
+
+      &--error {
+        background: rgba(248, 113, 113, 0.1);
+        color: #f87171;
+      }
     }
 
     .btn--sm {
       padding: 6px 12px;
       font-size: 0.75rem;
+      min-height: 36px;
     }
 
     .btn--primary {
@@ -372,6 +444,10 @@ import { AdminService, AccountingResponse, TeacherBalanceResponse } from '../../
       color: var(--text-muted);
       background: var(--bg-secondary);
       border-radius: var(--radius-md);
+
+      @media (max-width: 767px) {
+        padding: var(--space-lg);
+      }
     }
 
     .loading {
@@ -426,19 +502,27 @@ export class AccountingComponent implements OnInit {
   }
 
   markAsPaid(balance: TeacherBalanceResponse): void {
-    if (!confirm(`Confirmer le paiement de ${this.formatCents(balance.currentMonthEarningsCents)} a ${balance.firstName} ${balance.lastName} ?`)) {
+    if (!confirm(`Confirmer le virement de ${this.formatCents(balance.currentMonthEarningsCents)} a ${balance.firstName} ${balance.lastName} ?`)) {
       return;
     }
 
     this.payingTeacher.set(balance.teacherId);
     this.adminService.markTeacherPaid(balance.teacherId).subscribe({
-      next: () => {
+      next: (response) => {
         this.payingTeacher.set(null);
-        this.loadData();
+        if (response.success) {
+          const msg = response.stripeTransferId
+            ? `Virement effectue avec succes ! Ref: ${response.stripeTransferId}`
+            : 'Virement effectue avec succes !';
+          alert(msg);
+          this.loadData();
+        } else {
+          alert(response.message || 'Erreur lors du virement');
+        }
       },
       error: (err) => {
         this.payingTeacher.set(null);
-        alert(err.error?.message || 'Erreur lors du paiement');
+        alert(err.error?.message || 'Erreur lors du virement');
       }
     });
   }

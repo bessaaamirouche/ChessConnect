@@ -316,6 +316,87 @@
           </div>
         }
       </div>
+
+      <!-- Paiements (teachers only) -->
+      @if (isTeacher()) {
+        <div class="card">
+          <h3 class="card__title">Recevoir mes paiements</h3>
+          <p class="card__description">Configurez votre compte bancaire pour recevoir vos paiements directement.</p>
+
+          @if (stripeConnectSuccess()) {
+            <div class="alert alert--success alert--sm">{{ stripeConnectSuccess() }}</div>
+          }
+          @if (stripeConnectError()) {
+            <div class="alert alert--error alert--sm">{{ stripeConnectError() }}</div>
+          }
+
+          @if (stripeConnectStatus().isReady) {
+            <!-- Account is ready -->
+            <div class="stripe-status stripe-status--ready">
+              <div class="stripe-status__info">
+                <span class="stripe-status__badge stripe-status__badge--success">Compte configure</span>
+                <p class="text-muted">Votre compte est configure et pret a recevoir des paiements.</p>
+              </div>
+              <button
+                class="btn btn--ghost btn--sm"
+                (click)="disconnectStripeConnect()"
+                [disabled]="stripeConnectLoading()"
+              >
+                @if (stripeConnectLoading()) {
+                  <span class="spinner spinner--sm"></span>
+                } @else {
+                  Deconnecter
+                }
+              </button>
+            </div>
+          } @else if (stripeConnectStatus().accountExists) {
+            <!-- Account exists but onboarding incomplete -->
+            <div class="stripe-status stripe-status--pending">
+              <div class="stripe-status__info">
+                <span class="stripe-status__badge stripe-status__badge--warning">Configuration incomplete</span>
+                <p class="text-muted">Votre compte necessite des informations supplementaires.</p>
+                @if (stripeConnectStatus().pendingReason) {
+                  <p class="text-muted text-sm">{{ stripeConnectStatus().pendingReason }}</p>
+                }
+              </div>
+              <button
+                class="btn btn--primary btn--sm"
+                (click)="continueStripeConnectOnboarding()"
+                [disabled]="stripeConnectLoading()"
+              >
+                @if (stripeConnectLoading()) {
+                  <span class="spinner spinner--sm"></span>
+                } @else {
+                  Completer la configuration
+                }
+              </button>
+            </div>
+          } @else {
+            <!-- No account yet -->
+            <div class="stripe-status">
+              <p class="text-muted">Configurez votre compte pour recevoir automatiquement vos paiements apres chaque cours.</p>
+              <div class="stripe-benefits">
+                <ul>
+                  <li>Paiements securises</li>
+                  <li>Virements automatiques sur votre compte</li>
+                  <li>Suivi des paiements en temps reel</li>
+                </ul>
+              </div>
+              <button
+                class="btn btn--primary btn--sm"
+                (click)="startStripeConnectOnboarding()"
+                [disabled]="stripeConnectLoading()"
+              >
+                @if (stripeConnectLoading()) {
+                  <span class="spinner spinner--sm"></span>
+                } @else {
+                  Configurer mon compte
+                }
+              </button>
+            </div>
+          }
+        </div>
+      }
     </div>
   </main>
 </div>

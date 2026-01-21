@@ -147,16 +147,28 @@ import { AdminService, AdminLessonResponse } from '../../../core/services/admin.
       justify-content: space-between;
       align-items: center;
       margin-bottom: var(--space-lg);
+      flex-wrap: wrap;
+      gap: var(--space-md);
 
       h1 {
         font-size: 1.5rem;
         font-weight: 700;
+      }
+
+      @media (max-width: 767px) {
+        h1 {
+          font-size: 1.25rem;
+        }
       }
     }
 
     .tabs {
       display: flex;
       gap: var(--space-xs);
+
+      @media (max-width: 480px) {
+        width: 100%;
+      }
     }
 
     .tab {
@@ -169,6 +181,13 @@ import { AdminService, AdminLessonResponse } from '../../../core/services/admin.
       border-radius: var(--radius-md);
       cursor: pointer;
       transition: all var(--transition-fast);
+      min-height: 40px;
+
+      @media (max-width: 480px) {
+        flex: 1;
+        padding: 8px 12px;
+        font-size: 0.8125rem;
+      }
 
       &:hover {
         background: var(--bg-tertiary);
@@ -185,17 +204,29 @@ import { AdminService, AdminLessonResponse } from '../../../core/services/admin.
       background: var(--bg-secondary);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-lg);
-      overflow: hidden;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+
+      @media (max-width: 767px) {
+        border-radius: var(--radius-md);
+      }
     }
 
     .table {
       width: 100%;
       border-collapse: collapse;
+      min-width: 650px;
 
       th, td {
         padding: var(--space-md);
         text-align: left;
         border-bottom: 1px solid var(--border-subtle);
+        white-space: nowrap;
+
+        @media (max-width: 767px) {
+          padding: var(--space-sm);
+          font-size: 0.8125rem;
+        }
       }
 
       th {
@@ -205,6 +236,10 @@ import { AdminService, AdminLessonResponse } from '../../../core/services/admin.
         letter-spacing: 0.05em;
         color: var(--text-muted);
         background: var(--bg-tertiary);
+
+        @media (max-width: 767px) {
+          font-size: 0.6875rem;
+        }
       }
 
       tbody tr:hover {
@@ -287,6 +322,7 @@ import { AdminService, AdminLessonResponse } from '../../../core/services/admin.
       color: #22c55e;
       cursor: pointer;
       transition: all var(--transition-fast);
+      min-height: 36px;
 
       &:hover {
         background: rgba(34, 197, 94, 0.2);
@@ -302,6 +338,10 @@ import { AdminService, AdminLessonResponse } from '../../../core/services/admin.
       align-items: center;
       justify-content: center;
       padding: 1rem;
+
+      @media (max-width: 767px) {
+        padding: 0.5rem;
+      }
     }
 
     .video-player-modal {
@@ -311,6 +351,10 @@ import { AdminService, AdminLessonResponse } from '../../../core/services/admin.
       border-radius: var(--radius-xl);
       border: 1px solid var(--border-subtle);
       overflow: hidden;
+
+      @media (max-width: 767px) {
+        border-radius: var(--radius-md);
+      }
     }
 
     .video-player-header {
@@ -321,10 +365,18 @@ import { AdminService, AdminLessonResponse } from '../../../core/services/admin.
       background: var(--bg-tertiary);
       border-bottom: 1px solid var(--border-subtle);
 
+      @media (max-width: 767px) {
+        padding: 0.75rem 1rem;
+      }
+
       h3 {
         font-size: 1.125rem;
         font-weight: 600;
         color: var(--text-primary);
+
+        @media (max-width: 767px) {
+          font-size: 1rem;
+        }
       }
     }
 
@@ -365,6 +417,11 @@ import { AdminService, AdminLessonResponse } from '../../../core/services/admin.
       border-radius: var(--radius-lg);
       padding: var(--space-lg);
 
+      @media (max-width: 767px) {
+        padding: var(--space-md);
+        border-radius: var(--radius-md);
+      }
+
       h3 {
         font-size: 1rem;
         font-weight: 600;
@@ -376,6 +433,11 @@ import { AdminService, AdminLessonResponse } from '../../../core/services/admin.
     .summary-stats {
       display: flex;
       gap: var(--space-xl);
+
+      @media (max-width: 480px) {
+        flex-wrap: wrap;
+        gap: var(--space-md);
+      }
     }
 
     .stat {
@@ -383,10 +445,18 @@ import { AdminService, AdminLessonResponse } from '../../../core/services/admin.
       flex-direction: column;
       gap: 4px;
 
+      @media (max-width: 480px) {
+        flex: 1 1 45%;
+      }
+
       &__value {
         font-size: 1.25rem;
         font-weight: 700;
         color: var(--gold-400);
+
+        @media (max-width: 767px) {
+          font-size: 1.125rem;
+        }
       }
 
       &__label {

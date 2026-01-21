@@ -432,3 +432,129 @@
   color: var(--text-muted);
   margin-bottom: var(--space-md);
 }
+
+// Card description
+.card__description {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  margin-bottom: var(--space-md);
+}
+
+// Stripe Connect status
+.stripe-status {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+
+  p {
+    font-size: 0.8125rem;
+    margin: 0;
+  }
+
+  &--ready,
+  &--pending {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-lg);
+
+    @media (max-width: 500px) {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+
+  &__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: var(--radius-sm);
+    width: fit-content;
+
+    &::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+
+    &--success {
+      color: var(--success);
+      background: var(--success-muted);
+
+      &::before {
+        background: var(--success);
+      }
+    }
+
+    &--warning {
+      color: #fbbf24;
+      background: rgba(251, 191, 36, 0.1);
+
+      &::before {
+        background: #fbbf24;
+      }
+    }
+  }
+}
+
+.stripe-benefits {
+  margin: var(--space-sm) 0;
+
+  ul {
+    margin: 0;
+    padding-left: var(--space-lg);
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+
+    li {
+      margin-bottom: var(--space-xs);
+
+      &::marker {
+        color: var(--gold-400);
+      }
+    }
+  }
+}
+
+.text-sm {
+  font-size: 0.75rem;
+}
+
+// Badge styles
+.sidebar__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-radius: var(--radius-sm);
+  margin-left: var(--space-sm);
+
+  &--student {
+    color: #3b82f6;
+    background: rgba(59, 130, 246, 0.1);
+  }
+
+  &--teacher {
+    color: #a855f7;
+    background: rgba(168, 85, 247, 0.1);
+  }
+}
+
+.sidebar__logo-img {
+  width: 40px;
+  height: auto;
+}

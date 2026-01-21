@@ -19,5 +19,8 @@ public record TeacherBalanceListResponse(
         // Payout status for current month
         Boolean currentMonthPaid,
         Integer currentMonthEarningsCents,
-        Integer currentMonthLessonsCount
+        Integer currentMonthLessonsCount,
+        // Stripe Connect status
+        Boolean stripeConnectEnabled,
+        Boolean stripeConnectReady
 ) {}

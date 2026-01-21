@@ -49,7 +49,7 @@ public class RecordingController {
             return ResponseEntity.badRequest().body("Missing room or filename");
         }
 
-        // Extract lesson ID from room name (format: "Lesson-{id}" or "ChessConnect_Lesson-{id}")
+        // Extract lesson ID from room name (format: "mychess-lesson-{id}")
         Long lessonId = extractLessonId(roomName);
         if (lessonId == null) {
             log.warn("Could not extract lesson ID from room name: {}", roomName);
@@ -63,8 +63,9 @@ public class RecordingController {
             return ResponseEntity.ok().body("Lesson not found");
         }
 
-        // Set the recording URL (relative path that will be served by the /recordings/video endpoint)
-        String recordingUrl = "/api/recordings/video/" + lessonId;
+        // Set the recording URL pointing to the Jitsi server
+        // Format: https://meet.mychess.fr/recordings/{roomName}/{filename}
+        String recordingUrl = "https://meet.mychess.fr/recordings/" + roomName + "/" + filename;
         lesson.setRecordingUrl(recordingUrl);
         lessonRepository.save(lesson);
 
@@ -137,11 +138,23 @@ public class RecordingController {
 
     private Long extractLessonId(String roomName) {
         // Try patterns:
+        // - "mychess-lesson-123" (current format)
         // - "Lesson-123"
         // - "ChessConnect_Lesson-123"
-        // - "chessconnect-123-1234567890" (new format with timestamp)
+        // - "chessconnect-123-1234567890" (old format with timestamp)
 
-        // Try new format first: chessconnect-{id}-{timestamp}
+        // Try current format first: mychess-lesson-{id}
+        Pattern currentPattern = Pattern.compile("mychess-lesson-(\\d+)");
+        Matcher currentMatcher = currentPattern.matcher(roomName);
+        if (currentMatcher.find()) {
+            try {
+                return Long.parseLong(currentMatcher.group(1));
+            } catch (NumberFormatException e) {
+                // Continue to try other patterns
+            }
+        }
+
+        // Try old format: chessconnect-{id}-{timestamp}
         Pattern newPattern = Pattern.compile("chessconnect-(\\d+)-\\d+");
         Matcher newMatcher = newPattern.matcher(roomName);
         if (newMatcher.find()) {

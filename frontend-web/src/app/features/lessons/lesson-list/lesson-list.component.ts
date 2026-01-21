@@ -183,6 +183,14 @@ export class LessonListComponent implements OnInit {
       ? `Cours avec ${lesson.teacherName}`
       : `Cours avec ${lesson.studentName}`;
 
+    // Si c'est un prof, marquer qu'il a rejoint l'appel
+    if (this.authService.isTeacher()) {
+      this.lessonService.markTeacherJoined(lesson.id).subscribe({
+        next: () => console.log('Teacher marked as joined'),
+        error: (err) => console.warn('Could not mark teacher as joined:', err)
+      });
+    }
+
     // Obtenir le token JWT pour Jitsi (avec role moderateur pour les profs)
     this.jitsiService.getToken(roomName).subscribe({
       next: (response) => {
@@ -199,6 +207,17 @@ export class LessonListComponent implements OnInit {
         this.videoCallTitle.set(title);
         this.showVideoCall.set(true);
       }
+    });
+  }
+
+  refreshLessonStatus(lessonId: number): void {
+    this.lessonService.refreshLesson(lessonId).subscribe({
+      next: (lesson) => {
+        if (lesson.teacherJoinedAt) {
+          console.log('Teacher has joined, student can now access');
+        }
+      },
+      error: (err) => console.error('Could not refresh lesson:', err)
     });
   }
 

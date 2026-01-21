@@ -24,6 +24,7 @@ export interface Lesson {
   refundedAmountCents?: number;
   teacherObservations?: string;
   recordingUrl?: string;
+  teacherJoinedAt?: string;
   createdAt: string;
 }
 

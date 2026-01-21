@@ -115,4 +115,29 @@ public class LessonController {
             ));
         }
     }
+
+    /**
+     * Mark that the teacher has joined the video call.
+     * This allows the student to see the "Accéder" button.
+     */
+    @PatchMapping("/{lessonId}/teacher-joined")
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseEntity<LessonResponse> markTeacherJoined(
+            @PathVariable Long lessonId,
+            @AuthenticationPrincipal UserDetailsImpl userDetails
+    ) {
+        LessonResponse response = lessonService.markTeacherJoined(lessonId, userDetails.getId());
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Check if teacher has joined the video call.
+     */
+    @GetMapping("/{lessonId}/teacher-joined")
+    public ResponseEntity<Map<String, Boolean>> hasTeacherJoined(
+            @PathVariable Long lessonId
+    ) {
+        boolean joined = lessonService.hasTeacherJoined(lessonId);
+        return ResponseEntity.ok(Map.of("teacherJoined", joined));
+    }
 }

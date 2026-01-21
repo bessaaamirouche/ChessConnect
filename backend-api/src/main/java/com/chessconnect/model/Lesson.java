@@ -87,6 +87,9 @@ public class Lesson {
     @Column(name = "recording_url")
     private String recordingUrl;
 
+    @Column(name = "teacher_joined_at")
+    private LocalDateTime teacherJoinedAt;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -184,6 +187,9 @@ public class Lesson {
 
     public String getRecordingUrl() { return recordingUrl; }
     public void setRecordingUrl(String recordingUrl) { this.recordingUrl = recordingUrl; }
+
+    public LocalDateTime getTeacherJoinedAt() { return teacherJoinedAt; }
+    public void setTeacherJoinedAt(LocalDateTime teacherJoinedAt) { this.teacherJoinedAt = teacherJoinedAt; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }

@@ -144,9 +144,19 @@
                 }
                 @if (lesson.status === 'CONFIRMED' && lesson.zoomLink) {
                   @if (canJoinLesson(lesson)) {
-                    <button class="btn btn--primary btn--sm" (click)="openVideoCall(lesson)">
-                      Accéder
-                    </button>
+                    @if (authService.isTeacher()) {
+                      <button class="btn btn--primary btn--sm" (click)="openVideoCall(lesson)">
+                        Accéder
+                      </button>
+                    } @else if (lesson.teacherJoinedAt) {
+                      <button class="btn btn--primary btn--sm" (click)="openVideoCall(lesson)">
+                        Accéder
+                      </button>
+                    } @else {
+                      <span class="waiting-badge" (click)="refreshLessonStatus(lesson.id)">
+                        En attente du coach...
+                      </span>
+                    }
                   } @else {
                     <span class="time-badge">{{ getTimeUntilJoin(lesson) }}</span>
                   }

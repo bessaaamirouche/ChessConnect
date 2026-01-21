@@ -387,6 +387,27 @@
   color: var(--text-muted);
 }
 
+.waiting-badge {
+  display: inline-block;
+  padding: var(--space-xs) var(--space-sm);
+  background: rgba(234, 179, 8, 0.1);
+  border: 1px solid rgba(234, 179, 8, 0.3);
+  border-radius: var(--radius-md);
+  font-size: 0.8125rem;
+  color: #eab308;
+  cursor: pointer;
+  animation: pulse-waiting 2s infinite;
+
+  &:hover {
+    background: rgba(234, 179, 8, 0.2);
+  }
+}
+
+@keyframes pulse-waiting {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
 // Student profile link button
 .lesson-card__student {
   display: flex;

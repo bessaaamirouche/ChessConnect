@@ -361,6 +361,40 @@ public class LessonService {
         lessonRepository.delete(lesson);
     }
 
+    /**
+     * Mark that the teacher has joined the video call for this lesson.
+     * This enables the student to join as well.
+     */
+    @Transactional
+    public LessonResponse markTeacherJoined(Long lessonId, Long teacherId) {
+        Lesson lesson = lessonRepository.findById(lessonId)
+                .orElseThrow(() -> new IllegalArgumentException("Lesson not found"));
+
+        // Verify the user is the teacher for this lesson
+        if (!lesson.getTeacher().getId().equals(teacherId)) {
+            throw new IllegalArgumentException("Only the assigned teacher can mark as joined");
+        }
+
+        // Only allow for confirmed lessons
+        if (lesson.getStatus() != LessonStatus.CONFIRMED) {
+            throw new IllegalArgumentException("Can only join confirmed lessons");
+        }
+
+        lesson.setTeacherJoinedAt(LocalDateTime.now());
+        lessonRepository.save(lesson);
+
+        return LessonResponse.from(lesson);
+    }
+
+    /**
+     * Check if the teacher has joined the video call for this lesson.
+     */
+    public boolean hasTeacherJoined(Long lessonId) {
+        Lesson lesson = lessonRepository.findById(lessonId)
+                .orElseThrow(() -> new IllegalArgumentException("Lesson not found"));
+        return lesson.getTeacherJoinedAt() != null;
+    }
+
     private void checkTeacherAvailability(Long teacherId, LocalDateTime scheduledAt, int durationMinutes) {
         LocalDateTime endTime = scheduledAt.plusMinutes(durationMinutes);
         LocalDateTime bufferStart = scheduledAt.minusMinutes(30);

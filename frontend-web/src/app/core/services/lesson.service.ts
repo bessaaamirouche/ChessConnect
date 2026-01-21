@@ -157,4 +157,39 @@ export class LessonService {
       })
     );
   }
+
+  /**
+   * Mark that the teacher has joined the video call
+   */
+  markTeacherJoined(lessonId: number): Observable<Lesson> {
+    return this.http.patch<Lesson>(`${this.apiUrl}/${lessonId}/teacher-joined`, {}).pipe(
+      tap((updatedLesson) => {
+        this.upcomingLessonsSignal.update(lessons =>
+          lessons.map(l => l.id === lessonId ? updatedLesson : l)
+        );
+      })
+    );
+  }
+
+  /**
+   * Check if the teacher has joined the video call
+   */
+  checkTeacherJoined(lessonId: number): Observable<boolean> {
+    return this.http.get<{ teacherJoined: boolean }>(`${this.apiUrl}/${lessonId}/teacher-joined`).pipe(
+      map(response => response.teacherJoined)
+    );
+  }
+
+  /**
+   * Refresh a specific lesson from the server
+   */
+  refreshLesson(lessonId: number): Observable<Lesson> {
+    return this.http.get<Lesson>(`${this.apiUrl}/${lessonId}`).pipe(
+      tap((lesson) => {
+        this.upcomingLessonsSignal.update(lessons =>
+          lessons.map(l => l.id === lessonId ? lesson : l)
+        );
+      })
+    );
+  }
 }

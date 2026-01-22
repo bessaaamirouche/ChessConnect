@@ -3,6 +3,7 @@ package com.chessconnect.controller;
 import com.chessconnect.dto.teacher.TeacherBalanceResponse;
 import com.chessconnect.model.User;
 import com.chessconnect.model.enums.UserRole;
+import com.chessconnect.repository.LessonRepository;
 import com.chessconnect.repository.UserRepository;
 import com.chessconnect.service.RatingService;
 import com.chessconnect.service.TeacherBalanceService;
@@ -20,15 +21,18 @@ public class TeacherController {
     private final UserRepository userRepository;
     private final TeacherBalanceService teacherBalanceService;
     private final RatingService ratingService;
+    private final LessonRepository lessonRepository;
 
     public TeacherController(
             UserRepository userRepository,
             TeacherBalanceService teacherBalanceService,
-            RatingService ratingService
+            RatingService ratingService,
+            LessonRepository lessonRepository
     ) {
         this.userRepository = userRepository;
         this.teacherBalanceService = teacherBalanceService;
         this.ratingService = ratingService;
+        this.lessonRepository = lessonRepository;
     }
 
     @GetMapping
@@ -106,6 +110,10 @@ public class TeacherController {
         Double averageRating = ratingService.getAverageRatingForTeacher(teacher.getId());
         Integer reviewCount = ratingService.getReviewCountForTeacher(teacher.getId());
 
+        // Get lesson stats
+        Integer lessonsCompleted = lessonRepository.countCompletedLessonsByTeacherId(teacher.getId());
+        Integer totalStudents = lessonRepository.countDistinctStudentsByTeacherId(teacher.getId());
+
         return new TeacherResponse(
                 teacher.getId(),
                 teacher.getFirstName(),
@@ -116,7 +124,9 @@ public class TeacherController {
                 teacher.getAvatarUrl(),
                 languagesList,
                 averageRating,
-                reviewCount
+                reviewCount,
+                lessonsCompleted != null ? lessonsCompleted : 0,
+                totalStudents != null ? totalStudents : 0
         );
     }
 
@@ -130,6 +140,8 @@ public class TeacherController {
             String avatarUrl,
             List<String> languages,
             Double averageRating,
-            Integer reviewCount
+            Integer reviewCount,
+            Integer lessonsCompleted,
+            Integer totalStudents
     ) {}
 }

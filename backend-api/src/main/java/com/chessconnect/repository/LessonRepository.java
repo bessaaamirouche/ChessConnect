@@ -87,4 +87,11 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
     void deleteByStudentId(Long studentId);
 
     void deleteByTeacherId(Long teacherId);
+
+    // Teacher profile stats
+    @Query("SELECT COUNT(l) FROM Lesson l WHERE l.teacher.id = :teacherId AND l.status = 'COMPLETED'")
+    Integer countCompletedLessonsByTeacherId(@Param("teacherId") Long teacherId);
+
+    @Query("SELECT COUNT(DISTINCT l.student.id) FROM Lesson l WHERE l.teacher.id = :teacherId AND l.status = 'COMPLETED'")
+    Integer countDistinctStudentsByTeacherId(@Param("teacherId") Long teacherId);
 }

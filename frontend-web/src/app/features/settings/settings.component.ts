@@ -63,6 +63,11 @@ export class SettingsComponent implements OnInit {
     return current.some((lang, i) => lang !== original[i]);
   });
 
+  // Avatar upload (teachers only)
+  avatarUrl = signal<string | null>(null);
+  uploadingAvatar = signal(false);
+  avatarError = signal<string | null>(null);
+
   // Stripe Connect (teachers only)
   stripeConnectStatus = signal<StripeConnectStatus>({ connected: false, accountExists: false, isReady: false });
   stripeConnectLoading = signal(false);
@@ -156,6 +161,10 @@ export class SettingsComponent implements OnInit {
         this.selectedLanguages.set(user.languages);
         this.originalLanguages.set([...user.languages]);
       }
+      // Load avatar for teachers
+      if (user.avatarUrl) {
+        this.avatarUrl.set(user.avatarUrl);
+      }
     }
   }
 
@@ -181,6 +190,66 @@ export class SettingsComponent implements OnInit {
 
   isTeacher(): boolean {
     return this.authService.isTeacher();
+  }
+
+  onAvatarSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const file = input.files[0];
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      this.avatarError.set('Le fichier doit etre une image');
+      return;
+    }
+
+    // Validate file size (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      this.avatarError.set('L\'image ne doit pas depasser 5 Mo');
+      return;
+    }
+
+    this.uploadAvatar(file);
+  }
+
+  uploadAvatar(file: File): void {
+    this.uploadingAvatar.set(true);
+    this.avatarError.set(null);
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    this.http.post<{ success: boolean; avatarUrl: string }>('/api/upload/avatar', formData).subscribe({
+      next: (response) => {
+        this.uploadingAvatar.set(false);
+        if (response.success) {
+          this.avatarUrl.set(response.avatarUrl);
+          this.authService.updateCurrentUser({ ...this.authService.currentUser()!, avatarUrl: response.avatarUrl });
+        }
+      },
+      error: (err) => {
+        this.uploadingAvatar.set(false);
+        this.avatarError.set(err.error?.message || 'Erreur lors de l\'upload');
+      }
+    });
+  }
+
+  deleteAvatar(): void {
+    this.uploadingAvatar.set(true);
+    this.avatarError.set(null);
+
+    this.http.delete<{ success: boolean }>('/api/upload/avatar').subscribe({
+      next: () => {
+        this.uploadingAvatar.set(false);
+        this.avatarUrl.set(null);
+        this.authService.updateCurrentUser({ ...this.authService.currentUser()!, avatarUrl: undefined });
+      },
+      error: (err) => {
+        this.uploadingAvatar.set(false);
+        this.avatarError.set(err.error?.message || 'Erreur lors de la suppression');
+      }
+    });
   }
 
   saveProfile(): void {

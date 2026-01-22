@@ -6,6 +6,7 @@ import com.chessconnect.repository.UserRepository;
 import com.chessconnect.security.UserDetailsImpl;
 import com.chessconnect.service.StripeConnectService;
 import com.chessconnect.service.StripeConnectService.AccountStatus;
+import com.chessconnect.service.StripeConnectService.OnboardingResult;
 import com.stripe.exception.StripeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +38,7 @@ public class StripeConnectController {
 
     /**
      * Get Stripe Connect onboarding URL for a teacher.
-     * Creates a new Express account if needed.
+     * Creates a new Express account if needed and returns the Stripe-hosted onboarding URL.
      */
     @PostMapping("/onboarding")
     @PreAuthorize("hasRole('TEACHER')")
@@ -56,34 +57,23 @@ public class StripeConnectController {
                 ));
             }
 
-            // Create account and get onboarding URL
-            String onboardingUrl = stripeConnectService.createOnboardingUrl(teacher);
+            // Create account (if needed) and get onboarding URL
+            OnboardingResult result = stripeConnectService.createOnboardingUrl(teacher);
 
-            // If a new account was created, save the account ID
-            if (teacher.getStripeConnectAccountId() == null) {
-                // The account ID is returned by createOnboardingUrl (side effect in service)
-                // We need to re-fetch or update
-                teacher = userRepository.findById(userDetails.getId()).orElse(teacher);
-            }
-
-            // Save the account ID if it's a new account
-            String accountId = teacher.getStripeConnectAccountId();
-            if (accountId == null) {
-                // Extract from service - we need to create account separately
-                accountId = stripeConnectService.createConnectAccount(teacher);
-                teacher.setStripeConnectAccountId(accountId);
+            // Save the account ID if a new account was created
+            if (result.newAccount()) {
+                teacher.setStripeConnectAccountId(result.accountId());
+                teacher.setStripeConnectOnboardingComplete(false);
                 userRepository.save(teacher);
-
-                // Get new onboarding URL with the saved account
-                onboardingUrl = stripeConnectService.createOnboardingUrl(teacher);
+                log.info("Created new Stripe Connect account {} for teacher {}", result.accountId(), teacher.getId());
             }
 
             log.info("Generated Stripe Connect onboarding URL for teacher {}", teacher.getId());
 
             return ResponseEntity.ok(Map.of(
                     "success", true,
-                    "onboardingUrl", onboardingUrl,
-                    "accountId", accountId
+                    "onboardingUrl", result.url(),
+                    "accountId", result.accountId()
             ));
 
         } catch (StripeException e) {
@@ -181,11 +171,11 @@ public class StripeConnectController {
                 ));
             }
 
-            String onboardingUrl = stripeConnectService.createOnboardingUrl(teacher);
+            OnboardingResult result = stripeConnectService.createOnboardingUrl(teacher);
 
             return ResponseEntity.ok(Map.of(
                     "success", true,
-                    "onboardingUrl", onboardingUrl
+                    "onboardingUrl", result.url()
             ));
 
         } catch (StripeException e) {

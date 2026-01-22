@@ -23,16 +23,14 @@ public class StripeConnectService {
 
     /**
      * Create a Stripe Express Connect account for a teacher.
-     * Express accounts have a simplified onboarding flow and Stripe handles most compliance.
+     * For France, we must use minimal parameters and let Stripe collect all info via hosted onboarding.
      */
     public String createConnectAccount(User teacher) throws StripeException {
+        // For France (and other regulated countries), create minimal account
+        // All user info will be collected via Stripe-hosted onboarding
         AccountCreateParams params = AccountCreateParams.builder()
                 .setType(AccountCreateParams.Type.EXPRESS)
-                .setCountry("FR")
-                .setEmail(teacher.getEmail())
-                .setBusinessType(AccountCreateParams.BusinessType.INDIVIDUAL)
                 .putMetadata("user_id", teacher.getId().toString())
-                .putMetadata("teacher_name", teacher.getFullName())
                 .setCapabilities(
                         AccountCreateParams.Capabilities.builder()
                                 .setTransfers(AccountCreateParams.Capabilities.Transfers.builder()
@@ -66,21 +64,29 @@ public class StripeConnectService {
 
     /**
      * Create an onboarding URL for a teacher.
-     * This combines account creation (if needed) and link generation.
+     * Returns both the URL and the account ID (in case a new account was created).
      */
-    public String createOnboardingUrl(User teacher) throws StripeException {
+    public OnboardingResult createOnboardingUrl(User teacher) throws StripeException {
         String accountId = teacher.getStripeConnectAccountId();
+        boolean newAccount = false;
 
         // Create account if it doesn't exist
         if (accountId == null || accountId.isBlank()) {
             accountId = createConnectAccount(teacher);
+            newAccount = true;
         }
 
         String refreshUrl = frontendUrl + "/settings?stripe_connect=refresh";
         String returnUrl = frontendUrl + "/settings?stripe_connect=return";
 
-        return createAccountLink(accountId, refreshUrl, returnUrl);
+        String url = createAccountLink(accountId, refreshUrl, returnUrl);
+        return new OnboardingResult(url, accountId, newAccount);
     }
+
+    /**
+     * Result of onboarding URL creation.
+     */
+    public record OnboardingResult(String url, String accountId, boolean newAccount) {}
 
     /**
      * Check if a Stripe Connect account is fully onboarded and ready to receive transfers.

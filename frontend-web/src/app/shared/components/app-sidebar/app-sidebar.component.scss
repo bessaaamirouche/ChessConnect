@@ -112,23 +112,14 @@ $transition: 0.2s ease;
   &.collapsed {
     width: $sidebar-collapsed-width;
 
-    // Hide logo, text elements
+    // Hide logo, text, section titles
     .sidebar__logo-img,
     .sidebar__logo-text,
     .sidebar__link-text,
     .sidebar__badge,
-    .sidebar__user-info {
-      display: none;
-    }
-
-    // Section title centered - smaller font to fit
+    .sidebar__user-info,
     .sidebar__section-title {
-      width: 100%;
-      text-align: center;
-      padding: 0;
-      margin-bottom: 8px;
-      font-size: 0.5rem;
-      letter-spacing: 0.05em;
+      display: none;
     }
 
     // Section takes full width
@@ -140,25 +131,25 @@ $transition: 0.2s ease;
       align-items: center;
     }
 
-    // Centered links - icon only
+    // Centered links - icon only, square selection
     .sidebar__link {
       display: flex;
       justify-content: center;
       align-items: center;
       padding: 0;
-      width: 40px;
-      height: 40px;
-      margin: 3px 0;
+      width: 44px;
+      height: 44px;
+      margin: 4px 0;
       border-radius: 10px;
     }
 
-    // Icons
+    // Icons - 15% larger
     .sidebar__icon {
       margin-right: 0;
-      font-size: 1.25rem;
+      font-size: 1.45rem;
     }
 
-    // Active item - gold highlight on icon only
+    // Active item - gold square highlight
     .sidebar__link.active {
       background: rgba(212, 168, 75, 0.25);
       border: 1px solid rgba(212, 168, 75, 0.4);
@@ -175,14 +166,14 @@ $transition: 0.2s ease;
       display: none;
     }
 
-    // Collapse button centered
+    // Collapse button centered - square
     .sidebar__collapse-btn {
       position: static;
       background: $hover-bg;
       border: 1px solid $sidebar-border;
-      border-radius: 50%;
-      width: 32px;
-      height: 32px;
+      border-radius: 8px;
+      width: 36px;
+      height: 36px;
     }
 
     .sidebar__footer {

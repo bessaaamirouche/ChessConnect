@@ -58,6 +58,15 @@ export class SettingsComponent implements OnInit {
   // Languages
   availableLanguages = AVAILABLE_LANGUAGES;
   selectedLanguages = signal<string[]>(['FR']);
+  originalLanguages = signal<string[]>(['FR']);
+
+  // Track if languages have changed
+  languagesChanged = computed(() => {
+    const current = this.selectedLanguages().slice().sort();
+    const original = this.originalLanguages().slice().sort();
+    if (current.length !== original.length) return true;
+    return current.some((lang, i) => lang !== original[i]);
+  });
 
   // Google Calendar
   calendarStatus = signal<CalendarStatus>({ configured: false, connected: false, enabled: false });
@@ -167,6 +176,7 @@ export class SettingsComponent implements OnInit {
       // Load languages for teachers
       if (user.languages && user.languages.length > 0) {
         this.selectedLanguages.set(user.languages);
+        this.originalLanguages.set([...user.languages]);
       }
     }
   }
@@ -232,6 +242,9 @@ export class SettingsComponent implements OnInit {
         this.authService.updateCurrentUser(updatedUser);
         this.savingProfile.set(false);
         this.profileSuccess.set(true);
+        // Reset form state and original languages
+        this.profileForm.markAsPristine();
+        this.originalLanguages.set([...this.selectedLanguages()]);
         setTimeout(() => this.profileSuccess.set(false), 3000);
       },
       error: (err) => {

@@ -121,7 +121,7 @@
             </div>
           }
 
-          <button type="submit" class="btn btn--primary btn--sm" [disabled]="profileForm.invalid || profileForm.pristine || savingProfile()">
+          <button type="submit" class="btn btn--primary btn--sm" [disabled]="profileForm.invalid || (profileForm.pristine && !languagesChanged()) || savingProfile()">
             @if (savingProfile()) {
               <span class="spinner spinner--sm"></span>
             } @else {

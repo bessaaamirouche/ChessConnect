@@ -17,23 +17,38 @@ export class UserLayoutComponent {
   sidebarSections = computed<SidebarSection[]>(() => {
     const sections: SidebarSection[] = [];
 
-    // Menu section
-    const menuItems: any[] = [
-      { label: 'Mon Espace', icon: 'heroChartBarSquare', route: '/dashboard' },
-      { label: 'Mes Cours', icon: 'heroCalendarDays', route: '/lessons' }
-    ];
-
-    if (this.authService.isTeacher()) {
-      menuItems.push({ label: 'Mes Disponibilites', icon: 'heroClipboardDocumentList', route: '/availability' });
+    // Admin menu
+    if (this.authService.isAdmin()) {
+      sections.push({
+        title: 'Administration',
+        items: [
+          { label: 'Vue d\'ensemble', icon: 'heroChartBarSquare', route: '/admin/dashboard' },
+          { label: 'Utilisateurs', icon: 'heroUsers', route: '/admin/users' },
+          { label: 'Cours', icon: 'heroCalendarDays', route: '/admin/lessons' },
+          { label: 'Comptabilite', icon: 'heroBanknotes', route: '/admin/accounting' }
+        ]
+      });
     }
 
-    if (this.authService.isStudent()) {
-      menuItems.push({ label: 'Ma Progression', icon: 'heroTrophy', route: '/progress' });
-      menuItems.push({ label: 'Abonnement', icon: 'heroCreditCard', route: '/subscription' });
-      menuItems.push({ label: 'Trouver un Coach', icon: 'heroAcademicCap', route: '/teachers' });
-    }
+    // Menu section for non-admin users
+    if (!this.authService.isAdmin()) {
+      const menuItems: any[] = [
+        { label: 'Mon Espace', icon: 'heroChartBarSquare', route: '/dashboard' },
+        { label: 'Mes Cours', icon: 'heroCalendarDays', route: '/lessons' }
+      ];
 
-    sections.push({ title: 'Menu', items: menuItems });
+      if (this.authService.isTeacher()) {
+        menuItems.push({ label: 'Mes Disponibilites', icon: 'heroClipboardDocumentList', route: '/availability' });
+      }
+
+      if (this.authService.isStudent()) {
+        menuItems.push({ label: 'Ma Progression', icon: 'heroTrophy', route: '/progress' });
+        menuItems.push({ label: 'Abonnement', icon: 'heroCreditCard', route: '/subscription' });
+        menuItems.push({ label: 'Trouver un Coach', icon: 'heroAcademicCap', route: '/teachers' });
+      }
+
+      sections.push({ title: 'Menu', items: menuItems });
+    }
 
     // Compte section
     sections.push({

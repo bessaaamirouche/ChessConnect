@@ -11,6 +11,7 @@ export interface User {
   // Teacher fields
   hourlyRateCents?: number;
   acceptsSubscription?: boolean;
+  acceptsFreeTrial?: boolean;
   bio?: string;
   avatarUrl?: string;
   languages?: string[];

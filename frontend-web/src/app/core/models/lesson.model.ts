@@ -17,6 +17,7 @@ export interface Lesson {
   commissionCents: number;
   teacherEarningsCents: number;
   isFromSubscription: boolean;
+  isFreeTrial?: boolean;
   notes?: string;
   cancellationReason?: string;
   cancelledBy?: string;

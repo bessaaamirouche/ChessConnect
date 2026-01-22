@@ -90,6 +90,9 @@ public class Lesson {
     @Column(name = "teacher_joined_at")
     private LocalDateTime teacherJoinedAt;
 
+    @Column(name = "is_free_trial")
+    private Boolean isFreeTrial = false;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -190,6 +193,9 @@ public class Lesson {
 
     public LocalDateTime getTeacherJoinedAt() { return teacherJoinedAt; }
     public void setTeacherJoinedAt(LocalDateTime teacherJoinedAt) { this.teacherJoinedAt = teacherJoinedAt; }
+
+    public Boolean getIsFreeTrial() { return isFreeTrial; }
+    public void setIsFreeTrial(Boolean isFreeTrial) { this.isFreeTrial = isFreeTrial; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }

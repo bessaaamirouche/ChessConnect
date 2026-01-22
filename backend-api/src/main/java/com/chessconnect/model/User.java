@@ -95,6 +95,10 @@ public class User {
     @Column(name = "stripe_connect_onboarding_complete")
     private Boolean stripeConnectOnboardingComplete = false;
 
+    // Teacher accepts free trial lessons (discovery lessons, not paid)
+    @Column(name = "accepts_free_trial")
+    private Boolean acceptsFreeTrial = false;
+
     // First free trial lesson tracking
     @Column(name = "has_used_free_trial")
     private Boolean hasUsedFreeTrial = false;
@@ -226,4 +230,7 @@ public class User {
 
     public Boolean getStripeConnectOnboardingComplete() { return stripeConnectOnboardingComplete; }
     public void setStripeConnectOnboardingComplete(Boolean stripeConnectOnboardingComplete) { this.stripeConnectOnboardingComplete = stripeConnectOnboardingComplete; }
+
+    public Boolean getAcceptsFreeTrial() { return acceptsFreeTrial; }
+    public void setAcceptsFreeTrial(Boolean acceptsFreeTrial) { this.acceptsFreeTrial = acceptsFreeTrial; }
 }

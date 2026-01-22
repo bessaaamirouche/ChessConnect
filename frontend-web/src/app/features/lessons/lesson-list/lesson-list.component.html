@@ -79,6 +79,9 @@
                   @if (lesson.isFromSubscription) {
                     <span class="badge badge--gold">Abo</span>
                   }
+                  @if (lesson.isFreeTrial) {
+                    <span class="badge badge--info" title="Cours decouverte gratuit - 15 min (non remunere)">Decouverte</span>
+                  }
                 </div>
               </div>
 

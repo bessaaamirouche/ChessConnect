@@ -153,6 +153,11 @@ public class LessonService {
             throw new IllegalArgumentException("Selected user is not a teacher");
         }
 
+        // Check if teacher accepts free trial lessons
+        if (!Boolean.TRUE.equals(teacher.getAcceptsFreeTrial())) {
+            throw new IllegalArgumentException("Ce coach n'accepte pas les cours découverte gratuits");
+        }
+
         // Validate that the lesson end time is still in the future
         LocalDateTime lessonEnd = request.scheduledAt().plusMinutes(request.durationMinutes());
         if (!lessonEnd.isAfter(LocalDateTime.now())) {
@@ -162,15 +167,16 @@ public class LessonService {
         checkTeacherAvailability(teacher.getId(), request.scheduledAt(), request.durationMinutes());
         checkStudentTimeConflict(studentId, request.scheduledAt(), request.durationMinutes());
 
-        // Create the free trial lesson
+        // Create the free trial lesson (15 minutes discovery session)
         Lesson lesson = new Lesson();
         lesson.setStudent(student);
         lesson.setTeacher(teacher);
         lesson.setScheduledAt(request.scheduledAt());
-        lesson.setDurationMinutes(request.durationMinutes());
-        lesson.setNotes(request.notes() != null ? request.notes() + " [Cours d'essai gratuit]" : "[Cours d'essai gratuit]");
+        lesson.setDurationMinutes(15); // Free trial is limited to 15 minutes
+        lesson.setNotes("[Cours découverte - 15 min]");
         lesson.setStatus(LessonStatus.PENDING);
         lesson.setIsFromSubscription(false);
+        lesson.setIsFreeTrial(true); // Mark as free trial
         lesson.setPriceCents(0); // Free!
 
         Lesson savedLesson = lessonRepository.save(lesson);

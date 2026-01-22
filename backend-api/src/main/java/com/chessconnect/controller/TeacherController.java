@@ -76,6 +76,17 @@ public class TeacherController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/free-trial")
+    public ResponseEntity<List<TeacherResponse>> getTeachersAcceptingFreeTrial() {
+        List<User> teachers = userRepository.findByRole(UserRole.TEACHER).stream()
+                .filter(t -> Boolean.TRUE.equals(t.getAcceptsFreeTrial()))
+                .toList();
+        List<TeacherResponse> response = teachers.stream()
+                .map(this::mapToResponse)
+                .toList();
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/me/balance")
     public ResponseEntity<TeacherBalanceResponse> getMyBalance(@AuthenticationPrincipal UserDetails userDetails) {
         User user = userRepository.findByEmail(userDetails.getUsername())
@@ -120,6 +131,7 @@ public class TeacherController {
                 teacher.getLastName(),
                 teacher.getHourlyRateCents(),
                 teacher.getAcceptsSubscription(),
+                teacher.getAcceptsFreeTrial(),
                 teacher.getBio(),
                 teacher.getAvatarUrl(),
                 languagesList,
@@ -136,6 +148,7 @@ public class TeacherController {
             String lastName,
             Integer hourlyRateCents,
             Boolean acceptsSubscription,
+            Boolean acceptsFreeTrial,
             String bio,
             String avatarUrl,
             List<String> languages,

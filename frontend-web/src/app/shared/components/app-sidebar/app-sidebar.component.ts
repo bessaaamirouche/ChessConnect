@@ -105,9 +105,7 @@ export interface SidebarSection {
       <nav class="sidebar__nav">
         @for (section of sections; track section.title) {
           <div class="sidebar__section">
-            @if (!collapsed()) {
-              <span class="sidebar__section-title">{{ section.title }}</span>
-            }
+            <span class="sidebar__section-title">{{ section.title }}</span>
             @for (item of section.items; track item.label) {
               @if (item.route) {
                 <a

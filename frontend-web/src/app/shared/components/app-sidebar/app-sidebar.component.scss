@@ -112,25 +112,50 @@ $transition: 0.2s ease;
   &.collapsed {
     width: $sidebar-collapsed-width;
 
+    // Hide text elements but NOT section titles
     .sidebar__logo-text,
-    .sidebar__section-title,
     .sidebar__link-text,
     .sidebar__badge,
     .sidebar__user-info {
       display: none;
     }
 
+    // Section title centered
+    .sidebar__section-title {
+      text-align: center;
+      padding: 0;
+      margin-bottom: 12px;
+      font-size: 0.625rem;
+    }
+
+    // Section with centered alignment
+    .sidebar__section {
+      padding: 12px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    // Centered links
     .sidebar__link {
       justify-content: center;
       padding: 12px;
       width: 48px;
       height: 48px;
-      margin: 2px auto;
+      margin: 4px auto;
+      border-radius: 12px;
     }
 
+    // Larger icons
     .sidebar__icon {
       margin-right: 0;
-      font-size: 1.375rem;
+      font-size: 1.5rem;
+    }
+
+    // More visible active item
+    .sidebar__link.active {
+      background: rgba(212, 168, 75, 0.25);
+      border: 1px solid rgba(212, 168, 75, 0.4);
     }
 
     .sidebar__header {
@@ -156,10 +181,6 @@ $transition: 0.2s ease;
     .sidebar__footer {
       padding: 16px 12px;
       justify-content: center;
-    }
-
-    .sidebar__section {
-      padding: 8px 8px;
     }
   }
 
@@ -238,13 +259,13 @@ $transition: 0.2s ease;
     object-fit: contain;
 
     &--full {
-      height: 36px;
-      max-width: 160px;
+      height: 43px;
+      max-width: 190px;
     }
 
     &--icon {
-      height: 36px;
-      width: 36px;
+      height: 43px;
+      width: 43px;
     }
   }
 

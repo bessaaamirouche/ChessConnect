@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, OnInit, signal, ViewChild, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -14,6 +14,7 @@ import { LESSON_STATUS_LABELS, Lesson } from '../../core/models/lesson.model';
 import { CHESS_LEVELS } from '../../core/models/user.model';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { ConfirmModalComponent } from '../../shared/confirm-modal/confirm-modal.component';
+import { AppSidebarComponent, SidebarSection } from '../../shared/components/app-sidebar/app-sidebar.component';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   heroChartBarSquare,
@@ -44,7 +45,7 @@ import {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [RouterLink, DatePipe, DecimalPipe, ReactiveFormsModule, ConfirmModalComponent, NgIconComponent],
+  imports: [RouterLink, DatePipe, DecimalPipe, ReactiveFormsModule, ConfirmModalComponent, NgIconComponent, AppSidebarComponent],
   viewProviders: [provideIcons({
     heroChartBarSquare,
     heroCalendarDays,
@@ -87,6 +88,41 @@ export class DashboardComponent implements OnInit {
 
   // Mobile menu state
   mobileMenuOpen = signal(false);
+
+  // Sidebar sections
+  sidebarSections = computed<SidebarSection[]>(() => {
+    const sections: SidebarSection[] = [];
+
+    // Menu section
+    const menuItems: any[] = [
+      { label: 'Mon Espace', icon: 'heroChartBarSquare', route: '/dashboard' },
+      { label: 'Mes Cours', icon: 'heroCalendarDays', route: '/lessons' }
+    ];
+
+    if (this.authService.isTeacher()) {
+      menuItems.push({ label: 'Mes Disponibilites', icon: 'heroClipboardDocumentList', route: '/availability' });
+    }
+
+    if (this.authService.isStudent()) {
+      menuItems.push({ label: 'Ma Progression', icon: 'heroTrophy', route: '/progress' });
+      menuItems.push({ label: 'Abonnement', icon: 'heroCreditCard', route: '/subscription' });
+      menuItems.push({ label: 'Trouver un Coach', icon: 'heroAcademicCap', route: '/teachers' });
+    }
+
+    sections.push({ title: 'Menu', items: menuItems });
+
+    // Compte section
+    sections.push({
+      title: 'Compte',
+      items: [
+        { label: 'Mon Profil', icon: 'heroUserCircle', route: '/settings' },
+        { label: 'Mes Factures', icon: 'heroDocumentText', route: '/invoices' },
+        { label: 'Deconnexion', icon: 'heroArrowRightOnRectangle', action: () => this.logout() }
+      ]
+    });
+
+    return sections;
+  });
 
   // Profile editing
   savingProfile = signal(false);

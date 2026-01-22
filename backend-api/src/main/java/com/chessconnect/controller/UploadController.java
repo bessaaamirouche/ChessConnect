@@ -18,16 +18,13 @@ import java.util.Map;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/upload")
+@RequestMapping("/upload")
 public class UploadController {
 
     private final UserRepository userRepository;
 
     @Value("${app.upload.dir:uploads}")
     private String uploadDir;
-
-    @Value("${app.base-url:http://localhost:8282}")
-    private String baseUrl;
 
     public UploadController(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -83,8 +80,8 @@ public class UploadController {
             Path filePath = uploadPath.resolve(newFilename);
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
-            // Update user avatar URL
-            String avatarUrl = baseUrl + "/uploads/avatars/" + newFilename;
+            // Update user avatar URL (relative path, served by nginx)
+            String avatarUrl = "/api/uploads/avatars/" + newFilename;
             user.setAvatarUrl(avatarUrl);
             userRepository.save(user);
 

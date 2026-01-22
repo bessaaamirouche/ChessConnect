@@ -89,6 +89,7 @@ import { DialogService } from '../../../core/services/dialog.service';
                   <tr>
                     <th>Coach</th>
                     <th>Ce mois</th>
+                    <th>A virer</th>
                     <th>Total gagne</th>
                     <th>Compte</th>
                     <th>Statut</th>
@@ -113,6 +114,7 @@ import { DialogService } from '../../../core/services/dialog.service';
                           <span class="text-muted small">{{ balance.currentMonthLessonsCount }} cours</span>
                         </div>
                       </td>
+                      <td class="amount amount--success">{{ formatCents(balance.availableBalanceCents) }}</td>
                       <td class="amount">{{ formatCents(balance.totalEarnedCents) }}</td>
                       <td>
                         @if (balance.stripeConnectReady) {
@@ -140,7 +142,7 @@ import { DialogService } from '../../../core/services/dialog.service';
                         }
                       </td>
                       <td>
-                        @if (!balance.currentMonthPaid && balance.currentMonthEarningsCents > 0) {
+                        @if (balance.availableBalanceCents > 0) {
                           @if (balance.stripeConnectReady) {
                             <button
                               class="btn btn--sm btn--primary"
@@ -150,12 +152,14 @@ import { DialogService } from '../../../core/services/dialog.service';
                               @if (payingTeacher() === balance.teacherId) {
                                 ...
                               } @else {
-                                Virer
+                                Virer {{ formatCents(balance.availableBalanceCents) }}
                               }
                             </button>
                           } @else {
                             <span class="text-muted small">Compte non configure</span>
                           }
+                        } @else {
+                          <span class="text-muted small">Rien a virer</span>
                         }
                       </td>
                     </tr>
@@ -638,7 +642,7 @@ export class AccountingComponent implements OnInit {
 
   async markAsPaid(balance: TeacherBalanceResponse): Promise<void> {
     const confirmed = await this.dialogService.confirm(
-      `Confirmer le virement de ${this.formatCents(balance.currentMonthEarningsCents)} a ${balance.firstName} ${balance.lastName} ?`,
+      `Confirmer le virement de ${this.formatCents(balance.availableBalanceCents)} a ${balance.firstName} ${balance.lastName} ?\n\nCe montant correspond au solde total disponible.`,
       'Confirmer le virement',
       { confirmText: 'Effectuer le virement', cancelText: 'Annuler', variant: 'info' }
     );

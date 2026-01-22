@@ -63,6 +63,7 @@ public class StripeService {
         // Use dynamic price data instead of pre-created price IDs
         SessionCreateParams.Builder paramsBuilder = SessionCreateParams.builder()
                 .setMode(SessionCreateParams.Mode.SUBSCRIPTION)
+                .addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
                 .putMetadata("user_id", user.getId().toString())
                 .putMetadata("plan", plan.name())
                 .addLineItem(
@@ -111,6 +112,7 @@ public class StripeService {
     public Session createOneTimePaymentSession(User user, int amountCents, String description, Long lessonId) throws StripeException {
         SessionCreateParams params = SessionCreateParams.builder()
                 .setMode(SessionCreateParams.Mode.PAYMENT)
+                .addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
                 .setSuccessUrl(frontendUrl + "/lessons/book/success?session_id={CHECKOUT_SESSION_ID}")
                 .setCancelUrl(frontendUrl + "/lessons/book/cancel")
                 .setCustomerEmail(user.getEmail())
@@ -165,6 +167,7 @@ public class StripeService {
     ) throws StripeException {
         SessionCreateParams.Builder paramsBuilder = SessionCreateParams.builder()
                 .setMode(SessionCreateParams.Mode.PAYMENT)
+                .addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
                 .setCustomerEmail(student.getEmail())
                 .putMetadata("user_id", student.getId().toString())
                 .putMetadata("teacher_id", teacherId.toString())

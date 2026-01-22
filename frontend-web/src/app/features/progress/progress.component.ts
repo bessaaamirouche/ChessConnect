@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, signal, ChangeDetectionStrategy, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { ProgressService, LevelInfo } from '../../core/services/progress.service';
@@ -7,6 +7,7 @@ import { LearningPathService } from '../../core/services/learning-path.service';
 import { SeoService } from '../../core/services/seo.service';
 import { CHESS_LEVELS, ChessLevel } from '../../core/models/user.model';
 import { Course } from '../../core/models/learning-path.model';
+import { AppSidebarComponent, SidebarSection } from '../../shared/components/app-sidebar/app-sidebar.component';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   heroChartBarSquare,
@@ -30,7 +31,7 @@ import {
 @Component({
   selector: 'app-progress',
   standalone: true,
-  imports: [RouterLink, DatePipe, DecimalPipe, NgIconComponent],
+  imports: [RouterLink, DatePipe, DecimalPipe, NgIconComponent, AppSidebarComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({
     heroChartBarSquare,
@@ -58,6 +59,28 @@ export class ProgressComponent implements OnInit {
   CHESS_LEVELS = CHESS_LEVELS;
 
   expandedLevel = signal<ChessLevel | null>(null);
+
+  // Sidebar sections
+  sidebarSections = computed<SidebarSection[]>(() => {
+    const sections: SidebarSection[] = [];
+    const menuItems: any[] = [
+      { label: 'Mon Espace', icon: 'heroChartBarSquare', route: '/dashboard' },
+      { label: 'Mes Cours', icon: 'heroCalendarDays', route: '/lessons' },
+      { label: 'Ma Progression', icon: 'heroTrophy', route: '/progress', active: true },
+      { label: 'Abonnement', icon: 'heroCreditCard', route: '/subscription' },
+      { label: 'Trouver un Coach', icon: 'heroAcademicCap', route: '/teachers' }
+    ];
+    sections.push({ title: 'Menu', items: menuItems });
+    sections.push({
+      title: 'Compte',
+      items: [
+        { label: 'Mon Profil', icon: 'heroUserCircle', route: '/settings' },
+        { label: 'Mes Factures', icon: 'heroDocumentText', route: '/invoices' },
+        { label: 'Deconnexion', icon: 'heroArrowRightOnRectangle', action: () => this.authService.logout() }
+      ]
+    });
+    return sections;
+  });
 
   constructor(
     public progressService: ProgressService,

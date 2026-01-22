@@ -12,6 +12,7 @@ import { ConfirmModalComponent } from '../../../shared/confirm-modal/confirm-mod
 import { StudentProfileModalComponent } from '../../../shared/student-profile-modal/student-profile-modal.component';
 import { RatingModalComponent } from '../../../shared/rating-modal/rating-modal.component';
 import { VideoCallComponent } from '../../../shared/video-call/video-call.component';
+import { AppSidebarComponent, SidebarSection } from '../../../shared/components/app-sidebar/app-sidebar.component';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   heroCalendarDays,
@@ -36,14 +37,15 @@ import {
   heroTrash,
   heroPlayCircle,
   heroFunnel,
-  heroMagnifyingGlass
+  heroMagnifyingGlass,
+  heroDocumentText
 } from '@ng-icons/heroicons/outline';
 import { CHESS_LEVELS } from '../../../core/models/user.model';
 
 @Component({
   selector: 'app-lesson-list',
   standalone: true,
-  imports: [RouterLink, DatePipe, FormsModule, ConfirmModalComponent, NgIconComponent, StudentProfileModalComponent, RatingModalComponent, VideoCallComponent],
+  imports: [RouterLink, DatePipe, FormsModule, ConfirmModalComponent, NgIconComponent, StudentProfileModalComponent, RatingModalComponent, VideoCallComponent, AppSidebarComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({
     heroCalendarDays,
@@ -91,6 +93,33 @@ export class LessonListComponent implements OnInit {
   ratingLessonId = signal<number | null>(null);
   ratingTeacherName = signal('');
   ratedLessons = signal<Set<number>>(new Set());
+
+  // Sidebar sections
+  sidebarSections = computed<SidebarSection[]>(() => {
+    const sections: SidebarSection[] = [];
+    const menuItems: any[] = [
+      { label: 'Mon Espace', icon: 'heroChartBarSquare', route: '/dashboard' },
+      { label: 'Mes Cours', icon: 'heroCalendarDays', route: '/lessons', active: true }
+    ];
+    if (this.authService.isTeacher()) {
+      menuItems.push({ label: 'Mes Disponibilites', icon: 'heroClipboardDocumentList', route: '/availability' });
+    }
+    if (this.authService.isStudent()) {
+      menuItems.push({ label: 'Ma Progression', icon: 'heroTrophy', route: '/progress' });
+      menuItems.push({ label: 'Abonnement', icon: 'heroCreditCard', route: '/subscription' });
+      menuItems.push({ label: 'Trouver un Coach', icon: 'heroAcademicCap', route: '/teachers' });
+    }
+    sections.push({ title: 'Menu', items: menuItems });
+    sections.push({
+      title: 'Compte',
+      items: [
+        { label: 'Mon Profil', icon: 'heroUserCircle', route: '/settings' },
+        { label: 'Mes Factures', icon: 'heroDocumentText', route: '/invoices' },
+        { label: 'Deconnexion', icon: 'heroArrowRightOnRectangle', action: () => this.logout() }
+      ]
+    });
+    return sections;
+  });
 
   // Video player
   showVideoPlayer = signal(false);

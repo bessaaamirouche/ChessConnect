@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, signal, ChangeDetectionStrategy, computed } from '@angular/core';
 import { RouterLink, Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { PaymentService, SubscriptionPlanResponseDto } from '../../core/services/payment.service';
@@ -6,6 +6,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { SeoService } from '../../core/services/seo.service';
 import { SubscriptionPlan } from '../../core/models/subscription.model';
 import { EmbeddedCheckoutComponent } from '../../shared/embedded-checkout/embedded-checkout.component';
+import { AppSidebarComponent, SidebarSection } from '../../shared/components/app-sidebar/app-sidebar.component';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   heroChartBarSquare,
@@ -25,7 +26,7 @@ import {
 @Component({
   selector: 'app-subscription',
   standalone: true,
-  imports: [RouterLink, DatePipe, NgIconComponent, EmbeddedCheckoutComponent],
+  imports: [RouterLink, DatePipe, NgIconComponent, EmbeddedCheckoutComponent, AppSidebarComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({
     heroChartBarSquare,
@@ -54,6 +55,28 @@ export class SubscriptionComponent implements OnInit {
   checkoutClientSecret = signal<string | null>(null);
   checkoutSessionId = signal<string | null>(null);
   selectedPlanName = signal<string>('');
+
+  // Sidebar sections
+  sidebarSections = computed<SidebarSection[]>(() => {
+    const sections: SidebarSection[] = [];
+    const menuItems: any[] = [
+      { label: 'Mon Espace', icon: 'heroChartBarSquare', route: '/dashboard' },
+      { label: 'Mes Cours', icon: 'heroCalendarDays', route: '/lessons' },
+      { label: 'Ma Progression', icon: 'heroTrophy', route: '/progress' },
+      { label: 'Abonnement', icon: 'heroCreditCard', route: '/subscription', active: true },
+      { label: 'Trouver un Coach', icon: 'heroAcademicCap', route: '/teachers' }
+    ];
+    sections.push({ title: 'Menu', items: menuItems });
+    sections.push({
+      title: 'Compte',
+      items: [
+        { label: 'Mon Profil', icon: 'heroUserCircle', route: '/settings' },
+        { label: 'Mes Factures', icon: 'heroDocumentText', route: '/invoices' },
+        { label: 'Deconnexion', icon: 'heroArrowRightOnRectangle', action: () => this.authService.logout() }
+      ]
+    });
+    return sections;
+  });
 
   constructor(
     public paymentService: PaymentService,

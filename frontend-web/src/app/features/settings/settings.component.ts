@@ -96,10 +96,7 @@ export class SettingsComponent implements OnInit {
       hourlyRate: [50],
       acceptsSubscription: [true],
       bio: [''],
-      // Teacher banking fields
-      iban: [''],
-      bic: [''],
-      accountHolderName: [''],
+      // Teacher professional fields
       siret: [''],
       companyName: [''],
       // Student fields
@@ -157,10 +154,7 @@ export class SettingsComponent implements OnInit {
         hourlyRate: user.hourlyRateCents ? user.hourlyRateCents / 100 : 50,
         acceptsSubscription: user.acceptsSubscription ?? true,
         bio: user.bio || '',
-        // Banking fields
-        iban: user.iban || '',
-        bic: user.bic || '',
-        accountHolderName: user.accountHolderName || '',
+        // Professional fields
         siret: user.siret || '',
         companyName: user.companyName || '',
         // Student fields
@@ -219,10 +213,7 @@ export class SettingsComponent implements OnInit {
       payload.acceptsSubscription = formValue.acceptsSubscription;
       payload.bio = formValue.bio;
       payload.languages = this.selectedLanguages();
-      // Banking fields
-      payload.iban = formValue.iban;
-      payload.bic = formValue.bic;
-      payload.accountHolderName = formValue.accountHolderName;
+      // Professional fields
       payload.siret = formValue.siret;
       payload.companyName = formValue.companyName;
     }

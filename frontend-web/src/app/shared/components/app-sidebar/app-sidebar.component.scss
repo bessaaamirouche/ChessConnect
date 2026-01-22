@@ -112,7 +112,8 @@ $transition: 0.2s ease;
   &.collapsed {
     width: $sidebar-collapsed-width;
 
-    // Hide text elements but NOT section titles
+    // Hide logo, text elements
+    .sidebar__logo-img,
     .sidebar__logo-text,
     .sidebar__link-text,
     .sidebar__badge,
@@ -120,13 +121,14 @@ $transition: 0.2s ease;
       display: none;
     }
 
-    // Section title centered
+    // Section title centered - smaller font to fit
     .sidebar__section-title {
       width: 100%;
       text-align: center;
       padding: 0;
       margin-bottom: 8px;
-      font-size: 0.625rem;
+      font-size: 0.5rem;
+      letter-spacing: 0.05em;
     }
 
     // Section takes full width
@@ -138,48 +140,49 @@ $transition: 0.2s ease;
       align-items: center;
     }
 
-    // Centered links
+    // Centered links - icon only
     .sidebar__link {
       display: flex;
       justify-content: center;
       align-items: center;
       padding: 0;
-      width: 44px;
-      height: 44px;
-      margin: 2px 0;
+      width: 40px;
+      height: 40px;
+      margin: 3px 0;
       border-radius: 10px;
     }
 
-    // Larger icons
+    // Icons
     .sidebar__icon {
       margin-right: 0;
-      font-size: 1.5rem;
+      font-size: 1.25rem;
     }
 
-    // More visible active item
+    // Active item - gold highlight on icon only
     .sidebar__link.active {
       background: rgba(212, 168, 75, 0.25);
       border: 1px solid rgba(212, 168, 75, 0.4);
     }
 
+    // Header - center the collapse button
     .sidebar__header {
-      padding: 12px 8px;
+      padding: 16px 0;
       justify-content: center;
+      min-height: 60px;
     }
 
     .sidebar__logo {
-      justify-content: center;
+      display: none;
     }
 
+    // Collapse button centered
     .sidebar__collapse-btn {
-      position: absolute;
-      right: -12px;
-      top: 20px;
-      background: $sidebar-bg;
+      position: static;
+      background: $hover-bg;
       border: 1px solid $sidebar-border;
       border-radius: 50%;
-      width: 24px;
-      height: 24px;
+      width: 32px;
+      height: 32px;
     }
 
     .sidebar__footer {

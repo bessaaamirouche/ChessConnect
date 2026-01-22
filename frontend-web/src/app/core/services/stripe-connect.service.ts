@@ -100,4 +100,24 @@ export class StripeConnectService {
       })
     );
   }
+
+  /**
+   * Get teacher's balance for withdrawal
+   */
+  getBalance(): Observable<{ availableBalanceCents: number; totalEarnedCents: number; totalWithdrawnCents: number; lessonsCompleted: number }> {
+    return this.http.get<{ availableBalanceCents: number; totalEarnedCents: number; totalWithdrawnCents: number; lessonsCompleted: number }>(`${this.apiUrl}/balance`);
+  }
+
+  /**
+   * Withdraw available balance to teacher's Stripe Connect account
+   */
+  withdraw(): Observable<{ success: boolean; message?: string; amountCents?: number; stripeTransferId?: string }> {
+    this.loading.set(true);
+    return this.http.post<{ success: boolean; message?: string; amountCents?: number; stripeTransferId?: string }>(`${this.apiUrl}/withdraw`, {}).pipe(
+      tap({
+        next: () => this.loading.set(false),
+        error: () => this.loading.set(false)
+      })
+    );
+  }
 }

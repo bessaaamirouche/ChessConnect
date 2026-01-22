@@ -362,11 +362,11 @@ public class AdminService {
     }
 
     /**
-     * Mark a teacher as paid - transfers the FULL available balance.
+     * Mark a teacher as paid - transfers a custom amount or the full available balance.
      * This performs a real Stripe Connect transfer to the teacher's connected account.
      */
     @Transactional
-    public TeacherPayoutResult markTeacherPaid(Long teacherId, String yearMonth, String paymentReference, String notes) {
+    public TeacherPayoutResult markTeacherPaid(Long teacherId, String yearMonth, String paymentReference, String notes, Integer customAmountCents) {
         User teacher = userRepository.findById(teacherId)
                 .orElseThrow(() -> new IllegalArgumentException("Coach non trouve"));
 
@@ -379,11 +379,18 @@ public class AdminService {
         TeacherBalance balance = teacherBalanceRepository.findByTeacherId(teacherId)
                 .orElseThrow(() -> new IllegalArgumentException("Aucun solde trouve pour ce coach"));
 
-        // Use the FULL available balance (not just current month)
         int availableBalance = balance.getAvailableBalanceCents() != null ? balance.getAvailableBalanceCents() : 0;
 
         if (availableBalance <= 0) {
             throw new IllegalArgumentException("Aucun solde disponible a transferer");
+        }
+
+        // Use custom amount if provided, otherwise use full available balance
+        int transferAmount = customAmountCents != null && customAmountCents > 0 ? customAmountCents : availableBalance;
+
+        // Validate transfer amount doesn't exceed available balance
+        if (transferAmount > availableBalance) {
+            throw new IllegalArgumentException("Le montant demande (" + (transferAmount / 100.0) + " EUR) depasse le solde disponible (" + (availableBalance / 100.0) + " EUR)");
         }
 
         // Get or create payout record for tracking
@@ -396,40 +403,36 @@ public class AdminService {
                     return newPayout;
                 });
 
-        // Check if already paid this month
-        if (payout.getIsPaid() != null && payout.getIsPaid()) {
-            throw new IllegalArgumentException("Le coach a deja ete paye pour ce mois");
-        }
-
-        // Perform the Stripe transfer with FULL available balance
+        // Perform the Stripe transfer
         String stripeTransferId = null;
         try {
-            Transfer transfer = stripeConnectService.payTeacher(teacher, availableBalance, yearMonth);
+            Transfer transfer = stripeConnectService.payTeacher(teacher, transferAmount, yearMonth);
             stripeTransferId = transfer.getId();
-            log.info("Stripe transfer {} created for teacher {} - {} cents (full balance)", stripeTransferId, teacherId, availableBalance);
+            log.info("Stripe transfer {} created for teacher {} - {} cents", stripeTransferId, teacherId, transferAmount);
         } catch (Exception e) {
             log.error("Failed to create Stripe transfer for teacher {}", teacherId, e);
             throw new RuntimeException("Erreur lors du transfert Stripe: " + e.getMessage());
         }
 
-        // Update teacher balance - reset available to 0, add to withdrawn
-        balance.setTotalWithdrawnCents(balance.getTotalWithdrawnCents() + availableBalance);
-        balance.setAvailableBalanceCents(0);
+        // Update teacher balance - subtract transfer amount from available
+        balance.setTotalWithdrawnCents(balance.getTotalWithdrawnCents() + transferAmount);
+        balance.setAvailableBalanceCents(availableBalance - transferAmount);
         teacherBalanceRepository.save(balance);
 
-        // Update payout record
-        payout.setAmountCents(availableBalance);
+        // Update payout record (add to existing if already has amount for this month)
+        int existingAmount = payout.getAmountCents() != null ? payout.getAmountCents() : 0;
+        payout.setAmountCents(existingAmount + transferAmount);
         payout.setLessonsCount(balance.getLessonsCompleted());
-        payout.setIsPaid(true);
+        payout.setIsPaid(balance.getAvailableBalanceCents() == 0); // Mark as paid only if fully paid
         payout.setPaidAt(LocalDateTime.now());
         payout.setPaymentReference(paymentReference);
         payout.setNotes(notes);
         payout.setStripeTransferId(stripeTransferId);
 
         teacherPayoutRepository.save(payout);
-        log.info("Marked teacher {} as paid: {} cents transferred, balance reset to 0", teacherId, availableBalance);
+        log.info("Transferred {} cents to teacher {}, remaining balance: {} cents", transferAmount, teacherId, balance.getAvailableBalanceCents());
 
-        return new TeacherPayoutResult(availableBalance, stripeTransferId, balance.getLessonsCompleted());
+        return new TeacherPayoutResult(transferAmount, stripeTransferId, balance.getLessonsCompleted());
     }
 
     /**

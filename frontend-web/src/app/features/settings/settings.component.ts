@@ -71,6 +71,10 @@ export class SettingsComponent implements OnInit {
   stripeConnectSuccess = signal<string | null>(null);
   stripeConnectError = signal<string | null>(null);
 
+  // Teacher balance and withdrawal
+  teacherBalance = signal<{ availableBalanceCents: number; totalEarnedCents: number; totalWithdrawnCents: number } | null>(null);
+  withdrawing = signal(false);
+
   private dialogService = inject(DialogService);
 
   constructor(
@@ -114,9 +118,10 @@ export class SettingsComponent implements OnInit {
     this.loadProfile();
     this.loadCalendarStatus();
 
-    // Load Stripe Connect status for teachers
+    // Load Stripe Connect status and balance for teachers
     if (this.authService.isTeacher()) {
       this.loadStripeConnectStatus();
+      this.loadTeacherBalance();
     }
 
     // Handle OAuth callbacks and Stripe Connect returns
@@ -435,6 +440,50 @@ export class SettingsComponent implements OnInit {
       error: (err) => {
         this.stripeConnectLoading.set(false);
         this.stripeConnectError.set(err.error?.message || 'Erreur lors de la deconnexion');
+      }
+    });
+  }
+
+  // Teacher balance methods
+  loadTeacherBalance(): void {
+    this.stripeConnectService.getBalance().subscribe({
+      next: (balance) => this.teacherBalance.set(balance),
+      error: () => this.teacherBalance.set(null)
+    });
+  }
+
+  formatCents(cents: number): string {
+    return (cents / 100).toFixed(2) + ' EUR';
+  }
+
+  async withdrawEarnings(): Promise<void> {
+    const balance = this.teacherBalance();
+    if (!balance || balance.availableBalanceCents <= 0) return;
+
+    const confirmed = await this.dialogService.confirm(
+      `Voulez-vous retirer ${this.formatCents(balance.availableBalanceCents)} vers votre compte bancaire ?`,
+      'Retirer mes gains',
+      { confirmText: 'Retirer', cancelText: 'Annuler', variant: 'info' }
+    );
+    if (!confirmed) return;
+
+    this.withdrawing.set(true);
+    this.stripeConnectError.set(null);
+
+    this.stripeConnectService.withdraw().subscribe({
+      next: (response) => {
+        this.withdrawing.set(false);
+        if (response.success) {
+          this.stripeConnectSuccess.set(`Retrait de ${this.formatCents(response.amountCents || 0)} effectue !`);
+          this.loadTeacherBalance();
+          setTimeout(() => this.stripeConnectSuccess.set(null), 5000);
+        } else {
+          this.stripeConnectError.set(response.message || 'Erreur lors du retrait');
+        }
+      },
+      error: (err) => {
+        this.withdrawing.set(false);
+        this.stripeConnectError.set(err.error?.message || 'Erreur lors du retrait');
       }
     });
   }

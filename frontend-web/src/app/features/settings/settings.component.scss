@@ -558,3 +558,52 @@
   width: 40px;
   height: auto;
 }
+
+// Earnings summary
+.earnings-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+    gap: var(--space-sm);
+  }
+}
+
+.earnings-item {
+  padding: var(--space-md);
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  text-align: center;
+
+  &--available {
+    border-color: var(--gold-500);
+    background: rgba(212, 168, 75, 0.05);
+  }
+
+  &__label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: var(--space-xs);
+  }
+
+  &__value {
+    display: block;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--gold-400);
+    font-family: var(--font-mono, monospace);
+
+    &--muted {
+      color: var(--text-secondary);
+      font-size: 1rem;
+    }
+  }
+}

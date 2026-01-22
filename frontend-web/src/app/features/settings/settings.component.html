@@ -396,6 +396,48 @@
             </div>
           }
         </div>
+
+        <!-- Mes Gains (teachers only) -->
+        <div class="card">
+          <h3 class="card__title">Mes Gains</h3>
+
+          @if (teacherBalance()) {
+            <div class="earnings-summary">
+              <div class="earnings-item earnings-item--available">
+                <span class="earnings-item__label">Solde disponible</span>
+                <span class="earnings-item__value">{{ formatCents(teacherBalance()!.availableBalanceCents) }}</span>
+              </div>
+              <div class="earnings-item">
+                <span class="earnings-item__label">Total gagne</span>
+                <span class="earnings-item__value earnings-item__value--muted">{{ formatCents(teacherBalance()!.totalEarnedCents) }}</span>
+              </div>
+              <div class="earnings-item">
+                <span class="earnings-item__label">Deja retire</span>
+                <span class="earnings-item__value earnings-item__value--muted">{{ formatCents(teacherBalance()!.totalWithdrawnCents) }}</span>
+              </div>
+            </div>
+
+            @if (teacherBalance()!.availableBalanceCents > 0 && stripeConnectStatus().isReady) {
+              <button
+                class="btn btn--primary"
+                (click)="withdrawEarnings()"
+                [disabled]="withdrawing()"
+              >
+                @if (withdrawing()) {
+                  <span class="spinner spinner--sm"></span> Retrait en cours...
+                } @else {
+                  Recuperer mes gains ({{ formatCents(teacherBalance()!.availableBalanceCents) }})
+                }
+              </button>
+            } @else if (teacherBalance()!.availableBalanceCents > 0 && !stripeConnectStatus().isReady) {
+              <p class="text-muted text-sm">Configurez votre compte bancaire ci-dessus pour pouvoir retirer vos gains.</p>
+            } @else {
+              <p class="text-muted text-sm">Aucun gain disponible pour le moment.</p>
+            }
+          } @else {
+            <p class="text-muted">Chargement de vos gains...</p>
+          }
+        </div>
       }
     </div>
   </main>

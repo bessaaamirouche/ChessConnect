@@ -144,17 +144,29 @@ import { DialogService } from '../../../core/services/dialog.service';
                       <td>
                         @if (balance.availableBalanceCents > 0) {
                           @if (balance.stripeConnectReady) {
-                            <button
-                              class="btn btn--sm btn--primary"
-                              (click)="markAsPaid(balance)"
-                              [disabled]="payingTeacher() === balance.teacherId"
-                            >
-                              @if (payingTeacher() === balance.teacherId) {
-                                ...
-                              } @else {
-                                Virer {{ formatCents(balance.availableBalanceCents) }}
-                              }
-                            </button>
+                            <div class="transfer-action">
+                              <input
+                                type="number"
+                                class="transfer-input"
+                                [value]="balance.availableBalanceCents / 100"
+                                (input)="setTransferAmount(balance.teacherId, $event)"
+                                [max]="balance.availableBalanceCents / 100"
+                                min="1"
+                                step="0.01"
+                                placeholder="Montant"
+                              >
+                              <button
+                                class="btn btn--sm btn--primary"
+                                (click)="markAsPaid(balance)"
+                                [disabled]="payingTeacher() === balance.teacherId"
+                              >
+                                @if (payingTeacher() === balance.teacherId) {
+                                  ...
+                                } @else {
+                                  Virer
+                                }
+                              </button>
+                            </div>
                           } @else {
                             <span class="text-muted small">Compte non configure</span>
                           }
@@ -573,6 +585,34 @@ import { DialogService } from '../../../core/services/dialog.service';
       padding: var(--space-2xl);
       color: var(--text-muted);
     }
+
+    .transfer-action {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+
+    .transfer-input {
+      width: 80px;
+      padding: 6px 8px;
+      font-size: 0.8125rem;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      text-align: right;
+
+      &:focus {
+        outline: none;
+        border-color: var(--gold-500);
+      }
+
+      &::-webkit-inner-spin-button,
+      &::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+    }
   `]
 })
 export class AccountingComponent implements OnInit {
@@ -581,6 +621,7 @@ export class AccountingComponent implements OnInit {
   loading = signal(true);
   payingTeacher = signal<number | null>(null);
   searchQuery = '';
+  transferAmounts: Map<number, number> = new Map(); // teacherId -> amount in cents
   private dialogService = inject(DialogService);
 
   // Filtered balances based on search query
@@ -640,16 +681,43 @@ export class AccountingComponent implements OnInit {
     return iban.slice(0, 4) + '****' + iban.slice(-4);
   }
 
+  setTransferAmount(teacherId: number, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const amountEuros = parseFloat(input.value) || 0;
+    const amountCents = Math.round(amountEuros * 100);
+    this.transferAmounts.set(teacherId, amountCents);
+  }
+
+  getTransferAmount(balance: TeacherBalanceResponse): number {
+    return this.transferAmounts.get(balance.teacherId) ?? balance.availableBalanceCents;
+  }
+
   async markAsPaid(balance: TeacherBalanceResponse): Promise<void> {
+    const amountCents = this.getTransferAmount(balance);
+
+    if (amountCents <= 0) {
+      await this.dialogService.alert('Le montant doit etre superieur a 0', 'Erreur', { variant: 'danger' });
+      return;
+    }
+
+    if (amountCents > balance.availableBalanceCents) {
+      await this.dialogService.alert(
+        `Le montant ne peut pas depasser le solde disponible (${this.formatCents(balance.availableBalanceCents)})`,
+        'Erreur',
+        { variant: 'danger' }
+      );
+      return;
+    }
+
     const confirmed = await this.dialogService.confirm(
-      `Confirmer le virement de ${this.formatCents(balance.availableBalanceCents)} a ${balance.firstName} ${balance.lastName} ?\n\nCe montant correspond au solde total disponible.`,
+      `Confirmer le virement de ${this.formatCents(amountCents)} a ${balance.firstName} ${balance.lastName} ?`,
       'Confirmer le virement',
       { confirmText: 'Effectuer le virement', cancelText: 'Annuler', variant: 'info' }
     );
     if (!confirmed) return;
 
     this.payingTeacher.set(balance.teacherId);
-    this.adminService.markTeacherPaid(balance.teacherId).subscribe({
+    this.adminService.markTeacherPaid(balance.teacherId, undefined, undefined, undefined, amountCents).subscribe({
       next: (response) => {
         this.payingTeacher.set(null);
         if (response.success) {

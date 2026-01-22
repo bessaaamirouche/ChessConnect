@@ -161,11 +161,12 @@ export class AdminService {
     return this.http.get<TeacherBalanceResponse[]>(`${this.apiUrl}/accounting/teachers`);
   }
 
-  markTeacherPaid(teacherId: number, yearMonth?: string, paymentReference?: string, notes?: string): Observable<MarkTeacherPaidResponse> {
+  markTeacherPaid(teacherId: number, yearMonth?: string, paymentReference?: string, notes?: string, amountCents?: number): Observable<MarkTeacherPaidResponse> {
     return this.http.post<MarkTeacherPaidResponse>(`${this.apiUrl}/accounting/teachers/${teacherId}/pay`, {
       yearMonth: yearMonth || new Date().toISOString().slice(0, 7),
       paymentReference: paymentReference || '',
-      notes: notes || ''
+      notes: notes || '',
+      amountCents: amountCents
     });
   }
 

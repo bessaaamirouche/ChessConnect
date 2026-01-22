@@ -2,11 +2,13 @@ package com.chessconnect.controller;
 
 import com.chessconnect.model.User;
 import com.chessconnect.model.enums.UserRole;
+import com.chessconnect.repository.TeacherBalanceRepository;
 import com.chessconnect.repository.UserRepository;
 import com.chessconnect.security.UserDetailsImpl;
 import com.chessconnect.service.StripeConnectService;
 import com.chessconnect.service.StripeConnectService.AccountStatus;
 import com.chessconnect.service.StripeConnectService.OnboardingResult;
+import com.chessconnect.service.TeacherBalanceService;
 import com.stripe.exception.StripeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,13 +29,19 @@ public class StripeConnectController {
 
     private final StripeConnectService stripeConnectService;
     private final UserRepository userRepository;
+    private final TeacherBalanceService teacherBalanceService;
+    private final TeacherBalanceRepository teacherBalanceRepository;
 
     public StripeConnectController(
             StripeConnectService stripeConnectService,
-            UserRepository userRepository
+            UserRepository userRepository,
+            TeacherBalanceService teacherBalanceService,
+            TeacherBalanceRepository teacherBalanceRepository
     ) {
         this.stripeConnectService = stripeConnectService;
         this.userRepository = userRepository;
+        this.teacherBalanceService = teacherBalanceService;
+        this.teacherBalanceRepository = teacherBalanceRepository;
     }
 
     /**
@@ -223,6 +231,102 @@ public class StripeConnectController {
             return ResponseEntity.badRequest().body(Map.of(
                     "success", false,
                     "message", e.getMessage()
+            ));
+        }
+    }
+
+    /**
+     * Get teacher's current balance for withdrawal.
+     */
+    @GetMapping("/balance")
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseEntity<Map<String, Object>> getBalance(
+            @AuthenticationPrincipal UserDetailsImpl userDetails
+    ) {
+        try {
+            var balance = teacherBalanceService.getBalance(userDetails.getId());
+
+            return ResponseEntity.ok(Map.of(
+                    "availableBalanceCents", balance.availableBalanceCents(),
+                    "pendingBalanceCents", balance.pendingBalanceCents(),
+                    "totalEarnedCents", balance.totalEarnedCents(),
+                    "totalWithdrawnCents", balance.totalWithdrawnCents(),
+                    "lessonsCompleted", balance.lessonsCompleted()
+            ));
+
+        } catch (Exception e) {
+            log.error("Error getting teacher balance", e);
+            return ResponseEntity.badRequest().body(Map.of(
+                    "availableBalanceCents", 0,
+                    "message", e.getMessage()
+            ));
+        }
+    }
+
+    /**
+     * Teacher withdraws their available balance to their Stripe Connect account.
+     */
+    @PostMapping("/withdraw")
+    @PreAuthorize("hasRole('TEACHER')")
+    @Transactional
+    public ResponseEntity<Map<String, Object>> withdrawEarnings(
+            @AuthenticationPrincipal UserDetailsImpl userDetails
+    ) {
+        try {
+            User teacher = userRepository.findById(userDetails.getId())
+                    .orElseThrow(() -> new RuntimeException("Utilisateur non trouve"));
+
+            // Verify Stripe Connect is set up and ready
+            if (teacher.getStripeConnectAccountId() == null || teacher.getStripeConnectAccountId().isBlank()) {
+                return ResponseEntity.badRequest().body(Map.of(
+                        "success", false,
+                        "message", "Veuillez d'abord configurer votre compte Stripe Connect"
+                ));
+            }
+
+            if (!stripeConnectService.isAccountReady(teacher.getStripeConnectAccountId())) {
+                return ResponseEntity.badRequest().body(Map.of(
+                        "success", false,
+                        "message", "Votre compte Stripe Connect n'est pas encore pret. Veuillez completer la verification."
+                ));
+            }
+
+            // Get balance
+            var balanceResponse = teacherBalanceService.getBalance(teacher.getId());
+            int availableBalance = balanceResponse.availableBalanceCents();
+
+            if (availableBalance <= 0) {
+                return ResponseEntity.badRequest().body(Map.of(
+                        "success", false,
+                        "message", "Aucun solde disponible a retirer"
+                ));
+            }
+
+            // Perform the transfer
+            String yearMonth = java.time.YearMonth.now().toString();
+            var transfer = stripeConnectService.payTeacher(teacher, availableBalance, yearMonth);
+
+            // Update balance
+            var balance = teacherBalanceRepository.findByTeacherId(teacher.getId())
+                    .orElseThrow(() -> new RuntimeException("Balance not found"));
+            balance.setTotalWithdrawnCents(balance.getTotalWithdrawnCents() + availableBalance);
+            balance.setAvailableBalanceCents(0);
+            teacherBalanceRepository.save(balance);
+
+            log.info("Teacher {} withdrew {} cents, transfer: {}", teacher.getId(), availableBalance, transfer.getId());
+
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", "Retrait effectue avec succes !",
+                    "amountCents", availableBalance,
+                    "stripeTransferId", transfer.getId()
+            ));
+
+        } catch (Exception e) {
+            log.error("Error withdrawing teacher earnings", e);
+            return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "message", "Erreur lors du retrait: " + e.getMessage()
             ));
         }
     }

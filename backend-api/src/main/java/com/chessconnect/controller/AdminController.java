@@ -118,20 +118,23 @@ public class AdminController {
     }
 
     /**
-     * Mark a teacher as paid for a specific month.
+     * Mark a teacher as paid - transfer a custom amount.
      * Performs a real Stripe Connect transfer to the teacher's account.
      */
     @PostMapping("/accounting/teachers/{teacherId}/pay")
     public ResponseEntity<?> markTeacherPaid(
             @PathVariable Long teacherId,
-            @RequestBody Map<String, String> request
+            @RequestBody Map<String, Object> request
     ) {
         try {
-            String yearMonth = request.getOrDefault("yearMonth", java.time.YearMonth.now().toString());
-            String paymentReference = request.getOrDefault("paymentReference", "");
-            String notes = request.getOrDefault("notes", "");
+            String yearMonth = request.getOrDefault("yearMonth", java.time.YearMonth.now().toString()).toString();
+            String paymentReference = request.getOrDefault("paymentReference", "").toString();
+            String notes = request.getOrDefault("notes", "").toString();
+            Integer amountCents = request.get("amountCents") != null
+                    ? ((Number) request.get("amountCents")).intValue()
+                    : null;
 
-            var result = adminService.markTeacherPaid(teacherId, yearMonth, paymentReference, notes);
+            var result = adminService.markTeacherPaid(teacherId, yearMonth, paymentReference, notes, amountCents);
             return ResponseEntity.ok(Map.of(
                     "success", true,
                     "message", "Transfert effectue avec succes",

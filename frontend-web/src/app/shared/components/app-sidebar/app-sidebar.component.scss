@@ -39,6 +39,8 @@ $transition: 0.2s ease;
   &__logo-img {
     height: 32px;
     width: auto;
+    max-width: 140px;
+    object-fit: contain;
   }
 
   &__hamburger {
@@ -223,20 +225,24 @@ $transition: 0.2s ease;
   &__logo {
     display: flex;
     align-items: center;
-    gap: 12px;
     text-decoration: none;
     color: $text-primary;
   }
 
   &__logo-img {
-    height: 32px;
+    height: auto;
     width: auto;
-  }
+    object-fit: contain;
 
-  &__logo-text {
-    font-size: 1.125rem;
-    font-weight: 700;
-    letter-spacing: -0.02em;
+    &--full {
+      height: 36px;
+      max-width: 160px;
+    }
+
+    &--icon {
+      height: 36px;
+      width: 36px;
+    }
   }
 
   &__collapse-btn {

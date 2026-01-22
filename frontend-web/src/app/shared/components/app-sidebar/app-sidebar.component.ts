@@ -66,7 +66,7 @@ export interface SidebarSection {
     <!-- Mobile Header -->
     <header class="mobile-header">
       <a routerLink="/" class="mobile-header__logo">
-        <img src="assets/logo.png" alt="mychess" class="mobile-header__logo-img">
+        <img src="assets/logo-full.png" alt="myChess" class="mobile-header__logo-img">
       </a>
       <button class="mobile-header__hamburger" [class.active]="mobileOpen()" (click)="toggleMobile()">
         <span></span>
@@ -83,9 +83,10 @@ export interface SidebarSection {
       <!-- Header -->
       <div class="sidebar__header">
         <a routerLink="/" class="sidebar__logo">
-          <img src="assets/logo.png" alt="mychess" class="sidebar__logo-img">
-          @if (!collapsed()) {
-            <span class="sidebar__logo-text">mychess</span>
+          @if (collapsed()) {
+            <img src="assets/logo.png" alt="myChess" class="sidebar__logo-img sidebar__logo-img--icon">
+          } @else {
+            <img src="assets/logo-full.png" alt="myChess" class="sidebar__logo-img sidebar__logo-img--full">
           }
         </a>
         <button class="sidebar__collapse-btn" (click)="toggleCollapse()" [title]="collapsed() ? 'Expand' : 'Collapse'">

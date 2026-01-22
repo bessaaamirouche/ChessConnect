@@ -6,8 +6,8 @@ $sidebar-border: rgba(255, 255, 255, 0.08);
 $text-primary: #ffffff;
 $text-secondary: rgba(255, 255, 255, 0.6);
 $text-muted: rgba(255, 255, 255, 0.4);
-$accent-color: #a855f7; // Purple like Ideogram
-$accent-bg: rgba(168, 85, 247, 0.15);
+$accent-color: #D4A84B; // Gold to match theme
+$accent-bg: rgba(212, 168, 75, 0.15);
 $hover-bg: rgba(255, 255, 255, 0.05);
 $transition: 0.2s ease;
 
@@ -123,10 +123,14 @@ $transition: 0.2s ease;
     .sidebar__link {
       justify-content: center;
       padding: 12px;
+      width: 48px;
+      height: 48px;
+      margin: 2px auto;
     }
 
     .sidebar__icon {
       margin-right: 0;
+      font-size: 1.375rem;
     }
 
     .sidebar__header {
@@ -141,8 +145,7 @@ $transition: 0.2s ease;
     .sidebar__collapse-btn {
       position: absolute;
       right: -12px;
-      top: 50%;
-      transform: translateY(-50%);
+      top: 24px;
       background: $sidebar-bg;
       border: 1px solid $sidebar-border;
       border-radius: 50%;
@@ -156,7 +159,7 @@ $transition: 0.2s ease;
     }
 
     .sidebar__section {
-      padding: 8px 12px;
+      padding: 8px 8px;
     }
   }
 
@@ -406,11 +409,11 @@ $transition: 0.2s ease;
     justify-content: center;
     width: 36px;
     height: 36px;
-    background: linear-gradient(135deg, $accent-color, #7c3aed);
+    background: linear-gradient(135deg, #D4A84B, #8B6914);
     border-radius: 8px;
     font-size: 0.75rem;
     font-weight: 700;
-    color: white;
+    color: #0d0d0d;
     flex-shrink: 0;
 
     &--small {

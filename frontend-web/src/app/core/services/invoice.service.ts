@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 export interface Invoice {
   id: number;
   invoiceNumber: string;
-  invoiceType: 'LESSON_INVOICE' | 'COMMISSION_INVOICE';
+  invoiceType: 'LESSON_INVOICE' | 'COMMISSION_INVOICE' | 'PAYOUT_INVOICE';
   isReceived: boolean;
   issuerName: string;
   customerName: string;

@@ -2,11 +2,13 @@ package com.chessconnect.service;
 
 import com.chessconnect.dto.admin.*;
 import com.chessconnect.dto.lesson.LessonResponse;
+import com.chessconnect.model.Invoice;
 import com.chessconnect.model.Lesson;
 import com.chessconnect.model.Payment;
 import com.chessconnect.model.Subscription;
 import com.chessconnect.model.TeacherBalance;
 import com.chessconnect.model.User;
+import com.chessconnect.model.enums.InvoiceType;
 import com.chessconnect.model.enums.LessonStatus;
 import com.chessconnect.model.enums.UserRole;
 import com.chessconnect.model.TeacherPayout;
@@ -440,7 +442,43 @@ public class AdminService {
         teacherPayoutRepository.save(payout);
         log.info("Transferred {} cents to teacher {}, remaining balance: {} cents", transferAmount, teacherId, balance.getAvailableBalanceCents());
 
+        // Create payout invoice
+        createPayoutInvoice(teacher, transferAmount, yearMonth, stripeTransferId);
+
         return new TeacherPayoutResult(transferAmount, stripeTransferId, balance.getLessonsCompleted());
+    }
+
+    /**
+     * Create a payout invoice for a teacher transfer.
+     */
+    private Invoice createPayoutInvoice(User teacher, int amountCents, String yearMonth, String stripeTransferId) {
+        Invoice invoice = new Invoice();
+        invoice.setInvoiceNumber(generatePayoutInvoiceNumber());
+        invoice.setInvoiceType(InvoiceType.PAYOUT_INVOICE);
+        invoice.setCustomer(teacher); // Teacher receives this invoice
+        invoice.setIssuer(null); // Platform is the issuer
+        invoice.setStripePaymentIntentId(stripeTransferId);
+        invoice.setSubtotalCents(amountCents);
+        invoice.setVatCents(0);
+        invoice.setTotalCents(amountCents);
+        invoice.setVatRate(0);
+        invoice.setDescription("Virement coach - " + yearMonth);
+        invoice.setStatus("PAID");
+        invoice.setIssuedAt(LocalDateTime.now());
+
+        Invoice saved = invoiceRepository.save(invoice);
+        log.info("Created payout invoice {} for teacher {} - {} cents", saved.getInvoiceNumber(), teacher.getId(), amountCents);
+        return saved;
+    }
+
+    /**
+     * Generate a unique sequential invoice number for payouts.
+     */
+    private String generatePayoutInvoiceNumber() {
+        Long maxId = invoiceRepository.findMaxId();
+        long nextId = (maxId != null ? maxId : 0) + 1;
+        int year = LocalDateTime.now().getYear();
+        return String.format("VIR-%d-%06d", year, nextId);
     }
 
     /**

@@ -69,6 +69,12 @@ import { InvoiceService, Invoice } from '../../../core/services/invoice.service'
           <option value="PAID">Payees</option>
           <option value="PENDING">En attente</option>
         </select>
+        <select class="filter-select" [ngModel]="typeFilter()" (ngModelChange)="typeFilter.set($event)">
+          <option value="">Tous les types</option>
+          <option value="LESSON_INVOICE">Cours</option>
+          <option value="COMMISSION_INVOICE">Commission</option>
+          <option value="PAYOUT_INVOICE">Virement</option>
+        </select>
       </div>
 
       <!-- Loading State -->
@@ -95,6 +101,7 @@ import { InvoiceService, Invoice } from '../../../core/services/invoice.service'
             <thead>
               <tr>
                 <th>Numero</th>
+                <th>Type</th>
                 <th>Date</th>
                 <th>Emetteur</th>
                 <th>Client</th>
@@ -108,6 +115,11 @@ import { InvoiceService, Invoice } from '../../../core/services/invoice.service'
               @for (invoice of filteredInvoices(); track invoice.id) {
                 <tr>
                   <td class="invoice-number">{{ invoice.invoiceNumber }}</td>
+                  <td>
+                    <span class="type-badge" [class]="invoice.invoiceType.toLowerCase()">
+                      {{ getInvoiceTypeLabel(invoice.invoiceType) }}
+                    </span>
+                  </td>
                   <td>{{ invoice.issuedAt }}</td>
                   <td>{{ invoice.issuerName }}</td>
                   <td>{{ invoice.customerName }}</td>
@@ -343,6 +355,31 @@ import { InvoiceService, Invoice } from '../../../core/services/invoice.service'
       }
     }
 
+    .type-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      background: var(--bg-tertiary);
+      color: var(--text-muted);
+
+      &.lesson_invoice {
+        background: rgba(59, 130, 246, 0.15);
+        color: #3b82f6;
+      }
+
+      &.commission_invoice {
+        background: rgba(249, 115, 22, 0.15);
+        color: #f97316;
+      }
+
+      &.payout_invoice {
+        background: rgba(34, 197, 94, 0.15);
+        color: #22c55e;
+      }
+    }
+
     .btn-icon {
       display: flex;
       align-items: center;
@@ -421,11 +458,13 @@ export class AdminInvoicesComponent implements OnInit {
   downloadingId = signal<number | null>(null);
   searchQuery = signal('');
   statusFilter = signal('');
+  typeFilter = signal('');
 
   filteredInvoices = computed(() => {
     let result = this.invoices();
     const query = this.searchQuery().toLowerCase();
     const status = this.statusFilter();
+    const type = this.typeFilter();
 
     if (query) {
       result = result.filter(inv =>
@@ -438,6 +477,10 @@ export class AdminInvoicesComponent implements OnInit {
 
     if (status) {
       result = result.filter(inv => inv.status === status);
+    }
+
+    if (type) {
+      result = result.filter(inv => inv.invoiceType === type);
     }
 
     return result;
@@ -480,5 +523,14 @@ export class AdminInvoicesComponent implements OnInit {
     this.downloadingId.set(invoice.id);
     this.invoiceService.downloadInvoicePdf(invoice.id);
     setTimeout(() => this.downloadingId.set(null), 2000);
+  }
+
+  getInvoiceTypeLabel(type: string): string {
+    switch (type) {
+      case 'LESSON_INVOICE': return 'Cours';
+      case 'COMMISSION_INVOICE': return 'Commission';
+      case 'PAYOUT_INVOICE': return 'Virement';
+      default: return type;
+    }
   }
 }

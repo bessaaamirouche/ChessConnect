@@ -9,7 +9,6 @@ import { HttpClient } from '@angular/common/http';
 import { CalendarService, CalendarStatus } from '../../core/services/calendar.service';
 import { StripeConnectService, StripeConnectStatus } from '../../core/services/stripe-connect.service';
 import { AVAILABLE_LANGUAGES } from '../../core/models/user.model';
-import { AppSidebarComponent, SidebarSection } from '../../shared/components/app-sidebar/app-sidebar.component';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   heroChartBarSquare,
@@ -25,7 +24,7 @@ import {
 @Component({
   selector: 'app-settings',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, NgIconComponent, AppSidebarComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, NgIconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({
     heroChartBarSquare,
@@ -78,33 +77,6 @@ export class SettingsComponent implements OnInit {
   withdrawAmount = signal(100); // Default 100€ minimum
 
   private dialogService = inject(DialogService);
-
-  // Sidebar sections
-  sidebarSections = computed<SidebarSection[]>(() => {
-    const sections: SidebarSection[] = [];
-    const menuItems: any[] = [
-      { label: 'Mon Espace', icon: 'heroChartBarSquare', route: '/dashboard' },
-      { label: 'Mes Cours', icon: 'heroCalendarDays', route: '/lessons' }
-    ];
-    if (this.authService.isTeacher()) {
-      menuItems.push({ label: 'Mes Disponibilites', icon: 'heroClipboardDocumentList', route: '/availability' });
-    }
-    if (this.authService.isStudent()) {
-      menuItems.push({ label: 'Ma Progression', icon: 'heroTrophy', route: '/progress' });
-      menuItems.push({ label: 'Abonnement', icon: 'heroCreditCard', route: '/subscription' });
-      menuItems.push({ label: 'Trouver un Coach', icon: 'heroAcademicCap', route: '/teachers' });
-    }
-    sections.push({ title: 'Menu', items: menuItems });
-    sections.push({
-      title: 'Compte',
-      items: [
-        { label: 'Mon Profil', icon: 'heroUserCircle', route: '/settings', active: true },
-        { label: 'Mes Factures', icon: 'heroDocumentText', route: '/invoices' },
-        { label: 'Deconnexion', icon: 'heroArrowRightOnRectangle', action: () => this.logout() }
-      ]
-    });
-    return sections;
-  });
 
   constructor(
     private fb: FormBuilder,

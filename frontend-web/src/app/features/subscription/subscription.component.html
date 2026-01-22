@@ -1,9 +1,4 @@
 <div class="subscription-page">
-  <!-- Sidebar -->
-  <app-sidebar [sections]="sidebarSections()"></app-sidebar>
-
-  <!-- Main Content -->
-  <main class="main-content">
     <header class="page-header">
       <div>
         <h1 class="page-header__title">Mon Abonnement</h1>
@@ -206,7 +201,6 @@
         <button class="alert__close" (click)="paymentService.clearError()">×</button>
       </div>
     }
-  </main>
 
   <!-- Embedded Checkout -->
   @if (showCheckout() && checkoutClientSecret()) {

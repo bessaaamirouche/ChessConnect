@@ -7,7 +7,6 @@ import { SeoService } from '../../core/services/seo.service';
 import { AuthService } from '../../core/services/auth.service';
 import { DAYS_OF_WEEK, HOURS, MINUTES, DayOfWeek, AvailabilityRequest } from '../../core/models/availability.model';
 import { ConfirmModalComponent } from '../../shared/confirm-modal/confirm-modal.component';
-import { AppSidebarComponent, SidebarSection } from '../../shared/components/app-sidebar/app-sidebar.component';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   heroChartBarSquare,
@@ -25,7 +24,7 @@ import {
 @Component({
   selector: 'app-availability-management',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, ConfirmModalComponent, NgIconComponent, AppSidebarComponent],
+  imports: [CommonModule, FormsModule, RouterLink, ConfirmModalComponent, NgIconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({
     heroChartBarSquare,
@@ -58,26 +57,6 @@ export class AvailabilityManagementComponent implements OnInit {
   myAvailabilities = this.availabilityService.myAvailabilities;
   loading = this.availabilityService.loading;
   error = this.availabilityService.error;
-
-  // Sidebar sections (teacher only)
-  sidebarSections = computed<SidebarSection[]>(() => {
-    const sections: SidebarSection[] = [];
-    const menuItems: any[] = [
-      { label: 'Mon Espace', icon: 'heroChartBarSquare', route: '/dashboard' },
-      { label: 'Mes Cours', icon: 'heroCalendarDays', route: '/lessons' },
-      { label: 'Mes Disponibilites', icon: 'heroClipboardDocumentList', route: '/availability', active: true }
-    ];
-    sections.push({ title: 'Menu', items: menuItems });
-    sections.push({
-      title: 'Compte',
-      items: [
-        { label: 'Mon Profil', icon: 'heroUserCircle', route: '/settings' },
-        { label: 'Mes Factures', icon: 'heroDocumentText', route: '/invoices' },
-        { label: 'Deconnexion', icon: 'heroArrowRightOnRectangle', action: () => this.authService.logout() }
-      ]
-    });
-    return sections;
-  });
 
   sidebarOpen = signal(false);
   showAddModal = false;

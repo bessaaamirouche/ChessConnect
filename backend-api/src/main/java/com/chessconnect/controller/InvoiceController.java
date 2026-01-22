@@ -84,6 +84,21 @@ public class InvoiceController {
     }
 
     /**
+     * Get all invoices (admin only).
+     */
+    @GetMapping("/all")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<Map<String, Object>>> getAllInvoices() {
+        List<Invoice> invoices = invoiceRepository.findAllByOrderByCreatedAtDesc();
+
+        List<Map<String, Object>> response = invoices.stream()
+                .map(this::mapInvoiceToResponseAdmin)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(response);
+    }
+
+    /**
      * Download invoice PDF.
      */
     @GetMapping("/{invoiceId}/pdf")
@@ -163,6 +178,49 @@ public class InvoiceController {
                 Map.entry("invoiceNumber", invoice.getInvoiceNumber()),
                 Map.entry("invoiceType", invoice.getInvoiceType().name()),
                 Map.entry("isReceived", isReceived),
+                Map.entry("issuerName", issuerName),
+                Map.entry("customerName", customerName),
+                Map.entry("description", invoice.getDescription()),
+                Map.entry("subtotalCents", invoice.getSubtotalCents()),
+                Map.entry("vatCents", invoice.getVatCents()),
+                Map.entry("totalCents", invoice.getTotalCents()),
+                Map.entry("vatRate", invoice.getVatRate() != null ? invoice.getVatRate() : 0),
+                Map.entry("commissionRate", invoice.getCommissionRate() != null ? invoice.getCommissionRate() : 0),
+                Map.entry("promoApplied", invoice.getPromoApplied() != null && invoice.getPromoApplied()),
+                Map.entry("status", invoice.getStatus()),
+                Map.entry("hasPdf", invoice.getPdfPath() != null),
+                Map.entry("issuedAt", invoice.getIssuedAt().format(formatter)),
+                Map.entry("createdAt", invoice.getCreatedAt().format(formatter)),
+                Map.entry("lessonId", invoice.getLesson() != null ? invoice.getLesson().getId() : null)
+        );
+    }
+
+    /**
+     * Map Invoice entity to API response for admin (no currentUserId needed).
+     */
+    private Map<String, Object> mapInvoiceToResponseAdmin(Invoice invoice) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+        String issuerName;
+        if (invoice.getIssuer() != null) {
+            issuerName = invoice.getIssuer().getFirstName() + " " + invoice.getIssuer().getLastName();
+            if (invoice.getIssuer().getCompanyName() != null) {
+                issuerName = invoice.getIssuer().getCompanyName();
+            }
+        } else {
+            issuerName = "mychess";
+        }
+
+        String customerName = invoice.getCustomer().getFirstName() + " " + invoice.getCustomer().getLastName();
+        if (invoice.getCustomer().getCompanyName() != null && !invoice.getCustomer().getCompanyName().isBlank()) {
+            customerName = invoice.getCustomer().getCompanyName();
+        }
+
+        return Map.ofEntries(
+                Map.entry("id", invoice.getId()),
+                Map.entry("invoiceNumber", invoice.getInvoiceNumber()),
+                Map.entry("invoiceType", invoice.getInvoiceType().name()),
+                Map.entry("isReceived", false),
                 Map.entry("issuerName", issuerName),
                 Map.entry("customerName", customerName),
                 Map.entry("description", invoice.getDescription()),

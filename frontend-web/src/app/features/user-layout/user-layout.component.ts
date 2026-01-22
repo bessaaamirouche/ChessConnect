@@ -25,7 +25,8 @@ export class UserLayoutComponent {
           { label: 'Vue d\'ensemble', icon: 'heroChartBarSquare', route: '/admin/dashboard' },
           { label: 'Utilisateurs', icon: 'heroUsers', route: '/admin/users' },
           { label: 'Cours', icon: 'heroCalendarDays', route: '/admin/lessons' },
-          { label: 'Comptabilite', icon: 'heroBanknotes', route: '/admin/accounting' }
+          { label: 'Comptabilite', icon: 'heroBanknotes', route: '/admin/accounting' },
+          { label: 'Factures', icon: 'heroDocumentText', route: '/admin/invoices' }
         ]
       });
     }

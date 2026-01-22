@@ -50,4 +50,7 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
     // Delete by user (for cascade delete)
     void deleteByCustomerId(Long customerId);
     void deleteByIssuerId(Long issuerId);
+
+    // Find all invoices (admin)
+    List<Invoice> findAllByOrderByCreatedAtDesc();
 }

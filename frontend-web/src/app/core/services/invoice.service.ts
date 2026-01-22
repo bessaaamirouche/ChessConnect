@@ -59,6 +59,13 @@ export class InvoiceService {
   }
 
   /**
+   * Get all invoices (admin only)
+   */
+  getAllInvoices(): Observable<Invoice[]> {
+    return this.http.get<Invoice[]>(`${this.apiUrl}/all`);
+  }
+
+  /**
    * Download invoice PDF
    */
   downloadInvoicePdf(invoiceId: number): void {

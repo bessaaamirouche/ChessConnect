@@ -417,18 +417,39 @@
               </div>
             </div>
 
-            @if (teacherBalance()!.availableBalanceCents > 0 && stripeConnectStatus().isReady) {
-              <button
-                class="btn btn--primary"
-                (click)="withdrawEarnings()"
-                [disabled]="withdrawing()"
-              >
-                @if (withdrawing()) {
-                  <span class="spinner spinner--sm"></span> Retrait en cours...
-                } @else {
-                  Recuperer mes gains ({{ formatCents(teacherBalance()!.availableBalanceCents) }})
-                }
-              </button>
+            @if (teacherBalance()!.availableBalanceCents >= 10000 && stripeConnectStatus().isReady) {
+              <div class="withdraw-form">
+                <div class="withdraw-input-group">
+                  <label class="form-group__label">Montant a retirer</label>
+                  <div class="input-group">
+                    <input
+                      type="number"
+                      class="input"
+                      [value]="withdrawAmount()"
+                      (input)="setWithdrawAmount($event)"
+                      [min]="100"
+                      [max]="teacherBalance()!.availableBalanceCents / 100"
+                      step="1"
+                      placeholder="100"
+                    >
+                    <span class="input-group__addon">EUR</span>
+                  </div>
+                  <small class="form-hint">Minimum 100 EUR - Maximum {{ formatCents(teacherBalance()!.availableBalanceCents) }}</small>
+                </div>
+                <button
+                  class="btn btn--primary"
+                  (click)="withdrawEarnings()"
+                  [disabled]="withdrawing() || withdrawAmount() < 100 || withdrawAmount() * 100 > teacherBalance()!.availableBalanceCents"
+                >
+                  @if (withdrawing()) {
+                    <span class="spinner spinner--sm"></span> Retrait en cours...
+                  } @else {
+                    Retirer {{ withdrawAmount() }} EUR
+                  }
+                </button>
+              </div>
+            } @else if (teacherBalance()!.availableBalanceCents > 0 && teacherBalance()!.availableBalanceCents < 10000 && stripeConnectStatus().isReady) {
+              <p class="text-muted text-sm">Solde minimum de 100 EUR requis pour effectuer un retrait. Il vous manque {{ formatCents(10000 - teacherBalance()!.availableBalanceCents) }}.</p>
             } @else if (teacherBalance()!.availableBalanceCents > 0 && !stripeConnectStatus().isReady) {
               <p class="text-muted text-sm">Configurez votre compte bancaire ci-dessus pour pouvoir retirer vos gains.</p>
             } @else {

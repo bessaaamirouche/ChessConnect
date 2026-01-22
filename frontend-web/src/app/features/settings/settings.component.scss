@@ -559,6 +559,45 @@
   height: auto;
 }
 
+// Withdraw form
+.withdraw-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.withdraw-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+
+  .input-group {
+    display: flex;
+    align-items: center;
+
+    .input {
+      flex: 1;
+      border-radius: var(--radius-md) 0 0 var(--radius-md);
+      border-right: none;
+      text-align: right;
+      font-size: 1.125rem;
+      font-weight: 600;
+      padding: var(--space-sm) var(--space-md);
+    }
+
+    &__addon {
+      padding: var(--space-sm) var(--space-md);
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-subtle);
+      border-left: none;
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+  }
+}
+
 // Earnings summary
 .earnings-summary {
   display: grid;

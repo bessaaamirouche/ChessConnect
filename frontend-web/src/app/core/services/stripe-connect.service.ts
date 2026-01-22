@@ -110,10 +110,11 @@ export class StripeConnectService {
 
   /**
    * Withdraw available balance to teacher's Stripe Connect account
+   * @param amountCents - Amount to withdraw in cents (minimum 10000 = 100€)
    */
-  withdraw(): Observable<{ success: boolean; message?: string; amountCents?: number; stripeTransferId?: string }> {
+  withdraw(amountCents: number): Observable<{ success: boolean; message?: string; amountCents?: number; stripeTransferId?: string }> {
     this.loading.set(true);
-    return this.http.post<{ success: boolean; message?: string; amountCents?: number; stripeTransferId?: string }>(`${this.apiUrl}/withdraw`, {}).pipe(
+    return this.http.post<{ success: boolean; message?: string; amountCents?: number; stripeTransferId?: string }>(`${this.apiUrl}/withdraw`, { amountCents }).pipe(
       tap({
         next: () => this.loading.set(false),
         error: () => this.loading.set(false)

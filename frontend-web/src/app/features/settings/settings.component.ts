@@ -74,6 +74,7 @@ export class SettingsComponent implements OnInit {
   // Teacher balance and withdrawal
   teacherBalance = signal<{ availableBalanceCents: number; totalEarnedCents: number; totalWithdrawnCents: number } | null>(null);
   withdrawing = signal(false);
+  withdrawAmount = signal(100); // Default 100€ minimum
 
   private dialogService = inject(DialogService);
 
@@ -447,7 +448,12 @@ export class SettingsComponent implements OnInit {
   // Teacher balance methods
   loadTeacherBalance(): void {
     this.stripeConnectService.getBalance().subscribe({
-      next: (balance) => this.teacherBalance.set(balance),
+      next: (balance) => {
+        this.teacherBalance.set(balance);
+        // Set default withdraw amount to available balance (capped at available, min 100)
+        const maxAmount = Math.floor(balance.availableBalanceCents / 100);
+        this.withdrawAmount.set(Math.max(100, maxAmount));
+      },
       error: () => this.teacherBalance.set(null)
     });
   }
@@ -456,12 +462,26 @@ export class SettingsComponent implements OnInit {
     return (cents / 100).toFixed(2) + ' EUR';
   }
 
+  setWithdrawAmount(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const value = parseInt(input.value) || 100;
+    this.withdrawAmount.set(value);
+  }
+
   async withdrawEarnings(): Promise<void> {
     const balance = this.teacherBalance();
-    if (!balance || balance.availableBalanceCents <= 0) return;
+    const amount = this.withdrawAmount();
+
+    if (!balance || amount < 100) return;
+
+    const amountCents = amount * 100;
+    if (amountCents > balance.availableBalanceCents) {
+      this.stripeConnectError.set('Le montant depasse votre solde disponible');
+      return;
+    }
 
     const confirmed = await this.dialogService.confirm(
-      `Voulez-vous retirer ${this.formatCents(balance.availableBalanceCents)} vers votre compte bancaire ?`,
+      `Voulez-vous retirer ${amount} EUR vers votre compte bancaire ?`,
       'Retirer mes gains',
       { confirmText: 'Retirer', cancelText: 'Annuler', variant: 'info' }
     );
@@ -470,7 +490,7 @@ export class SettingsComponent implements OnInit {
     this.withdrawing.set(true);
     this.stripeConnectError.set(null);
 
-    this.stripeConnectService.withdraw().subscribe({
+    this.stripeConnectService.withdraw(amountCents).subscribe({
       next: (response) => {
         this.withdrawing.set(false);
         if (response.success) {

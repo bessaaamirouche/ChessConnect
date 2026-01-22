@@ -264,13 +264,15 @@ public class StripeConnectController {
     }
 
     /**
-     * Teacher withdraws their available balance to their Stripe Connect account.
+     * Teacher withdraws a custom amount to their Stripe Connect account.
+     * Minimum withdrawal: 100€ (10000 cents)
      */
     @PostMapping("/withdraw")
     @PreAuthorize("hasRole('TEACHER')")
     @Transactional
     public ResponseEntity<Map<String, Object>> withdrawEarnings(
-            @AuthenticationPrincipal UserDetailsImpl userDetails
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @RequestBody Map<String, Object> request
     ) {
         try {
             User teacher = userRepository.findById(userDetails.getId())
@@ -291,6 +293,11 @@ public class StripeConnectController {
                 ));
             }
 
+            // Get requested amount
+            Integer requestedAmountCents = request.get("amountCents") != null
+                    ? ((Number) request.get("amountCents")).intValue()
+                    : null;
+
             // Get balance
             var balanceResponse = teacherBalanceService.getBalance(teacher.getId());
             int availableBalance = balanceResponse.availableBalanceCents();
@@ -302,23 +309,42 @@ public class StripeConnectController {
                 ));
             }
 
+            // Validate amount
+            int withdrawAmount = requestedAmountCents != null ? requestedAmountCents : availableBalance;
+
+            // Minimum 100€
+            if (withdrawAmount < 10000) {
+                return ResponseEntity.badRequest().body(Map.of(
+                        "success", false,
+                        "message", "Le montant minimum de retrait est de 100 EUR"
+                ));
+            }
+
+            // Cannot exceed available balance
+            if (withdrawAmount > availableBalance) {
+                return ResponseEntity.badRequest().body(Map.of(
+                        "success", false,
+                        "message", "Le montant demande depasse votre solde disponible"
+                ));
+            }
+
             // Perform the transfer
             String yearMonth = java.time.YearMonth.now().toString();
-            var transfer = stripeConnectService.payTeacher(teacher, availableBalance, yearMonth);
+            var transfer = stripeConnectService.payTeacher(teacher, withdrawAmount, yearMonth);
 
             // Update balance
             var balance = teacherBalanceRepository.findByTeacherId(teacher.getId())
                     .orElseThrow(() -> new RuntimeException("Balance not found"));
-            balance.setTotalWithdrawnCents(balance.getTotalWithdrawnCents() + availableBalance);
-            balance.setAvailableBalanceCents(0);
+            balance.setTotalWithdrawnCents(balance.getTotalWithdrawnCents() + withdrawAmount);
+            balance.setAvailableBalanceCents(availableBalance - withdrawAmount);
             teacherBalanceRepository.save(balance);
 
-            log.info("Teacher {} withdrew {} cents, transfer: {}", teacher.getId(), availableBalance, transfer.getId());
+            log.info("Teacher {} withdrew {} cents, transfer: {}", teacher.getId(), withdrawAmount, transfer.getId());
 
             return ResponseEntity.ok(Map.of(
                     "success", true,
                     "message", "Retrait effectue avec succes !",
-                    "amountCents", availableBalance,
+                    "amountCents", withdrawAmount,
                     "stripeTransferId", transfer.getId()
             ));
 

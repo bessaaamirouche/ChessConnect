@@ -396,69 +396,6 @@
             </div>
           }
         </div>
-
-        <!-- Mes Gains (teachers only) -->
-        <div class="card">
-          <h3 class="card__title">Mes Gains</h3>
-
-          @if (teacherBalance()) {
-            <div class="earnings-summary">
-              <div class="earnings-item earnings-item--available">
-                <span class="earnings-item__label">Solde disponible</span>
-                <span class="earnings-item__value">{{ formatCents(teacherBalance()!.availableBalanceCents) }}</span>
-              </div>
-              <div class="earnings-item">
-                <span class="earnings-item__label">Total gagne</span>
-                <span class="earnings-item__value earnings-item__value--muted">{{ formatCents(teacherBalance()!.totalEarnedCents) }}</span>
-              </div>
-              <div class="earnings-item">
-                <span class="earnings-item__label">Deja retire</span>
-                <span class="earnings-item__value earnings-item__value--muted">{{ formatCents(teacherBalance()!.totalWithdrawnCents) }}</span>
-              </div>
-            </div>
-
-            @if (teacherBalance()!.availableBalanceCents >= 10000 && stripeConnectStatus().isReady) {
-              <div class="withdraw-form">
-                <div class="withdraw-input-group">
-                  <label class="form-group__label">Montant a retirer</label>
-                  <div class="input-group">
-                    <input
-                      type="number"
-                      class="input"
-                      [value]="withdrawAmount()"
-                      (input)="setWithdrawAmount($event)"
-                      [min]="100"
-                      [max]="teacherBalance()!.availableBalanceCents / 100"
-                      step="1"
-                      placeholder="100"
-                    >
-                    <span class="input-group__addon">EUR</span>
-                  </div>
-                  <small class="form-hint">Minimum 100 EUR - Maximum {{ formatCents(teacherBalance()!.availableBalanceCents) }}</small>
-                </div>
-                <button
-                  class="btn btn--primary"
-                  (click)="withdrawEarnings()"
-                  [disabled]="withdrawing() || withdrawAmount() < 100 || withdrawAmount() * 100 > teacherBalance()!.availableBalanceCents"
-                >
-                  @if (withdrawing()) {
-                    <span class="spinner spinner--sm"></span> Retrait en cours...
-                  } @else {
-                    Retirer {{ withdrawAmount() }} EUR
-                  }
-                </button>
-              </div>
-            } @else if (teacherBalance()!.availableBalanceCents > 0 && teacherBalance()!.availableBalanceCents < 10000 && stripeConnectStatus().isReady) {
-              <p class="text-muted text-sm">Solde minimum de 100 EUR requis pour effectuer un retrait. Il vous manque {{ formatCents(10000 - teacherBalance()!.availableBalanceCents) }}.</p>
-            } @else if (teacherBalance()!.availableBalanceCents > 0 && !stripeConnectStatus().isReady) {
-              <p class="text-muted text-sm">Configurez votre compte bancaire ci-dessus pour pouvoir retirer vos gains.</p>
-            } @else {
-              <p class="text-muted text-sm">Aucun gain disponible pour le moment.</p>
-            }
-          } @else {
-            <p class="text-muted">Chargement de vos gains...</p>
-          }
-        </div>
       }
     </div>
   </main>

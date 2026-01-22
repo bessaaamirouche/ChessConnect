@@ -8,6 +8,8 @@ import { ProgressService } from '../../core/services/progress.service';
 import { PaymentService } from '../../core/services/payment.service';
 import { TeacherService } from '../../core/services/teacher.service';
 import { SeoService } from '../../core/services/seo.service';
+import { StripeConnectService } from '../../core/services/stripe-connect.service';
+import { DialogService } from '../../core/services/dialog.service';
 import { LESSON_STATUS_LABELS, Lesson } from '../../core/models/lesson.model';
 import { CHESS_LEVELS } from '../../core/models/user.model';
 import { DatePipe, DecimalPipe } from '@angular/common';
@@ -100,6 +102,13 @@ export class DashboardComponent implements OnInit {
   passwordSuccess = signal(false);
   passwordError = signal<string | null>(null);
 
+  // Teacher earnings withdrawal
+  withdrawing = signal(false);
+  withdrawAmount = signal(100);
+  withdrawError = signal<string | null>(null);
+  withdrawSuccess = signal<string | null>(null);
+  stripeConnectReady = signal(false);
+
   constructor(
     public authService: AuthService,
     public lessonService: LessonService,
@@ -108,7 +117,9 @@ export class DashboardComponent implements OnInit {
     public teacherService: TeacherService,
     private fb: FormBuilder,
     private http: HttpClient,
-    private seoService: SeoService
+    private seoService: SeoService,
+    private stripeConnectService: StripeConnectService,
+    private dialogService: DialogService
   ) {
     this.seoService.setDashboardPage();
     this.settingsForm = this.fb.group({
@@ -144,8 +155,14 @@ export class DashboardComponent implements OnInit {
     }
 
     if (this.authService.isTeacher()) {
-      this.teacherService.getMyBalance().subscribe();
+      this.teacherService.getMyBalance().subscribe({
+        next: (balance) => {
+          const maxAmount = Math.floor(balance.availableBalanceCents / 100);
+          this.withdrawAmount.set(Math.max(100, maxAmount));
+        }
+      });
       this.loadProfileForm();
+      this.loadStripeConnectStatus();
     }
   }
 
@@ -394,5 +411,70 @@ export class DashboardComponent implements OnInit {
     if (diffDays > 0) return `dans ${diffDays}j`;
     if (diffHours > 0) return `dans ${diffHours}h`;
     return `dans ${diffMins}min`;
+  }
+
+  // Teacher earnings withdrawal methods
+  loadStripeConnectStatus(): void {
+    this.stripeConnectService.getStatus().subscribe({
+      next: (status) => {
+        this.stripeConnectReady.set(status.isReady);
+      },
+      error: () => this.stripeConnectReady.set(false)
+    });
+  }
+
+  formatCents(cents: number): string {
+    return (cents / 100).toFixed(2) + ' EUR';
+  }
+
+  setWithdrawAmount(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const value = parseInt(input.value) || 100;
+    this.withdrawAmount.set(value);
+  }
+
+  async withdrawEarnings(): Promise<void> {
+    const balance = this.teacherService.balance();
+    const amount = this.withdrawAmount();
+
+    if (!balance || amount < 100) return;
+
+    const amountCents = amount * 100;
+    if (amountCents > balance.availableBalanceCents) {
+      this.withdrawError.set('Le montant depasse votre solde disponible');
+      return;
+    }
+
+    const confirmed = await this.dialogService.confirm(
+      `Voulez-vous retirer ${amount} EUR vers votre compte bancaire ?`,
+      'Retirer mes gains',
+      { confirmText: 'Retirer', cancelText: 'Annuler', variant: 'info' }
+    );
+    if (!confirmed) return;
+
+    this.withdrawing.set(true);
+    this.withdrawError.set(null);
+
+    this.stripeConnectService.withdraw(amountCents).subscribe({
+      next: (response) => {
+        this.withdrawing.set(false);
+        if (response.success) {
+          this.withdrawSuccess.set(`Retrait de ${this.formatCents(response.amountCents || 0)} effectue !`);
+          this.teacherService.getMyBalance().subscribe({
+            next: (balance) => {
+              const maxAmount = Math.floor(balance.availableBalanceCents / 100);
+              this.withdrawAmount.set(Math.max(100, maxAmount));
+            }
+          });
+          setTimeout(() => this.withdrawSuccess.set(null), 5000);
+        } else {
+          this.withdrawError.set(response.message || 'Erreur lors du retrait');
+        }
+      },
+      error: (err) => {
+        this.withdrawing.set(false);
+        this.withdrawError.set(err.error?.message || 'Erreur lors du retrait');
+      }
+    });
   }
 }

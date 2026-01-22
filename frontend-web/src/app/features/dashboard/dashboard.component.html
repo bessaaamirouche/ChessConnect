@@ -135,6 +135,81 @@
       </div>
     </section>
 
+    <!-- Mes Gains for Teachers -->
+    @if (authService.isTeacher()) {
+      <section class="section">
+        <div class="section__header">
+          <h2 class="section__title">Mes Gains</h2>
+          <a routerLink="/settings" class="btn btn--ghost btn--sm">Configurer paiements</a>
+        </div>
+
+        @if (withdrawSuccess()) {
+          <div class="alert alert--success">{{ withdrawSuccess() }}</div>
+        }
+        @if (withdrawError()) {
+          <div class="alert alert--error">{{ withdrawError() }}</div>
+        }
+
+        <div class="earnings-card">
+          <div class="earnings-summary">
+            <div class="earnings-item earnings-item--main">
+              <span class="earnings-item__label">Solde disponible</span>
+              <span class="earnings-item__value">{{ formatCents(teacherService.balance()?.availableBalanceCents || 0) }}</span>
+            </div>
+            <div class="earnings-item">
+              <span class="earnings-item__label">Total gagne</span>
+              <span class="earnings-item__value">{{ formatCents(teacherService.balance()?.totalEarnedCents || 0) }}</span>
+            </div>
+            <div class="earnings-item">
+              <span class="earnings-item__label">Deja retire</span>
+              <span class="earnings-item__value">{{ formatCents(teacherService.balance()?.totalWithdrawnCents || 0) }}</span>
+            </div>
+          </div>
+
+          @if (teacherService.balance() && teacherService.balance()!.availableBalanceCents >= 10000 && stripeConnectReady()) {
+            <div class="withdraw-form">
+              <div class="withdraw-input-group">
+                <label class="form-label">Montant a retirer</label>
+                <div class="input-with-addon">
+                  <input
+                    type="number"
+                    class="input"
+                    [value]="withdrawAmount()"
+                    (input)="setWithdrawAmount($event)"
+                    [min]="100"
+                    [max]="(teacherService.balance()!.availableBalanceCents / 100)"
+                    step="1"
+                    placeholder="100"
+                  >
+                  <span class="input-addon">EUR</span>
+                </div>
+                <small class="form-hint">Minimum 100 EUR - Maximum {{ formatCents(teacherService.balance()!.availableBalanceCents) }}</small>
+              </div>
+              <button
+                class="btn btn--primary"
+                (click)="withdrawEarnings()"
+                [disabled]="withdrawing() || withdrawAmount() < 100 || withdrawAmount() * 100 > teacherService.balance()!.availableBalanceCents"
+              >
+                @if (withdrawing()) {
+                  <span class="spinner"></span> Retrait en cours...
+                } @else {
+                  Retirer {{ withdrawAmount() }} EUR
+                }
+              </button>
+            </div>
+          } @else if (teacherService.balance() && teacherService.balance()!.availableBalanceCents > 0 && teacherService.balance()!.availableBalanceCents < 10000 && stripeConnectReady()) {
+            <p class="earnings-hint">Solde minimum de 100 EUR requis pour effectuer un retrait. Il vous manque {{ formatCents(10000 - teacherService.balance()!.availableBalanceCents) }}.</p>
+          } @else if (teacherService.balance() && teacherService.balance()!.availableBalanceCents > 0 && !stripeConnectReady()) {
+            <p class="earnings-hint">
+              <a routerLink="/settings" class="link">Configurez votre compte bancaire</a> pour pouvoir retirer vos gains.
+            </p>
+          } @else {
+            <p class="earnings-hint">Aucun gain disponible pour le moment. Terminez des cours pour commencer a gagner !</p>
+          }
+        </div>
+      </section>
+    }
+
     <!-- Subscription Status for Students -->
     @if (authService.isStudent() && paymentService.activeSubscription()) {
       <section class="section">

@@ -186,8 +186,17 @@ $transition: 0.2s ease;
     }
 
     .sidebar__footer {
-      padding: 12px 8px;
+      padding: 12px 0;
+      display: flex;
       justify-content: center;
+      align-items: center;
+    }
+
+    .sidebar__user-avatar--small {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      font-size: 0.75rem;
     }
   }
 

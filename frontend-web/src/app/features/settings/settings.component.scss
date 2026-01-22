@@ -94,6 +94,17 @@ $sidebar-width: 260px;
 .input--sm {
   padding: 8px 10px;
   font-size: 0.875rem;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+input[type="date"] {
+  max-width: 100%;
+  box-sizing: border-box;
+
+  @media (max-width: 500px) {
+    width: 100%;
+  }
 }
 
 .input--disabled {
@@ -127,13 +138,45 @@ $sidebar-width: 260px;
 .checkbox--inline {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   font-size: 0.8125rem;
   white-space: nowrap;
+  cursor: pointer;
 
   input[type="checkbox"] {
-    width: 16px;
-    height: 16px;
+    appearance: none;
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
+    min-height: 18px;
+    border: 2px solid var(--border-color, rgba(255, 255, 255, 0.2));
+    border-radius: 4px;
+    background: transparent;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.15s ease;
+
+    &:checked {
+      background: var(--gold-500, #D4A84B);
+      border-color: var(--gold-500, #D4A84B);
+
+      &::after {
+        content: '';
+        position: absolute;
+        left: 5px;
+        top: 2px;
+        width: 5px;
+        height: 9px;
+        border: solid #0d0d0d;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+      }
+    }
+
+    &:hover {
+      border-color: var(--gold-400, #E5C36E);
+    }
   }
 
   span {

@@ -84,6 +84,14 @@ export const routes: Routes = [
       {
         path: 'invoices',
         loadComponent: () => import('./features/invoices/invoices.component').then(m => m.InvoicesComponent)
+      },
+      {
+        path: 'teachers',
+        loadComponent: () => import('./features/teachers/teacher-list/teacher-list.component').then(m => m.TeacherListComponent)
+      },
+      {
+        path: 'teachers/:id',
+        loadComponent: () => import('./features/teachers/teacher-profile/teacher-profile.component').then(m => m.TeacherProfileComponent)
       }
     ]
   },

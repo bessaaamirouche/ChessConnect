@@ -1,35 +1,6 @@
 @use '../../../styles/variables' as *;
 
-$sidebar-width: 260px;
-$sidebar-collapsed-width: 72px;
-
 .dashboard {
-  min-height: 100vh;
-  padding-left: $sidebar-width;
-  transition: padding-left 0.2s ease;
-
-  @media (max-width: 768px) {
-    padding-left: 0;
-    padding-top: 60px;
-  }
-
-  // When sidebar is collapsed (via CSS class or JS)
-  &.sidebar-collapsed {
-    padding-left: $sidebar-collapsed-width;
-
-    @media (max-width: 768px) {
-      padding-left: 0;
-    }
-  }
-}
-
-// Old sidebar styles removed - using AppSidebarComponent
-
-.main-content {
-  padding: var(--space-lg);
-  overflow-y: auto;
-  background: var(--bg-primary);
-
   // Reduce margins between sections by 20%
   .section {
     margin-bottom: var(--space-xl);

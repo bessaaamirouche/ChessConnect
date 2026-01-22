@@ -1,9 +1,5 @@
 <div class="dashboard">
-  <!-- Sidebar -->
-  <app-sidebar [sections]="sidebarSections()"></app-sidebar>
-
   <!-- Main Content -->
-  <main class="main-content">
     @if (activeView() === 'dashboard') {
       <header class="page-header">
         <div>
@@ -433,7 +429,6 @@
         </div>
       </section>
     }
-  </main>
 
   <!-- Settings Panel -->
   @if (showSettings()) {

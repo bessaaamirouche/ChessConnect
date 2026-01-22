@@ -158,27 +158,6 @@ $transition: 0.2s ease;
       border: 1px solid rgba(212, 168, 75, 0.4);
     }
 
-    // Header - center the collapse button
-    .sidebar__header {
-      padding: 16px 0;
-      justify-content: center;
-      min-height: 60px;
-    }
-
-    .sidebar__logo {
-      display: none;
-    }
-
-    // Collapse button centered - square
-    .sidebar__collapse-btn {
-      position: static;
-      background: $hover-bg;
-      border: 1px solid $sidebar-border;
-      border-radius: 8px;
-      width: 36px;
-      height: 36px;
-    }
-
     .sidebar__footer {
       padding: 12px 0;
       display: flex;
@@ -250,44 +229,21 @@ $transition: 0.2s ease;
   &__header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 20px 16px;
+    justify-content: center;
+    padding: 16px;
     border-bottom: 1px solid $sidebar-border;
     position: relative;
-  }
-
-  &__logo {
-    display: flex;
-    align-items: center;
-    text-decoration: none;
-    color: $text-primary;
-  }
-
-  &__logo-img {
-    height: auto;
-    width: auto;
-    object-fit: contain;
-
-    &--full {
-      height: 43px;
-      max-width: 190px;
-    }
-
-    &--icon {
-      height: 43px;
-      width: 43px;
-    }
   }
 
   &__collapse-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 28px;
-    height: 28px;
+    width: 36px;
+    height: 36px;
     background: $hover-bg;
     border: 1px solid $sidebar-border;
-    border-radius: 6px;
+    border-radius: 8px;
     color: $text-secondary;
     cursor: pointer;
     transition: $transition;

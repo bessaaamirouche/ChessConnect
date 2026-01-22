@@ -82,13 +82,6 @@ export interface SidebarSection {
     <aside class="sidebar" [class.collapsed]="collapsed()" [class.mobile-active]="mobileOpen()">
       <!-- Header -->
       <div class="sidebar__header">
-        <a routerLink="/" class="sidebar__logo">
-          @if (collapsed()) {
-            <img src="assets/logo.png" alt="myChess" class="sidebar__logo-img sidebar__logo-img--icon">
-          } @else {
-            <img src="assets/logo-full.png" alt="myChess" class="sidebar__logo-img sidebar__logo-img--full">
-          }
-        </a>
         <button class="sidebar__collapse-btn" (click)="toggleCollapse()" [title]="collapsed() ? 'Expand' : 'Collapse'">
           @if (collapsed()) {
             <ng-icon name="heroChevronRight" size="18"></ng-icon>

@@ -53,6 +53,8 @@ services:
       JITSI_DOMAIN: ${JITSI_DOMAIN:-meet.mychess.fr}
     ports:
       - "8282:8282"
+    volumes:
+      - uploads_data:/app/uploads
     depends_on:
       postgres:
         condition: service_healthy
@@ -80,3 +82,4 @@ networks:
 
 volumes:
   postgres_data:
+  uploads_data:

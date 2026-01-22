@@ -26,7 +26,7 @@
         </div>
         <div class="stats-card">
           <div class="stats-card__icon"><ng-icon name="heroCheckCircle" size="20"></ng-icon></div>
-          <div class="stats-card__value">{{ lessonService.completedCount() }}</div>
+          <div class="stats-card__value">{{ authService.isTeacher() ? (teacherService.balance()?.lessonsCompleted || 0) : lessonService.completedCount() }}</div>
           <div class="stats-card__label">Cours terminés</div>
         </div>
         @if (authService.isStudent()) {
@@ -67,7 +67,7 @@
     @if (authService.isTeacher()) {
       <section class="section">
         <div class="section__header">
-          <h2 class="section__title">Mes Gains</h2>
+          <h2 class="section__title">Mes Revenus</h2>
           <a routerLink="/settings" class="btn btn--ghost btn--sm">Configurer paiements</a>
         </div>
 
@@ -184,49 +184,6 @@
               <span>Reservez chez les coachs acceptant les abonnements sans payer</span>
             </div>
           </div>
-        </div>
-      </section>
-    }
-
-    <!-- Teacher Earnings Section -->
-    @if (authService.isTeacher()) {
-      <section class="section">
-        <div class="section__header">
-          <h2 class="section__title">Mes revenus</h2>
-        </div>
-        <div class="card">
-          <div class="earnings-grid">
-            <div class="earnings-item">
-              <span class="earnings-item__label">Solde disponible</span>
-              <span class="earnings-item__value text-success">
-                {{ teacherService.balance()?.availableBalanceCents ? (teacherService.balance()!.availableBalanceCents / 100 | number:'1.2-2') : '0.00' }}€
-              </span>
-            </div>
-            <div class="earnings-item">
-              <span class="earnings-item__label">Total gagné</span>
-              <span class="earnings-item__value">
-                {{ teacherService.balance()?.totalEarnedCents ? (teacherService.balance()!.totalEarnedCents / 100 | number:'1.2-2') : '0.00' }}€
-              </span>
-            </div>
-            <div class="earnings-item">
-              <span class="earnings-item__label">Cours complétés</span>
-              <span class="earnings-item__value">
-                {{ teacherService.balance()?.lessonsCompleted || 0 }}
-              </span>
-            </div>
-            <div class="earnings-item">
-              <span class="earnings-item__label">Total retiré</span>
-              <span class="earnings-item__value">
-                {{ teacherService.balance()?.totalWithdrawnCents ? (teacherService.balance()!.totalWithdrawnCents / 100 | number:'1.2-2') : '0.00' }}€
-              </span>
-            </div>
-          </div>
-          @if (teacherService.balance()?.availableBalanceCents && teacherService.balance()!.availableBalanceCents > 0) {
-            <div class="earnings-info">
-              <span class="earnings-info__icon"><ng-icon name="heroInformationCircle" size="18"></ng-icon></span>
-              <span>Le retrait de vos gains sera disponible prochainement.</span>
-            </div>
-          }
         </div>
       </section>
     }

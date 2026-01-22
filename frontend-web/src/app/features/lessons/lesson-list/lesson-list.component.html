@@ -280,17 +280,14 @@
         <div class="history-grid">
           @for (lesson of filteredHistory(); track lesson.id) {
             <div class="history-card" [class.history-card--has-recording]="lesson.recordingUrl">
-              <!-- Recording badge -->
-              @if (lesson.status === 'COMPLETED' && lesson.recordingUrl) {
-                <button
-                  class="history-card__play-btn"
-                  (click)="openRecording(lesson)"
-                  title="Revoir le cours"
-                >
-                  <ng-icon name="heroPlayCircle" size="32"></ng-icon>
-                  <span>Revoir</span>
-                </button>
-              }
+              <!-- Delete button top right -->
+              <button
+                class="history-card__delete-btn"
+                (click)="deleteLesson(lesson.id)"
+                title="Supprimer"
+              >
+                <ng-icon name="heroTrash" size="14"></ng-icon>
+              </button>
 
               <div class="history-card__header">
                 <div class="history-card__date-block">
@@ -340,13 +337,15 @@
                     <ng-icon name="heroBookOpen" size="14"></ng-icon> Notes
                   </button>
                 }
-                <button
-                  class="history-card__action-btn history-card__action-btn--delete"
-                  (click)="deleteLesson(lesson.id)"
-                  title="Supprimer"
-                >
-                  <ng-icon name="heroTrash" size="14"></ng-icon>
-                </button>
+                @if (lesson.status === 'COMPLETED' && lesson.recordingUrl) {
+                  <button
+                    class="history-card__action-btn history-card__action-btn--play"
+                    (click)="openRecording(lesson)"
+                    title="Revisionner le cours"
+                  >
+                    <ng-icon name="heroPlayCircle" size="14"></ng-icon> REVISIONNER LE COURS
+                  </button>
+                }
               </div>
 
               @if (visibleReasonId() === lesson.id) {

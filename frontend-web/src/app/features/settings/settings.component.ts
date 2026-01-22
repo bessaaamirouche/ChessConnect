@@ -6,7 +6,6 @@ import { AuthService } from '../../core/services/auth.service';
 import { SeoService } from '../../core/services/seo.service';
 import { DialogService } from '../../core/services/dialog.service';
 import { HttpClient } from '@angular/common/http';
-import { CalendarService, CalendarStatus } from '../../core/services/calendar.service';
 import { StripeConnectService, StripeConnectStatus } from '../../core/services/stripe-connect.service';
 import { AVAILABLE_LANGUAGES } from '../../core/models/user.model';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
@@ -41,16 +40,12 @@ import {
 })
 export class SettingsComponent implements OnInit {
   profileForm: FormGroup;
-  passwordForm: FormGroup;
 
   savingProfile = signal(false);
-  savingPassword = signal(false);
   savingPreferences = signal(false);
   profileSuccess = signal(false);
-  passwordSuccess = signal(false);
   preferencesSuccess = signal(false);
   profileError = signal<string | null>(null);
-  passwordError = signal<string | null>(null);
   preferencesError = signal<string | null>(null);
 
   emailRemindersEnabled = signal(true);
@@ -67,12 +62,6 @@ export class SettingsComponent implements OnInit {
     if (current.length !== original.length) return true;
     return current.some((lang, i) => lang !== original[i]);
   });
-
-  // Google Calendar
-  calendarStatus = signal<CalendarStatus>({ configured: false, connected: false, enabled: false });
-  calendarLoading = signal(false);
-  calendarSuccess = signal<string | null>(null);
-  calendarError = signal<string | null>(null);
 
   // Stripe Connect (teachers only)
   stripeConnectStatus = signal<StripeConnectStatus>({ connected: false, accountExists: false, isReady: false });
@@ -91,7 +80,6 @@ export class SettingsComponent implements OnInit {
     private fb: FormBuilder,
     public authService: AuthService,
     private http: HttpClient,
-    private calendarService: CalendarService,
     private stripeConnectService: StripeConnectService,
     private route: ActivatedRoute,
     private seoService: SeoService
@@ -114,16 +102,10 @@ export class SettingsComponent implements OnInit {
       knowsElo: [false]
     });
 
-    this.passwordForm = this.fb.group({
-      currentPassword: ['', Validators.required],
-      newPassword: ['', [Validators.required, Validators.minLength(6)]],
-      confirmPassword: ['', Validators.required]
-    });
   }
 
   ngOnInit(): void {
     this.loadProfile();
-    this.loadCalendarStatus();
 
     // Load Stripe Connect status and balance for teachers
     if (this.authService.isTeacher()) {
@@ -131,12 +113,8 @@ export class SettingsComponent implements OnInit {
       this.loadTeacherBalance();
     }
 
-    // Handle OAuth callbacks and Stripe Connect returns
+    // Handle Stripe Connect returns
     this.route.queryParams.subscribe(params => {
-      if (params['calendar'] === 'callback' && params['code']) {
-        this.handleCalendarCallback(params['code']);
-      }
-
       // Handle Stripe Connect return
       if (params['stripe_connect'] === 'return') {
         this.stripeConnectSuccess.set('Configuration terminee !');
@@ -254,37 +232,6 @@ export class SettingsComponent implements OnInit {
     });
   }
 
-  changePassword(): void {
-    if (this.passwordForm.invalid || this.savingPassword()) return;
-
-    const { currentPassword, newPassword, confirmPassword } = this.passwordForm.value;
-
-    if (newPassword !== confirmPassword) {
-      this.passwordError.set('Les mots de passe ne correspondent pas');
-      return;
-    }
-
-    this.savingPassword.set(true);
-    this.passwordSuccess.set(false);
-    this.passwordError.set(null);
-
-    this.http.post('/api/users/me/password', {
-      currentPassword,
-      newPassword
-    }).subscribe({
-      next: () => {
-        this.savingPassword.set(false);
-        this.passwordSuccess.set(true);
-        this.passwordForm.reset();
-        setTimeout(() => this.passwordSuccess.set(false), 3000);
-      },
-      error: (err) => {
-        this.savingPassword.set(false);
-        this.passwordError.set(err.error?.message || 'Mot de passe actuel incorrect');
-      }
-    });
-  }
-
   toggleEmailReminders(): void {
     if (this.savingPreferences()) return;
 
@@ -304,73 +251,6 @@ export class SettingsComponent implements OnInit {
       error: (err) => {
         this.savingPreferences.set(false);
         this.preferencesError.set(err.error?.message || 'Erreur lors de la sauvegarde');
-      }
-    });
-  }
-
-  // Google Calendar methods
-  loadCalendarStatus(): void {
-    this.calendarService.getStatus().subscribe({
-      next: (status) => this.calendarStatus.set(status),
-      error: () => this.calendarStatus.set({ configured: false, connected: false, enabled: false })
-    });
-  }
-
-  connectGoogleCalendar(): void {
-    this.calendarLoading.set(true);
-    this.calendarError.set(null);
-
-    this.calendarService.getAuthUrl().subscribe({
-      next: (response) => {
-        this.calendarLoading.set(false);
-        if (response.authUrl) {
-          window.location.href = response.authUrl;
-        } else {
-          this.calendarError.set(response.message || 'Google Calendar non disponible');
-        }
-      },
-      error: (err) => {
-        this.calendarLoading.set(false);
-        this.calendarError.set(err.error?.message || 'Erreur de connexion');
-      }
-    });
-  }
-
-  handleCalendarCallback(code: string): void {
-    this.calendarLoading.set(true);
-    this.calendarError.set(null);
-
-    this.calendarService.handleCallback(code).subscribe({
-      next: () => {
-        this.calendarLoading.set(false);
-        this.calendarSuccess.set('Google Calendar connecte avec succes !');
-        this.loadCalendarStatus();
-        // Clear URL params
-        window.history.replaceState({}, '', '/settings');
-        setTimeout(() => this.calendarSuccess.set(null), 3000);
-      },
-      error: (err) => {
-        this.calendarLoading.set(false);
-        this.calendarError.set(err.error?.message || 'Erreur lors de la connexion');
-        window.history.replaceState({}, '', '/settings');
-      }
-    });
-  }
-
-  disconnectGoogleCalendar(): void {
-    this.calendarLoading.set(true);
-    this.calendarError.set(null);
-
-    this.calendarService.disconnect().subscribe({
-      next: () => {
-        this.calendarLoading.set(false);
-        this.calendarSuccess.set('Google Calendar deconnecte');
-        this.loadCalendarStatus();
-        setTimeout(() => this.calendarSuccess.set(null), 3000);
-      },
-      error: (err) => {
-        this.calendarLoading.set(false);
-        this.calendarError.set(err.error?.message || 'Erreur lors de la deconnexion');
       }
     });
   }

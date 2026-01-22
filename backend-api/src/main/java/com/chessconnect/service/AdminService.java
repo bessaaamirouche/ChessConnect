@@ -44,6 +44,7 @@ public class AdminService {
     private final UserCourseProgressRepository userCourseProgressRepository;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final ProgressRepository progressRepository;
+    private final InvoiceRepository invoiceRepository;
 
     public AdminService(
             UserRepository userRepository,
@@ -59,7 +60,8 @@ public class AdminService {
             QuizResultRepository quizResultRepository,
             UserCourseProgressRepository userCourseProgressRepository,
             PasswordResetTokenRepository passwordResetTokenRepository,
-            ProgressRepository progressRepository
+            ProgressRepository progressRepository,
+            InvoiceRepository invoiceRepository
     ) {
         this.userRepository = userRepository;
         this.lessonRepository = lessonRepository;
@@ -75,6 +77,7 @@ public class AdminService {
         this.userCourseProgressRepository = userCourseProgressRepository;
         this.passwordResetTokenRepository = passwordResetTokenRepository;
         this.progressRepository = progressRepository;
+        this.invoiceRepository = invoiceRepository;
     }
 
     /**
@@ -220,7 +223,12 @@ public class AdminService {
             log.debug("Deleted teacher balance for teacher {}", userId);
         }
 
-        // 8. Lessons (as student or teacher) - must be after ratings/payments that reference lessons
+        // 8. Invoices (as customer or issuer)
+        invoiceRepository.deleteByCustomerId(userId);
+        invoiceRepository.deleteByIssuerId(userId);
+        log.debug("Deleted invoices for user {}", userId);
+
+        // 9. Lessons (as student or teacher) - must be after ratings/payments that reference lessons
         lessonRepository.deleteByStudentId(userId);
         lessonRepository.deleteByTeacherId(userId);
         log.debug("Deleted lessons for user {}", userId);

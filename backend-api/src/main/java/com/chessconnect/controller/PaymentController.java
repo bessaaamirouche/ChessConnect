@@ -12,6 +12,7 @@ import com.chessconnect.model.enums.SubscriptionPlan;
 import com.chessconnect.repository.PaymentRepository;
 import com.chessconnect.repository.UserRepository;
 import com.chessconnect.security.UserDetailsImpl;
+import com.chessconnect.service.InvoiceService;
 import com.chessconnect.service.LessonService;
 import com.chessconnect.service.StripeService;
 import com.chessconnect.service.SubscriptionService;
@@ -20,6 +21,7 @@ import java.time.LocalDateTime;
 import com.stripe.exception.SignatureVerificationException;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Event;
+import com.stripe.model.PaymentIntent;
 import com.stripe.model.checkout.Session;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -45,19 +47,22 @@ public class PaymentController {
     private final PaymentRepository paymentRepository;
     private final UserRepository userRepository;
     private final LessonService lessonService;
+    private final InvoiceService invoiceService;
 
     public PaymentController(
             StripeService stripeService,
             SubscriptionService subscriptionService,
             PaymentRepository paymentRepository,
             UserRepository userRepository,
-            LessonService lessonService
+            LessonService lessonService,
+            InvoiceService invoiceService
     ) {
         this.stripeService = stripeService;
         this.subscriptionService = subscriptionService;
         this.paymentRepository = paymentRepository;
         this.userRepository = userRepository;
         this.lessonService = lessonService;
+        this.invoiceService = invoiceService;
     }
 
     // Get Stripe publishable key
@@ -368,6 +373,7 @@ public class PaymentController {
 
         switch (event.getType()) {
             case "checkout.session.completed" -> handleCheckoutCompleted(event);
+            case "payment_intent.succeeded" -> handlePaymentIntentSucceeded(event);
             case "customer.subscription.updated" -> handleSubscriptionUpdated(event);
             case "customer.subscription.deleted" -> handleSubscriptionDeleted(event);
             case "invoice.paid" -> handleInvoicePaid(event);
@@ -415,6 +421,57 @@ public class PaymentController {
             }
         } catch (Exception e) {
             log.error("Error handling checkout.session.completed", e);
+        }
+    }
+
+    /**
+     * Handle payment_intent.succeeded event - generate invoices.
+     */
+    private void handlePaymentIntentSucceeded(Event event) {
+        try {
+            PaymentIntent paymentIntent = (PaymentIntent) event.getDataObjectDeserializer()
+                    .getObject()
+                    .orElseThrow(() -> new RuntimeException("Failed to deserialize PaymentIntent"));
+
+            Map<String, String> metadata = paymentIntent.getMetadata();
+            if (metadata == null || metadata.isEmpty()) {
+                log.debug("PaymentIntent has no metadata, skipping invoice generation");
+                return;
+            }
+
+            // Check if this is a lesson payment
+            if (!"ONE_TIME_LESSON".equals(metadata.get("type"))) {
+                log.debug("PaymentIntent is not for a lesson, skipping invoice generation");
+                return;
+            }
+
+            String paymentIntentId = paymentIntent.getId();
+            Long studentId = metadata.get("user_id") != null ? Long.parseLong(metadata.get("user_id")) : null;
+            Long teacherId = metadata.get("teacher_id") != null ? Long.parseLong(metadata.get("teacher_id")) : null;
+            Long lessonId = metadata.get("lesson_id") != null ? Long.parseLong(metadata.get("lesson_id")) : null;
+            boolean promoApplied = "true".equals(metadata.get("promo_applied"));
+
+            if (studentId == null || teacherId == null) {
+                log.warn("Missing student or teacher ID in PaymentIntent metadata: {}", paymentIntentId);
+                return;
+            }
+
+            int amountCents = paymentIntent.getAmount().intValue();
+
+            log.info("Generating invoices for PaymentIntent {}: student={}, teacher={}, amount={}, promo={}",
+                    paymentIntentId, studentId, teacherId, amountCents, promoApplied);
+
+            invoiceService.generateInvoicesForPayment(
+                    paymentIntentId,
+                    studentId,
+                    teacherId,
+                    lessonId,
+                    amountCents,
+                    promoApplied
+            );
+
+        } catch (Exception e) {
+            log.error("Error handling payment_intent.succeeded", e);
         }
     }
 

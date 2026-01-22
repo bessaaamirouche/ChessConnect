@@ -172,6 +172,15 @@ public class StripeService {
                 .putMetadata("duration_minutes", String.valueOf(durationMinutes))
                 .putMetadata("notes", notes != null ? notes : "")
                 .putMetadata("type", "ONE_TIME_LESSON")
+                // Copy metadata to PaymentIntent for invoice generation webhook
+                .setPaymentIntentData(
+                        SessionCreateParams.PaymentIntentData.builder()
+                                .putMetadata("user_id", student.getId().toString())
+                                .putMetadata("teacher_id", teacherId.toString())
+                                .putMetadata("type", "ONE_TIME_LESSON")
+                                .putMetadata("promo_applied", "false")
+                                .build()
+                )
                 .addLineItem(
                         SessionCreateParams.LineItem.builder()
                                 .setPriceData(

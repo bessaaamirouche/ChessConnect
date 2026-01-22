@@ -98,6 +98,11 @@ export const routes: Routes = [
     loadComponent: () => import('./features/settings/settings.component').then(m => m.SettingsComponent)
   },
   {
+    path: 'invoices',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/invoices/invoices.component').then(m => m.InvoicesComponent)
+  },
+  {
     path: 'admin',
     canActivate: [authGuard],
     loadChildren: () => import('./features/admin/admin.routes').then(m => m.adminRoutes)

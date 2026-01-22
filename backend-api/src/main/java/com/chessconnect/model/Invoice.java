@@ -1,0 +1,151 @@
+package com.chessconnect.model;
+
+import com.chessconnect.model.enums.InvoiceType;
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "invoices")
+public class Invoice {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    // Sequential invoice number for France compliance (e.g., "FAC-2026-000001")
+    @Column(name = "invoice_number", nullable = false, unique = true)
+    private String invoiceNumber;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "invoice_type", nullable = false)
+    private InvoiceType invoiceType;
+
+    // For LESSON_INVOICE: the student who paid
+    // For COMMISSION_INVOICE: the teacher who receives the commission invoice
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "customer_id", nullable = false)
+    private User customer;
+
+    // For LESSON_INVOICE: the teacher who provided the service
+    // For COMMISSION_INVOICE: null (platform is the issuer)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "issuer_id")
+    private User issuer;
+
+    // Related lesson (optional, for context)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "lesson_id")
+    private Lesson lesson;
+
+    // Related payment intent ID from Stripe
+    @Column(name = "stripe_payment_intent_id")
+    private String stripePaymentIntentId;
+
+    // Amounts in cents
+    @Column(name = "subtotal_cents", nullable = false)
+    private Integer subtotalCents;
+
+    @Column(name = "vat_cents", nullable = false)
+    private Integer vatCents = 0;
+
+    @Column(name = "total_cents", nullable = false)
+    private Integer totalCents;
+
+    // VAT rate (e.g., 20 for 20%)
+    @Column(name = "vat_rate")
+    private Integer vatRate = 0;
+
+    // Description/Label for the invoice line
+    @Column(name = "description", nullable = false)
+    private String description;
+
+    // Whether promo code was applied (for commission invoices)
+    @Column(name = "promo_applied")
+    private Boolean promoApplied = false;
+
+    // Commission rate applied (in percent, e.g., 12.5 or 2.5)
+    @Column(name = "commission_rate")
+    private Double commissionRate;
+
+    // PDF storage path or URL
+    @Column(name = "pdf_path")
+    private String pdfPath;
+
+    // Stripe Invoice ID (if created via Stripe Invoicing)
+    @Column(name = "stripe_invoice_id")
+    private String stripeInvoiceId;
+
+    @Column(name = "status", nullable = false)
+    private String status = "PAID"; // Always PAID since funds already captured
+
+    @Column(name = "issued_at", nullable = false)
+    private LocalDateTime issuedAt;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        if (issuedAt == null) {
+            issuedAt = LocalDateTime.now();
+        }
+    }
+
+    // Getters and Setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public String getInvoiceNumber() { return invoiceNumber; }
+    public void setInvoiceNumber(String invoiceNumber) { this.invoiceNumber = invoiceNumber; }
+
+    public InvoiceType getInvoiceType() { return invoiceType; }
+    public void setInvoiceType(InvoiceType invoiceType) { this.invoiceType = invoiceType; }
+
+    public User getCustomer() { return customer; }
+    public void setCustomer(User customer) { this.customer = customer; }
+
+    public User getIssuer() { return issuer; }
+    public void setIssuer(User issuer) { this.issuer = issuer; }
+
+    public Lesson getLesson() { return lesson; }
+    public void setLesson(Lesson lesson) { this.lesson = lesson; }
+
+    public String getStripePaymentIntentId() { return stripePaymentIntentId; }
+    public void setStripePaymentIntentId(String stripePaymentIntentId) { this.stripePaymentIntentId = stripePaymentIntentId; }
+
+    public Integer getSubtotalCents() { return subtotalCents; }
+    public void setSubtotalCents(Integer subtotalCents) { this.subtotalCents = subtotalCents; }
+
+    public Integer getVatCents() { return vatCents; }
+    public void setVatCents(Integer vatCents) { this.vatCents = vatCents; }
+
+    public Integer getTotalCents() { return totalCents; }
+    public void setTotalCents(Integer totalCents) { this.totalCents = totalCents; }
+
+    public Integer getVatRate() { return vatRate; }
+    public void setVatRate(Integer vatRate) { this.vatRate = vatRate; }
+
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+
+    public Boolean getPromoApplied() { return promoApplied; }
+    public void setPromoApplied(Boolean promoApplied) { this.promoApplied = promoApplied; }
+
+    public Double getCommissionRate() { return commissionRate; }
+    public void setCommissionRate(Double commissionRate) { this.commissionRate = commissionRate; }
+
+    public String getPdfPath() { return pdfPath; }
+    public void setPdfPath(String pdfPath) { this.pdfPath = pdfPath; }
+
+    public String getStripeInvoiceId() { return stripeInvoiceId; }
+    public void setStripeInvoiceId(String stripeInvoiceId) { this.stripeInvoiceId = stripeInvoiceId; }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+
+    public LocalDateTime getIssuedAt() { return issuedAt; }
+    public void setIssuedAt(LocalDateTime issuedAt) { this.issuedAt = issuedAt; }
+
+    public LocalDateTime getCreatedAt() { return createdAt; }
+}

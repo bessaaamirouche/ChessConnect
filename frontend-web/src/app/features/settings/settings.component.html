@@ -48,10 +48,11 @@
               <div class="form-group">
                 <label class="form-group__label">Classement ELO</label>
                 <div class="elo-input">
-                  <label class="checkbox checkbox--inline">
+                  <label class="toggle">
                     <input type="checkbox" formControlName="knowsElo">
-                    <span>Connu</span>
+                    <span class="toggle__slider"></span>
                   </label>
+                  <span class="elo-input__label">Connu</span>
                   @if (profileForm.get('knowsElo')?.value) {
                     <input
                       type="number"

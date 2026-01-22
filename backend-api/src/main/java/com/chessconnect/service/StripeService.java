@@ -64,6 +64,13 @@ public class StripeService {
         SessionCreateParams.Builder paramsBuilder = SessionCreateParams.builder()
                 .setMode(SessionCreateParams.Mode.SUBSCRIPTION)
                 .addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
+                .setPaymentMethodOptions(
+                        SessionCreateParams.PaymentMethodOptions.builder()
+                                .setCard(SessionCreateParams.PaymentMethodOptions.Card.builder()
+                                        .setRequestThreeDSecure(SessionCreateParams.PaymentMethodOptions.Card.RequestThreeDSecure.AUTOMATIC)
+                                        .build())
+                                .build()
+                )
                 .putMetadata("user_id", user.getId().toString())
                 .putMetadata("plan", plan.name())
                 .addLineItem(

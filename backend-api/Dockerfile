@@ -13,6 +13,10 @@ WORKDIR /app
 
 # Add a non-root user for security
 RUN groupadd -r spring && useradd -r -g spring spring
+
+# Create uploads directory with proper permissions BEFORE switching user
+RUN mkdir -p /app/uploads/avatars && chown -R spring:spring /app/uploads
+
 USER spring:spring
 
 COPY --from=build /app/target/*.jar app.jar

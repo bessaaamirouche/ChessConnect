@@ -62,13 +62,33 @@
       </div>
     </header>
 
-    <!-- Free Trial Notice -->
+    <!-- Free Trial Mode Toggle -->
     @if (freeTrialEligible()) {
-      <div class="free-trial-notice">
-        <ng-icon name="heroAcademicCap" class="free-trial-notice__icon"></ng-icon>
-        <div class="free-trial-notice__content">
-          <strong>Premier cours offert !</strong>
-          <span>Vous voyez uniquement les coachs qui acceptent le premier cours gratuit.</span>
+      <div class="free-trial-toggle">
+        <div class="free-trial-toggle__header">
+          <ng-icon name="heroAcademicCap" class="free-trial-toggle__icon"></ng-icon>
+          <div class="free-trial-toggle__title">
+            <strong>Premier cours offert !</strong>
+            <span>Choisissez comment vous souhaitez commencer</span>
+          </div>
+        </div>
+        <div class="free-trial-toggle__options">
+          <button
+            class="free-trial-toggle__btn"
+            [class.active]="useFreeTrialMode()"
+            (click)="toggleFreeTrialMode(true)"
+          >
+            <span class="free-trial-toggle__btn-title">Cours gratuit</span>
+            <span class="free-trial-toggle__btn-desc">Coachs acceptant le 1er cours offert</span>
+          </button>
+          <button
+            class="free-trial-toggle__btn"
+            [class.active]="!useFreeTrialMode()"
+            (click)="toggleFreeTrialMode(false)"
+          >
+            <span class="free-trial-toggle__btn-title">Tous les coachs</span>
+            <span class="free-trial-toggle__btn-desc">Réserver directement (payant)</span>
+          </button>
         </div>
       </div>
     }

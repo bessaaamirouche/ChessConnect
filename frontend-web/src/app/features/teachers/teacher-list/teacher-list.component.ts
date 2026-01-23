@@ -49,6 +49,9 @@ export class TeacherListComponent implements OnInit {
   minRate = signal<number | null>(null);
   maxRate = signal<number | null>(null);
 
+  // Free trial mode: true = show only coaches accepting free trial, false = show all
+  useFreeTrialMode = signal(true);
+
   // Sort teachers: favorites first, then by name
   filteredTeachers = computed(() => {
     const query = this.searchQuery().toLowerCase().trim();
@@ -141,6 +144,15 @@ export class TeacherListComponent implements OnInit {
 
   hasActiveFilters(): boolean {
     return this.searchQuery() !== '' || this.minRate() !== null || this.maxRate() !== null;
+  }
+
+  toggleFreeTrialMode(useFreeTrial: boolean): void {
+    this.useFreeTrialMode.set(useFreeTrial);
+    if (useFreeTrial) {
+      this.teacherService.loadTeachersAcceptingFreeTrial().subscribe();
+    } else {
+      this.teacherService.loadTeachers().subscribe();
+    }
   }
 
   logout(): void {

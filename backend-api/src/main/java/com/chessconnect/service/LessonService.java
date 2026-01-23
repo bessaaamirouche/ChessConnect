@@ -23,9 +23,15 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Service
 public class LessonService {
@@ -353,7 +359,55 @@ public class LessonService {
             throw new IllegalArgumentException("Cannot delete a pending or confirmed lesson. Cancel it first.");
         }
 
+        // Delete recording files if they exist
+        deleteRecordingFiles(lessonId);
+
         lessonRepository.delete(lesson);
+    }
+
+    /**
+     * Delete recording files associated with a lesson.
+     * Recordings are stored in /var/jibri/recordings/ with directory names like:
+     * - mychess-lesson-{id}
+     * - chessconnect-{id}-{timestamp}
+     * - Lesson-{id}
+     */
+    private void deleteRecordingFiles(Long lessonId) {
+        String recordingsBasePath = "/var/jibri/recordings";
+        File baseDir = new File(recordingsBasePath);
+
+        if (!baseDir.exists() || !baseDir.isDirectory()) {
+            log.debug("Recordings directory does not exist: {}", recordingsBasePath);
+            return;
+        }
+
+        // Find directories matching the lesson ID
+        File[] matchingDirs = baseDir.listFiles((dir, name) -> {
+            if (name.equals("Lesson-" + lessonId)) return true;
+            if (name.equals("ChessConnect_Lesson-" + lessonId)) return true;
+            if (name.startsWith("chessconnect-" + lessonId + "-")) return true;
+            if (name.equals("mychess-lesson-" + lessonId)) return true;
+            return false;
+        });
+
+        if (matchingDirs == null || matchingDirs.length == 0) {
+            log.debug("No recording directories found for lesson {}", lessonId);
+            return;
+        }
+
+        for (File dir : matchingDirs) {
+            try {
+                // Delete directory and all its contents recursively
+                try (Stream<Path> pathStream = Files.walk(dir.toPath())) {
+                    pathStream.sorted(Comparator.reverseOrder())
+                            .map(Path::toFile)
+                            .forEach(File::delete);
+                }
+                log.info("Deleted recording directory for lesson {}: {}", lessonId, dir.getAbsolutePath());
+            } catch (IOException e) {
+                log.error("Failed to delete recording directory for lesson {}: {}", lessonId, e.getMessage());
+            }
+        }
     }
 
     /**

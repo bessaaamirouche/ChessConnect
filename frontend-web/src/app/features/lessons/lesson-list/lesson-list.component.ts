@@ -102,6 +102,8 @@ export class LessonListComponent implements OnInit {
   videoCallRoomName = signal('');
   videoCallToken = signal('');
   videoCallTitle = signal('');
+  videoCallIsFreeTrial = signal(false);
+  videoCallDurationMinutes = signal(60);
 
   // History filters
   historyFilterPerson = signal<string>('');
@@ -264,6 +266,10 @@ export class LessonListComponent implements OnInit {
       ? `Cours avec ${lesson.teacherName}`
       : `Cours avec ${lesson.studentName}`;
 
+    // Set free trial flag (15 min for discovery lessons, 60 min for regular)
+    const isFreeTrial = lesson.isFreeTrial === true;
+    const durationMinutes = isFreeTrial ? 15 : lesson.durationMinutes;
+
     // Si c'est un prof, marquer qu'il a rejoint l'appel
     if (this.authService.isTeacher()) {
       this.lessonService.markTeacherJoined(lesson.id).subscribe({
@@ -278,6 +284,8 @@ export class LessonListComponent implements OnInit {
         this.videoCallRoomName.set(roomName);
         this.videoCallToken.set(response.token);
         this.videoCallTitle.set(title);
+        this.videoCallIsFreeTrial.set(isFreeTrial);
+        this.videoCallDurationMinutes.set(durationMinutes);
         this.showVideoCall.set(true);
       },
       error: (err) => {
@@ -286,6 +294,8 @@ export class LessonListComponent implements OnInit {
         this.videoCallRoomName.set(roomName);
         this.videoCallToken.set('');
         this.videoCallTitle.set(title);
+        this.videoCallIsFreeTrial.set(isFreeTrial);
+        this.videoCallDurationMinutes.set(durationMinutes);
         this.showVideoCall.set(true);
       }
     });
@@ -307,6 +317,8 @@ export class LessonListComponent implements OnInit {
     this.videoCallRoomName.set('');
     this.videoCallToken.set('');
     this.videoCallTitle.set('');
+    this.videoCallIsFreeTrial.set(false);
+    this.videoCallDurationMinutes.set(60);
   }
 
   openRecording(lesson: Lesson): void {

@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, signal, PLATFORM_ID, Inject, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
-import { heroXMark, heroVideoCamera } from '@ng-icons/heroicons/outline';
+import { heroXMark, heroVideoCamera, heroClock } from '@ng-icons/heroicons/outline';
 
 declare var JitsiMeetExternalAPI: any;
 
@@ -9,14 +9,26 @@ declare var JitsiMeetExternalAPI: any;
   selector: 'app-video-call',
   standalone: true,
   imports: [NgIconComponent],
-  viewProviders: [provideIcons({ heroXMark, heroVideoCamera })],
+  viewProviders: [provideIcons({ heroXMark, heroVideoCamera, heroClock })],
   template: `
     <div class="video-call-overlay" (click)="onClose()">
       <div class="video-call-container" (click)="$event.stopPropagation()">
         <div class="video-call-header">
           <div class="video-call-header__info">
             <ng-icon name="heroVideoCamera" size="20"></ng-icon>
-            <span>{{ title }}</span>
+            @if (isFreeTrial) {
+              <span class="discovery-badge">
+                <ng-icon name="heroClock" size="14"></ng-icon>
+                Cours découverte - 15 min
+              </span>
+            } @else {
+              <span>{{ title }}</span>
+            }
+            @if (isFreeTrial && timerDisplay()) {
+              <span class="timer-badge" [class.timer-badge--warning]="timerMinutes() <= 5" [class.timer-badge--danger]="timerMinutes() <= 2">
+                {{ timerDisplay() }}
+              </span>
+            }
             @if (isRecording()) {
               <span class="recording-badge">
                 <span class="recording-dot"></span>
@@ -122,6 +134,46 @@ declare var JitsiMeetExternalAPI: any;
       0%, 100% { opacity: 1; }
       50% { opacity: 0.5; }
     }
+
+    .discovery-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(184, 134, 11, 0.2));
+      color: #d4af37;
+      padding: 0.35rem 0.85rem;
+      border-radius: var(--radius-full);
+      font-size: 0.85rem;
+      font-weight: 600;
+      border: 1px solid rgba(212, 175, 55, 0.3);
+    }
+
+    .timer-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: rgba(59, 130, 246, 0.2);
+      color: #3b82f6;
+      padding: 0.35rem 0.85rem;
+      border-radius: var(--radius-full);
+      font-size: 0.9rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      margin-left: 0.75rem;
+      min-width: 70px;
+      justify-content: center;
+
+      &--warning {
+        background: rgba(245, 158, 11, 0.2);
+        color: #f59e0b;
+      }
+
+      &--danger {
+        background: rgba(239, 68, 68, 0.2);
+        color: #ef4444;
+        animation: pulse 1s infinite;
+      }
+    }
   `]
 })
 export class VideoCallComponent implements OnInit, OnDestroy, AfterViewInit {
@@ -132,12 +184,18 @@ export class VideoCallComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() title = 'Cours d\'échecs';
   @Input() isTeacher = false;
   @Input() jwtToken?: string;
+  @Input() isFreeTrial = false;
+  @Input() durationMinutes = 60;
   @Output() closed = new EventEmitter<void>();
 
   isRecording = signal(false);
+  timerDisplay = signal('');
+  timerMinutes = signal(0);
   private isBrowser: boolean;
   private api: any = null;
   private recordingStarted = false;
+  private timerInterval: any = null;
+  private timerStartTime: number = 0;
 
   constructor(
     @Inject(PLATFORM_ID) platformId: Object
@@ -158,6 +216,7 @@ export class VideoCallComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnDestroy(): void {
+    this.stopTimer();
     if (this.api) {
       this.api.dispose();
       this.api = null;
@@ -219,6 +278,11 @@ export class VideoCallComponent implements OnInit, OnDestroy, AfterViewInit {
     this.api.addListener('videoConferenceJoined', (data: any) => {
       console.log('[Jitsi] Conference joined:', data);
 
+      // Start timer for free trial lessons
+      if (this.isFreeTrial) {
+        this.startTimer();
+      }
+
       // Auto-start recording if teacher (with delay to ensure connection is stable)
       if (this.isTeacher && !this.recordingStarted) {
         setTimeout(() => {
@@ -244,6 +308,42 @@ export class VideoCallComponent implements OnInit, OnDestroy, AfterViewInit {
     this.api.addListener('errorOccurred', (error: any) => {
       console.error('[Jitsi] Error:', error);
     });
+  }
+
+  private startTimer(): void {
+    // For free trial, duration is 15 minutes
+    const duration = 15 * 60 * 1000; // 15 minutes in ms
+    this.timerStartTime = Date.now();
+    const endTime = this.timerStartTime + duration;
+
+    this.updateTimerDisplay(endTime);
+    this.timerInterval = setInterval(() => {
+      this.updateTimerDisplay(endTime);
+    }, 1000);
+  }
+
+  private stopTimer(): void {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+      this.timerInterval = null;
+    }
+  }
+
+  private updateTimerDisplay(endTime: number): void {
+    const now = Date.now();
+    const remaining = Math.max(0, endTime - now);
+
+    const minutes = Math.floor(remaining / 60000);
+    const seconds = Math.floor((remaining % 60000) / 1000);
+
+    this.timerMinutes.set(minutes);
+    this.timerDisplay.set(`${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
+
+    // When time is up, show message but don't auto-disconnect
+    if (remaining <= 0) {
+      this.stopTimer();
+      this.timerDisplay.set('00:00');
+    }
   }
 
   private startRecording(): void {

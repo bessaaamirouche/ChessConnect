@@ -393,6 +393,8 @@
       [title]="videoCallTitle()"
       [isTeacher]="authService.isTeacher()"
       [jwtToken]="videoCallToken()"
+      [isFreeTrial]="videoCallIsFreeTrial()"
+      [durationMinutes]="videoCallDurationMinutes()"
       (closed)="closeVideoCall()"
     ></app-video-call>
   }

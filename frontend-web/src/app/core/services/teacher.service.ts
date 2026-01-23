@@ -51,6 +51,20 @@ export class TeacherService {
     return this.http.get<User[]>(`${this.apiUrl}/subscription`);
   }
 
+  loadTeachersAcceptingFreeTrial(): Observable<User[]> {
+    this.loadingSignal.set(true);
+
+    return this.http.get<User[]>(`${this.apiUrl}/free-trial`).pipe(
+      tap({
+        next: (teachers) => {
+          this.teachersSignal.set(teachers);
+          this.loadingSignal.set(false);
+        },
+        error: () => this.loadingSignal.set(false)
+      })
+    );
+  }
+
   clearSelectedTeacher(): void {
     this.selectedTeacherSignal.set(null);
   }

@@ -62,6 +62,17 @@
       </div>
     </header>
 
+    <!-- Free Trial Notice -->
+    @if (freeTrialEligible()) {
+      <div class="free-trial-notice">
+        <ng-icon name="heroAcademicCap" class="free-trial-notice__icon"></ng-icon>
+        <div class="free-trial-notice__content">
+          <strong>Premier cours offert !</strong>
+          <span>Vous voyez uniquement les coachs qui acceptent le premier cours gratuit.</span>
+        </div>
+      </div>
+    }
+
     <!-- Search & Filters -->
     <div class="search-section">
       <div class="search-bar">

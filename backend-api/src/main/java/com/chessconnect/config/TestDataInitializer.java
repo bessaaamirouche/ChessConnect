@@ -33,25 +33,35 @@ public class TestDataInitializer {
             // Create 10 teachers with French and Maghrebi names
             List<User> teachers = List.of(
                 createTeacher("Laurent", "Mercier", "laurent.mercier@gmail.com", encodedPassword,
-                    4500, "Champion regional 2019. 15 ans d'experience dans l'enseignement des echecs.", "FR"),
+                    4500, "Champion regional 2019. 15 ans d'experience dans l'enseignement des echecs.", "FR",
+                    "/api/uploads/avatars/teacher-laurent.jpg"),
                 createTeacher("Karim", "Benali", "karim.benali@gmail.com", encodedPassword,
-                    5500, "Maitre FIDE. Ancien entraineur du club de Marseille.", "FR,AR"),
+                    5500, "Maitre FIDE. Ancien entraineur du club de Marseille.", "FR,AR",
+                    "/api/uploads/avatars/teacher-karim.jpg"),
                 createTeacher("Sophie", "Martin", "sophie.martin@gmail.com", encodedPassword,
-                    4000, "Passionnee depuis l'enfance. Diplome d'entraineur FFE.", "FR,EN"),
+                    4000, "Passionnee depuis l'enfance. Diplome d'entraineur FFE.", "FR,EN",
+                    "/api/uploads/avatars/teacher-sophie.jpg"),
                 createTeacher("Youssef", "Alami", "youssef.alami@gmail.com", encodedPassword,
-                    6000, "Grand Maitre International. Coaching personnalise.", "FR,AR,EN"),
+                    6000, "Grand Maitre International. Coaching personnalise.", "FR,AR,EN",
+                    "/api/uploads/avatars/teacher-youssef.jpg"),
                 createTeacher("Claire", "Dubois", "claire.dubois@gmail.com", encodedPassword,
-                    3500, "Specialisee dans l'initiation des enfants de 6 a 12 ans.", "FR"),
+                    3500, "Specialisee dans l'initiation des enfants de 6 a 12 ans.", "FR",
+                    "/api/uploads/avatars/teacher-claire.jpg"),
                 createTeacher("Mehdi", "Bouzid", "mehdi.bouzid@gmail.com", encodedPassword,
-                    5000, "Expert en ouvertures siciliennes et indiennes.", "FR,AR"),
+                    5000, "Expert en ouvertures siciliennes et indiennes.", "FR,AR",
+                    "/api/uploads/avatars/teacher-mehdi.jpg"),
                 createTeacher("Philippe", "Leroy", "philippe.leroy@gmail.com", encodedPassword,
-                    4800, "Retraite passionne. Patience et pedagogie.", "FR"),
+                    4800, "Retraite passionne. Patience et pedagogie.", "FR",
+                    "/api/uploads/avatars/teacher-philippe.jpg"),
                 createTeacher("Fatima", "Kaddouri", "fatima.kaddouri@gmail.com", encodedPassword,
-                    4200, "Championne feminine du Maroc 2018.", "FR,AR"),
+                    4200, "Championne feminine du Maroc 2018.", "FR,AR",
+                    "/api/uploads/avatars/teacher-fatima.jpg"),
                 createTeacher("Nicolas", "Bernard", "nicolas.bernard@gmail.com", encodedPassword,
-                    5200, "Maitre International. Preparation mentale et strategique.", "FR,EN"),
+                    5200, "Maitre International. Preparation mentale et strategique.", "FR,EN",
+                    "/api/uploads/avatars/teacher-nicolas.jpg"),
                 createTeacher("Amina", "Cherif", "amina.cherif@gmail.com", encodedPassword,
-                    4000, "Cours adaptes aux femmes souhaitant progresser.", "FR,AR,EN")
+                    4000, "Cours adaptes aux femmes souhaitant progresser.", "FR,AR,EN",
+                    "/api/uploads/avatars/teacher-amina.jpg")
             );
 
             userRepository.saveAll(teachers);
@@ -70,7 +80,7 @@ public class TestDataInitializer {
     }
 
     private User createTeacher(String firstName, String lastName, String email, String password,
-                                int hourlyRateCents, String bio, String languages) {
+                                int hourlyRateCents, String bio, String languages, String avatarUrl) {
         User teacher = new User();
         teacher.setFirstName(firstName);
         teacher.setLastName(lastName);
@@ -81,6 +91,7 @@ public class TestDataInitializer {
         teacher.setAcceptsSubscription(true);
         teacher.setBio(bio);
         teacher.setLanguages(languages);
+        teacher.setAvatarUrl(avatarUrl);
         teacher.setIsSuspended(false);
         return teacher;
     }

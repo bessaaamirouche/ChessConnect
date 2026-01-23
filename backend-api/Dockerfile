@@ -17,6 +17,9 @@ RUN groupadd -r spring && useradd -r -g spring spring
 # Create uploads directory with proper permissions BEFORE switching user
 RUN mkdir -p /app/uploads/avatars && chown -R spring:spring /app/uploads
 
+# Copy default teacher avatars
+COPY --chown=spring:spring uploads/avatars/*.jpg /app/uploads/avatars/
+
 USER spring:spring
 
 COPY --from=build /app/target/*.jar app.jar

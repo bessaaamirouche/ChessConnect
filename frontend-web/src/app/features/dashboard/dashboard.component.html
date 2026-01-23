@@ -77,6 +77,12 @@
         @if (withdrawError()) {
           <div class="alert alert--error">{{ withdrawError() }}</div>
         }
+        @if (!stripeConnectReady()) {
+          <div class="alert alert--warning">
+            <ng-icon name="heroExclamationTriangle" size="18"></ng-icon>
+            <span>Pour pouvoir retirer votre argent, veuillez aller dans <a routerLink="/settings" class="link">Profil</a> et renseigner vos coordonnées bancaires.</span>
+          </div>
+        }
 
         <div class="earnings-card">
           <div class="earnings-summary">
@@ -279,21 +285,22 @@
         </div>
       </header>
 
-      <section class="section">
-        <div class="section__header">
-          <h2 class="section__title">Informations personnelles</h2>
-        </div>
+      <div class="profile-layout">
+        <!-- Informations personnelles -->
+        <section class="profile-section profile-section--main">
+          <div class="profile-section__header">
+            <h2 class="profile-section__title">Informations personnelles</h2>
+          </div>
 
-        @if (profileSuccess()) {
-          <div class="alert alert--success">Profil mis à jour avec succès !</div>
-        }
-        @if (profileError()) {
-          <div class="alert alert--error">{{ profileError() }}</div>
-        }
+          @if (profileSuccess()) {
+            <div class="alert alert--success">Profil mis à jour avec succès !</div>
+          }
+          @if (profileError()) {
+            <div class="alert alert--error">{{ profileError() }}</div>
+          }
 
-        <div class="card">
           <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" class="profile-form">
-            <div class="form-row">
+            <div class="form-grid">
               <div class="form-group">
                 <label class="form-group__label">Prénom</label>
                 <input type="text" formControlName="firstName" class="input">
@@ -302,59 +309,57 @@
                 <label class="form-group__label">Nom</label>
                 <input type="text" formControlName="lastName" class="input">
               </div>
-            </div>
-
-            <div class="form-group">
-              <label class="form-group__label">Tarif horaire</label>
-              <div class="input-group">
-                <input type="number" formControlName="hourlyRate" class="input" min="10" step="5">
-                <span class="input-group__addon">€/h</span>
+              <div class="form-group">
+                <label class="form-group__label">Tarif horaire</label>
+                <div class="input-group">
+                  <input type="number" formControlName="hourlyRate" class="input" min="10" step="5">
+                  <span class="input-group__addon">€/h</span>
+                </div>
+              </div>
+              <div class="form-group form-group--checkbox">
+                <label class="checkbox">
+                  <input type="checkbox" formControlName="acceptsSubscription">
+                  <span>J'accepte les joueurs avec abonnement</span>
+                </label>
               </div>
             </div>
 
-            <div class="form-group">
-              <label class="checkbox">
-                <input type="checkbox" formControlName="acceptsSubscription">
-                <span>J'accepte les joueurs avec abonnement</span>
-              </label>
-            </div>
-
-            <div class="form-group">
+            <div class="form-group form-group--full">
               <label class="form-group__label">Bio</label>
               <textarea
                 formControlName="bio"
                 class="textarea"
-                rows="4"
+                rows="5"
                 placeholder="Décrivez votre expérience et votre approche pédagogique..."
               ></textarea>
             </div>
 
-            <button type="submit" class="btn btn--primary" [disabled]="profileForm.invalid || savingProfile()">
-              @if (savingProfile()) {
-                <span class="spinner spinner--sm"></span>
-                Enregistrement...
-              } @else {
-                Enregistrer les modifications
-              }
-            </button>
+            <div class="form-actions">
+              <button type="submit" class="btn btn--primary btn--lg" [disabled]="profileForm.invalid || savingProfile()">
+                @if (savingProfile()) {
+                  <span class="spinner spinner--sm"></span>
+                  Enregistrement...
+                } @else {
+                  Enregistrer les modifications
+                }
+              </button>
+            </div>
           </form>
-        </div>
-      </section>
+        </section>
 
-      <!-- Password Section -->
-      <section class="section">
-        <div class="section__header">
-          <h2 class="section__title">Changer le mot de passe</h2>
-        </div>
+        <!-- Sécurité -->
+        <section class="profile-section profile-section--security">
+          <div class="profile-section__header">
+            <h2 class="profile-section__title">Sécurité</h2>
+          </div>
 
-        @if (passwordSuccess()) {
-          <div class="alert alert--success">Mot de passe modifié avec succès !</div>
-        }
-        @if (passwordError()) {
-          <div class="alert alert--error">{{ passwordError() }}</div>
-        }
+          @if (passwordSuccess()) {
+            <div class="alert alert--success">Mot de passe modifié avec succès !</div>
+          }
+          @if (passwordError()) {
+            <div class="alert alert--error">{{ passwordError() }}</div>
+          }
 
-        <div class="card">
           <form [formGroup]="passwordForm" (ngSubmit)="changePassword()" class="profile-form">
             <div class="form-group">
               <label class="form-group__label">Mot de passe actuel</label>
@@ -369,17 +374,19 @@
               <input type="password" formControlName="confirmPassword" class="input">
             </div>
 
-            <button type="submit" class="btn btn--ghost" [disabled]="passwordForm.invalid || savingPassword()">
-              @if (savingPassword()) {
-                <span class="spinner spinner--sm"></span>
-                Modification...
-              } @else {
-                Changer le mot de passe
-              }
-            </button>
+            <div class="form-actions">
+              <button type="submit" class="btn btn--ghost" [disabled]="passwordForm.invalid || savingPassword()">
+                @if (savingPassword()) {
+                  <span class="spinner spinner--sm"></span>
+                  Modification...
+                } @else {
+                  Changer le mot de passe
+                }
+              </button>
+            </div>
           </form>
-        </div>
-      </section>
+        </section>
+      </div>
     }
 
   <!-- Settings Panel -->

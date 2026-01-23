@@ -21,7 +21,9 @@ export class LessonService {
   readonly error = this.errorSignal.asReadonly();
   readonly freeTrialEligible = this.freeTrialEligibleSignal.asReadonly();
 
-  readonly upcomingCount = computed(() => this.upcomingLessonsSignal().length);
+  readonly upcomingCount = computed(() =>
+    this.upcomingLessonsSignal().filter(l => l.status !== 'CANCELLED' && l.status !== 'COMPLETED').length
+  );
   readonly completedCount = computed(() =>
     this.lessonHistorySignal().filter(l => l.status === 'COMPLETED').length
   );
@@ -96,17 +98,47 @@ export class LessonService {
   }
 
   cancelLesson(lessonId: number, reason?: string): Observable<Lesson> {
-    return this.updateLessonStatus(lessonId, {
+    return this.http.patch<Lesson>(`${this.apiUrl}/${lessonId}/status`, {
       status: 'CANCELLED',
       cancellationReason: reason
-    });
+    }).pipe(
+      tap((updatedLesson) => {
+        // Remove from upcoming and add to history
+        this.upcomingLessonsSignal.update(lessons =>
+          lessons.filter(l => l.id !== lessonId)
+        );
+        this.lessonHistorySignal.update(lessons => {
+          // Check if already in history
+          const exists = lessons.some(l => l.id === lessonId);
+          if (exists) {
+            return lessons.map(l => l.id === lessonId ? updatedLesson : l);
+          }
+          return [updatedLesson, ...lessons];
+        });
+      })
+    );
   }
 
   completeLesson(lessonId: number, teacherObservations?: string): Observable<Lesson> {
-    return this.updateLessonStatus(lessonId, {
+    return this.http.patch<Lesson>(`${this.apiUrl}/${lessonId}/status`, {
       status: 'COMPLETED',
       teacherObservations: teacherObservations || undefined
-    });
+    }).pipe(
+      tap((updatedLesson) => {
+        // Remove from upcoming and add to history
+        this.upcomingLessonsSignal.update(lessons =>
+          lessons.filter(l => l.id !== lessonId)
+        );
+        this.lessonHistorySignal.update(lessons => {
+          // Check if already in history
+          const exists = lessons.some(l => l.id === lessonId);
+          if (exists) {
+            return lessons.map(l => l.id === lessonId ? updatedLesson : l);
+          }
+          return [updatedLesson, ...lessons];
+        });
+      })
+    );
   }
 
   deleteLesson(lessonId: number): Observable<void> {

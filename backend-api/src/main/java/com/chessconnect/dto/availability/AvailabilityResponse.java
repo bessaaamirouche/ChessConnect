@@ -27,7 +27,7 @@ public class AvailabilityResponse {
         return AvailabilityResponse.builder()
                 .id(availability.getId())
                 .teacherId(availability.getTeacher().getId())
-                .teacherName(availability.getTeacher().getFullName())
+                .teacherName(availability.getTeacher().getDisplayName())
                 .dayOfWeek(availability.getDayOfWeek())
                 .dayOfWeekLabel(getDayLabel(availability.getDayOfWeek()))
                 .startTime(availability.getStartTime())

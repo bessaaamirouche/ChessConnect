@@ -178,6 +178,16 @@ public class User {
         return firstName + " " + lastName;
     }
 
+    /**
+     * Returns abbreviated name: "FirstName L." (for privacy)
+     */
+    public String getDisplayName() {
+        if (lastName == null || lastName.isEmpty()) {
+            return firstName;
+        }
+        return firstName + " " + lastName.charAt(0) + ".";
+    }
+
     public LocalDate getBirthDate() { return birthDate; }
     public void setBirthDate(LocalDate birthDate) { this.birthDate = birthDate; }
 

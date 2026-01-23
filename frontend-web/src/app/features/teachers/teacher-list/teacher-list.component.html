@@ -145,7 +145,7 @@
               </div>
               <div class="teacher-card__info">
                 <h3 class="teacher-card__name">
-                  {{ teacher.firstName }} {{ teacher.lastName }}
+                  {{ formatCoachName(teacher.firstName, teacher.lastName) }}
                 </h3>
                 <span class="teacher-card__rate">
                   {{ formatPrice(teacher.hourlyRateCents) }}
@@ -306,7 +306,7 @@
                 </div>
                 <div class="teacher-card__info">
                   <h3 class="teacher-card__name">
-                    {{ teacher.firstName }} {{ teacher.lastName }}
+                    {{ formatCoachName(teacher.firstName, teacher.lastName) }}
                   </h3>
                   <span class="teacher-card__rate">
                     {{ formatPrice(teacher.hourlyRateCents) }}

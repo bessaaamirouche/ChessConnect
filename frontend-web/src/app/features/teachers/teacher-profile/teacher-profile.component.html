@@ -23,7 +23,7 @@
           </div>
 
           <div class="profile__info">
-            <h1 class="heading-2">{{ teacher.firstName }} {{ teacher.lastName }}</h1>
+            <h1 class="heading-2">{{ formatCoachName(teacher.firstName, teacher.lastName) }}</h1>
             <div class="profile__meta">
               <span class="profile__rate">{{ formatPrice(teacher.hourlyRateCents) }}/heure</span>
               @if (teacher.acceptsSubscription) {

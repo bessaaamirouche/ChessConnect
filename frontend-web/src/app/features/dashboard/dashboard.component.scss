@@ -150,11 +150,77 @@
   padding: var(--space-3xl);
 }
 
+// Profile Layout
+.profile-layout {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: var(--space-xl);
+  align-items: start;
+
+  @include respond-down(lg) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.profile-section {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+
+  &__header {
+    padding: var(--space-lg);
+    border-bottom: 1px solid var(--border-subtle);
+    background: var(--bg-tertiary);
+  }
+
+  &__title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+  }
+
+  .alert {
+    margin: var(--space-md) var(--space-lg) 0;
+  }
+}
+
 .profile-form {
   display: flex;
   flex-direction: column;
-  gap: var(--space-lg);
+  gap: var(--space-md);
   padding: var(--space-lg);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-md);
+
+  @include respond-down(sm) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.form-group {
+  &--full {
+    grid-column: 1 / -1;
+  }
+
+  &--checkbox {
+    display: flex;
+    align-items: flex-end;
+    padding-bottom: var(--space-xs);
+  }
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--border-subtle);
+  margin-top: var(--space-sm);
 }
 
 .form-row {
@@ -581,9 +647,15 @@
   }
 }
 
-.profile-form {
+.profile-section {
   @include respond-down(md) {
-    padding: var(--space-md);
+    .profile-form {
+      padding: var(--space-md);
+    }
+
+    &__header {
+      padding: var(--space-md);
+    }
   }
 }
 
@@ -750,5 +822,24 @@
     background: rgba(239, 68, 68, 0.1);
     border: 1px solid rgba(239, 68, 68, 0.3);
     color: var(--error);
+  }
+
+  &--warning {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    background: rgba(251, 191, 36, 0.1);
+    border: 1px solid rgba(251, 191, 36, 0.3);
+    color: #fbbf24;
+
+    .link {
+      color: var(--gold);
+      text-decoration: underline;
+      font-weight: 600;
+
+      &:hover {
+        color: var(--gold-hover);
+      }
+    }
   }
 }

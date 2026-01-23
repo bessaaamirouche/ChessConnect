@@ -48,7 +48,7 @@ public record LessonResponse(
                 student.getAge(),
                 student.getEloRating(),
                 lesson.getTeacher().getId(),
-                lesson.getTeacher().getFullName(),
+                lesson.getTeacher().getDisplayName(),
                 lesson.getScheduledAt(),
                 lesson.getDurationMinutes(),
                 lesson.getZoomLink(),

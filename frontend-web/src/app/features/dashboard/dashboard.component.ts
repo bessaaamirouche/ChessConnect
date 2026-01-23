@@ -39,7 +39,8 @@ import {
   heroLockClosed,
   heroEnvelope,
   heroDocumentText,
-  heroSparkles
+  heroSparkles,
+  heroExclamationTriangle
 } from '@ng-icons/heroicons/outline';
 
 @Component({
@@ -70,7 +71,8 @@ import {
     heroLockClosed,
     heroEnvelope,
     heroDocumentText,
-    heroSparkles
+    heroSparkles,
+    heroExclamationTriangle
   })],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'

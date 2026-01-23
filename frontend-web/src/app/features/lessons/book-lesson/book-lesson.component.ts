@@ -172,6 +172,10 @@ export class BookLessonComponent implements OnInit {
     return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
   }
 
+  formatCoachName(firstName: string, lastName: string): string {
+    return `${firstName} ${lastName.charAt(0)}.`;
+  }
+
   formatDate(dateStr: string): string {
     const date = new Date(dateStr);
     return date.toLocaleDateString('fr-FR', {

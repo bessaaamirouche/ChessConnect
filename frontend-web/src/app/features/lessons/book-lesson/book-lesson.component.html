@@ -14,6 +14,10 @@
       } @else if (teacherService.selectedTeacher()) {
         <div class="booking-content">
           <header class="booking-content__header">
+            <button type="button" class="back-btn" routerLink="/teachers">
+              <ng-icon name="heroArrowLeft" size="18"></ng-icon>
+              <span>Retour aux coachs</span>
+            </button>
             <h1 class="heading-3">Reserver un cours</h1>
           </header>
 
@@ -27,7 +31,7 @@
               }
             </div>
             <div>
-              <h3>{{ teacherService.selectedTeacher()?.firstName }} {{ teacherService.selectedTeacher()?.lastName }}</h3>
+              <h3>{{ formatCoachName(teacherService.selectedTeacher()?.firstName || '', teacherService.selectedTeacher()?.lastName || '') }}</h3>
               <span class="text-gold font-bold">{{ formatPrice(teacherService.selectedTeacher()?.hourlyRateCents) }}/h</span>
             </div>
           </div>

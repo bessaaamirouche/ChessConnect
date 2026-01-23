@@ -31,7 +31,7 @@
       </div>
       <h1 class="pricing-hero__title">Nos Tarifs</h1>
       <p class="pricing-hero__subtitle">
-        Des formules adaptées à vos objectifs, sans engagement
+        Cours payés directement au coach, avec option Premium pour plus d'avantages
       </p>
     </header>
 
@@ -47,70 +47,10 @@
       <a routerLink="/register" class="btn btn--primary">Commencer gratuitement</a>
     </div>
 
-    <!-- Plans Section -->
-    <section class="plans-section">
-      <h2 class="section-title">Abonnements mensuels</h2>
-      <p class="section-subtitle">Progressez régulièrement avec nos formules d'abonnement</p>
-
-      @if (paymentService.loading()) {
-        <div class="loading-state">
-          <span class="spinner spinner--lg"></span>
-        </div>
-      } @else {
-        <div class="plans-grid">
-          @for (plan of paymentService.plans(); track plan.code) {
-            <div class="plan-card" [class.plan-card--popular]="plan.popular">
-              @if (plan.popular) {
-                <div class="plan-card__badge">Le plus populaire</div>
-              }
-
-              <div class="plan-card__header">
-                <h3 class="plan-card__name">{{ plan.name }}</h3>
-                <div class="plan-card__price">
-                  <span class="plan-card__price-amount">{{ formatPrice(plan.priceCents) }}</span>
-                  <span class="plan-card__price-period">/mois</span>
-                </div>
-                <p class="plan-card__quota">{{ plan.monthlyQuota }} cours par mois</p>
-              </div>
-
-              <ul class="plan-card__features">
-                @for (feature of plan.features; track feature) {
-                  <li>
-                    <ng-icon name="heroCheck" class="plan-card__feature-check"></ng-icon>
-                    {{ feature }}
-                  </li>
-                }
-              </ul>
-
-              @if (authService.isAuthenticated()) {
-                <a
-                  routerLink="/subscription"
-                  class="btn plan-card__btn"
-                  [class.btn--primary]="plan.popular"
-                  [class.btn--outline]="!plan.popular"
-                >
-                  S'abonner
-                </a>
-              } @else {
-                <a
-                  routerLink="/register"
-                  class="btn plan-card__btn"
-                  [class.btn--primary]="plan.popular"
-                  [class.btn--outline]="!plan.popular"
-                >
-                  Commencer
-                </a>
-              }
-            </div>
-          }
-        </div>
-      }
-    </section>
-
     <!-- Single Lesson Section -->
     <section class="single-lesson-section">
       <h2 class="section-title">Cours à l'unité</h2>
-      <p class="section-subtitle">Réservez des cours ponctuels avec le coach de votre choix</p>
+      <p class="section-subtitle">Réservez des cours avec le coach de votre choix au tarif qu'il pratique</p>
 
       <div class="single-lesson-card">
         <div class="single-lesson-card__content">
@@ -126,37 +66,90 @@
         <ul class="single-lesson-card__features">
           <li><ng-icon name="heroCheck" size="16"></ng-icon> Visioconférence HD intégrée</li>
           <li><ng-icon name="heroCheck" size="16"></ng-icon> Choisissez votre coach</li>
-          <li><ng-icon name="heroCheck" size="16"></ng-icon> Flexibilité totale</li>
+          <li><ng-icon name="heroCheck" size="16"></ng-icon> Paiement direct au coach</li>
           <li><ng-icon name="heroCheck" size="16"></ng-icon> Paiement sécurisé Stripe</li>
         </ul>
         <a routerLink="/teachers" class="btn btn--outline btn--lg">Voir les coachs</a>
       </div>
     </section>
 
+    <!-- Premium Section -->
+    <section class="plans-section">
+      <h2 class="section-title">Abonnement Premium</h2>
+      <p class="section-subtitle">Débloquez des fonctionnalités exclusives pour seulement 4,99€/mois</p>
+
+      @if (paymentService.loading()) {
+        <div class="loading-state">
+          <span class="spinner spinner--lg"></span>
+        </div>
+      } @else {
+        <div class="premium-plan-container">
+          @for (plan of paymentService.plans(); track plan.code) {
+            <div class="plan-card plan-card--premium plan-card--popular">
+              <div class="plan-card__badge plan-card__badge--gold">
+                <ng-icon name="heroSparkles" size="14"></ng-icon>
+                Premium
+              </div>
+
+              <div class="plan-card__header">
+                <h3 class="plan-card__name">{{ plan.name }}</h3>
+                <div class="plan-card__price">
+                  <span class="plan-card__price-amount">{{ formatPrice(plan.priceCents) }}</span>
+                  <span class="plan-card__price-period">/mois</span>
+                </div>
+                <p class="plan-card__tagline">Fonctionnalités exclusives</p>
+              </div>
+
+              <ul class="plan-card__features">
+                @for (feature of plan.features; track feature) {
+                  <li>
+                    <ng-icon name="heroCheck" class="plan-card__feature-check"></ng-icon>
+                    {{ feature }}
+                  </li>
+                }
+              </ul>
+
+              @if (authService.isAuthenticated()) {
+                <a routerLink="/subscription" class="btn btn--primary plan-card__btn">
+                  <ng-icon name="heroSparkles" size="16"></ng-icon>
+                  Devenir Premium
+                </a>
+              } @else {
+                <a routerLink="/register" class="btn btn--primary plan-card__btn">
+                  Commencer
+                </a>
+              }
+              <p class="plan-card__note">Sans engagement - Annulez à tout moment</p>
+            </div>
+          }
+        </div>
+      }
+    </section>
+
     <!-- Benefits Section -->
     <section class="benefits-section">
-      <h2 class="section-title">Pourquoi s'abonner ?</h2>
+      <h2 class="section-title">Pourquoi devenir Premium ?</h2>
 
       <div class="benefits-grid">
         <div class="benefit-card">
-          <div class="benefit-card__icon"><ng-icon name="heroBanknotes" size="32"></ng-icon></div>
-          <h4>Économisez jusqu'à 30%</h4>
-          <p>Les cours en abonnement sont moins chers que les cours ponctuels</p>
+          <div class="benefit-card__icon"><ng-icon name="heroVideoCamera" size="32"></ng-icon></div>
+          <h4>Revisionnage illimité</h4>
+          <p>Accédez aux enregistrements de tous vos cours pour réviser</p>
         </div>
         <div class="benefit-card">
-          <div class="benefit-card__icon"><ng-icon name="heroArrowTrendingUp" size="32"></ng-icon></div>
-          <h4>Progression régulière</h4>
-          <p>Un rythme constant pour progresser efficacement</p>
+          <div class="benefit-card__icon"><ng-icon name="heroBell" size="32"></ng-icon></div>
+          <h4>Notifications prioritaires</h4>
+          <p>Soyez alerté quand vos coachs favoris publient des créneaux</p>
         </div>
         <div class="benefit-card">
-          <div class="benefit-card__icon"><ng-icon name="heroCalendarDays" size="32"></ng-icon></div>
-          <h4>Flexibilité totale</h4>
-          <p>Choisissez vos créneaux et vos coachs librement</p>
+          <div class="benefit-card__icon"><ng-icon name="heroClock" size="32"></ng-icon></div>
+          <h4>Accès anticipé 24h</h4>
+          <p>Réservez les meilleurs créneaux avant tout le monde</p>
         </div>
         <div class="benefit-card">
-          <div class="benefit-card__icon"><ng-icon name="heroXMark" size="32"></ng-icon></div>
-          <h4>Sans engagement</h4>
-          <p>Annulez à tout moment, sans frais</p>
+          <div class="benefit-card__icon"><ng-icon name="heroChartBar" size="32"></ng-icon></div>
+          <h4>Statistiques avancées</h4>
+          <p>Suivez votre progression avec des analyses détaillées</p>
         </div>
       </div>
     </section>
@@ -164,7 +157,7 @@
     <!-- CTA Section -->
     <section class="cta-section">
       <h2>Prêt à progresser aux échecs ?</h2>
-      <p>Rejoignez notre communaute de joueurs qui progressent chaque jour avec mychess</p>
+      <p>Rejoignez notre communauté de joueurs qui progressent chaque jour avec mychess</p>
       <a routerLink="/register" class="btn btn--primary btn--xl">Commencer maintenant</a>
       <span class="cta-note">Premier cours offert. Sans engagement.</span>
     </section>

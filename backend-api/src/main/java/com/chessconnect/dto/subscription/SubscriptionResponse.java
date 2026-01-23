@@ -7,6 +7,7 @@ import lombok.Data;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
@@ -17,9 +18,7 @@ public class SubscriptionResponse {
     private SubscriptionPlan planType;
     private String planName;
     private Integer priceCents;
-    private Integer monthlyQuota;
-    private Integer lessonsUsedThisMonth;
-    private Integer remainingLessons;
+    private List<String> features;
     private LocalDate startDate;
     private LocalDate endDate;
     private LocalDateTime cancelledAt;
@@ -34,9 +33,7 @@ public class SubscriptionResponse {
                 .planType(subscription.getPlanType())
                 .planName(subscription.getPlanType().getDisplayName())
                 .priceCents(subscription.getPriceCents())
-                .monthlyQuota(subscription.getMonthlyQuota())
-                .lessonsUsedThisMonth(subscription.getLessonsUsedThisMonth())
-                .remainingLessons(subscription.getRemainingLessons())
+                .features(subscription.getPlanType().getFeatures())
                 .startDate(subscription.getStartDate())
                 .endDate(subscription.getEndDate())
                 .cancelledAt(subscription.getCancelledAt())

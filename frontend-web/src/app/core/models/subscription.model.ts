@@ -1,4 +1,4 @@
-export type SubscriptionPlan = 'BASIC' | 'STANDARD' | 'PREMIUM';
+export type SubscriptionPlan = 'PREMIUM';
 
 export interface Subscription {
   id: number;
@@ -7,9 +7,7 @@ export interface Subscription {
   planType: SubscriptionPlan;
   planName?: string;
   priceCents: number;
-  monthlyQuota: number;
-  lessonsUsedThisMonth: number;
-  remainingLessons: number;
+  features?: string[];
   startDate: string;
   endDate?: string;
   cancelledAt?: string;
@@ -22,50 +20,22 @@ export interface SubscriptionPlanDetails {
   type: SubscriptionPlan;
   name: string;
   priceCents: number;
-  monthlyQuota: number;
   features: string[];
   popular?: boolean;
 }
 
 export const SUBSCRIPTION_PLANS: SubscriptionPlanDetails[] = [
   {
-    type: 'BASIC',
-    name: 'Basic',
-    priceCents: 6900,
-    monthlyQuota: 4,
-    features: [
-      '4 cours par mois',
-      'Accès au cursus complet',
-      'Suivi de progression',
-      'Support par email'
-    ]
-  },
-  {
-    type: 'STANDARD',
-    name: 'Standard',
-    priceCents: 12900,
-    monthlyQuota: 8,
-    features: [
-      '8 cours par mois',
-      'Accès au cursus complet',
-      'Suivi de progression',
-      'Support prioritaire',
-      'Replays des sessions'
-    ],
-    popular: true
-  },
-  {
     type: 'PREMIUM',
     name: 'Premium',
-    priceCents: 17900,
-    monthlyQuota: 12,
+    priceCents: 499,
     features: [
-      '12 cours par mois',
-      'Accès au cursus complet',
-      'Suivi de progression',
-      'Support VIP 24/7',
-      'Replays des sessions',
-      'Analyse de parties personnalisée'
-    ]
+      'Revisionnage des cours - Accès aux enregistrements vidéo',
+      'Notifications prioritaires - Alertes créneaux des coachs favoris',
+      'Accès prioritaire - Voir les disponibilités 24h avant',
+      'Statistiques avancées - Dashboard détaillé de progression',
+      'Badge Premium - Badge doré visible sur le profil'
+    ],
+    popular: true
   }
 ];

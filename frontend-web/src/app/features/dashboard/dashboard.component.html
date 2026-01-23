@@ -32,15 +32,15 @@
         @if (authService.isStudent()) {
           @if (paymentService.activeSubscription()) {
             <a routerLink="/subscription" class="stats-card stats-card--link stats-card--gold">
-              <div class="stats-card__icon"><ng-icon name="heroTicket" size="20"></ng-icon></div>
-              <div class="stats-card__value">{{ paymentService.activeSubscription()!.remainingLessons }}/{{ paymentService.activeSubscription()!.monthlyQuota }}</div>
-              <div class="stats-card__label">Cours restants</div>
+              <div class="stats-card__icon"><ng-icon name="heroSparkles" size="20"></ng-icon></div>
+              <div class="stats-card__value">Premium</div>
+              <div class="stats-card__label">Abonnement actif</div>
             </a>
           } @else {
             <a routerLink="/subscription" class="stats-card stats-card--link">
               <div class="stats-card__icon"><ng-icon name="heroCreditCard" size="20"></ng-icon></div>
               <div class="stats-card__value">-</div>
-              <div class="stats-card__label">Pas d'abonnement</div>
+              <div class="stats-card__label">Passer Premium</div>
             </a>
           }
           <a routerLink="/progress" class="stats-card stats-card--link">
@@ -138,50 +138,45 @@
       </section>
     }
 
-    <!-- Subscription Status for Students -->
+    <!-- Premium Status for Students -->
     @if (authService.isStudent() && paymentService.activeSubscription()) {
       <section class="section">
         <div class="section__header">
-          <h2 class="section__title">Mon abonnement</h2>
-          <a routerLink="/subscription" class="btn btn--ghost btn--sm">Gerer</a>
+          <h2 class="section__title">Mon abonnement Premium</h2>
+          <a routerLink="/subscription" class="btn btn--ghost btn--sm">Gérer</a>
         </div>
-        <div class="subscription-status-card">
-          <div class="subscription-status-card__badge subscription-status-card__badge--active">
-            Actif
+        <div class="subscription-status-card subscription-status-card--premium">
+          <div class="subscription-status-card__badge subscription-status-card__badge--premium">
+            <ng-icon name="heroSparkles" size="14"></ng-icon> Premium
           </div>
           <div class="subscription-status-card__content">
             <div class="subscription-status-card__plan">
               <span class="subscription-status-card__plan-icon"><ng-icon name="heroTrophy" size="24"></ng-icon></span>
               <div>
-                <h3>{{ paymentService.activeSubscription()!.planName || paymentService.activeSubscription()!.planType }}</h3>
+                <h3>{{ paymentService.activeSubscription()!.planName || 'Premium' }}</h3>
                 <p class="subscription-status-card__price">
                   {{ formatPrice(paymentService.activeSubscription()!.priceCents) }}/mois
                 </p>
               </div>
             </div>
+            <div class="subscription-status-card__features">
+              <div class="subscription-status-card__feature">
+                <ng-icon name="heroCheck" size="16"></ng-icon> Revisionnage des cours
+              </div>
+              <div class="subscription-status-card__feature">
+                <ng-icon name="heroCheck" size="16"></ng-icon> Accès prioritaire 24h
+              </div>
+              <div class="subscription-status-card__feature">
+                <ng-icon name="heroCheck" size="16"></ng-icon> Statistiques avancées
+              </div>
+            </div>
             <div class="subscription-status-card__details">
               <div class="subscription-status-card__detail">
-                <span class="subscription-status-card__detail-label">Cours utilises</span>
-                <span class="subscription-status-card__detail-value">
-                  {{ paymentService.activeSubscription()!.lessonsUsedThisMonth }} / {{ paymentService.activeSubscription()!.monthlyQuota }}
-                </span>
-              </div>
-              <div class="subscription-status-card__detail">
-                <span class="subscription-status-card__detail-label">Debut</span>
+                <span class="subscription-status-card__detail-label">Membre depuis</span>
                 <span class="subscription-status-card__detail-value">
                   {{ paymentService.activeSubscription()!.startDate | date:'dd/MM/yyyy' }}
                 </span>
               </div>
-              <div class="subscription-status-card__detail">
-                <span class="subscription-status-card__detail-label">Renouvellement</span>
-                <span class="subscription-status-card__detail-value">
-                  {{ getNextRenewalDate() | date:'dd/MM/yyyy' }}
-                </span>
-              </div>
-            </div>
-            <div class="subscription-status-card__info">
-              <span class="subscription-status-card__info-icon"><ng-icon name="heroCheck" size="18"></ng-icon></span>
-              <span>Reservez chez les coachs acceptant les abonnements sans payer</span>
             </div>
           </div>
         </div>

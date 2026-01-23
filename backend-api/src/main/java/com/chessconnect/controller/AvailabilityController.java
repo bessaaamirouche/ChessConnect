@@ -5,6 +5,7 @@ import com.chessconnect.dto.availability.AvailabilityResponse;
 import com.chessconnect.dto.availability.TimeSlotResponse;
 import com.chessconnect.security.UserDetailsImpl;
 import com.chessconnect.service.AvailabilityService;
+import com.chessconnect.service.SubscriptionService;
 import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -20,9 +21,11 @@ import java.util.List;
 public class AvailabilityController {
 
     private final AvailabilityService availabilityService;
+    private final SubscriptionService subscriptionService;
 
-    public AvailabilityController(AvailabilityService availabilityService) {
+    public AvailabilityController(AvailabilityService availabilityService, SubscriptionService subscriptionService) {
         this.availabilityService = availabilityService;
+        this.subscriptionService = subscriptionService;
     }
 
     // Teacher: Create a new availability slot
@@ -82,19 +85,24 @@ public class AvailabilityController {
         return ResponseEntity.ok(availabilities);
     }
 
-    // Public: Get available time slots for a teacher
+    // Get available time slots for a teacher
+    // Premium users see slots 24h before non-premium users
     @GetMapping("/teacher/{teacherId}/slots")
     public ResponseEntity<List<TimeSlotResponse>> getAvailableSlots(
             @PathVariable Long teacherId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
         // Limit to 30 days max
         if (endDate.isAfter(startDate.plusDays(30))) {
             endDate = startDate.plusDays(30);
         }
 
-        List<TimeSlotResponse> slots = availabilityService.getAvailableSlots(teacherId, startDate, endDate);
+        // Check if user is premium for priority access
+        boolean isPremium = userDetails != null && subscriptionService.isPremium(userDetails.getId());
+
+        List<TimeSlotResponse> slots = availabilityService.getAvailableSlots(teacherId, startDate, endDate, isPremium);
         return ResponseEntity.ok(slots);
     }
 }

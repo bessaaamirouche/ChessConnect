@@ -33,12 +33,14 @@ public class AvailabilityService {
     private static final Logger log = LoggerFactory.getLogger(AvailabilityService.class);
     private static final int SLOT_DURATION_MINUTES = 60;
     private static final int SLOT_INTERVAL_MINUTES = 15; // Créneaux toutes les 15 min pour plus de flexibilité
+    private static final int PREMIUM_PRIORITY_HOURS = 24; // Premium users see slots 24h before others
 
     private final AvailabilityRepository availabilityRepository;
     private final LessonRepository lessonRepository;
     private final UserRepository userRepository;
     private final FavoriteTeacherRepository favoriteRepository;
     private final EmailService emailService;
+    private final SubscriptionService subscriptionService;
 
     @Value("${app.frontend-url:http://localhost:4200}")
     private String frontendUrl;
@@ -48,13 +50,15 @@ public class AvailabilityService {
             LessonRepository lessonRepository,
             UserRepository userRepository,
             FavoriteTeacherRepository favoriteRepository,
-            EmailService emailService
+            EmailService emailService,
+            SubscriptionService subscriptionService
     ) {
         this.availabilityRepository = availabilityRepository;
         this.lessonRepository = lessonRepository;
         this.userRepository = userRepository;
         this.favoriteRepository = favoriteRepository;
         this.emailService = emailService;
+        this.subscriptionService = subscriptionService;
     }
 
     @Transactional
@@ -96,8 +100,15 @@ public class AvailabilityService {
         String availabilityInfo = formatAvailabilityInfo(availability);
         String bookingLink = frontendUrl + "/book/" + teacher.getId();
 
+        int notifiedCount = 0;
         for (FavoriteTeacher subscriber : subscribers) {
             User student = subscriber.getStudent();
+
+            // Only notify Premium subscribers
+            if (!subscriptionService.isPremium(student.getId())) {
+                continue;
+            }
+
             emailService.sendNewAvailabilityNotification(
                     student.getEmail(),
                     student.getFirstName(),
@@ -105,10 +116,11 @@ public class AvailabilityService {
                     availabilityInfo,
                     bookingLink
             );
+            notifiedCount++;
         }
 
-        log.info("Notified {} subscribers about new availability for teacher {}",
-                subscribers.size(), teacher.getId());
+        log.info("Notified {} Premium subscribers about new availability for teacher {}",
+                notifiedCount, teacher.getId());
     }
 
     private String formatAvailabilityInfo(Availability availability) {
@@ -156,10 +168,27 @@ public class AvailabilityService {
     }
 
     public List<TimeSlotResponse> getAvailableSlots(Long teacherId, LocalDate startDate, LocalDate endDate) {
+        return getAvailableSlots(teacherId, startDate, endDate, false);
+    }
+
+    /**
+     * Get available slots for a teacher.
+     * Premium users see all slots immediately. Non-premium users only see slots
+     * from availabilities created more than 24 hours ago.
+     */
+    public List<TimeSlotResponse> getAvailableSlots(Long teacherId, LocalDate startDate, LocalDate endDate, boolean isPremiumUser) {
         List<TimeSlotResponse> slots = new ArrayList<>();
 
         // Get all availabilities for the teacher
-        List<Availability> availabilities = availabilityRepository.findByTeacherIdAndIsActiveTrue(teacherId);
+        List<Availability> allAvailabilities = availabilityRepository.findByTeacherIdAndIsActiveTrue(teacherId);
+
+        // For non-premium users, filter out availabilities created less than 24h ago
+        LocalDateTime priorityCutoff = LocalDateTime.now().minusHours(PREMIUM_PRIORITY_HOURS);
+        List<Availability> availabilities = isPremiumUser
+                ? allAvailabilities
+                : allAvailabilities.stream()
+                    .filter(a -> a.getCreatedAt() == null || a.getCreatedAt().isBefore(priorityCutoff))
+                    .toList();
 
         // Get existing lessons to check for conflicts
         LocalDateTime startDateTime = startDate.atStartOfDay();

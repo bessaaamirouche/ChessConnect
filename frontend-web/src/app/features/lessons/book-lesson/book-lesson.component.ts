@@ -51,7 +51,6 @@ export class BookLessonComponent implements OnInit {
   loading = signal(false);
   success = signal(false);
   selectedSlot = signal<TimeSlot | null>(null);
-  useSubscriptionSignal = signal(true);
   useFreeTrialSignal = signal(true);
 
   // Embedded checkout
@@ -73,22 +72,7 @@ export class BookLessonComponent implements OnInit {
     return Array.from(this.slotsByDate().keys()).sort();
   });
 
-  // Check if teacher accepts subscription
-  teacherAcceptsSubscription = computed(() => {
-    return this.teacherService.selectedTeacher()?.acceptsSubscription ?? false;
-  });
-
-  // Check if student can use subscription for this teacher
-  canUseSubscription = computed(() => {
-    const teacher = this.teacherService.selectedTeacher();
-    const subscription = this.paymentService.activeSubscription();
-
-    if (!teacher?.acceptsSubscription) return false;
-    if (!subscription) return false;
-    return subscription.remainingLessons > 0;
-  });
-
-  // Check if one-time payment is required
+  // Check if one-time payment is required (always true unless free trial)
   requiresPayment = computed(() => {
     const teacher = this.teacherService.selectedTeacher();
     if (!teacher) return false;
@@ -98,18 +82,8 @@ export class BookLessonComponent implements OnInit {
       return false;
     }
 
-    // If teacher doesn't accept subscription, payment is required
-    if (!teacher.acceptsSubscription) return true;
-
-    // If user has no subscription or no remaining lessons, payment required
-    const subscription = this.paymentService.activeSubscription();
-    if (!subscription) return true;
-    if (subscription.remainingLessons <= 0) return true;
-
-    // If user chose not to use subscription
-    if (!this.useSubscriptionSignal()) return true;
-
-    return false;
+    // All lessons require payment at coach's rate
+    return true;
   });
 
   constructor(
@@ -123,8 +97,7 @@ export class BookLessonComponent implements OnInit {
     public authService: AuthService
   ) {
     this.bookingForm = this.fb.group({
-      notes: [''],
-      useSubscription: [true]
+      notes: ['']
     });
   }
 
@@ -140,16 +113,8 @@ export class BookLessonComponent implements OnInit {
       });
     }
 
-    // Load active subscription
-    this.paymentService.loadActiveSubscription().subscribe();
-
     // Check free trial eligibility
     this.lessonService.checkFreeTrialEligibility().subscribe();
-
-    // Sync checkbox with signal
-    this.bookingForm.get('useSubscription')?.valueChanges.subscribe(value => {
-      this.useSubscriptionSignal.set(value);
-    });
   }
 
   loadAvailableSlots(teacherId: number): void {
@@ -219,7 +184,7 @@ export class BookLessonComponent implements OnInit {
 
     const teacher = this.teacherService.selectedTeacher()!;
     const scheduledAt = slot.dateTime;
-    const { notes, useSubscription } = this.bookingForm.value;
+    const { notes } = this.bookingForm.value;
 
     this.loading.set(true);
 
@@ -245,50 +210,29 @@ export class BookLessonComponent implements OnInit {
       return;
     }
 
-    // If payment is required, use embedded checkout
-    if (this.requiresPayment()) {
-      this.paymentService.createLessonCheckout({
-        teacherId: teacher.id,
-        scheduledAt: scheduledAt,
-        durationMinutes: 60,
-        notes: notes || ''
-      }, true).subscribe({
-        next: (response) => {
-          if (response.clientSecret) {
-            // Use embedded checkout
-            this.checkoutClientSecret.set(response.clientSecret);
-            this.checkoutSessionId.set(response.sessionId);
-            this.showCheckout.set(true);
-            this.loading.set(false);
-          } else if (response.url) {
-            // Fallback to redirect
-            window.location.href = response.url;
-          }
-        },
-        error: () => {
+    // All lessons require payment at coach's rate
+    this.paymentService.createLessonCheckout({
+      teacherId: teacher.id,
+      scheduledAt: scheduledAt,
+      durationMinutes: 60,
+      notes: notes || ''
+    }, true).subscribe({
+      next: (response) => {
+        if (response.clientSecret) {
+          // Use embedded checkout
+          this.checkoutClientSecret.set(response.clientSecret);
+          this.checkoutSessionId.set(response.sessionId);
+          this.showCheckout.set(true);
           this.loading.set(false);
+        } else if (response.url) {
+          // Fallback to redirect
+          window.location.href = response.url;
         }
-      });
-    } else {
-      // Book using subscription
-      this.lessonService.bookLesson({
-        teacherId: teacher.id,
-        scheduledAt,
-        notes,
-        useSubscription: true
-      }).subscribe({
-        next: () => {
-          this.success.set(true);
-          this.loading.set(false);
-          setTimeout(() => {
-            this.router.navigate(['/dashboard']);
-          }, 2000);
-        },
-        error: () => {
-          this.loading.set(false);
-        }
-      });
-    }
+      },
+      error: () => {
+        this.loading.set(false);
+      }
+    });
   }
 
   closeCheckout(): void {

@@ -7,7 +7,6 @@ import com.chessconnect.dto.zoom.ZoomMeetingResponse;
 import com.chessconnect.model.Lesson;
 import com.chessconnect.model.Payment;
 import com.chessconnect.model.Progress;
-import com.chessconnect.model.Subscription;
 import com.chessconnect.model.User;
 import com.chessconnect.model.enums.LessonStatus;
 import com.chessconnect.model.enums.PaymentStatus;
@@ -15,7 +14,6 @@ import com.chessconnect.model.enums.UserRole;
 import com.chessconnect.repository.LessonRepository;
 import com.chessconnect.repository.PaymentRepository;
 import com.chessconnect.repository.ProgressRepository;
-import com.chessconnect.repository.SubscriptionRepository;
 import com.chessconnect.repository.UserRepository;
 import com.chessconnect.service.zoom.ZoomService;
 import com.stripe.model.Refund;
@@ -41,7 +39,6 @@ public class LessonService {
 
     private final LessonRepository lessonRepository;
     private final UserRepository userRepository;
-    private final SubscriptionRepository subscriptionRepository;
     private final ProgressRepository progressRepository;
     private final PaymentRepository paymentRepository;
     private final ZoomService zoomService;
@@ -52,7 +49,6 @@ public class LessonService {
     public LessonService(
             LessonRepository lessonRepository,
             UserRepository userRepository,
-            SubscriptionRepository subscriptionRepository,
             ProgressRepository progressRepository,
             PaymentRepository paymentRepository,
             ZoomService zoomService,
@@ -62,7 +58,6 @@ public class LessonService {
     ) {
         this.lessonRepository = lessonRepository;
         this.userRepository = userRepository;
-        this.subscriptionRepository = subscriptionRepository;
         this.progressRepository = progressRepository;
         this.paymentRepository = paymentRepository;
         this.zoomService = zoomService;
@@ -106,23 +101,9 @@ public class LessonService {
         lesson.setNotes(request.notes());
         lesson.setStatus(LessonStatus.PENDING);
 
-        Subscription activeSubscription = null;
-        if (request.useSubscription() && teacher.getAcceptsSubscription()) {
-            activeSubscription = subscriptionRepository
-                    .findByStudentIdAndIsActiveTrue(studentId)
-                    .orElse(null);
-        }
-
-        if (activeSubscription != null && activeSubscription.hasRemainingLessons()) {
-            lesson.setIsFromSubscription(true);
-            lesson.setSubscription(activeSubscription);
-            int lessonPrice = activeSubscription.getPriceCents() / activeSubscription.getMonthlyQuota();
-            lesson.setPriceCents(lessonPrice);
-            activeSubscription.setLessonsUsedThisMonth(activeSubscription.getLessonsUsedThisMonth() + 1);
-        } else {
-            lesson.setIsFromSubscription(false);
-            lesson.setPriceCents(teacher.getHourlyRateCents());
-        }
+        // All lessons are paid at the coach's hourly rate
+        lesson.setIsFromSubscription(false);
+        lesson.setPriceCents(teacher.getHourlyRateCents());
 
         Lesson savedLesson = lessonRepository.save(lesson);
         return LessonResponse.from(savedLesson);
@@ -479,40 +460,8 @@ public class LessonService {
             lesson.setZoomMeetingId(null);
         }
 
-        // Handle refund based on who cancelled and timing
-        if (lesson.getIsFromSubscription()) {
-            // Subscription-based lesson: restore quota
-            handleSubscriptionCancellation(lesson, cancelledBy);
-        } else {
-            // Paid lesson: process refund
-            handlePaidLessonCancellation(lesson, cancelledBy);
-        }
-    }
-
-    /**
-     * Handle cancellation for subscription-based lessons.
-     * Always restore quota regardless of timing (lesson already "paid" via subscription).
-     */
-    private void handleSubscriptionCancellation(Lesson lesson, String cancelledBy) {
-        Subscription sub = lesson.getSubscription();
-        if (sub != null) {
-            // Student cancels < 2h before: don't restore quota (lesson counted as used)
-            if ("STUDENT".equals(cancelledBy)) {
-                long hoursUntilLesson = ChronoUnit.HOURS.between(LocalDateTime.now(), lesson.getScheduledAt());
-                if (hoursUntilLesson < PARTIAL_REFUND_HOURS) {
-                    log.info("Late cancellation by student - subscription quota not restored for lesson {}",
-                            lesson.getId());
-                    lesson.setRefundPercentage(0);
-                    return;
-                }
-            }
-
-            // Restore the lesson to quota
-            sub.setLessonsUsedThisMonth(Math.max(0, sub.getLessonsUsedThisMonth() - 1));
-            lesson.setRefundPercentage(100);
-            log.info("Subscription quota restored for lesson {} (cancelled by {})",
-                    lesson.getId(), cancelledBy);
-        }
+        // Process refund for paid lessons
+        handlePaidLessonCancellation(lesson, cancelledBy);
     }
 
     /**

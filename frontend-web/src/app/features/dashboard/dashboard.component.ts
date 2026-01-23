@@ -38,7 +38,8 @@ import {
   heroPlayCircle,
   heroLockClosed,
   heroEnvelope,
-  heroDocumentText
+  heroDocumentText,
+  heroSparkles
 } from '@ng-icons/heroicons/outline';
 
 @Component({
@@ -68,7 +69,8 @@ import {
     heroPlayCircle,
     heroLockClosed,
     heroEnvelope,
-    heroDocumentText
+    heroDocumentText,
+    heroSparkles
   })],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'

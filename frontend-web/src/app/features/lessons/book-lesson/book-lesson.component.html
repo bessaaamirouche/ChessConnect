@@ -67,9 +67,6 @@
             <div>
               <h3>{{ teacherService.selectedTeacher()?.firstName }} {{ teacherService.selectedTeacher()?.lastName }}</h3>
               <span class="text-gold font-bold">{{ formatPrice(teacherService.selectedTeacher()?.hourlyRateCents) }}/h</span>
-              @if (!teacherService.selectedTeacher()?.acceptsSubscription) {
-                <span class="badge badge--warning badge--sm">Paiement direct</span>
-              }
             </div>
           </div>
 
@@ -87,33 +84,13 @@
             </div>
           }
 
-          <!-- Subscription Status -->
-          @if (teacherAcceptsSubscription()) {
-            <div class="subscription-info">
-              @if (paymentService.activeSubscription()) {
-                <div class="subscription-info__card subscription-info__card--active">
-                  <span class="subscription-info__icon"><ng-icon name="heroTicket" size="18"></ng-icon></span>
-                  <div>
-                    <strong>Abonnement {{ paymentService.activeSubscription()?.planName }}</strong>
-                    <p>{{ paymentService.activeSubscription()?.remainingLessons }} cours restants</p>
-                  </div>
-                </div>
-              } @else if (!freeTrialEligible()) {
-                <div class="subscription-info__card subscription-info__card--none">
-                  <span class="subscription-info__icon"><ng-icon name="heroCreditCard" size="18"></ng-icon></span>
-                  <div>
-                    <strong>Pas d'abonnement</strong>
-                    <p>Paiement de {{ formatPrice(teacherService.selectedTeacher()?.hourlyRateCents) }} requis</p>
-                  </div>
-                </div>
-              }
-            </div>
-          } @else if (!freeTrialEligible()) {
+          <!-- Payment Info -->
+          @if (!freeTrialEligible()) {
             <div class="subscription-info">
               <div class="subscription-info__card subscription-info__card--payment">
                 <span class="subscription-info__icon"><ng-icon name="heroBanknotes" size="18"></ng-icon></span>
                 <div>
-                  <strong>Paiement requis</strong>
+                  <strong>Tarif du cours</strong>
                   <p>{{ formatPrice(teacherService.selectedTeacher()?.hourlyRateCents) }}</p>
                 </div>
               </div>
@@ -195,15 +172,6 @@
               ></textarea>
             </div>
 
-            @if (canUseSubscription()) {
-              <div class="form-group">
-                <label class="checkbox checkbox--sm">
-                  <input type="checkbox" formControlName="useSubscription">
-                  <span>Utiliser mon abonnement</span>
-                </label>
-              </div>
-            }
-
             <!-- Price Summary -->
             <div class="price-summary">
               <div class="price-summary__row">
@@ -212,8 +180,6 @@
                   @if (freeTrialEligible() && useFreeTrialSignal()) {
                     <span class="price-summary__free">GRATUIT</span>
                     <span class="price-summary__original">{{ formatPrice(teacherService.selectedTeacher()?.hourlyRateCents) }}</span>
-                  } @else if (!requiresPayment()) {
-                    Inclus
                   } @else {
                     {{ formatPrice(teacherService.selectedTeacher()?.hourlyRateCents) }}
                   }

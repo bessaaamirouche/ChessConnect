@@ -1,8 +1,8 @@
 <div class="subscription-page">
     <header class="page-header">
       <div>
-        <h1 class="page-header__title">Mon Abonnement</h1>
-        <p class="page-header__subtitle">Gérez votre abonnement et accédez à des cours illimités</p>
+        <h1 class="page-header__title">Abonnement Premium</h1>
+        <p class="page-header__subtitle">Débloquez toutes les fonctionnalités exclusives pour 4,99€/mois</p>
       </div>
     </header>
 
@@ -14,7 +14,7 @@
             @if (paymentService.activeSubscription()!.cancelledAt) {
               Abonnement annulé
             } @else {
-              Abonnement actif
+              Vous êtes Premium !
             }
           </h2>
         </div>
@@ -23,13 +23,16 @@
           @if (paymentService.activeSubscription()!.cancelledAt) {
             <div class="active-subscription-card__badge active-subscription-card__badge--cancelled">Annulé</div>
           } @else {
-            <div class="active-subscription-card__badge">Actif</div>
+            <div class="active-subscription-card__badge active-subscription-card__badge--premium">
+              <ng-icon name="heroSparkles" size="16"></ng-icon>
+              Premium
+            </div>
           }
           <div class="active-subscription-card__content">
             <div class="active-subscription-card__plan">
               <span class="active-subscription-card__plan-icon"><ng-icon name="heroTrophy" size="32"></ng-icon></span>
               <div>
-                <h3>{{ paymentService.activeSubscription()!.planType }}</h3>
+                <h3>{{ paymentService.activeSubscription()!.planName || 'Premium' }}</h3>
                 <p class="active-subscription-card__price">
                   {{ formatPrice(paymentService.activeSubscription()!.priceCents) }}/mois
                 </p>
@@ -39,32 +42,37 @@
             @if (paymentService.activeSubscription()!.cancelledAt && paymentService.activeSubscription()!.endDate) {
               <div class="active-subscription-card__cancelled-info">
                 <ng-icon name="heroInformationCircle" size="18"></ng-icon>
-                <span>Votre abonnement reste actif jusqu'au <strong>{{ paymentService.activeSubscription()!.endDate | date:'dd/MM/yyyy' }}</strong>. Vous pouvez continuer à utiliser vos cours restants.</span>
+                <span>Votre abonnement reste actif jusqu'au <strong>{{ paymentService.activeSubscription()!.endDate | date:'dd/MM/yyyy' }}</strong>.</span>
               </div>
             }
 
+            <div class="active-subscription-card__features">
+              <h4>Vos avantages Premium</h4>
+              <ul class="premium-features-list">
+                <li><ng-icon name="heroCheck" size="18"></ng-icon> Revisionnage des cours</li>
+                <li><ng-icon name="heroCheck" size="18"></ng-icon> Notifications prioritaires</li>
+                <li><ng-icon name="heroCheck" size="18"></ng-icon> Accès aux disponibilités 24h avant</li>
+                <li><ng-icon name="heroCheck" size="18"></ng-icon> Statistiques avancées</li>
+                <li><ng-icon name="heroCheck" size="18"></ng-icon> Badge Premium</li>
+              </ul>
+            </div>
+
             <div class="active-subscription-card__stats">
               <div class="stat-item">
-                <span class="stat-item__value">{{ paymentService.activeSubscription()!.monthlyQuota }}</span>
-                <span class="stat-item__label">Cours/mois</span>
+                <span class="stat-item__value">{{ paymentService.activeSubscription()!.startDate | date:'dd/MM/yyyy' }}</span>
+                <span class="stat-item__label">Membre depuis</span>
               </div>
-              <div class="stat-item">
-                <span class="stat-item__value">{{ paymentService.activeSubscription()!.remainingLessons }}</span>
-                <span class="stat-item__label">Restants ce mois</span>
-              </div>
-              <div class="stat-item">
-                @if (paymentService.activeSubscription()!.cancelledAt && paymentService.activeSubscription()!.endDate) {
+              @if (paymentService.activeSubscription()!.cancelledAt && paymentService.activeSubscription()!.endDate) {
+                <div class="stat-item">
                   <span class="stat-item__value">{{ paymentService.activeSubscription()!.endDate | date:'dd/MM/yyyy' }}</span>
                   <span class="stat-item__label">Fin le</span>
-                } @else {
-                  <span class="stat-item__value">{{ paymentService.activeSubscription()!.startDate | date:'dd/MM/yyyy' }}</span>
-                  <span class="stat-item__label">Depuis le</span>
-                }
-              </div>
+                </div>
+              }
             </div>
 
             <div class="active-subscription-card__actions">
               <a routerLink="/teachers" class="btn btn--primary">Réserver un cours</a>
+              <a routerLink="/stats" class="btn btn--outline">Mes statistiques</a>
               @if (!paymentService.activeSubscription()!.cancelledAt) {
                 <button class="btn btn--ghost btn--danger" (click)="confirmCancel()">
                   Annuler l'abonnement
@@ -84,8 +92,8 @@
             <h3>Confirmer l'annulation</h3>
           </div>
           <div class="modal__body">
-            <p>Êtes-vous sûr de vouloir annuler votre abonnement ?</p>
-            <p class="text-muted">Vous pourrez continuer à utiliser votre abonnement jusqu'à la fin de la période en cours.</p>
+            <p>Êtes-vous sûr de vouloir annuler votre abonnement Premium ?</p>
+            <p class="text-muted">Vous perdrez l'accès aux fonctionnalités exclusives à la fin de la période en cours.</p>
           </div>
           <div class="modal__footer">
             <button class="btn btn--ghost" (click)="dismissCancelConfirm()">Annuler</button>
@@ -110,7 +118,7 @@
     @if (!paymentService.activeSubscription()) {
       <section class="section">
         <div class="section__header">
-          <h2 class="section__title">Choisissez votre formule</h2>
+          <h2 class="section__title">Passez Premium</h2>
         </div>
 
         @if (paymentService.loading()) {
@@ -118,12 +126,13 @@
             <span class="spinner spinner--lg"></span>
           </div>
         } @else {
-          <div class="plans-grid">
+          <div class="premium-plan-container">
             @for (plan of paymentService.plans(); track plan.code) {
-              <div class="plan-card" [class.plan-card--popular]="plan.popular">
-                @if (plan.popular) {
-                  <div class="plan-card__badge">Le plus populaire</div>
-                }
+              <div class="plan-card plan-card--premium">
+                <div class="plan-card__badge plan-card__badge--gold">
+                  <ng-icon name="heroSparkles" size="14"></ng-icon>
+                  Recommandé
+                </div>
 
                 <div class="plan-card__header">
                   <h3 class="plan-card__name">{{ plan.name }}</h3>
@@ -131,7 +140,7 @@
                     <span class="plan-card__price-amount">{{ formatPrice(plan.priceCents) }}</span>
                     <span class="plan-card__price-period">/mois</span>
                   </div>
-                  <p class="plan-card__quota">{{ plan.monthlyQuota }} cours par mois</p>
+                  <p class="plan-card__tagline">Accès à toutes les fonctionnalités exclusives</p>
                 </div>
 
                 <ul class="plan-card__features">
@@ -144,9 +153,7 @@
                 </ul>
 
                 <button
-                  class="btn plan-card__btn"
-                  [class.btn--primary]="plan.popular"
-                  [class.btn--outline]="!plan.popular"
+                  class="btn btn--primary btn--lg plan-card__btn"
                   (click)="subscribeToPlan(plan.code)"
                   [disabled]="processingPlan() !== null"
                 >
@@ -154,9 +161,12 @@
                     <span class="spinner spinner--sm"></span>
                     Redirection...
                   } @else {
-                    S'abonner
+                    <ng-icon name="heroSparkles" size="18"></ng-icon>
+                    Devenir Premium
                   }
                 </button>
+
+                <p class="plan-card__note">Sans engagement - Annulez à tout moment</p>
               </div>
             }
           </div>
@@ -166,29 +176,29 @@
       <!-- Benefits Section -->
       <section class="section">
         <div class="section__header">
-          <h2 class="section__title">Pourquoi s'abonner ?</h2>
+          <h2 class="section__title">Les avantages Premium</h2>
         </div>
 
         <div class="benefits-grid">
           <div class="benefit-card">
-            <div class="benefit-card__icon"><ng-icon name="heroBanknotes" size="32"></ng-icon></div>
-            <h4>Économisez jusqu'à 30%</h4>
-            <p>Les cours en abonnement sont moins chers que les cours ponctuels</p>
+            <div class="benefit-card__icon"><ng-icon name="heroVideoCamera" size="32"></ng-icon></div>
+            <h4>Revisionnage illimité</h4>
+            <p>Accédez aux enregistrements de tous vos cours passés pour réviser</p>
           </div>
           <div class="benefit-card">
-            <div class="benefit-card__icon"><ng-icon name="heroArrowTrendingUp" size="32"></ng-icon></div>
-            <h4>Progression régulière</h4>
-            <p>Un rythme constant pour progresser efficacement</p>
+            <div class="benefit-card__icon"><ng-icon name="heroBell" size="32"></ng-icon></div>
+            <h4>Notifications prioritaires</h4>
+            <p>Soyez alerté quand vos coachs favoris publient de nouveaux créneaux</p>
           </div>
           <div class="benefit-card">
-            <div class="benefit-card__icon"><ng-icon name="heroCalendarDays" size="32"></ng-icon></div>
-            <h4>Flexibilité totale</h4>
-            <p>Choisissez vos créneaux et vos coachs librement</p>
+            <div class="benefit-card__icon"><ng-icon name="heroClock" size="32"></ng-icon></div>
+            <h4>Accès anticipé 24h</h4>
+            <p>Réservez les meilleurs créneaux avant tout le monde</p>
           </div>
           <div class="benefit-card">
-            <div class="benefit-card__icon"><ng-icon name="heroXMark" size="32"></ng-icon></div>
-            <h4>Sans engagement</h4>
-            <p>Annulez à tout moment, sans frais</p>
+            <div class="benefit-card__icon"><ng-icon name="heroChartBar" size="32"></ng-icon></div>
+            <h4>Statistiques avancées</h4>
+            <p>Suivez votre progression avec des analyses détaillées</p>
           </div>
         </div>
       </section>
@@ -206,7 +216,7 @@
   @if (showCheckout() && checkoutClientSecret()) {
     <app-embedded-checkout
       [clientSecret]="checkoutClientSecret()!"
-      [title]="'Paiement - ' + selectedPlanName()"
+      [title]="'Paiement - Abonnement Premium'"
       (closed)="closeCheckout()"
       (completed)="onCheckoutCompleted()"
     ></app-embedded-checkout>

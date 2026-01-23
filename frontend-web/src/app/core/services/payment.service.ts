@@ -35,7 +35,6 @@ export interface SubscriptionPlanResponseDto {
   code: SubscriptionPlan;
   name: string;
   priceCents: number;
-  monthlyQuota: number;
   features: string[];
   popular: boolean;
 }
@@ -166,14 +165,12 @@ export class PaymentService {
     success: boolean;
     subscriptionId?: number;
     planName?: string;
-    monthlyQuota?: number;
     error?: string;
   }> {
     return this.http.post<{
       success: boolean;
       subscriptionId?: number;
       planName?: string;
-      monthlyQuota?: number;
       error?: string;
     }>(
       `${this.apiUrl}/checkout/subscription/confirm?sessionId=${sessionId}`,

@@ -24,12 +24,6 @@ public class Subscription {
     @Column(name = "price_cents", nullable = false)
     private Integer priceCents;
 
-    @Column(name = "monthly_quota", nullable = false)
-    private Integer monthlyQuota;
-
-    @Column(name = "lessons_used_this_month")
-    private Integer lessonsUsedThisMonth = 0;
-
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
 
@@ -66,12 +60,6 @@ public class Subscription {
     public Integer getPriceCents() { return priceCents; }
     public void setPriceCents(Integer priceCents) { this.priceCents = priceCents; }
 
-    public Integer getMonthlyQuota() { return monthlyQuota; }
-    public void setMonthlyQuota(Integer monthlyQuota) { this.monthlyQuota = monthlyQuota; }
-
-    public Integer getLessonsUsedThisMonth() { return lessonsUsedThisMonth; }
-    public void setLessonsUsedThisMonth(Integer lessonsUsedThisMonth) { this.lessonsUsedThisMonth = lessonsUsedThisMonth; }
-
     public LocalDate getStartDate() { return startDate; }
     public void setStartDate(LocalDate startDate) { this.startDate = startDate; }
 
@@ -88,12 +76,4 @@ public class Subscription {
     public void setStripeSubscriptionId(String stripeSubscriptionId) { this.stripeSubscriptionId = stripeSubscriptionId; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
-
-    public boolean hasRemainingLessons() {
-        return lessonsUsedThisMonth < monthlyQuota;
-    }
-
-    public int getRemainingLessons() {
-        return monthlyQuota - lessonsUsedThisMonth;
-    }
 }

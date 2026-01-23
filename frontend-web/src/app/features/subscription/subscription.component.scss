@@ -91,6 +91,24 @@ $sidebar-width: 260px;
     background: var(--error);
   }
 
+  &__badge--premium {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: linear-gradient(135deg, var(--gold-400), var(--gold-500));
+    padding: 4px var(--space-sm);
+    font-size: 0.75rem;
+  }
+
+  &__features {
+    h4 {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin: 0 0 var(--space-sm);
+    }
+  }
+
   &__cancelled-info {
     display: flex;
     align-items: flex-start;
@@ -133,6 +151,34 @@ $sidebar-width: 260px;
     color: var(--text-muted);
     margin-top: 2px;
   }
+}
+
+// Premium features list
+.premium-features-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: var(--space-xs);
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+
+    ng-icon {
+      color: var(--success-500);
+    }
+  }
+}
+
+// Premium Plan Container (single centered plan)
+.premium-plan-container {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-lg) 0;
 }
 
 // Plans Grid
@@ -236,6 +282,34 @@ $sidebar-width: 260px;
 
   &__btn {
     width: 100%;
+  }
+
+  &--premium {
+    max-width: 400px;
+    width: 100%;
+    border-color: var(--gold-400);
+    box-shadow: 0 0 30px rgba(212, 168, 75, 0.2);
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(212, 168, 75, 0.05) 100%);
+  }
+
+  &__badge--gold {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: linear-gradient(135deg, var(--gold-400), var(--gold-500));
+  }
+
+  &__tagline {
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+    margin: var(--space-xs) 0 0;
+  }
+
+  &__note {
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin: var(--space-sm) 0 0;
   }
 }
 

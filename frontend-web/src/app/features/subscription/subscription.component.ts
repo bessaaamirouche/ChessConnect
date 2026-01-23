@@ -19,7 +19,12 @@ import {
   heroArrowTrendingUp,
   heroCheck,
   heroXMark,
-  heroInformationCircle
+  heroInformationCircle,
+  heroSparkles,
+  heroVideoCamera,
+  heroBell,
+  heroClock,
+  heroChartBar
 } from '@ng-icons/heroicons/outline';
 
 @Component({
@@ -39,7 +44,12 @@ import {
     heroArrowTrendingUp,
     heroCheck,
     heroXMark,
-    heroInformationCircle
+    heroInformationCircle,
+    heroSparkles,
+    heroVideoCamera,
+    heroBell,
+    heroClock,
+    heroChartBar
   })],
   templateUrl: './subscription.component.html',
   styleUrl: './subscription.component.scss'

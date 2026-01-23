@@ -264,8 +264,7 @@ public class PaymentController {
                     "success", true,
                     "subscriptionId", subscription.getId(),
                     "planName", plan.getDisplayName(),
-                    "monthlyQuota", plan.getMonthlyQuota(),
-                    "message", "Abonnement activé avec succès"
+                    "message", "Abonnement Premium activé avec succès"
             ));
 
         } catch (StripeException e) {

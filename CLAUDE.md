@@ -109,7 +109,7 @@ sudo ufw allow 8282
 - **Disponibilites 24h/24** : Les coachs peuvent creer des creneaux a n'importe quelle heure
 - **Reservations urgentes** : Les creneaux restent visibles jusqu'a 5 min apres l'heure de debut
 - **Suivi de Progression** : Suivez votre parcours d'apprentissage
-- **Abonnements** : 3 formules (1, 2 ou 3 cours/semaine)
+- **Abonnement Premium** : 4,99€/mois avec fonctionnalités exclusives (revisionnage, notifications prioritaires, accès 24h avant, statistiques avancées, badge Premium)
 - **Paiements Stripe** : Paiements securises integres (mode test)
 - **Video Jitsi Meet** : Cours en visioconference integree
 - **Notifications en temps reel** : Alertes pour nouvelles disponibilites et reservations
@@ -123,8 +123,16 @@ sudo ufw allow 8282
 - **Joueur annule > 24h avant** : Remboursement 100%
 - **Joueur annule 2-24h avant** : Remboursement 50%
 - **Joueur annule < 2h avant** : Pas de remboursement
-- **Cours abonnement** : Quota restaure (sauf annulation tardive joueur)
 - Affichage dynamique du statut : "Annule par moi" / "Annule par le coach" / "Annule par le joueur" / "Annule (auto)"
+
+### Abonnement Premium (4,99€/mois)
+
+Fonctionnalités exclusives pour les abonnés Premium :
+- **Revisionnage des cours** : Accès aux enregistrements vidéo dans l'historique
+- **Notifications prioritaires** : Alertes email quand les coachs favoris publient des créneaux
+- **Accès anticipé 24h** : Voir les nouvelles disponibilités 24h avant les autres utilisateurs
+- **Statistiques avancées** : Dashboard détaillé de progression (heures, streak, coachs favoris)
+- **Badge Premium** : Badge doré visible sur le profil
 
 ### Premier Cours Offert
 
@@ -215,8 +223,9 @@ Le frontend demarre sur `http://localhost:4200`
 - **Quiz d'Evaluation:** 25 questions (5 par niveau) pour determiner le niveau initial
 - **Reservations:** Sessions d'une heure via Jitsi Meet
 - **Disponibilites:** Le coach cree des creneaux d'au moins 1h pour permettre une reservation
-- **Abonnements:** 69€/mois (3 cours/mois), 129€/mois (6 cours/mois), 179€/mois (9 cours/mois)
-- **Commission:** 10% prjoueurs par la plateforme
+- **Abonnement Premium:** 4,99€/mois pour fonctionnalités exclusives (pas de quota de cours)
+- **Paiement des cours:** Directement au tarif du coach (30€-80€/h)
+- **Commission:** 10% prélevés par la plateforme
 - **Premier Cours Offert:** Un cours gratuit pour les nouveaux joueurs
 
 ### Gestion des cours (Lessons)
@@ -303,6 +312,11 @@ Le frontend demarre sur `http://localhost:4200`
 | POST    | `/checkout/subscription`| Creer session Stripe Checkout   | STUDENT |
 | POST    | `/checkout/lesson`      | Payer un cours a l'unite        | STUDENT |
 | GET     | `/subscription`         | Abonnement actif                | STUDENT |
+
+### Statistiques (`/api/stats`)
+| Methode | Endpoint    | Description                     | Auth    |
+|---------|-------------|---------------------------------|---------|
+| GET     | `/advanced` | Statistiques avancées (Premium) | STUDENT |
 
 ### Stripe Connect (`/api/stripe-connect`)
 | Methode | Endpoint        | Description                           | Auth    |

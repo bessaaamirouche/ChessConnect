@@ -9,7 +9,12 @@ import {
   heroArrowTrendingUp,
   heroCalendarDays,
   heroXMark,
-  heroGift
+  heroGift,
+  heroSparkles,
+  heroVideoCamera,
+  heroBell,
+  heroClock,
+  heroChartBar
 } from '@ng-icons/heroicons/outline';
 
 @Component({
@@ -23,7 +28,12 @@ import {
     heroArrowTrendingUp,
     heroCalendarDays,
     heroXMark,
-    heroGift
+    heroGift,
+    heroSparkles,
+    heroVideoCamera,
+    heroBell,
+    heroClock,
+    heroChartBar
   })],
   templateUrl: './pricing.component.html',
   styleUrl: './pricing.component.scss'

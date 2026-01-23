@@ -70,8 +70,8 @@
             </div>
           </div>
 
-          <!-- Free Trial Banner -->
-          @if (freeTrialEligible()) {
+          <!-- Free Trial Banner (only if student eligible AND teacher accepts) -->
+          @if (canUseFreeTrial()) {
             <div class="free-trial-banner">
               <div class="free-trial-banner__icon">
                 <ng-icon name="heroGift" size="24"></ng-icon>
@@ -85,7 +85,7 @@
           }
 
           <!-- Payment Info -->
-          @if (!freeTrialEligible()) {
+          @if (!canUseFreeTrial()) {
             <div class="subscription-info">
               <div class="subscription-info__card subscription-info__card--payment">
                 <span class="subscription-info__icon"><ng-icon name="heroBanknotes" size="18"></ng-icon></span>
@@ -177,7 +177,7 @@
               <div class="price-summary__row">
                 <span>Prix</span>
                 <span class="price-summary__value">
-                  @if (freeTrialEligible() && useFreeTrialSignal()) {
+                  @if (canUseFreeTrial() && useFreeTrialSignal()) {
                     <span class="price-summary__free">GRATUIT</span>
                     <span class="price-summary__original">{{ formatPrice(teacherService.selectedTeacher()?.hourlyRateCents) }}</span>
                   } @else {
@@ -190,13 +190,13 @@
             <button
               type="submit"
               class="btn btn--block"
-              [class.btn--primary]="!freeTrialEligible() || !useFreeTrialSignal()"
-              [class.btn--free-trial]="freeTrialEligible() && useFreeTrialSignal()"
+              [class.btn--primary]="!canUseFreeTrial() || !useFreeTrialSignal()"
+              [class.btn--free-trial]="canUseFreeTrial() && useFreeTrialSignal()"
               [disabled]="!selectedSlot() || loading()"
             >
               @if (loading()) {
                 <span class="spinner spinner--sm"></span>
-                @if (freeTrialEligible() && useFreeTrialSignal()) {
+                @if (canUseFreeTrial() && useFreeTrialSignal()) {
                   Reservation...
                 } @else if (requiresPayment()) {
                   Redirection...
@@ -204,7 +204,7 @@
                   Reservation...
                 }
               } @else {
-                @if (freeTrialEligible() && useFreeTrialSignal()) {
+                @if (canUseFreeTrial() && useFreeTrialSignal()) {
                   <ng-icon name="heroGift" size="18"></ng-icon>
                   Reserver mon cours gratuit
                 } @else if (requiresPayment()) {

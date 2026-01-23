@@ -58,8 +58,14 @@ export class BookLessonComponent implements OnInit {
   checkoutClientSecret = signal<string | null>(null);
   checkoutSessionId = signal<string | null>(null);
 
-  // Free trial eligibility
+  // Free trial eligibility (student eligible AND teacher accepts free trial)
   freeTrialEligible = this.lessonService.freeTrialEligible;
+
+  // Can use free trial: student eligible AND selected teacher accepts free trials
+  canUseFreeTrial = computed(() => {
+    const teacher = this.teacherService.selectedTeacher();
+    return this.freeTrialEligible() && teacher?.acceptsFreeTrial === true;
+  });
 
   teacherSlots = this.availabilityService.teacherSlots;
   slotsLoading = this.availabilityService.loading;
@@ -77,8 +83,8 @@ export class BookLessonComponent implements OnInit {
     const teacher = this.teacherService.selectedTeacher();
     if (!teacher) return false;
 
-    // If eligible for free trial and user wants to use it, no payment required
-    if (this.freeTrialEligible() && this.useFreeTrialSignal()) {
+    // If can use free trial (eligible + teacher accepts) and user wants to use it, no payment required
+    if (this.canUseFreeTrial() && this.useFreeTrialSignal()) {
       return false;
     }
 
@@ -188,8 +194,8 @@ export class BookLessonComponent implements OnInit {
 
     this.loading.set(true);
 
-    // If eligible for free trial and user wants it, book free trial
-    if (this.freeTrialEligible() && this.useFreeTrialSignal()) {
+    // If can use free trial (eligible + teacher accepts) and user wants it, book free trial
+    if (this.canUseFreeTrial() && this.useFreeTrialSignal()) {
       this.lessonService.bookFreeTrialLesson({
         teacherId: teacher.id,
         scheduledAt,

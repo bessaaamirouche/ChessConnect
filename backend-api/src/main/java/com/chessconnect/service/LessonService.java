@@ -106,6 +106,14 @@ public class LessonService {
         lesson.setPriceCents(teacher.getHourlyRateCents());
 
         Lesson savedLesson = lessonRepository.save(lesson);
+
+        // If student was eligible for free trial but is paying directly, forfeit the free trial
+        if (!Boolean.TRUE.equals(student.getHasUsedFreeTrial())) {
+            student.setHasUsedFreeTrial(true);
+            userRepository.save(student);
+            log.info("Student {} forfeited free trial by paying for lesson {}", studentId, savedLesson.getId());
+        }
+
         return LessonResponse.from(savedLesson);
     }
 

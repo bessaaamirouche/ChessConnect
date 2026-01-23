@@ -64,8 +64,8 @@ public class AdvancedStatsService {
         int currentStreak = calculateLearningStreak(completedLessons);
 
         // Get progress level info
-        String currentLevel = progress != null ? progress.getChessLevel().name() : "PAWN";
-        int completedCourses = progress != null ? progress.getCompletedLessonsCount() : 0;
+        String currentLevel = progress != null ? progress.getCurrentLevel().name() : "PION";
+        int completedCourses = progress != null ? progress.getTotalLessonsCompleted() : 0;
 
         return AdvancedStatsResponse.builder()
                 .totalLessons(completedLessons.size())

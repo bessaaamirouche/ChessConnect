@@ -34,8 +34,6 @@ public class StripeService {
 
     static {
         // These should be configured via environment variables in production
-        PRICE_IDS.put(SubscriptionPlan.BASIC, "price_basic_monthly");
-        PRICE_IDS.put(SubscriptionPlan.STANDARD, "price_standard_monthly");
         PRICE_IDS.put(SubscriptionPlan.PREMIUM, "price_premium_monthly");
     }
 
@@ -80,7 +78,7 @@ public class StripeService {
                                                 .setProductData(
                                                         SessionCreateParams.LineItem.PriceData.ProductData.builder()
                                                                 .setName("Abonnement " + plan.getDisplayName())
-                                                                .setDescription("ChessConnect - " + plan.getMonthlyQuota() + " cours par mois")
+                                                                .setDescription("ChessConnect - Accès aux fonctionnalités Premium")
                                                                 .build()
                                                 )
                                                 .build()

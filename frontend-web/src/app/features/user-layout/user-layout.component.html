@@ -1,6 +1,6 @@
-<div class="user-layout">
+<div class="user-layout" [class.sidebar-collapsed]="sidebarCollapsed()">
   <!-- Sidebar -->
-  <app-sidebar [sections]="sidebarSections()"></app-sidebar>
+  <app-sidebar [sections]="sidebarSections()" (collapsedChange)="onSidebarCollapsedChange($event)"></app-sidebar>
 
   <!-- Main Content -->
   <main class="user-main">

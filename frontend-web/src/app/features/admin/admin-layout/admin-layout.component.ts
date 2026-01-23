@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
@@ -13,6 +13,12 @@ import { AppSidebarComponent, SidebarSection } from '../../../shared/components/
 })
 export class AdminLayoutComponent {
   private authService = inject(AuthService);
+
+  sidebarCollapsed = signal(false);
+
+  onSidebarCollapsedChange(collapsed: boolean): void {
+    this.sidebarCollapsed.set(collapsed);
+  }
 
   sidebarSections: SidebarSection[] = [
     {

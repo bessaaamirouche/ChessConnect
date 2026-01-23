@@ -82,7 +82,12 @@ export interface SidebarSection {
     <aside class="sidebar" [class.collapsed]="collapsed()" [class.mobile-active]="mobileOpen()">
       <!-- Header -->
       <div class="sidebar__header">
-        <button class="sidebar__collapse-btn" (click)="toggleCollapse()" [title]="collapsed() ? 'Expand' : 'Collapse'">
+        @if (!collapsed()) {
+          <a routerLink="/" class="sidebar__logo">
+            <img src="assets/logo.png" alt="mychess" class="sidebar__logo-img">
+          </a>
+        }
+        <button class="sidebar__collapse-btn" (click)="toggleCollapse()" [title]="collapsed() ? 'Ouvrir' : 'Fermer'">
           @if (collapsed()) {
             <ng-icon name="heroChevronRight" size="18"></ng-icon>
           } @else {
@@ -161,6 +166,7 @@ export interface SidebarSection {
 export class AppSidebarComponent {
   @Input() sections: SidebarSection[] = [];
   @Output() onLogout = new EventEmitter<void>();
+  @Output() collapsedChange = new EventEmitter<boolean>();
 
   private authService = inject(AuthService);
 
@@ -192,6 +198,7 @@ export class AppSidebarComponent {
   toggleCollapse(): void {
     this.collapsed.update(v => !v);
     localStorage.setItem('sidebar_collapsed', String(this.collapsed()));
+    this.collapsedChange.emit(this.collapsed());
   }
 
   toggleMobile(): void {
@@ -206,6 +213,7 @@ export class AppSidebarComponent {
     const saved = localStorage.getItem('sidebar_collapsed');
     if (saved === 'true') {
       this.collapsed.set(true);
+      this.collapsedChange.emit(true);
     }
   }
 }

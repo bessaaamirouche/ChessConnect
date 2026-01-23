@@ -1,6 +1,6 @@
-<div class="admin-layout">
+<div class="admin-layout" [class.sidebar-collapsed]="sidebarCollapsed()">
   <!-- Sidebar -->
-  <app-sidebar [sections]="sidebarSections"></app-sidebar>
+  <app-sidebar [sections]="sidebarSections" (collapsedChange)="onSidebarCollapsedChange($event)"></app-sidebar>
 
   <!-- Main Content -->
   <main class="admin-main">

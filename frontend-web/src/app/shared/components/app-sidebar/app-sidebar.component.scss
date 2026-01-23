@@ -115,7 +115,14 @@ $transition: 0.2s ease;
     max-width: $sidebar-collapsed-width;
     overflow: hidden;
 
+    // Center header with just collapse button
+    .sidebar__header {
+      justify-content: center;
+      padding: 16px 0;
+    }
+
     // Hide logo, text, section titles
+    .sidebar__logo,
     .sidebar__logo-img,
     .sidebar__logo-text,
     .sidebar__link-text,
@@ -229,15 +236,27 @@ $transition: 0.2s ease;
   &__header {
     display: flex;
     align-items: center;
-    justify-content: center;
-    padding: 16px 0;
+    justify-content: space-between;
+    padding: 16px;
     border-bottom: 1px solid $sidebar-border;
     position: relative;
+    min-height: 60px;
 
     @media (max-width: 768px) {
-      justify-content: flex-end;
-      padding: 16px;
+      justify-content: space-between;
     }
+  }
+
+  &__logo {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+  }
+
+  &__logo-img {
+    height: 36px;
+    width: auto;
+    object-fit: contain;
   }
 
   &__collapse-btn {

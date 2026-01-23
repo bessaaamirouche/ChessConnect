@@ -91,6 +91,14 @@
       </div>
 
       <div class="modal__body">
+        <!-- Error Display -->
+        @if (error()) {
+          <div class="alert alert--error alert--modal">
+            <span>{{ error() }}</span>
+            <button class="alert__close" (click)="clearError()">×</button>
+          </div>
+        }
+
         <!-- Type Selection -->
         <div class="form-group">
           <label class="form-group__label">Type de créneau</label>

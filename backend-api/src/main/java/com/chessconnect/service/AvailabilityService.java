@@ -336,7 +336,7 @@ public class AvailabilityService {
 
         if (hasOverlap) {
             throw new RuntimeException(
-                    "Ce creneau chevauche une disponibilite existante. Modifiez les horaires ou supprimez l'ancienne disponibilite."
+                    "Vous avez deja une disponibilite sur ce creneau. Modifiez les horaires ou supprimez l'ancienne."
             );
         }
     }

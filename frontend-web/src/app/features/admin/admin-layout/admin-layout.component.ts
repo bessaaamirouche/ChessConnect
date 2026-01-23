@@ -34,7 +34,6 @@ export class AdminLayoutComponent {
     {
       title: 'Compte',
       items: [
-        { label: 'Parametres', icon: 'heroCog6Tooth', route: '/settings' },
         { label: 'Deconnexion', icon: 'heroArrowRightOnRectangle', action: () => this.logout() }
       ]
     }

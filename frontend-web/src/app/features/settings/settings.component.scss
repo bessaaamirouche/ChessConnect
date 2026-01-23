@@ -39,18 +39,26 @@ $sidebar-width: 260px;
   display: flex;
   flex-direction: column;
   gap: var(--space-lg);
-  max-width: 600px;
-  margin: 0 auto;
+  max-width: 900px;
+}
+
+.settings-page {
+  padding: var(--space-lg);
+  max-width: 1000px;
+
+  @media (max-width: 768px) {
+    padding: var(--space-md);
+  }
 }
 
 .card {
   background: var(--bg-secondary);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
-  padding: var(--space-md);
+  padding: var(--space-lg);
 
   &__title {
-    font-size: 0.9375rem;
+    font-size: 1rem;
     font-weight: 600;
     color: var(--text-primary);
     margin-bottom: var(--space-md);
@@ -68,9 +76,9 @@ $sidebar-width: 260px;
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--space-sm);
+  gap: var(--space-md);
 
-  @media (max-width: 500px) {
+  @media (max-width: 600px) {
     grid-template-columns: 1fr;
   }
 }

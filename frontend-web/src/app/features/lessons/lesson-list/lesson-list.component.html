@@ -396,6 +396,7 @@
       [isFreeTrial]="videoCallIsFreeTrial()"
       [durationMinutes]="videoCallDurationMinutes()"
       (closed)="closeVideoCall()"
+      (lessonEnded)="endLessonFromCall()"
     ></app-video-call>
   }
 </div>

@@ -104,6 +104,7 @@ export class LessonListComponent implements OnInit {
   videoCallTitle = signal('');
   videoCallIsFreeTrial = signal(false);
   videoCallDurationMinutes = signal(60);
+  videoCallLessonId = signal<number | null>(null);
 
   // History filters
   historyFilterPerson = signal<string>('');
@@ -286,6 +287,7 @@ export class LessonListComponent implements OnInit {
         this.videoCallTitle.set(title);
         this.videoCallIsFreeTrial.set(isFreeTrial);
         this.videoCallDurationMinutes.set(durationMinutes);
+        this.videoCallLessonId.set(lesson.id);
         this.showVideoCall.set(true);
       },
       error: (err) => {
@@ -296,6 +298,7 @@ export class LessonListComponent implements OnInit {
         this.videoCallTitle.set(title);
         this.videoCallIsFreeTrial.set(isFreeTrial);
         this.videoCallDurationMinutes.set(durationMinutes);
+        this.videoCallLessonId.set(lesson.id);
         this.showVideoCall.set(true);
       }
     });
@@ -319,6 +322,22 @@ export class LessonListComponent implements OnInit {
     this.videoCallTitle.set('');
     this.videoCallIsFreeTrial.set(false);
     this.videoCallDurationMinutes.set(60);
+    this.videoCallLessonId.set(null);
+  }
+
+  endLessonFromCall(): void {
+    const lessonId = this.videoCallLessonId();
+    if (lessonId) {
+      this.lessonService.completeLesson(lessonId).subscribe({
+        next: () => {
+          console.log('Lesson completed successfully');
+        },
+        error: (err) => {
+          console.error('Error completing lesson:', err);
+        }
+      });
+    }
+    this.closeVideoCall();
   }
 
   openRecording(lesson: Lesson): void {

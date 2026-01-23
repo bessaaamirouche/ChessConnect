@@ -66,7 +66,7 @@ export interface SidebarSection {
     <!-- Mobile Header -->
     <header class="mobile-header">
       <a routerLink="/" class="mobile-header__logo">
-        <img src="assets/logo-full.png" alt="myChess" class="mobile-header__logo-img">
+        <img src="assets/logo.png" alt="myChess" class="mobile-header__logo-img">
       </a>
       <button class="mobile-header__hamburger" [class.active]="mobileOpen()" (click)="toggleMobile()">
         <span></span>

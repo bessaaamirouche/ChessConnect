@@ -70,7 +70,6 @@
 
             <div class="active-subscription-card__actions">
               <a routerLink="/teachers" class="btn btn--primary">Réserver un cours</a>
-              <a routerLink="/stats" class="btn btn--outline">Mes statistiques</a>
               @if (!paymentService.activeSubscription()!.cancelledAt) {
                 <button class="btn btn--ghost btn--danger" (click)="confirmCancel()">
                   Annuler l'abonnement

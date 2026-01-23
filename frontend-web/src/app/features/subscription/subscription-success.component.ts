@@ -29,7 +29,6 @@ import { PaymentService } from '../../core/services/payment.service';
           </div>
           <div class="result-card__actions">
             <a routerLink="/teachers" class="btn btn--primary btn--lg">Réserver un cours</a>
-            <a routerLink="/stats" class="btn btn--outline">Voir mes statistiques</a>
             <a routerLink="/dashboard" class="btn btn--ghost">Aller au dashboard</a>
           </div>
         } @else {

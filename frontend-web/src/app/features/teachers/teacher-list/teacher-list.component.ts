@@ -6,6 +6,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { FavoriteService } from '../../../core/services/favorite.service';
 import { LessonService } from '../../../core/services/lesson.service';
 import { SeoService } from '../../../core/services/seo.service';
+import { AppSidebarComponent, SidebarSection } from '../../../shared/components/app-sidebar/app-sidebar.component';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   heroAcademicCap,
@@ -24,7 +25,7 @@ import {
 @Component({
   selector: 'app-teacher-list',
   standalone: true,
-  imports: [RouterLink, NgIconComponent, FormsModule],
+  imports: [RouterLink, NgIconComponent, FormsModule, AppSidebarComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({
     heroAcademicCap,
@@ -44,6 +45,41 @@ import {
 })
 export class TeacherListComponent implements OnInit {
   private seoService = inject(SeoService);
+
+  sidebarCollapsed = signal(false);
+
+  sidebarSections = computed<SidebarSection[]>(() => {
+    const menuItems: any[] = [
+      { label: 'Mon Espace', icon: 'heroChartBarSquare', route: '/dashboard' },
+      { label: 'Mes Cours', icon: 'heroCalendarDays', route: '/lessons' }
+    ];
+
+    if (this.authService.isTeacher()) {
+      menuItems.push({ label: 'Mes Disponibilites', icon: 'heroClipboardDocumentList', route: '/availability' });
+    }
+
+    if (this.authService.isStudent()) {
+      menuItems.push({ label: 'Ma Progression', icon: 'heroTrophy', route: '/progress' });
+      menuItems.push({ label: 'Abonnement', icon: 'heroCreditCard', route: '/subscription' });
+      menuItems.push({ label: 'Trouver un Coach', icon: 'heroAcademicCap', route: '/teachers', active: true });
+    }
+
+    return [
+      { title: 'Menu', items: menuItems },
+      {
+        title: 'Compte',
+        items: [
+          { label: 'Mon Profil', icon: 'heroUserCircle', route: '/settings' },
+          { label: 'Mes Factures', icon: 'heroDocumentText', route: '/invoices' },
+          { label: 'Deconnexion', icon: 'heroArrowRightOnRectangle', action: () => this.logout() }
+        ]
+      }
+    ];
+  });
+
+  onSidebarCollapsedChange(collapsed: boolean): void {
+    this.sidebarCollapsed.set(collapsed);
+  }
 
   searchQuery = signal('');
   minRate = signal<number | null>(null);

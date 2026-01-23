@@ -9,6 +9,7 @@ import { PaymentService } from '../../../core/services/payment.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { TimeSlot } from '../../../core/models/availability.model';
 import { EmbeddedCheckoutComponent } from '../../../shared/embedded-checkout/embedded-checkout.component';
+import { AppSidebarComponent, SidebarSection } from '../../../shared/components/app-sidebar/app-sidebar.component';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   heroTicket,
@@ -28,7 +29,7 @@ import {
 @Component({
   selector: 'app-book-lesson',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule, NgIconComponent, EmbeddedCheckoutComponent],
+  imports: [CommonModule, RouterLink, ReactiveFormsModule, NgIconComponent, EmbeddedCheckoutComponent, AppSidebarComponent],
   viewProviders: [provideIcons({
     heroTicket,
     heroCreditCard,
@@ -48,6 +49,32 @@ import {
 })
 export class BookLessonComponent implements OnInit {
   bookingForm: FormGroup;
+  sidebarCollapsed = signal(false);
+
+  sidebarSections: SidebarSection[] = [
+    {
+      title: 'Menu',
+      items: [
+        { label: 'Mon Espace', icon: 'heroChartBarSquare', route: '/dashboard' },
+        { label: 'Mes Cours', icon: 'heroCalendarDays', route: '/lessons' },
+        { label: 'Ma Progression', icon: 'heroTrophy', route: '/progress' },
+        { label: 'Abonnement', icon: 'heroCreditCard', route: '/subscription' },
+        { label: 'Trouver un Coach', icon: 'heroAcademicCap', route: '/teachers', active: true }
+      ]
+    },
+    {
+      title: 'Compte',
+      items: [
+        { label: 'Mon Profil', icon: 'heroUserCircle', route: '/settings' },
+        { label: 'Mes Factures', icon: 'heroDocumentText', route: '/invoices' },
+        { label: 'Deconnexion', icon: 'heroArrowRightOnRectangle', action: () => this.logout() }
+      ]
+    }
+  ];
+
+  onSidebarCollapsedChange(collapsed: boolean): void {
+    this.sidebarCollapsed.set(collapsed);
+  }
   loading = signal(false);
   success = signal(false);
   selectedSlot = signal<TimeSlot | null>(null);

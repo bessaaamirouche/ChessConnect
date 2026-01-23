@@ -2,23 +2,15 @@ import { Component, OnInit, signal, ChangeDetectionStrategy } from '@angular/cor
 import { Router, RouterLink } from '@angular/router';
 import { QuizService } from '../../core/services/quiz.service';
 import { SeoService } from '../../core/services/seo.service';
-import { AuthService } from '../../core/services/auth.service';
 import { ProgressService } from '../../core/services/progress.service';
 import { CHESS_LEVELS, ChessLevel } from '../../core/models/user.model';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
-  heroChartBarSquare,
-  heroCalendarDays,
-  heroTrophy,
-  heroAcademicCap,
-  heroUserCircle,
-  heroArrowRightOnRectangle,
   heroArrowLeft,
   heroArrowRight,
   heroCheckCircle,
   heroXCircle,
-  heroPlayCircle,
-  heroCreditCard
+  heroPlayCircle
 } from '@ng-icons/heroicons/outline';
 
 type QuizStep = 'intro' | 'questions' | 'result';
@@ -29,18 +21,11 @@ type QuizStep = 'intro' | 'questions' | 'result';
   imports: [RouterLink, NgIconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({
-    heroChartBarSquare,
-    heroCalendarDays,
-    heroTrophy,
-    heroAcademicCap,
-    heroUserCircle,
-    heroArrowRightOnRectangle,
     heroArrowLeft,
     heroArrowRight,
     heroCheckCircle,
     heroXCircle,
-    heroPlayCircle,
-    heroCreditCard
+    heroPlayCircle
   })],
   templateUrl: './quiz.component.html',
   styleUrl: './quiz.component.scss'
@@ -52,7 +37,6 @@ export class QuizComponent implements OnInit {
 
   constructor(
     public quizService: QuizService,
-    public authService: AuthService,
     public progressService: ProgressService,
     private router: Router,
     private seoService: SeoService
@@ -146,9 +130,5 @@ export class QuizComponent implements OnInit {
     // A level is evaluated if it's at or below the determined level + 1
     // (we evaluate until first failure)
     return levelOrder <= determinedLevelOrder + 1;
-  }
-
-  logout(): void {
-    this.authService.logout();
   }
 }

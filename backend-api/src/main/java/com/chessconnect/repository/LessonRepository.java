@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Collection;
 
 @Repository
 public interface LessonRepository extends JpaRepository<Lesson, Long> {
@@ -94,4 +95,45 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
 
     @Query("SELECT COUNT(DISTINCT l.student.id) FROM Lesson l WHERE l.teacher.id = :teacherId AND l.status = 'COMPLETED'")
     Integer countDistinctStudentsByTeacherId(@Param("teacherId") Long teacherId);
+
+    // Optimized admin queries - avoid findAll() + in-memory filtering
+    @Query("SELECT l FROM Lesson l WHERE l.status IN :statuses AND l.scheduledAt > :after ORDER BY l.scheduledAt ASC")
+    List<Lesson> findByStatusInAndScheduledAtAfter(@Param("statuses") List<LessonStatus> statuses, @Param("after") LocalDateTime after);
+
+    @Query("SELECT l FROM Lesson l WHERE l.status = :status ORDER BY l.scheduledAt DESC")
+    List<Lesson> findByStatusOrderByScheduledAtDesc(@Param("status") LessonStatus status);
+
+    // Accounting aggregates - calculate in database, not in memory
+    @Query("SELECT COALESCE(SUM(l.priceCents), 0) FROM Lesson l WHERE l.status = 'COMPLETED'")
+    Long sumPriceCentsCompleted();
+
+    @Query("SELECT COALESCE(SUM(l.commissionCents), 0) FROM Lesson l WHERE l.status = 'COMPLETED'")
+    Long sumCommissionCentsCompleted();
+
+    @Query("SELECT COALESCE(SUM(l.teacherEarningsCents), 0) FROM Lesson l WHERE l.status = 'COMPLETED'")
+    Long sumTeacherEarningsCentsCompleted();
+
+    @Query("SELECT COALESCE(SUM(l.refundedAmountCents), 0) FROM Lesson l WHERE l.status = 'CANCELLED'")
+    Long sumRefundedAmountCentsCancelled();
+
+    @Query("SELECT COUNT(l) FROM Lesson l WHERE l.status = 'COMPLETED'")
+    Long countCompleted();
+
+    @Query("SELECT COUNT(l) FROM Lesson l WHERE l.status = 'CANCELLED'")
+    Long countCancelled();
+
+    // Revenue this month
+    @Query("SELECT COALESCE(SUM(l.priceCents), 0) FROM Lesson l WHERE l.status = 'COMPLETED' AND l.scheduledAt BETWEEN :start AND :end")
+    Long sumPriceCentsCompletedBetween(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+
+    // Check for active lessons for a user (deleteUser check)
+    @Query("SELECT COUNT(l) FROM Lesson l WHERE (l.student.id = :userId OR l.teacher.id = :userId) AND l.status IN ('PENDING', 'CONFIRMED')")
+    Long countActiveLessonsByUserId(@Param("userId") Long userId);
+
+    // Teacher current month earnings
+    @Query("SELECT COALESCE(SUM(l.teacherEarningsCents), 0) FROM Lesson l WHERE l.teacher.id = :teacherId AND l.status = 'COMPLETED' AND l.scheduledAt BETWEEN :start AND :end")
+    Integer sumTeacherEarningsBetween(@Param("teacherId") Long teacherId, @Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+
+    @Query("SELECT COUNT(l) FROM Lesson l WHERE l.teacher.id = :teacherId AND l.status = 'COMPLETED' AND l.scheduledAt BETWEEN :start AND :end")
+    Integer countTeacherCompletedBetween(@Param("teacherId") Long teacherId, @Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 }

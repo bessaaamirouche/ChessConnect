@@ -5,7 +5,14 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "lessons")
+@Table(name = "lessons", indexes = {
+    @Index(name = "idx_lesson_student_id", columnList = "student_id"),
+    @Index(name = "idx_lesson_teacher_id", columnList = "teacher_id"),
+    @Index(name = "idx_lesson_status", columnList = "status"),
+    @Index(name = "idx_lesson_scheduled_at", columnList = "scheduled_at"),
+    @Index(name = "idx_lesson_status_scheduled", columnList = "status, scheduled_at"),
+    @Index(name = "idx_lesson_teacher_status", columnList = "teacher_id, status")
+})
 public class Lesson {
 
     public static final int COMMISSION_RATE = 10; // 10%

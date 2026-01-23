@@ -92,6 +92,7 @@ public class AuthService {
         );
     }
 
+    @Transactional
     public AuthResponse login(LoginRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.email(), request.password())
@@ -104,6 +105,10 @@ public class AuthService {
         if (Boolean.TRUE.equals(user.getIsSuspended())) {
             throw new AccountSuspendedException("Votre compte a ete suspendu. Contactez l'administrateur pour plus d'informations.");
         }
+
+        // Update last login timestamp
+        user.setLastLoginAt(java.time.LocalDateTime.now());
+        userRepository.save(user);
 
         UserDetailsImpl userDetails = new UserDetailsImpl(user);
         String token = jwtService.generateToken(userDetails);

@@ -51,6 +51,7 @@ import { DialogService } from '../../../core/services/dialog.service';
                 <th>Role</th>
                 <th>Cours</th>
                 <th>Inscription</th>
+                <th>Derniere connexion</th>
                 <th>Statut</th>
                 <th>Actions</th>
               </tr>
@@ -72,17 +73,24 @@ import { DialogService } from '../../../core/services/dialog.service';
                   <td>{{ user.lessonsCount }}</td>
                   <td>{{ user.createdAt | date:'dd/MM/yyyy' }}</td>
                   <td>
-                    @if (user.isSuspended) {
-                      <span class="badge badge--error">Suspendu</span>
+                    @if (user.lastLoginAt) {
+                      {{ user.lastLoginAt | date:'dd/MM/yyyy HH:mm' }}
                     } @else {
-                      <span class="badge badge--success">Actif</span>
+                      <span class="text-muted">Jamais</span>
+                    }
+                  </td>
+                  <td>
+                    @if (user.isSuspended) {
+                      <span class="badge badge--suspended">Suspendu</span>
+                    } @else {
+                      <span class="badge badge--active">Actif</span>
                     }
                   </td>
                   <td>
                     <div class="actions-cell">
                       @if (user.isSuspended) {
                         <button
-                          class="btn btn--sm btn--success"
+                          class="action-btn action-btn--activate"
                           (click)="activateUser(user)"
                           [disabled]="actionLoading()"
                         >
@@ -90,7 +98,7 @@ import { DialogService } from '../../../core/services/dialog.service';
                         </button>
                       } @else {
                         <button
-                          class="btn btn--sm btn--error"
+                          class="action-btn action-btn--suspend"
                           (click)="suspendUser(user)"
                           [disabled]="actionLoading()"
                         >
@@ -98,7 +106,7 @@ import { DialogService } from '../../../core/services/dialog.service';
                         </button>
                       }
                       <button
-                        class="btn btn--sm btn--danger"
+                        class="action-btn action-btn--delete"
                         (click)="confirmDeleteUser(user)"
                         [disabled]="actionLoading()"
                         title="Supprimer definitivement"
@@ -166,7 +174,8 @@ import { DialogService } from '../../../core/services/dialog.service';
 
       h1 {
         font-size: 1.5rem;
-        font-weight: 700;
+        font-weight: 600;
+        color: var(--text-primary);
       }
 
       @media (max-width: 767px) {
@@ -183,49 +192,51 @@ import { DialogService } from '../../../core/services/dialog.service';
 
     .table-container {
       background: var(--bg-secondary);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-lg);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
-
-      @media (max-width: 767px) {
-        border-radius: var(--radius-md);
-      }
     }
 
     .table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 700px;
+      min-width: 850px;
 
       th, td {
-        padding: var(--space-md);
+        padding: 14px 16px;
         text-align: left;
-        border-bottom: 1px solid var(--border-subtle);
         vertical-align: middle;
-        white-space: nowrap;
 
         @media (max-width: 767px) {
-          padding: var(--space-sm);
+          padding: 10px 12px;
           font-size: 0.8125rem;
         }
       }
 
       th {
-        font-size: 0.75rem;
-        font-weight: 600;
+        font-size: 0.6875rem;
+        font-weight: 500;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
+        letter-spacing: 0.04em;
         color: var(--text-muted);
         background: var(--bg-tertiary);
+        border-bottom: 1px solid var(--border-subtle);
+      }
 
-        @media (max-width: 767px) {
-          font-size: 0.6875rem;
-        }
+      td {
+        font-size: 0.875rem;
+        color: var(--text-primary);
+        border-bottom: 1px solid rgba(128, 128, 128, 0.1);
+      }
+
+      tbody tr {
+        transition: background-color 0.15s ease;
       }
 
       tbody tr:hover {
-        background: var(--bg-tertiary);
+        background: rgba(128, 128, 128, 0.04);
       }
 
       tbody tr:last-child td {
@@ -239,23 +250,28 @@ import { DialogService } from '../../../core/services/dialog.service';
       gap: 2px;
 
       strong {
+        font-weight: 500;
         color: var(--text-primary);
       }
 
       .text-muted {
-        font-size: 0.8125rem;
+        font-size: 0.75rem;
         color: var(--text-muted);
       }
     }
 
+    .text-muted {
+      color: var(--text-muted);
+      font-size: 0.8125rem;
+    }
+
     .badge {
-      display: inline-block;
-      padding: 4px 8px;
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
       font-size: 0.6875rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      border-radius: var(--radius-sm);
+      font-weight: 500;
+      border-radius: 6px;
 
       &--student {
         background: rgba(59, 130, 246, 0.1);
@@ -272,57 +288,64 @@ import { DialogService } from '../../../core/services/dialog.service';
         color: var(--gold-500);
       }
 
-      &--success {
-        background: var(--success-muted);
-        color: var(--success);
+      &--active {
+        background: rgba(34, 197, 94, 0.1);
+        color: #22c55e;
       }
 
-      &--error {
-        background: var(--error-muted);
-        color: var(--error);
-      }
-    }
-
-    .btn--success {
-      background: var(--success);
-      color: white;
-      border: none;
-
-      &:hover:not(:disabled) {
-        opacity: 0.9;
-      }
-    }
-
-    .btn--error {
-      background: var(--error);
-      color: white;
-      border: none;
-
-      &:hover:not(:disabled) {
-        opacity: 0.9;
-      }
-    }
-
-    .btn--sm {
-      padding: 6px 12px;
-      font-size: 0.75rem;
-    }
-
-    .btn--danger {
-      background: #dc2626;
-      color: white;
-      border: none;
-
-      &:hover:not(:disabled) {
-        background: #b91c1c;
+      &--suspended {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
       }
     }
 
     .actions-cell {
       display: flex;
-      gap: var(--space-sm);
+      gap: 8px;
       align-items: center;
-      flex-wrap: nowrap;
+    }
+
+    .action-btn {
+      padding: 6px 12px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      border: none;
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      &--activate {
+        background: rgba(34, 197, 94, 0.1);
+        color: #22c55e;
+
+        &:hover:not(:disabled) {
+          background: rgba(34, 197, 94, 0.2);
+        }
+      }
+
+      &--suspend {
+        background: rgba(128, 128, 128, 0.1);
+        color: var(--text-secondary);
+
+        &:hover:not(:disabled) {
+          background: rgba(128, 128, 128, 0.2);
+        }
+      }
+
+      &--delete {
+        background: rgba(128, 128, 128, 0.08);
+        color: var(--text-muted);
+
+        &:hover:not(:disabled) {
+          background: rgba(239, 68, 68, 0.1);
+          color: #ef4444;
+        }
+      }
     }
 
     .modal-overlay {
@@ -331,7 +354,8 @@ import { DialogService } from '../../../core/services/dialog.service';
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(0, 0, 0, 0.6);
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -340,24 +364,29 @@ import { DialogService } from '../../../core/services/dialog.service';
 
     .modal {
       background: var(--bg-secondary);
-      border-radius: var(--radius-lg);
+      border-radius: 16px;
       padding: var(--space-xl);
       max-width: 400px;
       width: 90%;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 
       h3 {
         margin-bottom: var(--space-md);
         color: var(--text-primary);
+        font-weight: 600;
       }
 
       p {
         color: var(--text-secondary);
         margin-bottom: var(--space-sm);
+        font-size: 0.9375rem;
+        line-height: 1.5;
       }
 
       .warning {
-        color: var(--error);
+        color: #ef4444;
         font-weight: 500;
+        font-size: 0.875rem;
       }
     }
 
@@ -366,6 +395,43 @@ import { DialogService } from '../../../core/services/dialog.service';
       gap: var(--space-md);
       justify-content: flex-end;
       margin-top: var(--space-lg);
+    }
+
+    .btn--ghost {
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1px solid var(--border-subtle);
+      padding: 8px 16px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+
+      &:hover {
+        background: var(--bg-tertiary);
+      }
+    }
+
+    .btn--danger {
+      background: #ef4444;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+
+      &:hover:not(:disabled) {
+        background: #dc2626;
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
     }
 
     .pagination {
@@ -387,6 +453,16 @@ import { DialogService } from '../../../core/services/dialog.service';
     .input--sm {
       padding: 8px 12px;
       font-size: 0.875rem;
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      transition: all 0.15s ease;
+
+      &:focus {
+        outline: none;
+        border-color: var(--gold-500);
+      }
     }
 
     .search-box {
@@ -406,11 +482,11 @@ import { DialogService } from '../../../core/services/dialog.service';
       padding: 8px 36px 8px 36px;
       font-size: 0.875rem;
       border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
+      border-radius: 8px;
       background: var(--bg-tertiary);
       color: var(--text-primary);
       min-width: 280px;
-      transition: all var(--transition-fast);
+      transition: all 0.15s ease;
 
       &::placeholder {
         color: var(--text-muted);
@@ -435,16 +511,17 @@ import { DialogService } from '../../../core/services/dialog.service';
       display: flex;
       align-items: center;
       justify-content: center;
-      background: var(--bg-tertiary);
+      background: rgba(128, 128, 128, 0.15);
       border: none;
       border-radius: 50%;
       color: var(--text-muted);
       cursor: pointer;
       font-size: 14px;
       line-height: 1;
+      transition: all 0.15s ease;
 
       &:hover {
-        background: var(--border-subtle);
+        background: rgba(128, 128, 128, 0.25);
         color: var(--text-primary);
       }
     }
@@ -453,7 +530,7 @@ import { DialogService } from '../../../core/services/dialog.service';
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: var(--space-sm) var(--space-md);
+      padding: 12px 16px;
       background: var(--bg-tertiary);
       border-bottom: 1px solid var(--border-subtle);
     }

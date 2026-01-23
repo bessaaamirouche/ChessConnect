@@ -86,6 +86,7 @@ public class AdminService {
      * Get all users with pagination and optional role filter
      * Note: ADMIN users are excluded from the list
      */
+    @Transactional(readOnly = true)
     public Page<UserListResponse> getUsers(Pageable pageable, String roleFilter) {
         Page<User> users;
         if (roleFilter != null && !roleFilter.isBlank()) {
@@ -116,6 +117,7 @@ public class AdminService {
     /**
      * Get user details by ID
      */
+    @Transactional(readOnly = true)
     public UserListResponse getUserById(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
@@ -172,15 +174,12 @@ public class AdminService {
             throw new IllegalArgumentException("Cannot delete admin users");
         }
 
-        // Check for active lessons (PENDING or CONFIRMED)
-        List<Lesson> activeLessons = lessonRepository.findAll().stream()
-                .filter(l -> (l.getStudent().getId().equals(userId) || l.getTeacher().getId().equals(userId))
-                        && (l.getStatus() == LessonStatus.PENDING || l.getStatus() == LessonStatus.CONFIRMED))
-                .toList();
+        // Check for active lessons (PENDING or CONFIRMED) - optimized query
+        Long activeLessonsCount = lessonRepository.countActiveLessonsByUserId(userId);
 
-        if (!activeLessons.isEmpty()) {
+        if (activeLessonsCount > 0) {
             throw new IllegalArgumentException(
-                    "Impossible de supprimer cet utilisateur: " + activeLessons.size() + " cours en attente ou confirmes");
+                    "Impossible de supprimer cet utilisateur: " + activeLessonsCount + " cours en attente ou confirmes");
         }
 
         log.info("Deleting user {} ({} {}) and all related data...", userId, user.getFirstName(), user.getLastName());
@@ -250,58 +249,49 @@ public class AdminService {
 
     /**
      * Get upcoming lessons (PENDING or CONFIRMED) - ordered by scheduled date ascending
+     * Optimized: Uses database query instead of findAll() + in-memory filtering
      */
+    @Transactional(readOnly = true)
     public List<LessonResponse> getUpcomingLessons() {
-        return lessonRepository.findAll().stream()
-                .filter(l -> l.getStatus() == LessonStatus.PENDING || l.getStatus() == LessonStatus.CONFIRMED)
-                .filter(l -> l.getScheduledAt().isAfter(LocalDateTime.now().minusHours(1)))
-                .sorted(Comparator.comparing(Lesson::getScheduledAt))
+        List<LessonStatus> statuses = List.of(LessonStatus.PENDING, LessonStatus.CONFIRMED);
+        LocalDateTime cutoff = LocalDateTime.now().minusHours(1);
+        return lessonRepository.findByStatusInAndScheduledAtAfter(statuses, cutoff).stream()
                 .map(LessonResponse::from)
                 .toList();
     }
 
     /**
      * Get completed lessons - ordered by scheduled date descending
+     * Optimized: Uses database query instead of findAll() + in-memory filtering
      */
+    @Transactional(readOnly = true)
     public List<LessonResponse> getCompletedLessons() {
-        return lessonRepository.findAll().stream()
-                .filter(l -> l.getStatus() == LessonStatus.COMPLETED)
-                .sorted(Comparator.comparing(Lesson::getScheduledAt).reversed())
+        return lessonRepository.findByStatusOrderByScheduledAtDesc(LessonStatus.COMPLETED).stream()
                 .map(LessonResponse::from)
                 .toList();
     }
 
     /**
      * Get accounting/revenue overview
+     * Optimized: Uses aggregate queries instead of loading all lessons into memory
      */
+    @Transactional(readOnly = true)
     public AccountingResponse getAccountingOverview() {
-        List<Lesson> allLessons = lessonRepository.findAll();
-
-        long totalRevenue = 0;
-        long totalCommissions = 0;
-        long totalTeacherEarnings = 0;
-        long totalRefunded = 0;
-        long completedLessons = 0;
-        long cancelledLessons = 0;
-
-        for (Lesson lesson : allLessons) {
-            if (lesson.getStatus() == LessonStatus.COMPLETED) {
-                completedLessons++;
-                totalRevenue += lesson.getPriceCents() != null ? lesson.getPriceCents() : 0;
-                totalCommissions += lesson.getCommissionCents() != null ? lesson.getCommissionCents() : 0;
-                totalTeacherEarnings += lesson.getTeacherEarningsCents() != null ? lesson.getTeacherEarningsCents() : 0;
-            } else if (lesson.getStatus() == LessonStatus.CANCELLED) {
-                cancelledLessons++;
-                totalRefunded += lesson.getRefundedAmountCents() != null ? lesson.getRefundedAmountCents() : 0;
-            }
-        }
+        // Use aggregate queries - much faster than loading all lessons
+        long totalRevenue = lessonRepository.sumPriceCentsCompleted();
+        long totalCommissions = lessonRepository.sumCommissionCentsCompleted();
+        long totalTeacherEarnings = lessonRepository.sumTeacherEarningsCentsCompleted();
+        long totalRefunded = lessonRepository.sumRefundedAmountCentsCancelled();
+        long totalLessons = lessonRepository.count();
+        long completedLessons = lessonRepository.countCompleted();
+        long cancelledLessons = lessonRepository.countCancelled();
 
         return new AccountingResponse(
                 totalRevenue,
                 totalCommissions,
                 totalTeacherEarnings,
                 totalRefunded,
-                (long) allLessons.size(),
+                totalLessons,
                 completedLessons,
                 cancelledLessons
         );
@@ -309,12 +299,14 @@ public class AdminService {
 
     /**
      * Get all teacher balances with banking info and current month payout status
+     * Optimized: Uses specific queries per teacher instead of loading all lessons
      */
+    @Transactional(readOnly = true)
     public List<TeacherBalanceListResponse> getTeacherBalances() {
         List<TeacherBalance> balances = teacherBalanceRepository.findAll();
         String currentYearMonth = YearMonth.now().format(DateTimeFormatter.ofPattern("yyyy-MM"));
 
-        // Get current month lessons for all teachers
+        // Get current month date range
         YearMonth currentMonth = YearMonth.now();
         LocalDateTime monthStart = currentMonth.atDay(1).atStartOfDay();
         LocalDateTime monthEnd = currentMonth.atEndOfMonth().atTime(23, 59, 59);
@@ -322,16 +314,9 @@ public class AdminService {
         return balances.stream().map(balance -> {
             User teacher = balance.getTeacher();
 
-            // Calculate current month earnings
-            List<Lesson> currentMonthLessons = lessonRepository.findAll().stream()
-                    .filter(l -> l.getTeacher().getId().equals(teacher.getId()))
-                    .filter(l -> l.getStatus() == LessonStatus.COMPLETED)
-                    .filter(l -> l.getScheduledAt().isAfter(monthStart) && l.getScheduledAt().isBefore(monthEnd))
-                    .toList();
-
-            int currentMonthEarnings = currentMonthLessons.stream()
-                    .mapToInt(l -> l.getTeacherEarningsCents() != null ? l.getTeacherEarningsCents() : 0)
-                    .sum();
+            // Use optimized queries instead of loading all lessons
+            Integer currentMonthEarnings = lessonRepository.sumTeacherEarningsBetween(teacher.getId(), monthStart, monthEnd);
+            Integer currentMonthLessonsCount = lessonRepository.countTeacherCompletedBetween(teacher.getId(), monthStart, monthEnd);
 
             // Check if paid for current month
             TeacherPayout payout = teacherPayoutRepository
@@ -362,8 +347,8 @@ public class AdminService {
                     teacher.getCompanyName(),
                     // Current month payout status
                     payout != null && payout.getIsPaid(),
-                    currentMonthEarnings,
-                    currentMonthLessons.size(),
+                    currentMonthEarnings != null ? currentMonthEarnings : 0,
+                    currentMonthLessonsCount != null ? currentMonthLessonsCount : 0,
                     // Stripe Connect status
                     stripeConnectEnabled,
                     stripeConnectReady
@@ -489,6 +474,7 @@ public class AdminService {
     /**
      * Get all subscriptions
      */
+    @Transactional(readOnly = true)
     public Page<Subscription> getSubscriptions(Pageable pageable) {
         return subscriptionRepository.findAll(pageable);
     }
@@ -510,13 +496,16 @@ public class AdminService {
     /**
      * Get all payments
      */
+    @Transactional(readOnly = true)
     public Page<Payment> getPayments(Pageable pageable) {
         return paymentRepository.findAll(pageable);
     }
 
     /**
      * Get admin dashboard stats
+     * Optimized: Uses aggregate queries instead of loading all lessons into memory
      */
+    @Transactional(readOnly = true)
     public AdminStatsResponse getStats() {
         long totalUsers = userRepository.count();
         long totalStudents = userRepository.countByRole(UserRole.STUDENT);
@@ -530,19 +519,9 @@ public class AdminService {
         LocalDateTime monthEnd = currentMonth.atEndOfMonth().atTime(23, 59, 59);
         long lessonsThisMonth = lessonRepository.countByScheduledAtBetween(monthStart, monthEnd);
 
-        // Revenue calculations
-        List<Lesson> completedLessons = lessonRepository.findAll().stream()
-                .filter(l -> l.getStatus() == LessonStatus.COMPLETED)
-                .toList();
-
-        long totalRevenue = completedLessons.stream()
-                .mapToLong(l -> l.getPriceCents() != null ? l.getPriceCents() : 0)
-                .sum();
-
-        long revenueThisMonth = completedLessons.stream()
-                .filter(l -> l.getScheduledAt().isAfter(monthStart) && l.getScheduledAt().isBefore(monthEnd))
-                .mapToLong(l -> l.getPriceCents() != null ? l.getPriceCents() : 0)
-                .sum();
+        // Revenue calculations - use aggregate queries
+        long totalRevenue = lessonRepository.sumPriceCentsCompleted();
+        long revenueThisMonth = lessonRepository.sumPriceCentsCompletedBetween(monthStart, monthEnd);
 
         return new AdminStatsResponse(
                 totalUsers,

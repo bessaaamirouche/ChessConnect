@@ -12,6 +12,7 @@ public record UserListResponse(
         String role,
         Boolean isSuspended,
         LocalDateTime createdAt,
+        LocalDateTime lastLoginAt,
         // Teacher-specific
         Integer hourlyRateCents,
         String languages,
@@ -29,6 +30,7 @@ public record UserListResponse(
                 user.getRole().name(),
                 user.getIsSuspended(),
                 user.getCreatedAt(),
+                user.getLastLoginAt(),
                 user.getHourlyRateCents(),
                 user.getLanguages(),
                 averageRating,

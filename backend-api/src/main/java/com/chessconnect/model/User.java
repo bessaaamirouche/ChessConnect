@@ -9,7 +9,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "users")
+@Table(name = "users", indexes = {
+    @Index(name = "idx_user_role", columnList = "role"),
+    @Index(name = "idx_user_email", columnList = "email"),
+    @Index(name = "idx_user_last_login", columnList = "last_login_at")
+})
 public class User {
 
     @Id
@@ -102,6 +106,9 @@ public class User {
     // First free trial lesson tracking
     @Column(name = "has_used_free_trial")
     private Boolean hasUsedFreeTrial = false;
+
+    @Column(name = "last_login_at")
+    private LocalDateTime lastLoginAt;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -243,4 +250,7 @@ public class User {
 
     public Boolean getAcceptsFreeTrial() { return acceptsFreeTrial; }
     public void setAcceptsFreeTrial(Boolean acceptsFreeTrial) { this.acceptsFreeTrial = acceptsFreeTrial; }
+
+    public LocalDateTime getLastLoginAt() { return lastLoginAt; }
+    public void setLastLoginAt(LocalDateTime lastLoginAt) { this.lastLoginAt = lastLoginAt; }
 }

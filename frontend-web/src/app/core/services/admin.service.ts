@@ -10,6 +10,7 @@ export interface UserListResponse {
   role: string;
   isSuspended: boolean;
   createdAt: string;
+  lastLoginAt?: string;
   hourlyRateCents?: number;
   languages?: string;
   averageRating?: number;

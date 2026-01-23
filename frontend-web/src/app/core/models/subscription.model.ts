@@ -32,8 +32,6 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlanDetails[] = [
     features: [
       'Revisionnage des cours - Accès aux enregistrements vidéo',
       'Notifications prioritaires - Alertes créneaux des coachs favoris',
-      'Accès prioritaire - Voir les disponibilités 24h avant',
-      'Statistiques avancées - Dashboard détaillé de progression',
       'Badge Premium - Badge doré visible sur le profil'
     ],
     popular: true

@@ -24,8 +24,6 @@ import { PaymentService } from '../../core/services/payment.service';
             <ul>
               <li>✓ Revisionnage illimité de vos cours</li>
               <li>✓ Notifications prioritaires des coachs favoris</li>
-              <li>✓ Accès anticipé aux créneaux (24h avant)</li>
-              <li>✓ Statistiques avancées de progression</li>
               <li>✓ Badge Premium sur votre profil</li>
             </ul>
           </div>

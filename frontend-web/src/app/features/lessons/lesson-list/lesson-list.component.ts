@@ -374,16 +374,27 @@ export class LessonListComponent implements OnInit {
   endLessonFromCall(): void {
     const lessonId = this.videoCallLessonId();
     if (lessonId) {
+      // Find the lesson to get studentId before completing
+      const lesson = this.lessonService.upcomingLessons().find(l => l.id === lessonId);
+      const studentId = lesson?.studentId;
+
       this.lessonService.completeLesson(lessonId).subscribe({
         next: () => {
           console.log('Lesson completed successfully');
+          this.closeVideoCall();
+          // Open student profile modal for course validation (teachers only)
+          if (this.authService.isTeacher() && studentId) {
+            this.openStudentProfile(studentId);
+          }
         },
         error: (err) => {
           console.error('Error completing lesson:', err);
+          this.closeVideoCall();
         }
       });
+    } else {
+      this.closeVideoCall();
     }
-    this.closeVideoCall();
   }
 
   openRecording(lesson: Lesson): void {

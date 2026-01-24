@@ -108,7 +108,10 @@ $sidebar-width: 260px;
 
 input[type="date"] {
   max-width: 100%;
+  min-width: 0; // Permet au flexbox/grid de réduire la taille
   box-sizing: border-box;
+  -webkit-appearance: none;
+  appearance: none;
 
   @media (max-width: 500px) {
     width: 100%;

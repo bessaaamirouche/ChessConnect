@@ -217,6 +217,15 @@
 
 .student-fields {
   min-height: 140px;
+  overflow: hidden; // Empêche le débordement des inputs
+
+  // Fix date input overflow on mobile
+  input[type="date"] {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
 
   .elo-field-container {
     min-height: 70px;

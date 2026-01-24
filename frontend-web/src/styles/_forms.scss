@@ -76,6 +76,21 @@
   }
 }
 
+// === Date Input (fix mobile overflow) ===
+input[type="date"].input,
+input[type="datetime-local"].input,
+input[type="time"].input {
+  max-width: 100%;
+  box-sizing: border-box;
+  -webkit-appearance: none;
+  appearance: none;
+  min-width: 0; // Permet au flexbox de réduire la taille
+
+  @media (max-width: 767px) {
+    width: 100%;
+  }
+}
+
 // === Textarea ===
 .textarea {
   @extend .input;

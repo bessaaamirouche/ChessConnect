@@ -517,11 +517,32 @@ export class AdminInvoicesComponent implements OnInit {
     return (cents / 100).toFixed(2) + ' EUR';
   }
 
-  formatDate(dateString: string): string {
+  formatDate(dateString: string | any): string {
     if (!dateString) return '-';
-    // Handle both ISO format and dd/MM/yyyy HH:mm format
-    const date = new Date(dateString.replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3-$2-$1'));
-    if (isNaN(date.getTime())) return dateString;
+
+    let date: Date;
+
+    // Handle array format [year, month, day, hour, minute, second]
+    if (Array.isArray(dateString)) {
+      const [year, month, day, hour = 0, minute = 0] = dateString;
+      date = new Date(year, month - 1, day, hour, minute);
+    }
+    // Handle ISO format (2026-01-25T10:30:00)
+    else if (typeof dateString === 'string' && dateString.includes('T')) {
+      date = new Date(dateString);
+    }
+    // Handle dd/MM/yyyy format
+    else if (typeof dateString === 'string' && dateString.match(/^\d{2}\/\d{2}\/\d{4}/)) {
+      const [day, month, year] = dateString.split(/[\/\s]/);
+      date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    }
+    // Fallback
+    else {
+      date = new Date(dateString);
+    }
+
+    if (isNaN(date.getTime())) return '-';
+
     return date.toLocaleDateString('fr-FR', {
       day: '2-digit',
       month: '2-digit',

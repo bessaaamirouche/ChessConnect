@@ -181,6 +181,7 @@ public class AvailabilityService {
 
         // Get all availabilities for the teacher
         List<Availability> allAvailabilities = availabilityRepository.findByTeacherIdAndIsActiveTrue(teacherId);
+        log.info("Found {} active availabilities for teacher {}", allAvailabilities.size(), teacherId);
 
         // For non-premium users, filter out availabilities created less than 24h ago
         LocalDateTime priorityCutoff = LocalDateTime.now().minusHours(PREMIUM_PRIORITY_HOURS);
@@ -189,6 +190,8 @@ public class AvailabilityService {
                 : allAvailabilities.stream()
                     .filter(a -> a.getCreatedAt() == null || a.getCreatedAt().isBefore(priorityCutoff))
                     .toList();
+
+        log.info("After premium filter (isPremium={}): {} availabilities", isPremiumUser, availabilities.size());
 
         // Get existing lessons to check for conflicts
         LocalDateTime startDateTime = startDate.atStartOfDay();

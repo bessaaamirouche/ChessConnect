@@ -7,6 +7,8 @@ import com.chessconnect.security.UserDetailsImpl;
 import com.chessconnect.service.AvailabilityService;
 import com.chessconnect.service.SubscriptionService;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,6 +21,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/availabilities")
 public class AvailabilityController {
+
+    private static final Logger log = LoggerFactory.getLogger(AvailabilityController.class);
 
     private final AvailabilityService availabilityService;
     private final SubscriptionService subscriptionService;
@@ -102,7 +106,15 @@ public class AvailabilityController {
         // Check if user is premium for priority access
         boolean isPremium = userDetails != null && subscriptionService.isPremium(userDetails.getId());
 
+        log.info("Getting slots for teacher {}: user={}, isPremium={}, startDate={}, endDate={}",
+                teacherId,
+                userDetails != null ? userDetails.getId() : "anonymous",
+                isPremium,
+                startDate,
+                endDate);
+
         List<TimeSlotResponse> slots = availabilityService.getAvailableSlots(teacherId, startDate, endDate, isPremium);
+        log.info("Returning {} slots for teacher {}", slots.size(), teacherId);
         return ResponseEntity.ok(slots);
     }
 }

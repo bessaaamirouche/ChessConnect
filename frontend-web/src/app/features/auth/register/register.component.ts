@@ -26,6 +26,7 @@ export class RegisterComponent {
   success = signal(false);
   availableLanguages = AVAILABLE_LANGUAGES;
   selectedLanguages = signal<string[]>(['FR']);
+  maxBirthDate = new Date().toISOString().split('T')[0]; // Today's date in YYYY-MM-DD format
 
   constructor(
     private fb: FormBuilder,

@@ -55,6 +55,9 @@ export class SettingsComponent implements OnInit {
   selectedLanguages = signal<string[]>(['FR']);
   originalLanguages = signal<string[]>(['FR']);
 
+  // Date constraints
+  maxBirthDate = new Date().toISOString().split('T')[0];
+
   // Track if languages have changed
   languagesChanged = computed(() => {
     const current = this.selectedLanguages().slice().sort();

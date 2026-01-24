@@ -38,7 +38,7 @@
             <div class="form-grid">
               <div class="form-group">
                 <label class="form-group__label">Date de naissance</label>
-                <input type="date" formControlName="birthDate" class="input input--sm">
+                <input type="date" formControlName="birthDate" class="input input--sm" min="1920-01-01" [max]="maxBirthDate">
               </div>
               <div class="form-group">
                 <label class="form-group__label">Classement ELO</label>

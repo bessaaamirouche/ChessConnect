@@ -149,6 +149,16 @@ $sidebar-collapsed-width: 95px;
   overflow-y: auto;
   padding-right: var(--space-xs);
 
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    max-height: none;
+    gap: var(--space-md);
+  }
+
   &::-webkit-scrollbar {
     width: 6px;
   }
@@ -185,6 +195,11 @@ $sidebar-collapsed-width: 95px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+
+    @media (max-width: 768px) {
+      padding: var(--space-sm) var(--space-md);
+      font-size: 0.9375rem;
+    }
   }
 
   &__slots {
@@ -194,6 +209,17 @@ $sidebar-collapsed-width: 95px;
     padding: var(--space-xs);
     max-height: 100px;
     overflow-y: auto;
+
+    @media (max-width: 768px) {
+      grid-template-columns: repeat(4, 1fr);
+      max-height: none;
+      gap: var(--space-sm);
+      padding: var(--space-sm);
+    }
+
+    @media (max-width: 480px) {
+      grid-template-columns: repeat(3, 1fr);
+    }
 
     &::-webkit-scrollbar {
       width: 3px;
@@ -216,6 +242,12 @@ $sidebar-collapsed-width: 95px;
   transition: all 0.15s ease;
   position: relative;
   text-align: center;
+
+  @media (max-width: 768px) {
+    padding: 10px 12px;
+    font-size: 0.9375rem;
+    border-radius: var(--radius-md);
+  }
 
   &--available {
     background: var(--bg-primary);

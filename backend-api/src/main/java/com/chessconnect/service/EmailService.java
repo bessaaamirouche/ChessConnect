@@ -25,8 +25,11 @@ public class EmailService {
     @Value("${spring.mail.username:noreply@chessconnect.fr}")
     private String fromEmail;
 
-    @Value("${app.name:ChessConnect}")
+    @Value("${app.name:Mychess}")
     private String appName;
+
+    @Value("${app.logo-url:https://mychess.fr/assets/logo.png}")
+    private String logoUrl;
 
     @Value("${spring.mail.enabled:false}")
     private boolean emailEnabled;
@@ -48,6 +51,7 @@ public class EmailService {
             Context context = new Context();
             context.setVariables(variables);
             context.setVariable("appName", appName);
+            context.setVariable("logoUrl", logoUrl);
 
             String htmlContent = templateEngine.process("email/" + templateName, context);
 
@@ -73,7 +77,7 @@ public class EmailService {
                 "firstName", firstName,
                 "resetLink", resetLink
         );
-        sendEmail(to, "Reinitialisation de votre mot de passe - ChessConnect",
+        sendEmail(to, "Reinitialisation de votre mot de passe - Mychess",
                 "password-reset", variables);
     }
 
@@ -87,7 +91,7 @@ public class EmailService {
                 "lessonTime", lessonTime,
                 "meetingLink", meetingLink
         );
-        sendEmail(to, "Rappel: Votre cours d'echecs dans 1 heure - ChessConnect",
+        sendEmail(to, "Rappel: Votre cours d'echecs dans 1 heure - Mychess",
                 "lesson-reminder", variables);
     }
 
@@ -100,7 +104,7 @@ public class EmailService {
                 "availabilityInfo", availabilityInfo,
                 "bookingLink", bookingLink
         );
-        sendEmail(to, teacherName + " a publie de nouveaux creneaux - ChessConnect",
+        sendEmail(to, teacherName + " a publie de nouveaux creneaux - Mychess",
                 "new-availability-notification", variables);
     }
 
@@ -113,6 +117,6 @@ public class EmailService {
                 "subject", subject,
                 "messageContent", messageContent
         );
-        sendEmail(adminEmail, "[ChessConnect] " + subject, "contact-admin", variables);
+        sendEmail(adminEmail, "[Mychess] " + subject, "contact-admin", variables);
     }
 }

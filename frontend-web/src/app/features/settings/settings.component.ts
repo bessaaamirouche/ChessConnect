@@ -111,7 +111,11 @@ export class SettingsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadProfile();
+    // Load full profile from server (includes avatarUrl)
+    this.authService.loadCurrentUserProfile().subscribe({
+      next: () => this.loadProfile(),
+      error: () => this.loadProfile() // Fallback to local data
+    });
 
     // Load Stripe Connect status and balance for teachers
     if (this.authService.isTeacher()) {

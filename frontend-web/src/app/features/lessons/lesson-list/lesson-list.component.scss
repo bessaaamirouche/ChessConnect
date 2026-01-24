@@ -95,6 +95,11 @@
     border-color: var(--border-default);
   }
 
+  @media (max-width: 768px) {
+    flex-wrap: wrap;
+    padding: var(--space-sm);
+  }
+
   &__time {
     display: flex;
     flex-direction: column;
@@ -124,8 +129,8 @@
   }
 
   &__content {
-    flex: 0 0 auto;
-    min-width: 180px;
+    flex: 1;
+    min-width: 0;
 
     h4 {
       font-size: 0.8125rem;
@@ -133,10 +138,15 @@
       color: var(--text-primary);
       margin-bottom: 2px;
     }
+
+    @media (max-width: 768px) {
+      flex: 1 1 calc(100% - 60px);
+    }
   }
 
   &__meta {
     display: flex;
+    flex-wrap: wrap;
     gap: var(--space-xs);
   }
 
@@ -144,8 +154,13 @@
     display: flex;
     align-items: center;
     gap: var(--space-xs);
-    flex: 1;
-    justify-content: flex-end;
+    flex-shrink: 0;
+
+    @media (max-width: 768px) {
+      width: 100%;
+      justify-content: flex-end;
+      margin-top: var(--space-xs);
+    }
   }
 }
 
@@ -640,20 +655,17 @@
   }
 }
 
-// Confirm group with next course label
-.lesson-card__confirm-group {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-md);
-  flex: 1;
-}
-
+// Next course label (centered between content and actions)
 .next-course-label {
+  flex: 1;
+  text-align: center;
   font-size: 0.8125rem;
   font-weight: 500;
   color: var(--gold-400);
-  white-space: nowrap;
+
+  @media (max-width: 768px) {
+    display: none;
+  }
 }
 
 // Modal Overlay

@@ -85,16 +85,15 @@
                 </div>
               </div>
 
+              @if (lesson.status === 'PENDING' && authService.isTeacher() && getNextCourse(lesson.studentId); as nextCourse) {
+                <div class="next-course-label">Prochain cours : {{ nextCourse.title }}</div>
+              }
+
               <div class="lesson-card__actions">
                 @if (lesson.status === 'PENDING' && authService.isTeacher()) {
-                  <div class="lesson-card__confirm-group">
-                    @if (getNextCourse(lesson.studentId); as nextCourse) {
-                      <span class="next-course-label">Prochain cours : {{ nextCourse.title }}</span>
-                    }
-                    <button class="btn btn--primary btn--sm" (click)="confirmLesson(lesson.id)">
-                      Confirmer
-                    </button>
-                  </div>
+                  <button class="btn btn--primary btn--sm" (click)="confirmLesson(lesson.id)">
+                    Confirmer
+                  </button>
                 }
                 @if (lesson.status === 'CONFIRMED' && lesson.zoomLink) {
                   @if (canJoinLesson(lesson)) {

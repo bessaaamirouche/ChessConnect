@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 })
 public class Lesson {
 
-    public static final int COMMISSION_RATE = 10; // 10%
+    public static final int COMMISSION_RATE = 15; // 15% (12.5% platform + 2.5% Stripe)
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -38,8 +38,8 @@ public class InvoiceService {
     private static final String PLATFORM_SIRET = ""; // To be configured
     private static final String PLATFORM_EMAIL = "contact@mychess.fr";
 
-    // Commission rates
-    private static final double STANDARD_COMMISSION_RATE = 12.5; // 12.5%
+    // Commission rates (12.5% platform + 2.5% Stripe = 15% total)
+    private static final double STANDARD_COMMISSION_RATE = 12.5; // 12.5% platform
     private static final double PROMO_COMMISSION_RATE = 2.5;     // 2.5% with CHESS2026
 
     @Value("${app.invoices.storage-path:/var/invoices}")
@@ -573,6 +573,13 @@ public class InvoiceService {
      */
     @Transactional
     public Invoice generateSubscriptionInvoice(Long studentId, int amountCents, String stripePaymentIntentId) {
+        // Check if invoice already exists for this payment
+        if (stripePaymentIntentId != null && invoiceRepository.existsByStripePaymentIntentId(stripePaymentIntentId)) {
+            log.info("Subscription invoice already exists for payment intent: {}", stripePaymentIntentId);
+            List<Invoice> existing = invoiceRepository.findByStripePaymentIntentId(stripePaymentIntentId);
+            return existing.isEmpty() ? null : existing.get(0);
+        }
+
         User student = userRepository.findById(studentId)
                 .orElseThrow(() -> new RuntimeException("Student not found: " + studentId));
 

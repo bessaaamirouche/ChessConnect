@@ -121,4 +121,18 @@ export class StripeConnectService {
       })
     );
   }
+
+  /**
+   * Recalculate balance from scratch based on completed lessons
+   * Useful to fix any discrepancies
+   */
+  recalculateBalance(): Observable<{ success: boolean; message?: string; availableBalanceCents?: number; totalEarnedCents?: number; totalWithdrawnCents?: number; lessonsCompleted?: number }> {
+    this.loading.set(true);
+    return this.http.post<{ success: boolean; message?: string; availableBalanceCents?: number; totalEarnedCents?: number; totalWithdrawnCents?: number; lessonsCompleted?: number }>(`${this.apiUrl}/recalculate-balance`, {}).pipe(
+      tap({
+        next: () => this.loading.set(false),
+        error: () => this.loading.set(false)
+      })
+    );
+  }
 }

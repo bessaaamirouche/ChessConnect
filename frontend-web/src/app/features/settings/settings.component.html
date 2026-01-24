@@ -291,6 +291,45 @@
             </div>
           }
         </div>
+
+        <!-- Teacher Balance -->
+        @if (teacherBalance(); as balance) {
+          <div class="card">
+            <h3 class="card__title">Mes gains</h3>
+
+            <div class="balance-grid">
+              <div class="balance-item">
+                <span class="balance-item__label">Credit disponible</span>
+                <span class="balance-item__value">{{ formatCents(balance.availableBalanceCents) }}</span>
+              </div>
+              <div class="balance-item">
+                <span class="balance-item__label">Total gagne</span>
+                <span class="balance-item__value">{{ formatCents(balance.totalEarnedCents) }}</span>
+              </div>
+              <div class="balance-item">
+                <span class="balance-item__label">Total retire</span>
+                <span class="balance-item__value">{{ formatCents(balance.totalWithdrawnCents) }}</span>
+              </div>
+            </div>
+
+            @if (balance.availableBalanceCents !== balance.totalEarnedCents - balance.totalWithdrawnCents) {
+              <div class="balance-warning">
+                <p class="text-muted text-sm">Une incohérence a été détectée dans votre balance.</p>
+                <button
+                  class="btn btn--ghost btn--sm"
+                  (click)="recalculateBalance()"
+                  [disabled]="recalculatingBalance()"
+                >
+                  @if (recalculatingBalance()) {
+                    <span class="spinner spinner--sm"></span>
+                  } @else {
+                    Recalculer la balance
+                  }
+                </button>
+              </div>
+            }
+          </div>
+        }
       }
     </div>
 </div>

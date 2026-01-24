@@ -260,6 +260,14 @@ public class PaymentController {
 
             log.info("Subscription {} activated for student {} after payment confirmation", subscription.getId(), userId);
 
+            // Generate subscription invoice
+            int amountCents = session.getAmountTotal() != null ? session.getAmountTotal().intValue() : plan.getPriceCents();
+            String paymentIntentId = session.getPaymentIntent();
+            if (paymentIntentId != null) {
+                invoiceService.generateSubscriptionInvoice(userId, amountCents, paymentIntentId);
+                log.info("Subscription invoice generated for user {}", userId);
+            }
+
             return ResponseEntity.ok(Map.of(
                     "success", true,
                     "subscriptionId", subscription.getId(),
@@ -332,6 +340,23 @@ public class PaymentController {
             var lesson = lessonService.bookLesson(userId, bookRequest);
             log.info("Lesson {} booked for student {} after payment confirmation", lesson.id(), userId);
 
+            // Generate invoices
+            String paymentIntentId = session.getPaymentIntent();
+            int amountCents = session.getAmountTotal() != null ? session.getAmountTotal().intValue() : 0;
+            boolean promoApplied = "true".equals(metadata.get("promo_applied"));
+
+            if (paymentIntentId != null && amountCents > 0) {
+                invoiceService.generateInvoicesForPayment(
+                        paymentIntentId,
+                        userId,
+                        teacherId,
+                        lesson.id(),
+                        amountCents,
+                        promoApplied
+                );
+                log.info("Lesson invoices generated for lesson {}", lesson.id());
+            }
+
             return ResponseEntity.ok(Map.of(
                     "success", true,
                     "lessonId", lesson.id(),
@@ -398,17 +423,8 @@ public class PaymentController {
                 String stripeSubId = session.getSubscription();
 
                 subscriptionService.activateSubscription(stripeSubId, userId, plan);
-                log.info("Subscription activated for user {} via checkout", userId);
-
-                // Generate subscription invoice
-                try {
-                    int amountCents = session.getAmountTotal() != null ? session.getAmountTotal().intValue() : plan.getPriceCents();
-                    String paymentIntentId = session.getPaymentIntent();
-                    invoiceService.generateSubscriptionInvoice(userId, amountCents, paymentIntentId);
-                    log.info("Subscription invoice generated for user {}", userId);
-                } catch (Exception e) {
-                    log.error("Failed to generate subscription invoice for user {}: {}", userId, e.getMessage());
-                }
+                log.info("Subscription activated for user {} via checkout webhook", userId);
+                // Note: Invoice is generated in confirmSubscriptionPayment endpoint
             } else if ("payment".equals(mode) && "ONE_TIME_LESSON".equals(metadata.get("type"))) {
                 // Handle one-time lesson payment
                 Long studentId = Long.parseLong(metadata.get("user_id"));
@@ -434,54 +450,11 @@ public class PaymentController {
     }
 
     /**
-     * Handle payment_intent.succeeded event - generate invoices.
+     * Handle payment_intent.succeeded event.
+     * Note: Invoices are now generated in the confirm endpoints, not via webhooks.
      */
     private void handlePaymentIntentSucceeded(Event event) {
-        try {
-            PaymentIntent paymentIntent = (PaymentIntent) event.getDataObjectDeserializer()
-                    .getObject()
-                    .orElseThrow(() -> new RuntimeException("Failed to deserialize PaymentIntent"));
-
-            Map<String, String> metadata = paymentIntent.getMetadata();
-            if (metadata == null || metadata.isEmpty()) {
-                log.debug("PaymentIntent has no metadata, skipping invoice generation");
-                return;
-            }
-
-            // Check if this is a lesson payment
-            if (!"ONE_TIME_LESSON".equals(metadata.get("type"))) {
-                log.debug("PaymentIntent is not for a lesson, skipping invoice generation");
-                return;
-            }
-
-            String paymentIntentId = paymentIntent.getId();
-            Long studentId = metadata.get("user_id") != null ? Long.parseLong(metadata.get("user_id")) : null;
-            Long teacherId = metadata.get("teacher_id") != null ? Long.parseLong(metadata.get("teacher_id")) : null;
-            Long lessonId = metadata.get("lesson_id") != null ? Long.parseLong(metadata.get("lesson_id")) : null;
-            boolean promoApplied = "true".equals(metadata.get("promo_applied"));
-
-            if (studentId == null || teacherId == null) {
-                log.warn("Missing student or teacher ID in PaymentIntent metadata: {}", paymentIntentId);
-                return;
-            }
-
-            int amountCents = paymentIntent.getAmount().intValue();
-
-            log.info("Generating invoices for PaymentIntent {}: student={}, teacher={}, amount={}, promo={}",
-                    paymentIntentId, studentId, teacherId, amountCents, promoApplied);
-
-            invoiceService.generateInvoicesForPayment(
-                    paymentIntentId,
-                    studentId,
-                    teacherId,
-                    lessonId,
-                    amountCents,
-                    promoApplied
-            );
-
-        } catch (Exception e) {
-            log.error("Error handling payment_intent.succeeded", e);
-        }
+        log.info("PaymentIntent succeeded event received - invoices will be generated via confirm endpoint");
     }
 
     private void handleSubscriptionUpdated(Event event) {

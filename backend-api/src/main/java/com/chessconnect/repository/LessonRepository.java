@@ -136,4 +136,8 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
 
     @Query("SELECT COUNT(l) FROM Lesson l WHERE l.teacher.id = :teacherId AND l.status = 'COMPLETED' AND l.scheduledAt BETWEEN :start AND :end")
     Integer countTeacherCompletedBetween(@Param("teacherId") Long teacherId, @Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+
+    // For balance recalculation: find all credited lessons for a teacher
+    @Query("SELECT l FROM Lesson l WHERE l.teacher.id = :teacherId AND l.earningsCredited = true")
+    List<Lesson> findByTeacherIdAndEarningsCreditedTrue(@Param("teacherId") Long teacherId);
 }

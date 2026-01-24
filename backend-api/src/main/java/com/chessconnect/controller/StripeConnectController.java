@@ -264,6 +264,34 @@ public class StripeConnectController {
     }
 
     /**
+     * Recalculate teacher balance from scratch based on completed lessons.
+     * Useful to fix any discrepancies.
+     */
+    @PostMapping("/recalculate-balance")
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseEntity<Map<String, Object>> recalculateBalance(
+            @AuthenticationPrincipal UserDetailsImpl userDetails
+    ) {
+        try {
+            var balance = teacherBalanceService.recalculateBalance(userDetails.getId());
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", "Balance recalculee avec succes",
+                    "availableBalanceCents", balance.availableBalanceCents(),
+                    "totalEarnedCents", balance.totalEarnedCents(),
+                    "totalWithdrawnCents", balance.totalWithdrawnCents(),
+                    "lessonsCompleted", balance.lessonsCompleted()
+            ));
+        } catch (Exception e) {
+            log.error("Error recalculating balance", e);
+            return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "message", e.getMessage()
+            ));
+        }
+    }
+
+    /**
      * Teacher withdraws a custom amount to their Stripe Connect account.
      * Minimum withdrawal: 100€ (10000 cents)
      */

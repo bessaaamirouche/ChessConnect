@@ -61,7 +61,7 @@ public class TeacherBalanceService {
             if (teacherEarnings != null && teacherEarnings > 0) {
                 earningsCents = teacherEarnings;
             } else if (lesson.getPriceCents() != null && lesson.getPriceCents() > 0) {
-                // Fallback: calculer les gains à partir du prix (85% pour le coach)
+                // Fallback: calculer les gains à partir du prix (85% pour le coach, 15% commission)
                 earningsCents = (lesson.getPriceCents() * 85) / 100;
                 log.warn("TeacherEarningsCents was null for lesson {}, calculated from price: {}€",
                         lesson.getId(), earningsCents / 100.0);
@@ -119,5 +119,57 @@ public class TeacherBalanceService {
 
         log.info("Migration completed: {} lessons credited", count);
         return count;
+    }
+
+    /**
+     * Recalculate teacher balance from scratch based on completed lessons.
+     * Fixes any discrepancies between availableBalanceCents and totalEarnedCents.
+     */
+    @Transactional
+    public TeacherBalanceResponse recalculateBalance(Long teacherId) {
+        User teacher = userRepository.findById(teacherId)
+                .orElseThrow(() -> new RuntimeException("Teacher not found"));
+
+        TeacherBalance balance = teacherBalanceRepository.findByTeacherId(teacherId)
+                .orElseGet(() -> createBalanceForTeacher(teacherId));
+
+        // Get all completed lessons with earnings credited
+        List<Lesson> creditedLessons = lessonRepository.findByTeacherIdAndEarningsCreditedTrue(teacherId);
+
+        // Recalculate total earned
+        int totalEarnedCents = 0;
+        for (Lesson lesson : creditedLessons) {
+            if (Boolean.TRUE.equals(lesson.getIsFromSubscription())) {
+                totalEarnedCents += SUBSCRIPTION_LESSON_PRICE_CENTS;
+            } else {
+                Integer earnings = lesson.getTeacherEarningsCents();
+                if (earnings != null && earnings > 0) {
+                    totalEarnedCents += earnings;
+                } else if (lesson.getPriceCents() != null) {
+                    totalEarnedCents += (lesson.getPriceCents() * 85) / 100;
+                }
+            }
+        }
+
+        // Keep existing withdrawn amount
+        int totalWithdrawnCents = balance.getTotalWithdrawnCents() != null ? balance.getTotalWithdrawnCents() : 0;
+
+        // Available = earned - withdrawn
+        int availableBalanceCents = totalEarnedCents - totalWithdrawnCents;
+
+        // Update balance
+        balance.setTotalEarnedCents(totalEarnedCents);
+        balance.setAvailableBalanceCents(availableBalanceCents);
+        balance.setLessonsCompleted(creditedLessons.size());
+        teacherBalanceRepository.save(balance);
+
+        log.info("Recalculated balance for teacher {}: available={}€, totalEarned={}€, withdrawn={}€, lessons={}",
+                teacherId,
+                availableBalanceCents / 100.0,
+                totalEarnedCents / 100.0,
+                totalWithdrawnCents / 100.0,
+                creditedLessons.size());
+
+        return TeacherBalanceResponse.from(balance);
     }
 }

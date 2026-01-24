@@ -81,6 +81,7 @@ export class SettingsComponent implements OnInit {
   teacherBalance = signal<{ availableBalanceCents: number; totalEarnedCents: number; totalWithdrawnCents: number } | null>(null);
   withdrawing = signal(false);
   withdrawAmount = signal(100); // Default 100€ minimum
+  recalculatingBalance = signal(false);
 
   private dialogService = inject(DialogService);
 
@@ -467,6 +468,28 @@ export class SettingsComponent implements OnInit {
       error: (err) => {
         this.withdrawing.set(false);
         this.stripeConnectError.set(err.error?.message || 'Erreur lors du retrait');
+      }
+    });
+  }
+
+  recalculateBalance(): void {
+    this.recalculatingBalance.set(true);
+    this.stripeConnectError.set(null);
+
+    this.stripeConnectService.recalculateBalance().subscribe({
+      next: (response) => {
+        this.recalculatingBalance.set(false);
+        if (response.success) {
+          this.stripeConnectSuccess.set('Balance recalculee avec succes !');
+          this.loadTeacherBalance();
+          setTimeout(() => this.stripeConnectSuccess.set(null), 3000);
+        } else {
+          this.stripeConnectError.set(response.message || 'Erreur lors du recalcul');
+        }
+      },
+      error: (err) => {
+        this.recalculatingBalance.set(false);
+        this.stripeConnectError.set(err.error?.message || 'Erreur lors du recalcul');
       }
     });
   }

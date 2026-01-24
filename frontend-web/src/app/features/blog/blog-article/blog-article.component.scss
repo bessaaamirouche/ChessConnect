@@ -206,6 +206,17 @@ $text-muted: #6b6965;
     font-weight: 600;
   }
 
+  a {
+    color: $gold;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    transition: color var(--transition-fast);
+
+    &:hover {
+      color: $gold-light;
+    }
+  }
+
   ul, ol {
     margin-bottom: var(--space-md);
     padding-left: var(--space-xl);

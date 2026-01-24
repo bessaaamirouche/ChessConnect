@@ -5,13 +5,14 @@ import { ArticleService } from '../../../core/services/article.service';
 import { SeoService } from '../../../core/services/seo.service';
 import { ArticleDetail, ARTICLE_CATEGORIES } from '../../../core/models/article.model';
 import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.directive';
+import { MarkdownPipe } from '../../../shared/pipes/markdown.pipe';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { heroClock, heroArrowLeft, heroArrowRight } from '@ng-icons/heroicons/outline';
 
 @Component({
   selector: 'app-blog-article',
   standalone: true,
-  imports: [RouterLink, DatePipe, NgIconComponent, ScrollRevealDirective],
+  imports: [RouterLink, DatePipe, NgIconComponent, ScrollRevealDirective, MarkdownPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({ heroClock, heroArrowLeft, heroArrowRight })],
   templateUrl: './blog-article.component.html',

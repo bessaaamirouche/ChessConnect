@@ -48,7 +48,7 @@
     <main class="article-content">
       <div class="article-content__container">
         <article class="article-body" appScrollReveal="fade-up" [revealDelay]="200">
-          <div class="prose" [innerHTML]="article()!.content"></div>
+          <div class="prose" [innerHTML]="article()!.content | markdown"></div>
         </article>
 
         <!-- Share -->

@@ -35,7 +35,7 @@ public class InvoiceService {
 
     // Platform info for invoices (from KBIS)
     private static final String PLATFORM_NAME = "Mychess.fr";
-    private static final String PLATFORM_OWNER = "Bessaa Amirouche EI";
+    private static final String PLATFORM_OWNER = "CANDLE";
     private static final String PLATFORM_ADDRESS = "10 rue de Penthievre, 75008 Paris";
     private static final String PLATFORM_SIREN = "834 446 510";
     private static final String PLATFORM_RCS = "R.C.S. Paris";

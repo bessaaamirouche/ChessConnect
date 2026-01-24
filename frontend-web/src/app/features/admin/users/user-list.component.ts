@@ -178,9 +178,18 @@ import { DialogService } from '../../../core/services/dialog.service';
         color: var(--text-primary);
       }
 
-      @media (max-width: 767px) {
+      @media (max-width: 48rem) {
+        flex-direction: column;
+        align-items: flex-start;
+
         h1 {
           font-size: 1.25rem;
+        }
+      }
+
+      @media (max-width: 26rem) {
+        h1 {
+          font-size: 1.125rem;
         }
       }
     }
@@ -188,13 +197,20 @@ import { DialogService } from '../../../core/services/dialog.service';
     .filters {
       display: flex;
       gap: var(--space-md);
+      flex-wrap: wrap;
+      width: 100%;
+
+      @media (max-width: 48rem) {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
     }
 
     .table-container {
       background: var(--bg-secondary);
-      border-radius: 12px;
+      border-radius: 0.75rem;
       overflow: hidden;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+      box-shadow: 0 0.0625rem 0.1875rem rgba(0, 0, 0, 0.1), 0 0.0625rem 0.125rem rgba(0, 0, 0, 0.06);
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
     }
@@ -202,17 +218,12 @@ import { DialogService } from '../../../core/services/dialog.service';
     .table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 850px;
+      min-width: 53rem;
 
       th, td {
-        padding: 14px 16px;
+        padding: 0.875rem 1rem;
         text-align: left;
         vertical-align: middle;
-
-        @media (max-width: 767px) {
-          padding: 10px 12px;
-          font-size: 0.8125rem;
-        }
       }
 
       th {
@@ -222,13 +233,13 @@ import { DialogService } from '../../../core/services/dialog.service';
         letter-spacing: 0.04em;
         color: var(--text-muted);
         background: var(--bg-tertiary);
-        border-bottom: 1px solid var(--border-subtle);
+        border-bottom: 0.0625rem solid var(--border-subtle);
       }
 
       td {
         font-size: 0.875rem;
         color: var(--text-primary);
-        border-bottom: 1px solid rgba(128, 128, 128, 0.1);
+        border-bottom: 0.0625rem solid rgba(128, 128, 128, 0.1);
       }
 
       tbody tr {
@@ -247,7 +258,7 @@ import { DialogService } from '../../../core/services/dialog.service';
     .user-info {
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      gap: 0.125rem;
 
       strong {
         font-weight: 500;
@@ -268,10 +279,11 @@ import { DialogService } from '../../../core/services/dialog.service';
     .badge {
       display: inline-flex;
       align-items: center;
-      padding: 4px 10px;
+      padding: 0.25rem 0.625rem;
       font-size: 0.6875rem;
       font-weight: 500;
-      border-radius: 6px;
+      border-radius: 0.375rem;
+      white-space: nowrap;
 
       &--student {
         background: rgba(59, 130, 246, 0.1);
@@ -301,18 +313,19 @@ import { DialogService } from '../../../core/services/dialog.service';
 
     .actions-cell {
       display: flex;
-      gap: 8px;
+      gap: 0.5rem;
       align-items: center;
     }
 
     .action-btn {
-      padding: 6px 12px;
+      padding: 0.375rem 0.75rem;
       font-size: 0.75rem;
       font-weight: 500;
-      border-radius: 6px;
+      border-radius: 0.375rem;
       cursor: pointer;
       transition: all 0.15s ease;
       border: none;
+      white-space: nowrap;
 
       &:disabled {
         opacity: 0.5;
@@ -355,25 +368,36 @@ import { DialogService } from '../../../core/services/dialog.service';
       right: 0;
       bottom: 0;
       background: rgba(0, 0, 0, 0.5);
-      backdrop-filter: blur(4px);
+      backdrop-filter: blur(0.25rem);
       display: flex;
       align-items: center;
       justify-content: center;
       z-index: 1000;
+      padding: 1rem;
     }
 
     .modal {
       background: var(--bg-secondary);
-      border-radius: 16px;
+      border-radius: 1rem;
       padding: var(--space-xl);
-      max-width: 400px;
-      width: 90%;
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      max-width: 25rem;
+      width: 100%;
+      box-shadow: 0 1.25rem 1.5625rem -0.3125rem rgba(0, 0, 0, 0.1), 0 0.625rem 0.625rem -0.3125rem rgba(0, 0, 0, 0.04);
+
+      @media (max-width: 26rem) {
+        padding: 1rem;
+        border-radius: 0.75rem;
+      }
 
       h3 {
         margin-bottom: var(--space-md);
         color: var(--text-primary);
         font-weight: 600;
+        font-size: 1.125rem;
+
+        @media (max-width: 26rem) {
+          font-size: 1rem;
+        }
       }
 
       p {
@@ -381,6 +405,10 @@ import { DialogService } from '../../../core/services/dialog.service';
         margin-bottom: var(--space-sm);
         font-size: 0.9375rem;
         line-height: 1.5;
+
+        @media (max-width: 26rem) {
+          font-size: 0.875rem;
+        }
       }
 
       .warning {
@@ -395,18 +423,28 @@ import { DialogService } from '../../../core/services/dialog.service';
       gap: var(--space-md);
       justify-content: flex-end;
       margin-top: var(--space-lg);
+
+      @media (max-width: 26rem) {
+        flex-direction: column-reverse;
+        gap: 0.5rem;
+      }
     }
 
     .btn--ghost {
       background: transparent;
       color: var(--text-secondary);
-      border: 1px solid var(--border-subtle);
-      padding: 8px 16px;
+      border: 0.0625rem solid var(--border-subtle);
+      padding: 0.5rem 1rem;
       font-size: 0.875rem;
       font-weight: 500;
-      border-radius: 8px;
+      border-radius: 0.5rem;
       cursor: pointer;
       transition: all 0.15s ease;
+
+      @media (max-width: 26rem) {
+        width: 100%;
+        padding: 0.75rem 1rem;
+      }
 
       &:hover {
         background: var(--bg-tertiary);
@@ -417,12 +455,17 @@ import { DialogService } from '../../../core/services/dialog.service';
       background: #ef4444;
       color: white;
       border: none;
-      padding: 8px 16px;
+      padding: 0.5rem 1rem;
       font-size: 0.875rem;
       font-weight: 500;
-      border-radius: 8px;
+      border-radius: 0.5rem;
       cursor: pointer;
       transition: all 0.15s ease;
+
+      @media (max-width: 26rem) {
+        width: 100%;
+        padding: 0.75rem 1rem;
+      }
 
       &:hover:not(:disabled) {
         background: #dc2626;
@@ -442,6 +485,12 @@ import { DialogService } from '../../../core/services/dialog.service';
       padding: var(--space-lg);
       color: var(--text-secondary);
       font-size: 0.875rem;
+      flex-wrap: wrap;
+
+      @media (max-width: 26rem) {
+        font-size: 0.8125rem;
+        gap: 0.5rem;
+      }
     }
 
     .loading {
@@ -451,13 +500,19 @@ import { DialogService } from '../../../core/services/dialog.service';
     }
 
     .input--sm {
-      padding: 8px 12px;
+      padding: 0.5rem 0.75rem;
       font-size: 0.875rem;
-      border: 1px solid var(--border-subtle);
-      border-radius: 8px;
+      border: 0.0625rem solid var(--border-subtle);
+      border-radius: 0.5rem;
       background: var(--bg-tertiary);
       color: var(--text-primary);
       transition: all 0.15s ease;
+      width: 100%;
+      min-width: 0;
+
+      @media (min-width: 48rem) {
+        width: auto;
+      }
 
       &:focus {
         outline: none;
@@ -469,24 +524,35 @@ import { DialogService } from '../../../core/services/dialog.service';
       position: relative;
       display: flex;
       align-items: center;
+      width: 100%;
+
+      @media (min-width: 48rem) {
+        width: auto;
+      }
     }
 
     .search-icon {
       position: absolute;
-      left: 12px;
+      left: 0.75rem;
       color: var(--text-muted);
       pointer-events: none;
     }
 
     .search-input {
-      padding: 8px 36px 8px 36px;
+      padding: 0.5rem 2.25rem;
       font-size: 0.875rem;
-      border: 1px solid var(--border-subtle);
-      border-radius: 8px;
+      border: 0.0625rem solid var(--border-subtle);
+      border-radius: 0.5rem;
       background: var(--bg-tertiary);
       color: var(--text-primary);
-      min-width: 280px;
+      width: 100%;
+      min-width: 0;
       transition: all 0.15s ease;
+
+      @media (min-width: 48rem) {
+        min-width: 17.5rem;
+        width: auto;
+      }
 
       &::placeholder {
         color: var(--text-muted);
@@ -497,17 +563,13 @@ import { DialogService } from '../../../core/services/dialog.service';
         border-color: var(--gold-500);
         background: var(--bg-secondary);
       }
-
-      @media (max-width: 767px) {
-        min-width: 200px;
-      }
     }
 
     .search-clear {
       position: absolute;
-      right: 8px;
-      width: 20px;
-      height: 20px;
+      right: 0.5rem;
+      width: 1.25rem;
+      height: 1.25rem;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -516,7 +578,7 @@ import { DialogService } from '../../../core/services/dialog.service';
       border-radius: 50%;
       color: var(--text-muted);
       cursor: pointer;
-      font-size: 14px;
+      font-size: 0.875rem;
       line-height: 1;
       transition: all 0.15s ease;
 
@@ -530,9 +592,9 @@ import { DialogService } from '../../../core/services/dialog.service';
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 12px 16px;
+      padding: 0.75rem 1rem;
       background: var(--bg-tertiary);
-      border-bottom: 1px solid var(--border-subtle);
+      border-bottom: 0.0625rem solid var(--border-subtle);
     }
 
     .results-count {

@@ -228,6 +228,10 @@ public class LessonService {
 
         // Handle CANCELLED
         if (newStatus == LessonStatus.CANCELLED) {
+            // Prevent cancellation if lesson has already started
+            if (lesson.getScheduledAt().isBefore(LocalDateTime.now())) {
+                throw new IllegalArgumentException("Impossible d'annuler un cours deja commence");
+            }
             String cancelledBy = isTeacher ? "TEACHER" : "STUDENT";
             handleLessonCancellation(lesson, cancelledBy, request.cancellationReason());
         }

@@ -225,7 +225,11 @@ public class AvailabilityService {
             // Generate time slots for each availability
             for (Availability availability : dayAvailabilities) {
                 LocalTime currentTime = availability.getStartTime();
-                while (currentTime.plusMinutes(SLOT_DURATION_MINUTES).compareTo(availability.getEndTime()) <= 0) {
+                LocalTime endTime = availability.getEndTime();
+                // Handle midnight wrap-around: treat 00:00 as end of day
+                boolean isMidnightEnd = endTime.equals(LocalTime.MIDNIGHT);
+
+                while (isSlotWithinAvailability(currentTime, endTime, isMidnightEnd)) {
                     LocalDateTime slotDateTime = LocalDateTime.of(finalDate, currentTime);
                     LocalDateTime slotEndDateTime = slotDateTime.plusMinutes(SLOT_DURATION_MINUTES);
 
@@ -289,7 +293,12 @@ public class AvailabilityService {
     }
 
     private void validateAvailabilityRequest(AvailabilityRequest request) {
-        if (request.getStartTime().isAfter(request.getEndTime())) {
+        // Handle midnight wrap-around: 23:00 -> 00:00 is valid (treat 00:00 as 24:00)
+        LocalTime startTime = request.getStartTime();
+        LocalTime endTime = request.getEndTime();
+        boolean isMidnightWrapAround = endTime.equals(LocalTime.MIDNIGHT) && startTime.isAfter(LocalTime.of(22, 0));
+
+        if (!isMidnightWrapAround && startTime.isAfter(endTime)) {
             throw new RuntimeException("Start time must be before end time");
         }
 
@@ -342,5 +351,23 @@ public class AvailabilityService {
                     "Vous avez deja une disponibilite sur ce creneau. Modifiez les horaires ou supprimez l'ancienne."
             );
         }
+    }
+
+    /**
+     * Check if a slot (starting at currentTime, lasting SLOT_DURATION_MINUTES)
+     * fits within the availability window ending at endTime.
+     * Handles midnight wrap-around (23:00 -> 00:00).
+     */
+    private boolean isSlotWithinAvailability(LocalTime currentTime, LocalTime endTime, boolean isMidnightEnd) {
+        LocalTime slotEnd = currentTime.plusMinutes(SLOT_DURATION_MINUTES);
+
+        if (isMidnightEnd) {
+            // For midnight end (00:00), the slot must start before midnight
+            // and the calculated slot end will wrap to 00:00
+            return currentTime.getHour() >= 22 && slotEnd.equals(LocalTime.MIDNIGHT);
+        }
+
+        // Normal case: slot end must be <= availability end
+        return slotEnd.compareTo(endTime) <= 0;
     }
 }

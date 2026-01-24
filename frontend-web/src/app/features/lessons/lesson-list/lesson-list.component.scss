@@ -1,22 +1,19 @@
 @use '../../../../styles/variables' as *;
 
-$sidebar-width: 260px;
-
-.dashboard {
-  min-height: 100vh;
-  padding-left: $sidebar-width;
-  transition: padding-left 0.2s ease;
-
-  @media (max-width: 768px) {
-    padding-left: 0;
-    padding-top: 60px;
-  }
+:host {
+  display: flex;
+  justify-content: center;
+  width: 100%;
 }
 
-.main-content {
+.dashboard {
+  max-width: 900px;
+  width: 100%;
   padding: var(--space-lg);
-  overflow-y: auto;
-  background: var(--bg-primary);
+
+  @media (max-width: 768px) {
+    padding: var(--space-md);
+  }
 }
 
 .page-header {

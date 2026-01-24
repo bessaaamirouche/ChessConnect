@@ -2,27 +2,18 @@
 
 :host {
   display: flex;
-  align-content: center;
   justify-content: center;
+  width: 100%;
 }
 
-$sidebar-width: 260px;
-
-.dashboard {
-  min-height: 100vh;
-  padding-left: $sidebar-width;
-  transition: padding-left 0.2s ease;
+.settings-page {
+  max-width: 700px;
+  width: 100%;
+  padding: var(--space-lg);
 
   @media (max-width: 768px) {
-    padding-left: 0;
-    padding-top: 60px;
+    padding: var(--space-md);
   }
-}
-
-.main-content {
-  padding: var(--space-lg);
-  overflow-y: auto;
-  background: var(--bg-primary);
 }
 
 .page-header {
@@ -45,17 +36,6 @@ $sidebar-width: 260px;
   display: flex;
   flex-direction: column;
   gap: var(--space-lg);
-  max-width: 700px;
-  margin: 0 auto;
-}
-
-.settings-page {
-  padding: var(--space-lg);
-  max-width: 1000px;
-
-  @media (max-width: 768px) {
-    padding: var(--space-md);
-  }
 }
 
 .card {

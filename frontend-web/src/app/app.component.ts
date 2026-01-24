@@ -5,6 +5,7 @@ import { GlobalDialogComponent } from './shared/global-dialog/global-dialog.comp
 import { AuthService } from './core/services/auth.service';
 import { NotificationService } from './core/services/notification.service';
 import { InactivityService } from './core/services/inactivity.service';
+import { PresenceService } from './core/services/presence.service';
 import { interval, Subscription } from 'rxjs';
 
 @Component({
@@ -22,6 +23,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private notificationService = inject(NotificationService);
   private inactivityService = inject(InactivityService);
+  private presenceService = inject(PresenceService);
   private checkSubscription?: Subscription;
 
   ngOnInit(): void {
@@ -46,11 +48,13 @@ export class AppComponent implements OnInit, OnDestroy {
       this.notificationService.stopPolling();
     }
 
-    // Start/stop inactivity tracking based on auth state
+    // Start/stop inactivity tracking and presence based on auth state
     if (isAuthenticated) {
       this.inactivityService.startWatching();
+      this.presenceService.startHeartbeat();
     } else {
       this.inactivityService.stopWatching();
+      this.presenceService.stopHeartbeat();
     }
   }
 
@@ -58,5 +62,6 @@ export class AppComponent implements OnInit, OnDestroy {
     this.checkSubscription?.unsubscribe();
     this.notificationService.stopPolling();
     this.inactivityService.stopWatching();
+    this.presenceService.stopHeartbeat();
   }
 }

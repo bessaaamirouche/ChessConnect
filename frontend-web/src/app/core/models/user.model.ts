@@ -19,6 +19,7 @@ export interface User {
   reviewCount?: number;
   lessonsCompleted?: number;
   totalStudents?: number;
+  isOnline?: boolean;
   // Teacher banking fields
   iban?: string;
   bic?: string;

@@ -120,7 +120,7 @@ import { InvoiceService, Invoice } from '../../../core/services/invoice.service'
                       {{ getInvoiceTypeLabel(invoice.invoiceType) }}
                     </span>
                   </td>
-                  <td>{{ invoice.issuedAt }}</td>
+                  <td>{{ formatDate(invoice.issuedAt) }}</td>
                   <td>{{ invoice.issuerName }}</td>
                   <td>{{ invoice.customerName }}</td>
                   <td class="description">{{ invoice.description }}</td>
@@ -515,6 +515,18 @@ export class AdminInvoicesComponent implements OnInit {
 
   formatCents(cents: number): string {
     return (cents / 100).toFixed(2) + ' EUR';
+  }
+
+  formatDate(dateString: string): string {
+    if (!dateString) return '-';
+    // Handle both ISO format and dd/MM/yyyy HH:mm format
+    const date = new Date(dateString.replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3-$2-$1'));
+    if (isNaN(date.getTime())) return dateString;
+    return date.toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
   }
 
   downloadPdf(invoice: Invoice): void {

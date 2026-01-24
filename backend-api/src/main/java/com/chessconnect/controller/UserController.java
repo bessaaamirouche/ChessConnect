@@ -15,6 +15,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 
 @RestController
@@ -152,6 +153,21 @@ public class UserController {
         user = userRepository.save(user);
 
         return ResponseEntity.ok(mapToProfileResponse(user));
+    }
+
+    /**
+     * Heartbeat endpoint to update user's online presence.
+     * Called every 30 seconds by the frontend.
+     */
+    @PostMapping("/me/heartbeat")
+    public ResponseEntity<Void> heartbeat(@AuthenticationPrincipal UserDetails userDetails) {
+        User user = userRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setLastActiveAt(LocalDateTime.now());
+        userRepository.save(user);
+
+        return ResponseEntity.ok().build();
     }
 
     private TeacherProfileResponse mapToProfileResponse(User user) {

@@ -110,6 +110,10 @@ public class User {
     @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;
 
+    // Online presence tracking (updated every 30 seconds by heartbeat)
+    @Column(name = "last_active_at")
+    private LocalDateTime lastActiveAt;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -253,4 +257,13 @@ public class User {
 
     public LocalDateTime getLastLoginAt() { return lastLoginAt; }
     public void setLastLoginAt(LocalDateTime lastLoginAt) { this.lastLoginAt = lastLoginAt; }
+
+    public LocalDateTime getLastActiveAt() { return lastActiveAt; }
+    public void setLastActiveAt(LocalDateTime lastActiveAt) { this.lastActiveAt = lastActiveAt; }
+
+    // Check if user was active in the last 2 minutes
+    public boolean isOnline() {
+        if (lastActiveAt == null) return false;
+        return lastActiveAt.isAfter(LocalDateTime.now().minusMinutes(2));
+    }
 }

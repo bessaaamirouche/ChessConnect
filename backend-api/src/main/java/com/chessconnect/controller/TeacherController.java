@@ -138,7 +138,8 @@ public class TeacherController {
                 averageRating,
                 reviewCount,
                 lessonsCompleted != null ? lessonsCompleted : 0,
-                totalStudents != null ? totalStudents : 0
+                totalStudents != null ? totalStudents : 0,
+                teacher.isOnline()
         );
     }
 
@@ -155,6 +156,7 @@ public class TeacherController {
             Double averageRating,
             Integer reviewCount,
             Integer lessonsCompleted,
-            Integer totalStudents
+            Integer totalStudents,
+            Boolean isOnline
     ) {}
 }

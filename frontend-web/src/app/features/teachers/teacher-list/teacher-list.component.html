@@ -136,11 +136,16 @@
               </button>
             }
             <div class="teacher-card__header">
-              <div class="avatar">
-                @if (teacher.avatarUrl) {
-                  <img [src]="teacher.avatarUrl" [alt]="teacher.firstName">
-                } @else {
-                  {{ getInitials(teacher.firstName, teacher.lastName) }}
+              <div class="avatar-container">
+                <div class="avatar">
+                  @if (teacher.avatarUrl) {
+                    <img [src]="teacher.avatarUrl" [alt]="teacher.firstName">
+                  } @else {
+                    {{ getInitials(teacher.firstName, teacher.lastName) }}
+                  }
+                </div>
+                @if (teacher.isOnline) {
+                  <span class="online-indicator" title="En ligne"></span>
                 }
               </div>
               <div class="teacher-card__info">

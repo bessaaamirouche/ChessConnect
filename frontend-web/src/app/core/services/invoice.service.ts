@@ -66,7 +66,7 @@ export class InvoiceService {
   }
 
   /**
-   * Download invoice PDF
+   * Open invoice PDF in new tab
    */
   downloadInvoicePdf(invoiceId: number): void {
     this.http.get(`${this.apiUrl}/${invoiceId}/pdf`, {
@@ -74,13 +74,7 @@ export class InvoiceService {
     }).subscribe({
       next: (blob) => {
         const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `facture-${invoiceId}.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
+        window.open(url, '_blank');
       },
       error: (err) => {
         console.error('Error downloading invoice:', err);

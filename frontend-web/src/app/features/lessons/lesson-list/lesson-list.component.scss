@@ -285,22 +285,22 @@
 
 .history-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: var(--space-lg);
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--space-md);
 }
 
 .history-card {
   position: relative;
   background: var(--bg-secondary);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
-  padding: var(--space-lg);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
   transition: all var(--transition-base);
 
   &:hover {
     border-color: var(--border-default);
-    transform: translateY(-3px);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
   }
 
   &--has-recording {
@@ -314,13 +314,13 @@
 
   &__delete-btn {
     position: absolute;
-    top: var(--space-sm);
-    right: var(--space-sm);
+    top: var(--space-xs);
+    right: var(--space-xs);
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 28px;
-    height: 28px;
+    width: 24px;
+    height: 24px;
     padding: 0;
     background: transparent;
     border: 1px solid transparent;
@@ -343,29 +343,29 @@
   &__header {
     display: flex;
     align-items: flex-start;
-    gap: var(--space-md);
-    margin-bottom: var(--space-sm);
+    gap: var(--space-sm);
+    margin-bottom: var(--space-xs);
   }
 
   &__date-block {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: var(--space-xs) var(--space-sm);
+    padding: 4px var(--space-xs);
     background: var(--bg-tertiary);
     border-radius: var(--radius-sm);
-    min-width: 50px;
+    min-width: 42px;
   }
 
   &__day {
-    font-size: 1.25rem;
+    font-size: 1rem;
     font-weight: 700;
     color: var(--gold-400);
     line-height: 1.2;
   }
 
   &__month {
-    font-size: 0.6875rem;
+    font-size: 0.625rem;
     text-transform: uppercase;
     color: var(--text-muted);
     letter-spacing: 0.03em;
@@ -377,7 +377,7 @@
   }
 
   &__person {
-    font-size: 0.9375rem;
+    font-size: 0.8125rem;
     font-weight: 600;
     color: var(--text-primary);
     margin-bottom: 2px;
@@ -387,7 +387,7 @@
   }
 
   &__time {
-    font-size: 0.75rem;
+    font-size: 0.6875rem;
     color: var(--text-muted);
   }
 
@@ -395,21 +395,21 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: var(--space-sm);
-    margin-top: var(--space-sm);
-    padding-top: var(--space-sm);
+    gap: var(--space-xs);
+    margin-top: var(--space-xs);
+    padding-top: var(--space-xs);
     border-top: 1px solid var(--border-subtle);
   }
 
   &__action-btn {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: var(--space-xs) var(--space-sm);
+    gap: 4px;
+    padding: 4px var(--space-xs);
     background: transparent;
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-sm);
-    font-size: 0.8125rem;
+    font-size: 0.75rem;
     color: var(--text-secondary);
     cursor: pointer;
     transition: all var(--transition-fast);

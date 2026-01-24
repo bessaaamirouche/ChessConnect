@@ -243,10 +243,10 @@
                   </div>
                   <div class="history-card__time">{{ lesson.scheduledAt | date:'HH:mm' }} - {{ lesson.scheduledAt | date:'yyyy' }}</div>
                 </div>
-                <span class="badge badge--sm" [class]="statusLabels[lesson.status].cssClass">
-                  {{ getStatusLabel(lesson) }}
-                </span>
               </div>
+              <span class="history-card__status badge badge--sm" [class]="statusLabels[lesson.status].cssClass">
+                {{ getStatusLabel(lesson) }}
+              </span>
 
               <div class="history-card__actions">
                 @if (canRateLesson(lesson)) {

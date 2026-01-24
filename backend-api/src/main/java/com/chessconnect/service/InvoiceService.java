@@ -637,6 +637,105 @@ public class InvoiceService {
     }
 
     /**
+     * Generate invoice for coach payout/transfer.
+     */
+    @Transactional
+    public Invoice generatePayoutInvoice(User teacher, int amountCents, String yearMonth, String stripeTransferId) {
+        Invoice invoice = new Invoice();
+        invoice.setInvoiceNumber(generateInvoiceNumber("VIR"));
+        invoice.setInvoiceType(InvoiceType.PAYOUT_INVOICE);
+        invoice.setCustomer(teacher); // Teacher receives this invoice
+        invoice.setIssuer(null); // Platform is the issuer
+        invoice.setStripePaymentIntentId(stripeTransferId);
+        invoice.setSubtotalCents(amountCents);
+        invoice.setVatCents(0);
+        invoice.setTotalCents(amountCents);
+        invoice.setVatRate(0);
+        invoice.setDescription("Virement des gains - " + yearMonth);
+        invoice.setStatus("PAID");
+        invoice.setIssuedAt(LocalDateTime.now());
+
+        invoice = invoiceRepository.save(invoice);
+
+        // Generate PDF
+        try {
+            generatePayoutInvoicePdf(invoice, teacher, yearMonth);
+        } catch (Exception e) {
+            log.error("Error generating payout invoice PDF", e);
+        }
+
+        log.info("Generated payout invoice #{} for teacher {}", invoice.getInvoiceNumber(), teacher.getId());
+
+        return invoice;
+    }
+
+    /**
+     * Generate PDF for payout invoice.
+     */
+    private void generatePayoutInvoicePdf(Invoice invoice, User teacher, String yearMonth) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        Document document = new Document(PageSize.A4, 50, 50, 50, 50);
+
+        try {
+            PdfWriter.getInstance(document, baos);
+            document.open();
+
+            // Add content
+            addInvoiceHeader(document, "RELEVE DE VIREMENT", invoice.getInvoiceNumber(), invoice.getIssuedAt());
+            addPlatformIssuerInfo(document);
+            addCustomerInfo(document, teacher, "Beneficiaire");
+            addPayoutInvoiceTable(document, invoice, yearMonth);
+            addPaymentInfo(document, "Virement Stripe Connect vers votre compte bancaire");
+            addFooter(document);
+
+            document.close();
+
+            // Save PDF
+            String pdfPath = savePdf(baos.toByteArray(), invoice.getInvoiceNumber());
+            invoice.setPdfPath(pdfPath);
+            invoiceRepository.save(invoice);
+
+        } catch (DocumentException e) {
+            log.error("Error creating payout invoice PDF", e);
+            throw new IOException("Failed to generate PDF", e);
+        }
+    }
+
+    /**
+     * Add payout invoice table.
+     */
+    private void addPayoutInvoiceTable(Document document, Invoice invoice, String yearMonth) throws DocumentException {
+        Font headerFont = new Font(Font.HELVETICA, 10, Font.BOLD, Color.WHITE);
+        Font normalFont = new Font(Font.HELVETICA, 10, Font.NORMAL);
+
+        PdfPTable table = new PdfPTable(3);
+        table.setWidthPercentage(100);
+        table.setWidths(new float[]{3, 2, 2});
+        table.setSpacingBefore(20);
+
+        // Header row
+        Color goldColor = new Color(212, 168, 75);
+        String[] headers = {"Description", "Periode", "Montant"};
+        for (String header : headers) {
+            PdfPCell cell = new PdfPCell(new Phrase(header, headerFont));
+            cell.setBackgroundColor(goldColor);
+            cell.setPadding(8);
+            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            table.addCell(cell);
+        }
+
+        // Data row
+        table.addCell(createCell("Virement des gains de cours", normalFont, Element.ALIGN_LEFT));
+        table.addCell(createCell(yearMonth, normalFont, Element.ALIGN_CENTER));
+        table.addCell(createCell(formatCents(invoice.getTotalCents()), normalFont, Element.ALIGN_RIGHT));
+
+        document.add(table);
+
+        // Total section
+        addTotalSection(document, invoice);
+    }
+
+    /**
      * Add subscription invoice table.
      */
     private void addSubscriptionInvoiceTable(Document document, Invoice invoice) throws DocumentException {

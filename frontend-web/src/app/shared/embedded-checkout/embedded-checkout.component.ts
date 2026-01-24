@@ -55,11 +55,15 @@ import { StripeEmbeddedCheckout } from '@stripe/stripe-js';
       justify-content: center;
       padding: 1rem;
       color-scheme: dark;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
     app-embedded-checkout .checkout-container {
       width: 100%;
       max-width: 500px;
+      max-height: calc(100vh - 2rem);
+      max-height: calc(100dvh - 2rem);
       background: #1a1a1f;
       border-radius: 12px;
       overflow: hidden;
@@ -67,6 +71,7 @@ import { StripeEmbeddedCheckout } from '@stripe/stripe-js';
       flex-direction: column;
       border: 1px solid rgba(255, 255, 255, 0.1);
       color-scheme: dark;
+      margin: auto;
     }
 
     app-embedded-checkout .checkout-header {
@@ -76,6 +81,7 @@ import { StripeEmbeddedCheckout } from '@stripe/stripe-js';
       padding: 1rem 1.5rem;
       background: #25252b;
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      flex-shrink: 0;
     }
 
     app-embedded-checkout .checkout-header__info {
@@ -104,6 +110,10 @@ import { StripeEmbeddedCheckout } from '@stripe/stripe-js';
     app-embedded-checkout .checkout-content {
       color-scheme: dark;
       background: #1a1a1f;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      flex: 1;
+      min-height: 0;
     }
 
     app-embedded-checkout .checkout-loading,
@@ -133,12 +143,42 @@ import { StripeEmbeddedCheckout } from '@stripe/stripe-js';
 
     app-embedded-checkout #checkout-container {
       color-scheme: dark;
+      min-height: 400px;
+      padding-bottom: env(safe-area-inset-bottom, 0);
     }
 
     /* Apply dark mode filter to Stripe iframe */
     app-embedded-checkout #checkout-container iframe {
       filter: invert(0.88) hue-rotate(180deg);
       border-radius: 8px;
+    }
+
+    /* Mobile specific styles */
+    @media (max-width: 768px) {
+      app-embedded-checkout .checkout-overlay {
+        padding: 0;
+        align-items: flex-end;
+      }
+
+      app-embedded-checkout .checkout-container {
+        max-width: 100%;
+        max-height: 95vh;
+        max-height: 95dvh;
+        border-radius: 16px 16px 0 0;
+        margin: 0;
+      }
+
+      app-embedded-checkout .checkout-header {
+        padding: 0.875rem 1rem;
+      }
+
+      app-embedded-checkout .checkout-content {
+        padding-bottom: env(safe-area-inset-bottom, 1rem);
+      }
+
+      app-embedded-checkout #checkout-container {
+        min-height: 450px;
+      }
     }
   `]
 })

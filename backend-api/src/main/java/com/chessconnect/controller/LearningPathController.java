@@ -2,6 +2,7 @@ package com.chessconnect.controller;
 
 import com.chessconnect.dto.learningpath.CourseResponse;
 import com.chessconnect.dto.learningpath.LearningPathResponse;
+import com.chessconnect.dto.learningpath.NextCourseResponse;
 import com.chessconnect.dto.student.StudentProfileResponse;
 import com.chessconnect.security.UserDetailsImpl;
 import com.chessconnect.service.LearningPathService;
@@ -71,6 +72,20 @@ public class LearningPathController {
     public ResponseEntity<StudentProfileResponse> getStudentProfile(
             @PathVariable Long studentId) {
         StudentProfileResponse response = learningPathService.getStudentProfile(studentId);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Get next course for a student (Teacher only)
+     */
+    @GetMapping("/students/{studentId}/next-course")
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseEntity<NextCourseResponse> getNextCourse(
+            @PathVariable Long studentId) {
+        NextCourseResponse response = learningPathService.getNextCourseForStudent(studentId);
+        if (response == null) {
+            return ResponseEntity.noContent().build();
+        }
         return ResponseEntity.ok(response);
     }
 }

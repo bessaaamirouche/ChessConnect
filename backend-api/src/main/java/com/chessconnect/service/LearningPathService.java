@@ -3,6 +3,7 @@ package com.chessconnect.service;
 import com.chessconnect.dto.learningpath.CourseResponse;
 import com.chessconnect.dto.learningpath.GradeWithCoursesResponse;
 import com.chessconnect.dto.learningpath.LearningPathResponse;
+import com.chessconnect.dto.learningpath.NextCourseResponse;
 import com.chessconnect.dto.student.StudentProfileResponse;
 import com.chessconnect.model.Course;
 import com.chessconnect.model.Progress;
@@ -312,6 +313,65 @@ public class LearningPathService {
             totalLessonsCompleted,
             grades
         );
+    }
+
+    /**
+     * Get the next course for a student (first IN_PROGRESS or first LOCKED course)
+     */
+    @Transactional(readOnly = true)
+    public NextCourseResponse getNextCourseForStudent(Long studentId) {
+        Progress studentProgress = progressRepository.findByStudentId(studentId).orElse(null);
+        ChessLevel currentLevel = studentProgress != null ? studentProgress.getCurrentLevel() : ChessLevel.PION;
+
+        List<Course> allCourses = courseRepository.findAllOrderByGradeAndOrder();
+        Map<Long, UserCourseProgress> progressMap = userCourseProgressRepository.findByUserId(studentId)
+            .stream()
+            .collect(Collectors.toMap(p -> p.getCourse().getId(), p -> p));
+
+        // Find the first course that is IN_PROGRESS or the first accessible LOCKED course
+        for (ChessLevel grade : ChessLevel.values()) {
+            if (!isGradeAccessible(grade, currentLevel)) {
+                continue;
+            }
+
+            List<Course> gradeCourses = allCourses.stream()
+                .filter(c -> c.getGrade() == grade)
+                .toList();
+
+            for (int i = 0; i < gradeCourses.size(); i++) {
+                Course course = gradeCourses.get(i);
+                UserCourseProgress progress = progressMap.get(course.getId());
+                CourseStatus status = determineStatus(progress, true, i, gradeCourses, progressMap);
+
+                if (status == CourseStatus.IN_PROGRESS || status == CourseStatus.PENDING_VALIDATION) {
+                    return NextCourseResponse.create(course.getId(), course.getTitle(), grade);
+                }
+            }
+        }
+
+        // If no IN_PROGRESS found, find first LOCKED that would be accessible
+        for (ChessLevel grade : ChessLevel.values()) {
+            if (!isGradeAccessible(grade, currentLevel)) {
+                continue;
+            }
+
+            List<Course> gradeCourses = allCourses.stream()
+                .filter(c -> c.getGrade() == grade)
+                .toList();
+
+            for (int i = 0; i < gradeCourses.size(); i++) {
+                Course course = gradeCourses.get(i);
+                UserCourseProgress progress = progressMap.get(course.getId());
+                CourseStatus status = determineStatus(progress, true, i, gradeCourses, progressMap);
+
+                if (status == CourseStatus.LOCKED) {
+                    return NextCourseResponse.create(course.getId(), course.getTitle(), grade);
+                }
+            }
+        }
+
+        // All courses completed
+        return null;
     }
 
     private Map<Long, String> getTeacherNames(Set<Long> teacherIds) {

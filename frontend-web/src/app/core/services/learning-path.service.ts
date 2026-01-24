@@ -1,7 +1,7 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap, catchError } from 'rxjs';
-import { LearningPath, Course, GradeWithCourses } from '../models/learning-path.model';
+import { Observable, tap, catchError, of } from 'rxjs';
+import { LearningPath, Course, GradeWithCourses, NextCourse } from '../models/learning-path.model';
 import { StudentProfile } from '../models/student-profile.model';
 import { ChessLevel } from '../models/user.model';
 
@@ -113,6 +113,15 @@ export class LearningPathService {
         this.loadingSignal.set(false);
         throw error;
       })
+    );
+  }
+
+  /**
+   * Get next course for a student (Teacher only)
+   */
+  getNextCourse(studentId: number): Observable<NextCourse | null> {
+    return this.http.get<NextCourse>(`${this.apiUrl}/students/${studentId}/next-course`).pipe(
+      catchError(() => of(null))
     );
   }
 

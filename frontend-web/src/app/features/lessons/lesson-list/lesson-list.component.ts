@@ -7,6 +7,8 @@ import { AuthService } from '../../../core/services/auth.service';
 import { RatingService } from '../../../core/services/rating.service';
 import { SeoService } from '../../../core/services/seo.service';
 import { JitsiService } from '../../../core/services/jitsi.service';
+import { LearningPathService } from '../../../core/services/learning-path.service';
+import { NextCourse } from '../../../core/models/learning-path.model';
 import { LESSON_STATUS_LABELS, Lesson } from '../../../core/models/lesson.model';
 import { ConfirmModalComponent } from '../../../shared/confirm-modal/confirm-modal.component';
 import { StudentProfileModalComponent } from '../../../shared/student-profile-modal/student-profile-modal.component';
@@ -164,12 +166,16 @@ export class LessonListComponent implements OnInit {
     return Array.from(months).sort().reverse();
   });
 
+  // Next course cache by student ID
+  nextCourseByStudent = signal<Map<number, NextCourse | null>>(new Map());
+
   constructor(
     public lessonService: LessonService,
     public authService: AuthService,
     private ratingService: RatingService,
     private seoService: SeoService,
     private jitsiService: JitsiService,
+    private learningPathService: LearningPathService,
     private route: ActivatedRoute,
     private router: Router
   ) {
@@ -192,9 +198,37 @@ export class LessonListComponent implements OnInit {
             }
           }
         });
+
+        // Load next courses for pending lessons (teachers only)
+        if (this.authService.isTeacher()) {
+          this.loadNextCoursesForPendingLessons();
+        }
       }
     });
     this.lessonService.loadLessonHistory().subscribe();
+  }
+
+  // Load next course for all students with pending lessons
+  private loadNextCoursesForPendingLessons(): void {
+    const pendingLessons = this.lessonService.upcomingLessons().filter(l => l.status === 'PENDING');
+    const studentIds = new Set(pendingLessons.map(l => l.studentId));
+
+    studentIds.forEach(studentId => {
+      if (studentId && !this.nextCourseByStudent().has(studentId)) {
+        this.learningPathService.getNextCourse(studentId).subscribe({
+          next: (nextCourse) => {
+            const map = new Map(this.nextCourseByStudent());
+            map.set(studentId, nextCourse);
+            this.nextCourseByStudent.set(map);
+          }
+        });
+      }
+    });
+  }
+
+  // Get next course for a student
+  getNextCourse(studentId: number): NextCourse | null | undefined {
+    return this.nextCourseByStudent().get(studentId);
   }
 
   confirmLesson(lessonId: number): void {
@@ -242,9 +276,19 @@ export class LessonListComponent implements OnInit {
   submitCompleteLesson(): void {
     const lessonId = this.completingLessonId();
     if (lessonId) {
+      // Find the lesson to get studentId before completing
+      const lesson = this.lessonService.upcomingLessons().find(l => l.id === lessonId);
+      const studentId = lesson?.studentId;
+
       const observations = this.observationsText().trim() || undefined;
       this.lessonService.completeLesson(lessonId, observations).subscribe({
-        next: () => this.closeCompleteModal(),
+        next: () => {
+          this.closeCompleteModal();
+          // Open student profile modal for course validation
+          if (studentId) {
+            this.openStudentProfile(studentId);
+          }
+        },
         error: () => this.closeCompleteModal()
       });
     }

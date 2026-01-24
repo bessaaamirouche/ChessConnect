@@ -71,6 +71,14 @@
                       </span>
                     }
                   </div>
+                  @if (lesson.status === 'PENDING' && getNextCourse(lesson.studentId); as nextCourse) {
+                    <div class="next-course-separator">
+                      <span class="next-course-title">
+                        <ng-icon name="heroAcademicCap" size="16"></ng-icon>
+                        {{ nextCourse.title }}
+                      </span>
+                    </div>
+                  }
                 }
                 <div class="lesson-card__meta">
                   <span class="badge" [class]="statusLabels[lesson.status].cssClass">

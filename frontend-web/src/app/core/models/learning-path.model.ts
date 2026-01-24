@@ -38,3 +38,10 @@ export interface LearningPath {
   completedCourses: number;
   overallProgressPercentage: number;
 }
+
+export interface NextCourse {
+  courseId: number;
+  title: string;
+  grade: ChessLevel;
+  gradeName: string;
+}

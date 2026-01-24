@@ -636,6 +636,39 @@
   }
 }
 
+// Next course separator (shown for pending lessons)
+.next-course-separator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: var(--space-sm) 0;
+  padding: var(--space-xs) 0;
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border-subtle);
+  }
+
+  .next-course-title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: 0 var(--space-md);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--gold-400);
+    text-align: center;
+    white-space: nowrap;
+
+    ng-icon {
+      color: var(--gold-500);
+    }
+  }
+}
+
 // Modal Overlay
 .modal-overlay {
   position: fixed;

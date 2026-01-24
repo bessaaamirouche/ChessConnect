@@ -27,6 +27,8 @@ export class RegisterComponent {
   availableLanguages = AVAILABLE_LANGUAGES;
   selectedLanguages = signal<string[]>(['FR']);
   maxBirthDate = new Date().toISOString().split('T')[0]; // Today's date in YYYY-MM-DD format
+  minBirthYear = 1920;
+  maxBirthYear = new Date().getFullYear();
 
   constructor(
     private fb: FormBuilder,
@@ -65,6 +67,18 @@ export class RegisterComponent {
 
   isLanguageSelected(langCode: string): boolean {
     return this.selectedLanguages().includes(langCode);
+  }
+
+  validateBirthDate(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const value = input.value;
+    if (!value) return;
+
+    const year = parseInt(value.split('-')[0], 10);
+    if (isNaN(year) || year < this.minBirthYear || year > this.maxBirthYear) {
+      input.value = '';
+      this.registerForm.patchValue({ birthDate: '' });
+    }
   }
 
   selectRole(role: UserRole): void {

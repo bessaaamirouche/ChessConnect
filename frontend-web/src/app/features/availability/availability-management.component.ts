@@ -177,6 +177,29 @@ export class AvailabilityManagementComponent implements OnInit {
     return new Date().toISOString().split('T')[0];
   }
 
+  getMaxDate(): string {
+    const maxDate = new Date();
+    maxDate.setFullYear(maxDate.getFullYear() + 1); // Max 1 year in the future
+    return maxDate.toISOString().split('T')[0];
+  }
+
+  validateAvailabilityDate(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const value = input.value;
+    if (!value) return;
+
+    const selectedDate = new Date(value);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const maxDate = new Date();
+    maxDate.setFullYear(maxDate.getFullYear() + 1);
+
+    if (selectedDate < today || selectedDate > maxDate) {
+      input.value = '';
+      this.selectedDate = '';
+    }
+  }
+
   clearError(): void {
     this.availabilityService.clearError();
   }

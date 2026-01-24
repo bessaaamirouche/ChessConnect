@@ -57,6 +57,8 @@ export class SettingsComponent implements OnInit {
 
   // Date constraints
   maxBirthDate = new Date().toISOString().split('T')[0];
+  minBirthYear = 1920;
+  maxBirthYear = new Date().getFullYear();
 
   // Track if languages have changed
   languagesChanged = computed(() => {
@@ -200,6 +202,18 @@ export class SettingsComponent implements OnInit {
 
   isTeacher(): boolean {
     return this.authService.isTeacher();
+  }
+
+  validateBirthDate(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const value = input.value;
+    if (!value) return;
+
+    const year = parseInt(value.split('-')[0], 10);
+    if (isNaN(year) || year < this.minBirthYear || year > this.maxBirthYear) {
+      input.value = '';
+      this.profileForm.patchValue({ birthDate: '' });
+    }
   }
 
   onAvatarSelected(event: Event): void {

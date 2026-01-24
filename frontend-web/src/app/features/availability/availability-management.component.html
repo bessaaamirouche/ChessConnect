@@ -148,6 +148,8 @@
               class="input"
               [(ngModel)]="selectedDate"
               [min]="getTodayDate()"
+              [max]="getMaxDate()"
+              (change)="validateAvailabilityDate($event)"
             />
           </div>
         }

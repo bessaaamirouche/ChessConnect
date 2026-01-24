@@ -103,13 +103,19 @@ $text-muted: #6b6965;
     width: 100%;
   }
 
+  &__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-lg);
+  }
+
   &__back {
     display: inline-flex;
     align-items: center;
     gap: var(--space-sm);
     color: $ivory-muted;
     font-size: 0.875rem;
-    margin-bottom: var(--space-md);
     transition: color var(--transition-fast);
 
     &:hover {
@@ -118,8 +124,6 @@ $text-muted: #6b6965;
   }
 
   &__category {
-    display: block;
-    width: fit-content;
     padding: var(--space-xs) var(--space-sm);
     border-radius: var(--radius-full);
     font-size: 0.6875rem;
@@ -127,7 +131,6 @@ $text-muted: #6b6965;
     color: white;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    margin-bottom: var(--space-md);
   }
 
   &__title {

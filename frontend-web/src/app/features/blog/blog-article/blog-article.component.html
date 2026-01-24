@@ -20,16 +20,18 @@
         </div>
       }
       <div class="article-hero__content">
-        <a routerLink="/blog" class="article-hero__back">
-          <ng-icon name="heroArrowLeft" size="20"></ng-icon>
-          Retour au blog
-        </a>
-        <span
-          class="article-hero__category"
-          [style.background-color]="getCategoryColor(article()!.category)"
-        >
-          {{ getCategoryLabel(article()!.category) }}
-        </span>
+        <div class="article-hero__top">
+          <a routerLink="/blog" class="article-hero__back">
+            <ng-icon name="heroArrowLeft" size="20"></ng-icon>
+            Retour au blog
+          </a>
+          <span
+            class="article-hero__category"
+            [style.background-color]="getCategoryColor(article()!.category)"
+          >
+            {{ getCategoryLabel(article()!.category) }}
+          </span>
+        </div>
         <h1 class="article-hero__title" appScrollReveal="fade-up">{{ article()!.title }}</h1>
         <div class="article-hero__meta" appScrollReveal="fade-up" [revealDelay]="100">
           <span class="article-hero__author">Par {{ article()!.author }}</span>

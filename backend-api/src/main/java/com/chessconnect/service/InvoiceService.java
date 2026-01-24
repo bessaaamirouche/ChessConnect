@@ -43,7 +43,7 @@ public class InvoiceService {
     private static final double STANDARD_COMMISSION_RATE = 12.5; // 12.5% platform
     private static final double PROMO_COMMISSION_RATE = 2.5;     // 2.5% with CHESS2026
 
-    @Value("${app.invoices.storage-path:/var/invoices}")
+    @Value("${app.invoices.storage-path:/app/uploads/invoices}")
     private String invoiceStoragePath;
 
     private final InvoiceRepository invoiceRepository;

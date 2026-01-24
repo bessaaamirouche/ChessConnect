@@ -492,16 +492,26 @@ public class InvoiceService {
     }
 
     /**
-     * Add footer.
+     * Add footer with legal mentions.
      */
     private void addFooter(Document document) throws DocumentException {
+        Font legalFont = new Font(Font.HELVETICA, 9, Font.BOLD, new Color(102, 102, 102));
         Font footerFont = new Font(Font.HELVETICA, 8, Font.NORMAL, new Color(153, 153, 153));
 
         document.add(new Paragraph(" "));
+
+        // Mandatory VAT mention for micro-entreprise (franchise en base de TVA)
+        Paragraph vatMention = new Paragraph(
+                "TVA non applicable, art. 293 B du CGI",
+                legalFont
+        );
+        vatMention.setAlignment(Element.ALIGN_CENTER);
+        document.add(vatMention);
+
         document.add(new Paragraph(" "));
 
         Paragraph footer = new Paragraph(
-                "Facture generee automatiquement par mychess - Plateforme de cours d'echecs en ligne",
+                "Facture generee automatiquement par Mychess.fr - Plateforme de cours d'echecs en ligne",
                 footerFont
         );
         footer.setAlignment(Element.ALIGN_CENTER);

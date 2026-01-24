@@ -567,4 +567,107 @@ public class InvoiceService {
 
         return received;
     }
+
+    /**
+     * Generate invoice for subscription payment.
+     */
+    @Transactional
+    public Invoice generateSubscriptionInvoice(Long studentId, int amountCents, String stripePaymentIntentId) {
+        User student = userRepository.findById(studentId)
+                .orElseThrow(() -> new RuntimeException("Student not found: " + studentId));
+
+        Invoice invoice = new Invoice();
+        invoice.setInvoiceNumber(generateInvoiceNumber("ABO"));
+        invoice.setInvoiceType(InvoiceType.SUBSCRIPTION);
+        invoice.setCustomer(student);
+        invoice.setIssuer(null); // Platform is the issuer
+        invoice.setStripePaymentIntentId(stripePaymentIntentId);
+        invoice.setSubtotalCents(amountCents);
+        invoice.setVatCents(0);
+        invoice.setTotalCents(amountCents);
+        invoice.setVatRate(0);
+        invoice.setDescription("Abonnement Premium Mychess - 1 mois");
+        invoice.setStatus("PAID");
+        invoice.setIssuedAt(LocalDateTime.now());
+
+        invoice = invoiceRepository.save(invoice);
+
+        // Generate PDF
+        try {
+            generateSubscriptionInvoicePdf(invoice, student);
+        } catch (Exception e) {
+            log.error("Error generating subscription invoice PDF", e);
+        }
+
+        log.info("Generated subscription invoice #{} for student {}", invoice.getInvoiceNumber(), studentId);
+
+        return invoice;
+    }
+
+    /**
+     * Generate PDF for subscription invoice.
+     */
+    private void generateSubscriptionInvoicePdf(Invoice invoice, User student) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        Document document = new Document(PageSize.A4, 50, 50, 50, 50);
+
+        try {
+            PdfWriter.getInstance(document, baos);
+            document.open();
+
+            // Add content
+            addInvoiceHeader(document, "FACTURE D'ABONNEMENT", invoice.getInvoiceNumber(), invoice.getIssuedAt());
+            addPlatformIssuerInfo(document);
+            addCustomerInfo(document, student, "Client");
+            addSubscriptionInvoiceTable(document, invoice);
+            addPaymentInfo(document, "Paye par carte bancaire via Stripe");
+            addFooter(document);
+
+            document.close();
+
+            // Save PDF
+            String pdfPath = savePdf(baos.toByteArray(), invoice.getInvoiceNumber());
+            invoice.setPdfPath(pdfPath);
+            invoiceRepository.save(invoice);
+
+        } catch (DocumentException e) {
+            log.error("Error creating subscription invoice PDF", e);
+            throw new IOException("Failed to generate PDF", e);
+        }
+    }
+
+    /**
+     * Add subscription invoice table.
+     */
+    private void addSubscriptionInvoiceTable(Document document, Invoice invoice) throws DocumentException {
+        Font headerFont = new Font(Font.HELVETICA, 10, Font.BOLD, Color.WHITE);
+        Font normalFont = new Font(Font.HELVETICA, 10, Font.NORMAL);
+
+        PdfPTable table = new PdfPTable(4);
+        table.setWidthPercentage(100);
+        table.setWidths(new float[]{3, 1, 1.5f, 1.5f});
+        table.setSpacingBefore(20);
+
+        // Header row
+        Color goldColor = new Color(212, 168, 75);
+        String[] headers = {"Description", "Qte", "Prix unitaire", "Total"};
+        for (String header : headers) {
+            PdfPCell cell = new PdfPCell(new Phrase(header, headerFont));
+            cell.setBackgroundColor(goldColor);
+            cell.setPadding(8);
+            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            table.addCell(cell);
+        }
+
+        // Data row
+        table.addCell(createCell(invoice.getDescription(), normalFont, Element.ALIGN_LEFT));
+        table.addCell(createCell("1", normalFont, Element.ALIGN_CENTER));
+        table.addCell(createCell(formatCents(invoice.getTotalCents()), normalFont, Element.ALIGN_RIGHT));
+        table.addCell(createCell(formatCents(invoice.getTotalCents()), normalFont, Element.ALIGN_RIGHT));
+
+        document.add(table);
+
+        // Total section
+        addTotalSection(document, invoice);
+    }
 }

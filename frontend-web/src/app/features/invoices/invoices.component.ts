@@ -90,7 +90,7 @@ type FilterType = 'all' | 'received' | 'issued';
       @if (!loading() && filteredInvoices().length > 0) {
         <div class="invoices-list">
           @for (invoice of filteredInvoices(); track invoice.id) {
-            <div class="invoice-card" [class.commission]="invoice.invoiceType === 'COMMISSION_INVOICE'">
+            <div class="invoice-card" [class.commission]="invoice.invoiceType === 'COMMISSION_INVOICE'" [class.subscription]="invoice.invoiceType === 'SUBSCRIPTION'">
               <div class="invoice-header">
                 <div class="invoice-type">
                   @if (invoice.isReceived) {
@@ -272,6 +272,10 @@ type FilterType = 'all' | 'received' | 'issued';
 
       &.commission {
         border-left: 3px solid #9b59b6;
+      }
+
+      &.subscription {
+        border-left: 3px solid #D4A84B;
       }
     }
 

@@ -1,5 +1,11 @@
 @use '../../../styles/variables' as *;
 
+:host {
+  display: flex;
+  align-content: center;
+  justify-content: center;
+}
+
 $sidebar-width: 260px;
 
 .dashboard {

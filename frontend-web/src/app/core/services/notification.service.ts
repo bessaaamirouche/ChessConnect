@@ -2,6 +2,7 @@ import { Injectable, signal, inject, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ToastService } from './toast.service';
 import { AuthService } from './auth.service';
+import { NotificationCenterService } from './notification-center.service';
 import { interval, Subscription, forkJoin, of } from 'rxjs';
 import { switchMap, catchError, map } from 'rxjs/operators';
 
@@ -32,6 +33,7 @@ export class NotificationService implements OnDestroy {
   private http = inject(HttpClient);
   private toastService = inject(ToastService);
   private authService = inject(AuthService);
+  private notificationCenter = inject(NotificationCenterService);
 
   private pollingSubscription?: Subscription;
   private lastAvailabilities = signal<Map<number, AvailabilityInfo>>(new Map());
@@ -163,6 +165,7 @@ export class NotificationService implements OnDestroy {
         const message = `M. ${teacherName} vient d'ajouter une disponibilite`;
         const link = `/teachers/${teacherId}`;
         this.toastService.info(message, 8000, link);
+        this.notificationCenter.info('Nouvelle disponibilite', message, link);
       });
     }
   }
@@ -179,9 +182,11 @@ export class NotificationService implements OnDestroy {
         if (newLesson.status === 'CONFIRMED') {
           const message = `M. ${newLesson.teacherName} a confirme votre cours`;
           this.toastService.success(message, 8000, '/lessons');
+          this.notificationCenter.success('Cours confirme', message, '/lessons');
         } else if (newLesson.status === 'CANCELLED') {
           const message = `M. ${newLesson.teacherName} a annule votre cours`;
           this.toastService.error(message, 10000, '/lessons');
+          this.notificationCenter.error('Cours annule', message, '/lessons');
         }
       }
 
@@ -190,6 +195,7 @@ export class NotificationService implements OnDestroy {
         console.log('[Notification] Teacher joined video call for lesson:', id);
         const message = `M. ${newLesson.teacherName} vous attend dans l'appel video`;
         this.toastService.success(message, 15000, `/lessons?openCall=${id}`);
+        this.notificationCenter.success('Appel video', message, `/lessons?openCall=${id}`);
       }
     });
   }
@@ -210,6 +216,7 @@ export class NotificationService implements OnDestroy {
       console.log('[Notification] New reservation from:', lesson.studentName);
       const message = `Nouvelle reservation de ${lesson.studentName}`;
       this.toastService.info(message, 8000, '/lessons');
+      this.notificationCenter.info('Nouvelle reservation', message, '/lessons');
     });
   }
 
@@ -225,6 +232,7 @@ export class NotificationService implements OnDestroy {
         if (newLesson.status === 'CANCELLED') {
           const message = `${newLesson.studentName} a annule son cours`;
           this.toastService.error(message, 10000, '/lessons');
+          this.notificationCenter.error('Cours annule', message, '/lessons');
         }
       }
     });

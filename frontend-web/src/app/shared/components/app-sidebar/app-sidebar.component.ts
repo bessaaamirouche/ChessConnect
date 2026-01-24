@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   heroChartBarSquare,
@@ -19,9 +19,15 @@ import {
   heroChevronLeft,
   heroChevronRight,
   heroBell,
-  heroNewspaper
+  heroNewspaper,
+  heroTrash,
+  heroCheckCircle,
+  heroExclamationCircle,
+  heroInformationCircle,
+  heroExclamationTriangle
 } from '@ng-icons/heroicons/outline';
 import { AuthService } from '../../../core/services/auth.service';
+import { NotificationCenterService, AppNotification } from '../../../core/services/notification-center.service';
 
 export interface SidebarItem {
   label: string;
@@ -59,7 +65,12 @@ export interface SidebarSection {
       heroChevronLeft,
       heroChevronRight,
       heroBell,
-      heroNewspaper
+      heroNewspaper,
+      heroTrash,
+      heroCheckCircle,
+      heroExclamationCircle,
+      heroInformationCircle,
+      heroExclamationTriangle
     })
   ],
   template: `
@@ -141,6 +152,96 @@ export interface SidebarSection {
         }
       </nav>
 
+      <!-- Notification Center -->
+      @if (!collapsed()) {
+        <div class="notification-center">
+          <button class="notification-center__toggle" (click)="toggleNotifications()">
+            <ng-icon name="heroBell" class="notification-center__icon"></ng-icon>
+            <span>Notifications</span>
+            @if (notificationCenter.unreadCount() > 0) {
+              <span class="notification-center__badge">{{ notificationCenter.unreadCount() }}</span>
+            }
+            <ng-icon [name]="notificationsOpen() ? 'heroChevronLeft' : 'heroChevronRight'" class="notification-center__chevron" [class.open]="notificationsOpen()"></ng-icon>
+          </button>
+
+          @if (notificationsOpen()) {
+            <div class="notification-center__panel">
+              <div class="notification-center__header">
+                <span class="notification-center__title">Centre de notifications</span>
+                @if (notificationCenter.hasNotifications()) {
+                  <button class="notification-center__clear" (click)="clearAllNotifications()">
+                    <ng-icon name="heroTrash" size="14"></ng-icon>
+                    Tout effacer
+                  </button>
+                }
+              </div>
+
+              <div class="notification-center__list">
+                @if (!notificationCenter.hasNotifications()) {
+                  <div class="notification-center__empty">
+                    <ng-icon name="heroBell" class="empty-icon"></ng-icon>
+                    <p>Aucune notification</p>
+                  </div>
+                } @else {
+                  @for (notification of notificationCenter.notifications(); track notification.id) {
+                    <div
+                      class="notification-item"
+                      [class.unread]="!notification.read"
+                      [class.info]="notification.type === 'info'"
+                      [class.success]="notification.type === 'success'"
+                      [class.warning]="notification.type === 'warning'"
+                      [class.error]="notification.type === 'error'"
+                      (click)="handleNotificationClick(notification)"
+                    >
+                      <div class="notification-item__icon">
+                        @switch (notification.type) {
+                          @case ('success') {
+                            <ng-icon name="heroCheckCircle"></ng-icon>
+                          }
+                          @case ('error') {
+                            <ng-icon name="heroExclamationCircle"></ng-icon>
+                          }
+                          @case ('warning') {
+                            <ng-icon name="heroExclamationTriangle"></ng-icon>
+                          }
+                          @default {
+                            <ng-icon name="heroInformationCircle"></ng-icon>
+                          }
+                        }
+                      </div>
+                      <div class="notification-item__content">
+                        <div class="notification-item__title">{{ notification.title }}</div>
+                        <div class="notification-item__message">{{ notification.message }}</div>
+                        <div class="notification-item__time" [title]="notificationCenter.formatDateTime(notification.timestamp)">
+                          {{ notificationCenter.formatRelativeTime(notification.timestamp) }}
+                        </div>
+                      </div>
+                      <button
+                        class="notification-item__delete"
+                        (click)="deleteNotification($event, notification.id)"
+                        title="Supprimer"
+                      >
+                        <ng-icon name="heroXMark" size="14"></ng-icon>
+                      </button>
+                    </div>
+                  }
+                }
+              </div>
+            </div>
+          }
+        </div>
+      } @else {
+        <!-- Collapsed: just icon with badge -->
+        <div class="notification-center notification-center--collapsed">
+          <button class="notification-center__toggle notification-center__toggle--icon" (click)="toggleNotifications()" title="Notifications">
+            <ng-icon name="heroBell"></ng-icon>
+            @if (notificationCenter.unreadCount() > 0) {
+              <span class="notification-center__badge notification-center__badge--small">{{ notificationCenter.unreadCount() > 9 ? '9+' : notificationCenter.unreadCount() }}</span>
+            }
+          </button>
+        </div>
+      }
+
       <!-- Footer -->
       <div class="sidebar__footer">
         @if (!collapsed()) {
@@ -169,9 +270,12 @@ export class AppSidebarComponent {
   @Output() collapsedChange = new EventEmitter<boolean>();
 
   private authService = inject(AuthService);
+  private router = inject(Router);
+  notificationCenter = inject(NotificationCenterService);
 
   collapsed = signal(false);
   mobileOpen = signal(false);
+  notificationsOpen = signal(false);
 
   userName = computed(() => {
     const user = this.authService.currentUser();
@@ -215,5 +319,27 @@ export class AppSidebarComponent {
       this.collapsed.set(true);
       this.collapsedChange.emit(true);
     }
+  }
+
+  toggleNotifications(): void {
+    this.notificationsOpen.update(v => !v);
+  }
+
+  handleNotificationClick(notification: AppNotification): void {
+    this.notificationCenter.markAsRead(notification.id);
+    if (notification.link) {
+      this.closeMobile();
+      this.notificationsOpen.set(false);
+      this.router.navigateByUrl(notification.link);
+    }
+  }
+
+  deleteNotification(event: Event, id: string): void {
+    event.stopPropagation();
+    this.notificationCenter.remove(id);
+  }
+
+  clearAllNotifications(): void {
+    this.notificationCenter.clearAll();
   }
 }

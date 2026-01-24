@@ -578,13 +578,15 @@ Votre contenu en Markdown..."></textarea>
     .checkbox-label {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      justify-content: center;
+      gap: 1em;
       cursor: pointer;
 
       input[type="checkbox"] {
-        width: 1rem;
-        height: 1rem;
+        width: 1.25rem;
+        height: 1.25rem;
         cursor: pointer;
+        margin: 0;
       }
 
       span {

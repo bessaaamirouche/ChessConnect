@@ -28,7 +28,8 @@ export class AdminLayoutComponent {
         { label: 'Utilisateurs', icon: 'heroUsers', route: '/admin/users' },
         { label: 'Cours', icon: 'heroCalendarDays', route: '/admin/lessons' },
         { label: 'Comptabilite', icon: 'heroBanknotes', route: '/admin/accounting' },
-        { label: 'Factures', icon: 'heroDocumentText', route: '/admin/invoices' }
+        { label: 'Factures', icon: 'heroDocumentText', route: '/admin/invoices' },
+        { label: 'Blog', icon: 'heroNewspaper', route: '/admin/blog' }
       ]
     },
     {

@@ -110,6 +110,22 @@ public class ArticleDataInitializer implements CommandLineRunner {
         article5.setPublishedAt(LocalDateTime.now().minusDays(5));
         article5.setReadingTimeMinutes(6);
         articleRepository.save(article5);
+
+        // Article 6: Devenir coach
+        Article article6 = new Article();
+        article6.setTitle("Devenir coach d'echecs en ligne : Le guide complet pour se lancer");
+        article6.setSlug("devenir-coach-echecs-en-ligne-guide-complet");
+        article6.setMetaDescription("Decouvrez comment devenir coach d'echecs sur mychess. Creation d'entreprise, inscription, gestion des disponibilites et premiers cours.");
+        article6.setMetaKeywords("devenir coach echecs, enseigner echecs, coach echecs en ligne, cours echecs");
+        article6.setExcerpt("Vous etes passionne d'echecs et souhaitez transmettre votre savoir ? Decouvrez comment devenir coach sur mychess et commencer a donner des cours en ligne.");
+        article6.setContent(getDevenirCoachArticleContent());
+        article6.setCoverImage("https://images.unsplash.com/photo-1523875194681-bedd468c58bf?w=1200");
+        article6.setAuthor("mychess");
+        article6.setCategory("coach");
+        article6.setPublished(true);
+        article6.setPublishedAt(LocalDateTime.now().minusDays(2));
+        article6.setReadingTimeMinutes(10);
+        articleRepository.save(article6);
     }
 
     private String getDebutantArticleContent() {
@@ -410,6 +426,199 @@ public class ArticleDataInitializer implements CommandLineRunner {
             ## Conclusion
 
             Les echecs sont un formidable outil de developpement pour les enfants. Chez ChessConnect, nos coachs specialises savent rendre l'apprentissage passionnant et adapte a chaque jeune joueur.
+            """;
+    }
+
+    private String getDevenirCoachArticleContent() {
+        return """
+            ## Pourquoi devenir coach d'echecs ?
+
+            Vous maitrisez les echecs et aimez transmettre votre passion ? Devenir coach en ligne est une excellente opportunite de generer des revenus complementaires tout en partageant votre expertise.
+
+            Avec mychess, vous beneficiez d'une plateforme cle en main : pas besoin de chercher des joueurs, de gerer les paiements ou de configurer un systeme de reservation. On s'occupe de tout !
+
+            ## Etape 1 : Creer votre statut d'entreprise
+
+            Pour exercer legalement et etre remunere pour vos cours, vous devez avoir un statut d'entreprise. La solution la plus simple est la **micro-entreprise**.
+
+            ### Pourquoi la micro-entreprise ?
+
+            - **Simple a creer** : 15 minutes en ligne
+            - **Peu de formalites** : Pas de comptabilite complexe
+            - **Charges reduites** : Environ 22% du chiffre d'affaires
+            - **Ideal pour debuter** : Jusqu'a 77 700€ de CA annuel
+
+            ### Comment creer votre micro-entreprise ?
+
+            1. **Rendez-vous sur le guichet unique des entreprises**
+               [https://procedures.inpi.fr](https://procedures.inpi.fr/?/)
+
+            2. **Choisissez l'activite**
+               Code APE recommande : 85.51Z - Enseignement de disciplines sportives et d'activites de loisirs
+
+            3. **Remplissez le formulaire**
+               - Identite
+               - Adresse du siege (votre domicile)
+               - Date de debut d'activite
+
+            4. **Validez et attendez votre numero SIRET**
+               Vous le recevrez sous 1 a 2 semaines par courrier
+
+            ### Ressources utiles
+
+            - [Guide officiel de la micro-entreprise](https://www.autoentrepreneur.urssaf.fr/)
+            - [Simulateur de charges URSSAF](https://www.autoentrepreneur.urssaf.fr/portail/accueil/une-question/simulateur-de-charges.html)
+            - [Aide a la creation d'entreprise (ACRE)](https://www.service-public.fr/particuliers/vosdroits/F11677)
+
+            ## Etape 2 : Creer votre compte coach sur mychess
+
+            Une fois votre SIRET en poche, vous pouvez vous inscrire sur notre plateforme.
+
+            ### Inscription
+
+            1. **Allez sur mychess.fr** et cliquez sur "S'inscrire"
+            2. **Selectionnez "Coach"** dans le choix du role
+            3. **Remplissez vos informations** :
+               - Nom et prenom
+               - Email
+               - Mot de passe securise
+               - Tarif horaire (entre 30€ et 80€ recommande)
+               - Bio : presentez-vous en quelques lignes
+               - Langues parlees
+
+            ### Conseils pour votre profil
+
+            - **Photo professionnelle** : Un visage souriant inspire confiance
+            - **Bio detaillee** : Mentionnez votre niveau ELO, vos titres, votre experience
+            - **Tarif competitif** : Commencez avec un tarif attractif pour avoir vos premiers avis
+
+            ## Etape 3 : Configurer vos disponibilites
+
+            C'est la cle pour recevoir des reservations !
+
+            ### Acces a la gestion des disponibilites
+
+            1. Connectez-vous a votre compte
+            2. Allez dans le menu "Mes Disponibilites"
+
+            ### Types de creneaux
+
+            **Creneaux recurrents** : Ideals pour une routine reguliere
+            - Exemple : Tous les mardis de 18h a 20h
+
+            **Creneaux ponctuels** : Pour des disponibilites exceptionnelles
+            - Exemple : Le 15 janvier de 14h a 16h
+
+            ### Bonnes pratiques
+
+            - **Proposez plusieurs creneaux** : Plus vous en avez, plus vous aurez de reservations
+            - **Variez les horaires** : Matin, midi, soir, week-end
+            - **Soyez regulier** : Les joueurs apprecient la stabilite
+
+            ## Etape 4 : Configurer vos paiements (Stripe Connect)
+
+            Pour recevoir vos gains, vous devez connecter votre compte bancaire via Stripe.
+
+            ### Configuration
+
+            1. Allez dans **Parametres** > **Paiements**
+            2. Cliquez sur **"Configurer mes paiements"**
+            3. Suivez le processus Stripe Connect :
+               - Informations personnelles
+               - Coordonnees bancaires (IBAN)
+               - Verification d'identite (piece d'identite)
+
+            ### Comment ca marche ?
+
+            - Lorsqu'un joueur reserve un cours, il paie en ligne
+            - Apres le cours, les fonds sont credites sur votre compte Stripe
+            - Vous pouvez demander un virement a tout moment
+            - Commission mychess : 15% (12.5% plateforme + 2.5% frais bancaires)
+
+            **Exemple** : Pour un cours a 50€, vous recevez 42.50€
+
+            ## Etape 5 : Recevoir et gerer vos reservations
+
+            ### Notification de reservation
+
+            Quand un joueur reserve un creneau :
+            1. Vous recevez un email de notification
+            2. La reservation apparait dans "Mes Cours"
+
+            ### Confirmer une reservation
+
+            - Vous avez **24 heures** pour confirmer
+            - Sans confirmation, la reservation est automatiquement annulee et le joueur rembourse
+
+            ### Avant le cours
+
+            - Verifiez le profil du joueur (niveau, objectifs)
+            - Preparez votre cours en fonction
+            - Testez votre connexion et votre webcam
+
+            ### Pendant le cours
+
+            - Le cours se deroule en **visioconference** directement sur la plateforme
+            - Utilisez l'ecran partage pour montrer l'echiquier
+            - Duree standard : 1 heure
+
+            ### Apres le cours
+
+            - Cliquez sur **"Terminer"** pour valider le cours
+            - Ajoutez vos observations pour le suivi du joueur
+            - Vos gains sont credites automatiquement
+
+            ## Conseils pour reussir
+
+            ### Construisez votre reputation
+
+            - **Soyez ponctuel** : Connectez-vous 5 min avant le cours
+            - **Soyez pedagogue** : Adaptez-vous au niveau du joueur
+            - **Soyez patient** : Les debutants ont besoin d'encouragements
+
+            ### Fidelisez vos joueurs
+
+            - Proposez un suivi personnalise
+            - Donnez des exercices entre les cours
+            - Celebrez leurs progres
+
+            ### Augmentez votre visibilite
+
+            - Completez votre profil a 100%
+            - Repondez rapidement aux reservations
+            - Encouragez les avis positifs
+
+            ## Les avantages mychess
+
+            | Avantage | Description |
+            |----------|-------------|
+            | Joueurs qualifies | Des passionnes motives pour apprendre |
+            | Paiement securise | Stripe garantit vos paiements |
+            | Outils integres | Visioconference, suivi progression |
+            | Support reactif | Une equipe a votre ecoute |
+            | 0 frais fixes | Vous ne payez que sur vos gains |
+
+            ## FAQ
+
+            **Quel niveau faut-il pour enseigner ?**
+            Nous recommandons un niveau ELO minimum de 1600, mais l'experience pedagogique compte aussi beaucoup.
+
+            **Puis-je fixer mon propre tarif ?**
+            Oui, vous etes libre de fixer votre tarif horaire entre 30€ et 80€.
+
+            **Comment sont geres les annulations ?**
+            - Joueur annule > 24h avant : remboursement 100%
+            - Joueur annule 2-24h avant : remboursement 50%
+            - Joueur annule < 2h avant : pas de remboursement (vous etes paye)
+
+            **Puis-je donner des cours depuis l'etranger ?**
+            Oui, tant que vous avez un statut permettant de facturer et un compte bancaire compatible Stripe.
+
+            ## Conclusion
+
+            Devenir coach sur mychess est simple et accessible. En quelques etapes, vous pouvez commencer a transmettre votre passion et generer des revenus complementaires.
+
+            **Pret a vous lancer ?** [Creez votre compte coach](https://mychess.fr/register) des maintenant !
             """;
     }
 }

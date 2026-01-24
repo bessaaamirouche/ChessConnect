@@ -32,6 +32,12 @@ public class ArticleService {
                 .map(ArticleListDTO::new);
     }
 
+    public Page<ArticleListDTO> getAllArticles(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return articleRepository.findAllByOrderByCreatedAtDesc(pageable)
+                .map(ArticleListDTO::new);
+    }
+
     public Page<ArticleListDTO> getArticlesByCategory(String category, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return articleRepository.findByCategoryAndPublishedTrueOrderByPublishedAtDesc(category, pageable)

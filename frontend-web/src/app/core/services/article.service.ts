@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap, catchError, of } from 'rxjs';
-import { ArticleList, ArticleDetail, ArticlePage } from '../models/article.model';
+import { ArticleList, ArticleDetail, ArticlePage, ArticleCreateRequest } from '../models/article.model';
 
 @Injectable({
   providedIn: 'root'
@@ -67,5 +67,56 @@ export class ArticleService {
       month: 'long',
       year: 'numeric'
     });
+  }
+
+  // ===== Admin Methods =====
+
+  /**
+   * Get all articles including unpublished (admin only)
+   */
+  getAllArticles(page = 0, size = 20): Observable<ArticlePage> {
+    return this.http.get<ArticlePage>(`/api/articles/admin?page=${page}&size=${size}`);
+  }
+
+  /**
+   * Get article by ID (admin only)
+   */
+  getArticleById(id: number): Observable<ArticleDetail> {
+    return this.http.get<ArticleDetail>(`/api/articles/id/${id}`);
+  }
+
+  /**
+   * Create a new article (admin only)
+   */
+  createArticle(article: ArticleCreateRequest): Observable<ArticleDetail> {
+    return this.http.post<ArticleDetail>('/api/articles', article);
+  }
+
+  /**
+   * Update an article (admin only)
+   */
+  updateArticle(id: number, article: ArticleCreateRequest): Observable<ArticleDetail> {
+    return this.http.put<ArticleDetail>(`/api/articles/${id}`, article);
+  }
+
+  /**
+   * Delete an article (admin only)
+   */
+  deleteArticle(id: number): Observable<void> {
+    return this.http.delete<void>(`/api/articles/${id}`);
+  }
+
+  /**
+   * Publish an article (admin only)
+   */
+  publishArticle(id: number): Observable<ArticleDetail> {
+    return this.http.patch<ArticleDetail>(`/api/articles/${id}/publish`, {});
+  }
+
+  /**
+   * Unpublish an article (admin only)
+   */
+  unpublishArticle(id: number): Observable<ArticleDetail> {
+    return this.http.patch<ArticleDetail>(`/api/articles/${id}/unpublish`, {});
   }
 }

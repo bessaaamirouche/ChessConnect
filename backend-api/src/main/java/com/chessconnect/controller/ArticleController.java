@@ -70,6 +70,17 @@ public class ArticleController {
     }
 
     /**
+     * Get all articles including unpublished (admin only)
+     */
+    @GetMapping("/admin")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Page<ArticleListDTO>> getAllArticles(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return ResponseEntity.ok(articleService.getAllArticles(page, size));
+    }
+
+    /**
      * Get article by ID (admin)
      */
     @GetMapping("/id/{id}")

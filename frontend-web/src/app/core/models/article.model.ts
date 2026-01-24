@@ -8,6 +8,19 @@ export interface ArticleList {
   publishedAt: string;
   category: string;
   readingTimeMinutes: number;
+  published?: boolean;
+}
+
+export interface ArticleCreateRequest {
+  title: string;
+  metaDescription: string;
+  metaKeywords: string;
+  excerpt: string;
+  content: string;
+  coverImage: string;
+  author: string;
+  category: string;
+  published: boolean;
 }
 
 export interface ArticleDetail {
@@ -44,5 +57,6 @@ export const ARTICLE_CATEGORIES: Record<string, { label: string; color: string }
   strategie: { label: 'Strategie', color: '#3b82f6' },
   progression: { label: 'Progression', color: '#22c55e' },
   conseils: { label: 'Conseils', color: '#a855f7' },
-  enfants: { label: 'Enfants', color: '#f59e0b' }
+  enfants: { label: 'Enfants', color: '#f59e0b' },
+  coach: { label: 'Coach', color: '#ec4899' }
 };

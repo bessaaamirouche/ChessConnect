@@ -37,6 +37,11 @@ export const adminRoutes: Routes = [
         path: 'invoices',
         loadComponent: () => import('./invoices/admin-invoices.component')
           .then(m => m.AdminInvoicesComponent)
+      },
+      {
+        path: 'blog',
+        loadComponent: () => import('./articles/admin-articles.component')
+          .then(m => m.AdminArticlesComponent)
       }
     ]
   }

@@ -13,6 +13,7 @@ public class ArticleListDTO {
     private LocalDateTime publishedAt;
     private String category;
     private Integer readingTimeMinutes;
+    private boolean published;
 
     public ArticleListDTO() {}
 
@@ -26,6 +27,7 @@ public class ArticleListDTO {
         this.publishedAt = article.getPublishedAt();
         this.category = article.getCategory();
         this.readingTimeMinutes = article.getReadingTimeMinutes();
+        this.published = article.isPublished();
     }
 
     // Getters and Setters
@@ -99,5 +101,13 @@ public class ArticleListDTO {
 
     public void setReadingTimeMinutes(Integer readingTimeMinutes) {
         this.readingTimeMinutes = readingTimeMinutes;
+    }
+
+    public boolean isPublished() {
+        return published;
+    }
+
+    public void setPublished(boolean published) {
+        this.published = published;
     }
 }

@@ -57,10 +57,11 @@ type SortOrder = 'asc' | 'desc';
           <input
             type="text"
             placeholder="Rechercher..."
-            [(ngModel)]="searchQuery"
+            [ngModel]="searchQuery()"
+            (ngModelChange)="searchQuery.set($event)"
           >
-          @if (searchQuery) {
-            <button class="clear-btn" (click)="searchQuery = ''">
+          @if (searchQuery()) {
+            <button class="clear-btn" (click)="searchQuery.set('')">
               <ng-icon name="heroXMark"></ng-icon>
             </button>
           }
@@ -70,13 +71,13 @@ type SortOrder = 'asc' | 'desc';
         <div class="date-filters">
           <div class="date-input">
             <label>Du</label>
-            <input type="date" [(ngModel)]="dateFrom">
+            <input type="date" [ngModel]="dateFrom()" (ngModelChange)="dateFrom.set($event)">
           </div>
           <div class="date-input">
             <label>Au</label>
-            <input type="date" [(ngModel)]="dateTo">
+            <input type="date" [ngModel]="dateTo()" (ngModelChange)="dateTo.set($event)">
           </div>
-          @if (dateFrom || dateTo) {
+          @if (dateFrom() || dateTo()) {
             <button class="clear-dates-btn" (click)="clearDates()">
               <ng-icon name="heroXMark"></ng-icon>
             </button>
@@ -599,9 +600,9 @@ export class InvoicesComponent implements OnInit {
   activeFilter = signal<FilterType>('all');
   downloadingId = signal<number | null>(null);
 
-  searchQuery = '';
-  dateFrom = '';
-  dateTo = '';
+  searchQuery = signal('');
+  dateFrom = signal('');
+  dateTo = signal('');
   sortField = signal<SortField>('date');
   sortOrder = signal<SortOrder>('desc');
 
@@ -610,7 +611,7 @@ export class InvoicesComponent implements OnInit {
   filteredAndSortedInvoices = computed(() => {
     let result = this.invoices();
     const filter = this.activeFilter();
-    const query = this.searchQuery.toLowerCase().trim();
+    const query = this.searchQuery().toLowerCase().trim();
 
     // Filter by type
     if (filter === 'received') {
@@ -630,12 +631,12 @@ export class InvoicesComponent implements OnInit {
     }
 
     // Filter by date range
-    if (this.dateFrom) {
-      const from = new Date(this.dateFrom);
+    if (this.dateFrom()) {
+      const from = new Date(this.dateFrom());
       result = result.filter(inv => this.parseDate(inv.issuedAt) >= from);
     }
-    if (this.dateTo) {
-      const to = new Date(this.dateTo);
+    if (this.dateTo()) {
+      const to = new Date(this.dateTo());
       to.setHours(23, 59, 59, 999);
       result = result.filter(inv => this.parseDate(inv.issuedAt) <= to);
     }
@@ -699,8 +700,8 @@ export class InvoicesComponent implements OnInit {
   }
 
   clearDates(): void {
-    this.dateFrom = '';
-    this.dateTo = '';
+    this.dateFrom.set('');
+    this.dateTo.set('');
   }
 
   downloadPdf(invoice: Invoice): void {

@@ -109,7 +109,7 @@ $text-muted: #6b6965;
     gap: var(--space-sm);
     color: $ivory-muted;
     font-size: 0.875rem;
-    margin-bottom: var(--space-xl);
+    margin-bottom: var(--space-md);
     transition: color var(--transition-fast);
 
     &:hover {
@@ -118,7 +118,8 @@ $text-muted: #6b6965;
   }
 
   &__category {
-    display: inline-block;
+    display: block;
+    width: fit-content;
     padding: var(--space-xs) var(--space-sm);
     border-radius: var(--radius-full);
     font-size: 0.6875rem;

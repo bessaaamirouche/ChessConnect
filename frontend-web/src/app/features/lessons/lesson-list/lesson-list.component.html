@@ -71,14 +71,6 @@
                       </span>
                     }
                   </div>
-                  @if (lesson.status === 'PENDING' && getNextCourse(lesson.studentId); as nextCourse) {
-                    <div class="next-course-separator">
-                      <span class="next-course-title">
-                        <ng-icon name="heroAcademicCap" size="16"></ng-icon>
-                        {{ nextCourse.title }}
-                      </span>
-                    </div>
-                  }
                 }
                 <div class="lesson-card__meta">
                   <span class="badge" [class]="statusLabels[lesson.status].cssClass">
@@ -95,9 +87,14 @@
 
               <div class="lesson-card__actions">
                 @if (lesson.status === 'PENDING' && authService.isTeacher()) {
-                  <button class="btn btn--primary btn--sm" (click)="confirmLesson(lesson.id)">
-                    Confirmer
-                  </button>
+                  <div class="lesson-card__confirm-group">
+                    @if (getNextCourse(lesson.studentId); as nextCourse) {
+                      <span class="next-course-label">Prochain cours : {{ nextCourse.title }}</span>
+                    }
+                    <button class="btn btn--primary btn--sm" (click)="confirmLesson(lesson.id)">
+                      Confirmer
+                    </button>
+                  </div>
                 }
                 @if (lesson.status === 'CONFIRMED' && lesson.zoomLink) {
                   @if (canJoinLesson(lesson)) {

@@ -44,7 +44,9 @@ export class ProgressService {
   readonly lessonsToNextLevel = computed(() => {
     const p = this.progressSignal();
     if (!p) return 0;
-    return p.lessonsRequiredForNextLevel - p.lessonsAtCurrentLevel;
+    // DAME level has 0 required lessons (max level)
+    if (p.currentLevel === 'DAME' || p.lessonsRequiredForNextLevel === 0) return 0;
+    return Math.max(0, p.lessonsRequiredForNextLevel - p.lessonsAtCurrentLevel);
   });
 
   readonly isMaxLevel = computed(() =>

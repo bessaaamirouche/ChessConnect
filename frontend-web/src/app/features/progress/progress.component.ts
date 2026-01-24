@@ -129,10 +129,10 @@ export class ProgressComponent implements OnInit {
 
   getLessonsRequired(level: ChessLevel): number {
     const requirements: Record<ChessLevel, number> = {
-      PION: 10,
-      CAVALIER: 15,
-      FOU: 20,
-      TOUR: 25,
+      PION: 45,
+      CAVALIER: 45,
+      FOU: 45,
+      TOUR: 45,
       DAME: 0
     };
     return requirements[level];

@@ -92,11 +92,11 @@ public class Progress {
 
     private int calculateRequiredLessons(ChessLevel level) {
         return switch (level) {
-            case PION -> 10;
-            case CAVALIER -> 15;
-            case FOU -> 20;
-            case TOUR -> 25;
-            case DAME -> Integer.MAX_VALUE;
+            case PION -> 45;
+            case CAVALIER -> 45;
+            case FOU -> 45;
+            case TOUR -> 45;
+            case DAME -> 0; // Max level, no more required
         };
     }
 

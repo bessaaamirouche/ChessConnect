@@ -399,6 +399,16 @@ public class PaymentController {
 
                 subscriptionService.activateSubscription(stripeSubId, userId, plan);
                 log.info("Subscription activated for user {} via checkout", userId);
+
+                // Generate subscription invoice
+                try {
+                    int amountCents = session.getAmountTotal() != null ? session.getAmountTotal().intValue() : plan.getPriceCents();
+                    String paymentIntentId = session.getPaymentIntent();
+                    invoiceService.generateSubscriptionInvoice(userId, amountCents, paymentIntentId);
+                    log.info("Subscription invoice generated for user {}", userId);
+                } catch (Exception e) {
+                    log.error("Failed to generate subscription invoice for user {}: {}", userId, e.getMessage());
+                }
             } else if ("payment".equals(mode) && "ONE_TIME_LESSON".equals(metadata.get("type"))) {
                 // Handle one-time lesson payment
                 Long studentId = Long.parseLong(metadata.get("user_id"));

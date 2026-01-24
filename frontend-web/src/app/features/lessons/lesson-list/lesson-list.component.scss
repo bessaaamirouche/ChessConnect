@@ -76,66 +76,50 @@
 }
 
 .lessons-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-  gap: var(--space-md);
-
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
 }
 
 .lesson-card {
   display: flex;
-  flex-direction: column;
+  align-items: center;
   gap: var(--space-md);
-  padding: var(--space-lg);
+  padding: var(--space-md);
   background: var(--bg-secondary);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
-  transition: all var(--transition-base);
+  border-radius: var(--radius-md);
+  transition: border-color var(--transition-fast);
 
   &:hover {
-    border-color: var(--gold-400);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-    transform: translateY(-2px);
-  }
-
-  &__header {
-    display: flex;
-    align-items: flex-start;
-    gap: var(--space-md);
+    border-color: var(--border-default);
   }
 
   &__time {
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-width: 64px;
-    padding: var(--space-sm);
-    background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-primary) 100%);
-    border-radius: var(--radius-md);
-    border: 1px solid var(--border-subtle);
+    min-width: 56px;
+    padding: var(--space-xs) var(--space-sm);
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-sm);
 
     &-day {
-      font-size: 0.6875rem;
+      font-size: 0.625rem;
       text-transform: uppercase;
       color: var(--text-muted);
-      letter-spacing: 0.05em;
     }
 
     &-date {
-      font-size: 1.5rem;
+      font-size: 1.125rem;
       font-weight: 700;
       color: var(--gold-400);
       line-height: 1.1;
     }
 
     &-hour {
-      font-size: 0.8125rem;
-      font-weight: 500;
-      color: var(--text-primary);
-      margin-top: 2px;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
     }
   }
 
@@ -143,29 +127,21 @@
     flex: 1;
 
     h4 {
-      font-size: 1rem;
+      font-size: 0.875rem;
       font-weight: 600;
       color: var(--text-primary);
-      margin-bottom: var(--space-xs);
+      margin-bottom: 2px;
     }
   }
 
   &__meta {
     display: flex;
-    flex-wrap: wrap;
     gap: var(--space-xs);
   }
 
   &__actions {
     display: flex;
-    gap: var(--space-sm);
-    padding-top: var(--space-md);
-    border-top: 1px solid var(--border-subtle);
-
-    .btn {
-      flex: 1;
-      justify-content: center;
-    }
+    gap: var(--space-xs);
   }
 }
 

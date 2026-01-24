@@ -130,20 +130,18 @@ type FilterType = 'all' | 'received' | 'issued';
                   <span class="amount-value">{{ formatCents(invoice.totalCents) }}</span>
                 </div>
 
-                @if (invoice.hasPdf) {
-                  <button
-                    class="download-btn"
-                    (click)="downloadPdf(invoice)"
-                    [disabled]="downloadingId() === invoice.id"
-                  >
-                    @if (downloadingId() === invoice.id) {
-                      <ng-icon name="heroArrowPath" class="spin"></ng-icon>
-                    } @else {
-                      <ng-icon name="heroArrowDownTray"></ng-icon>
-                    }
-                    <span>Telecharger PDF</span>
-                  </button>
-                }
+                <button
+                  class="download-btn"
+                  (click)="downloadPdf(invoice)"
+                  [disabled]="downloadingId() === invoice.id"
+                >
+                  @if (downloadingId() === invoice.id) {
+                    <ng-icon name="heroArrowPath" class="spin"></ng-icon>
+                  } @else {
+                    <ng-icon name="heroDocumentText"></ng-icon>
+                  }
+                  <span>PDF</span>
+                </button>
               </div>
 
               @if (invoice.promoApplied) {

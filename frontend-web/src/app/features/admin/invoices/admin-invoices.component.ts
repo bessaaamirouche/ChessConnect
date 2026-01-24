@@ -131,20 +131,18 @@ import { InvoiceService, Invoice } from '../../../core/services/invoice.service'
                     </span>
                   </td>
                   <td>
-                    @if (invoice.hasPdf) {
-                      <button
-                        class="btn-icon"
-                        (click)="downloadPdf(invoice)"
-                        [disabled]="downloadingId() === invoice.id"
-                        title="Telecharger PDF"
-                      >
-                        @if (downloadingId() === invoice.id) {
-                          <ng-icon name="heroArrowPath" class="spin"></ng-icon>
-                        } @else {
-                          <ng-icon name="heroArrowDownTray"></ng-icon>
-                        }
-                      </button>
-                    }
+                    <button
+                      class="btn-icon"
+                      (click)="downloadPdf(invoice)"
+                      [disabled]="downloadingId() === invoice.id"
+                      title="Telecharger PDF"
+                    >
+                      @if (downloadingId() === invoice.id) {
+                        <ng-icon name="heroArrowPath" class="spin"></ng-icon>
+                      } @else {
+                        <ng-icon name="heroDocumentText"></ng-icon>
+                      }
+                    </button>
                   </td>
                 </tr>
               }

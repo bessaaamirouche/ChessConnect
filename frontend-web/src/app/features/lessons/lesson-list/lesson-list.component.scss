@@ -655,11 +655,15 @@
   }
 }
 
-// Next course label (centered between content and actions)
+// Next course label (inline with student info badges)
 .next-course-label {
-  flex: 1;
-  text-align: center;
-  font-size: 0.8125rem;
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  background: rgba(212, 168, 75, 0.15);
+  border: 1px solid rgba(212, 168, 75, 0.3);
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
   font-weight: 500;
   color: var(--gold-400);
 

@@ -70,6 +70,9 @@
                         ELO {{ lesson.studentElo }}
                       </span>
                     }
+                    @if (lesson.status === 'PENDING' && getNextCourse(lesson.studentId); as nextCourse) {
+                      <span class="next-course-label">Prochain cours : {{ nextCourse.title }}</span>
+                    }
                   </div>
                 }
                 <div class="lesson-card__meta">
@@ -84,10 +87,6 @@
                   }
                 </div>
               </div>
-
-              @if (lesson.status === 'PENDING' && authService.isTeacher() && getNextCourse(lesson.studentId); as nextCourse) {
-                <div class="next-course-label">Prochain cours : {{ nextCourse.title }}</div>
-              }
 
               <div class="lesson-card__actions">
                 @if (lesson.status === 'PENDING' && authService.isTeacher()) {

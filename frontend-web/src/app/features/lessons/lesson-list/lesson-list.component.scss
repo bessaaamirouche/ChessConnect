@@ -347,12 +347,6 @@
     margin-bottom: var(--space-sm);
   }
 
-  &__status {
-    position: absolute;
-    top: var(--space-md);
-    right: calc(var(--space-sm) + 36px); // space for delete button
-  }
-
   &__date-block {
     display: flex;
     flex-direction: column;

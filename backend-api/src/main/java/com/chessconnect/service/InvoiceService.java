@@ -255,14 +255,14 @@ public class InvoiceService {
      * Add invoice header with logo and title.
      */
     private void addInvoiceHeader(Document document, String title, String invoiceNumber, LocalDateTime date) throws DocumentException {
-        // Logo
+        // Logo (1024x329 original, scaled to fit header)
         try {
             ClassPathResource logoResource = new ClassPathResource("static/logo.png");
             if (logoResource.exists()) {
                 try (InputStream is = logoResource.getInputStream()) {
                     byte[] logoBytes = is.readAllBytes();
                     Image logo = Image.getInstance(logoBytes);
-                    logo.scaleToFit(60, 60);
+                    logo.scaleToFit(180, 58); // Preserve aspect ratio for horizontal logo
                     logo.setAlignment(Element.ALIGN_CENTER);
                     document.add(logo);
                     document.add(new Paragraph(" "));

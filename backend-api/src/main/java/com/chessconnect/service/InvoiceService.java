@@ -33,11 +33,13 @@ public class InvoiceService {
 
     private static final Logger log = LoggerFactory.getLogger(InvoiceService.class);
 
-    // Platform info for commission invoices
-    private static final String PLATFORM_NAME = "mychess";
-    private static final String PLATFORM_ADDRESS = "Paris, France";
-    private static final String PLATFORM_SIRET = ""; // To be configured
-    private static final String PLATFORM_EMAIL = "contact@mychess.fr";
+    // Platform info for invoices (from KBIS)
+    private static final String PLATFORM_NAME = "Mychess.fr";
+    private static final String PLATFORM_OWNER = "Bessaa Amirouche EI";
+    private static final String PLATFORM_ADDRESS = "10 rue de Penthievre, 75008 Paris";
+    private static final String PLATFORM_SIREN = "834 446 510";
+    private static final String PLATFORM_RCS = "R.C.S. Paris";
+    private static final String PLATFORM_EMAIL = "support@mychess.fr";
 
     // Commission rates (12.5% platform + 2.5% Stripe = 15% total)
     private static final double STANDARD_COMMISSION_RATE = 12.5; // 12.5% platform
@@ -255,7 +257,7 @@ public class InvoiceService {
      * Add invoice header with logo and title.
      */
     private void addInvoiceHeader(Document document, String title, String invoiceNumber, LocalDateTime date) throws DocumentException {
-        // Logo (1024x329 original, scaled to fit header)
+        // Logo (1024x329 original, scaled to fit header, aligned left)
         try {
             ClassPathResource logoResource = new ClassPathResource("static/logo.png");
             if (logoResource.exists()) {
@@ -263,7 +265,7 @@ public class InvoiceService {
                     byte[] logoBytes = is.readAllBytes();
                     Image logo = Image.getInstance(logoBytes);
                     logo.scaleToFit(180, 58); // Preserve aspect ratio for horizontal logo
-                    logo.setAlignment(Element.ALIGN_CENTER);
+                    logo.setAlignment(Element.ALIGN_LEFT);
                     document.add(logo);
                     document.add(new Paragraph(" "));
                 }
@@ -336,11 +338,10 @@ public class InvoiceService {
 
         document.add(new Paragraph("EMETTEUR", headerFont));
         document.add(new Paragraph(PLATFORM_NAME, normalFont));
+        document.add(new Paragraph(PLATFORM_OWNER, normalFont));
         document.add(new Paragraph(PLATFORM_ADDRESS, normalFont));
         document.add(new Paragraph(PLATFORM_EMAIL, normalFont));
-        if (!PLATFORM_SIRET.isBlank()) {
-            document.add(new Paragraph("SIRET : " + PLATFORM_SIRET, normalFont));
-        }
+        document.add(new Paragraph("SIREN : " + PLATFORM_SIREN + " " + PLATFORM_RCS, normalFont));
 
         document.add(new Paragraph(" "));
     }

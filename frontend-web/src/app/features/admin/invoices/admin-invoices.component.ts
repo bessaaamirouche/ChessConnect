@@ -75,6 +75,20 @@ import { InvoiceService, Invoice } from '../../../core/services/invoice.service'
           <option value="COMMISSION_INVOICE">Commission</option>
           <option value="PAYOUT_INVOICE">Virement</option>
         </select>
+        <input
+          type="date"
+          class="filter-date"
+          [ngModel]="startDate()"
+          (ngModelChange)="startDate.set($event)"
+          placeholder="Du"
+        >
+        <input
+          type="date"
+          class="filter-date"
+          [ngModel]="endDate()"
+          (ngModelChange)="endDate.set($event)"
+          placeholder="Au"
+        >
       </div>
 
       <!-- Loading State -->
@@ -102,7 +116,12 @@ import { InvoiceService, Invoice } from '../../../core/services/invoice.service'
               <tr>
                 <th>Numero</th>
                 <th>Type</th>
-                <th>Date</th>
+                <th class="sortable" (click)="toggleSort('issuedAt')">
+                  Date
+                  @if (sortColumn() === 'issuedAt') {
+                    <span>{{ sortDirection() === 'asc' ? '▲' : '▼' }}</span>
+                  }
+                </th>
                 <th>Emetteur</th>
                 <th>Client</th>
                 <th>Description</th>
@@ -255,6 +274,21 @@ import { InvoiceService, Invoice } from '../../../core/services/invoice.service'
       min-width: 160px;
     }
 
+    .filter-date {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 12px 16px;
+      color: var(--text-primary);
+      font-size: 0.875rem;
+      min-width: 140px;
+
+      &::-webkit-calendar-picker-indicator {
+        filter: invert(0.8);
+        cursor: pointer;
+      }
+    }
+
     .loading-state, .empty-state {
       display: flex;
       flex-direction: column;
@@ -306,6 +340,20 @@ import { InvoiceService, Invoice } from '../../../core/services/invoice.service'
         font-weight: 600;
         text-transform: uppercase;
         color: var(--text-muted);
+
+        &.sortable {
+          cursor: pointer;
+          user-select: none;
+
+          &:hover {
+            color: var(--gold-400);
+          }
+
+          span {
+            margin-left: 4px;
+            font-size: 0.75rem;
+          }
+        }
       }
 
       td {
@@ -436,6 +484,10 @@ import { InvoiceService, Invoice } from '../../../core/services/invoice.service'
 
       .filters-section {
         flex-direction: column;
+
+        .filter-date {
+          width: 100%;
+        }
       }
 
       .table-container {
@@ -457,6 +509,10 @@ export class AdminInvoicesComponent implements OnInit {
   searchQuery = signal('');
   statusFilter = signal('');
   typeFilter = signal('');
+  startDate = signal<string>('');
+  endDate = signal<string>('');
+  sortColumn = signal<string>('issuedAt');
+  sortDirection = signal<'asc' | 'desc'>('desc');
 
   filteredInvoices = computed(() => {
     let result = this.invoices();
@@ -480,6 +536,25 @@ export class AdminInvoicesComponent implements OnInit {
     if (type) {
       result = result.filter(inv => inv.invoiceType === type);
     }
+
+    // Date range filter
+    if (this.startDate()) {
+      const start = this.parseDate(this.startDate());
+      result = result.filter(inv => this.parseDate(inv.issuedAt) >= start);
+    }
+    if (this.endDate()) {
+      const end = this.parseDate(this.endDate());
+      result = result.filter(inv => this.parseDate(inv.issuedAt) <= end);
+    }
+
+    // Sorting
+    const sortDir = this.sortDirection();
+    result = [...result].sort((a, b) => {
+      const dateA = this.parseDate(a.issuedAt);
+      const dateB = this.parseDate(b.issuedAt);
+      const comparison = dateA - dateB;
+      return sortDir === 'asc' ? comparison : -comparison;
+    });
 
     return result;
   });
@@ -544,6 +619,35 @@ export class AdminInvoicesComponent implements OnInit {
       case 'COMMISSION_INVOICE': return 'Commission';
       case 'PAYOUT_INVOICE': return 'Virement';
       default: return type;
+    }
+  }
+
+  parseDate(dateString: string): number {
+    if (!dateString) return 0;
+    // Format from backend: "24/01/2026 23:02" or date input: "2026-01-24"
+    if (typeof dateString === 'string') {
+      // Try dd/MM/yyyy format first
+      const match = dateString.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
+      if (match) {
+        const [, day, month, year] = match;
+        return new Date(parseInt(year), parseInt(month) - 1, parseInt(day)).getTime();
+      }
+      // Try yyyy-MM-dd format (from date input)
+      const isoMatch = dateString.match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if (isoMatch) {
+        const [, year, month, day] = isoMatch;
+        return new Date(parseInt(year), parseInt(month) - 1, parseInt(day)).getTime();
+      }
+    }
+    return 0;
+  }
+
+  toggleSort(column: string): void {
+    if (this.sortColumn() === column) {
+      this.sortDirection.set(this.sortDirection() === 'asc' ? 'desc' : 'asc');
+    } else {
+      this.sortColumn.set(column);
+      this.sortDirection.set('desc');
     }
   }
 }

@@ -108,7 +108,10 @@ public class InvoiceController {
             @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
         try {
-            byte[] pdfBytes = invoiceService.getInvoicePdf(invoiceId, userDetails.getId());
+            boolean isAdmin = userDetails.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+            byte[] pdfBytes = invoiceService.getInvoicePdf(invoiceId, userDetails.getId(), isAdmin);
 
             Invoice invoice = invoiceRepository.findById(invoiceId).orElseThrow();
             String filename = invoice.getInvoiceNumber().replace("/", "-") + ".pdf";
@@ -122,7 +125,7 @@ public class InvoiceController {
                     .body(pdfBytes);
 
         } catch (Exception e) {
-            log.error("Error downloading invoice PDF: {}", e.getMessage());
+            log.error("Error downloading invoice PDF: {}", e.getMessage(), e);
             return ResponseEntity.badRequest().build();
         }
     }
@@ -188,7 +191,7 @@ public class InvoiceController {
                 Map.entry("commissionRate", invoice.getCommissionRate() != null ? invoice.getCommissionRate() : 0),
                 Map.entry("promoApplied", invoice.getPromoApplied() != null && invoice.getPromoApplied()),
                 Map.entry("status", invoice.getStatus()),
-                Map.entry("hasPdf", invoice.getPdfPath() != null),
+                Map.entry("hasPdf", true), // PDFs can now be generated on-demand
                 Map.entry("issuedAt", invoice.getIssuedAt().format(formatter)),
                 Map.entry("createdAt", invoice.getCreatedAt().format(formatter)),
                 Map.entry("lessonId", invoice.getLesson() != null ? invoice.getLesson().getId() : null)
@@ -231,7 +234,7 @@ public class InvoiceController {
                 Map.entry("commissionRate", invoice.getCommissionRate() != null ? invoice.getCommissionRate() : 0),
                 Map.entry("promoApplied", invoice.getPromoApplied() != null && invoice.getPromoApplied()),
                 Map.entry("status", invoice.getStatus()),
-                Map.entry("hasPdf", invoice.getPdfPath() != null),
+                Map.entry("hasPdf", true), // PDFs can now be generated on-demand
                 Map.entry("issuedAt", invoice.getIssuedAt().format(formatter)),
                 Map.entry("createdAt", invoice.getCreatedAt().format(formatter)),
                 Map.entry("lessonId", invoice.getLesson() != null ? invoice.getLesson().getId() : null)

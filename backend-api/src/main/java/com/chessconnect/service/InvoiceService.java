@@ -12,14 +12,15 @@ import com.lowagie.text.pdf.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.awt.Color;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -254,6 +255,23 @@ public class InvoiceService {
      * Add invoice header with logo and title.
      */
     private void addInvoiceHeader(Document document, String title, String invoiceNumber, LocalDateTime date) throws DocumentException {
+        // Logo
+        try {
+            ClassPathResource logoResource = new ClassPathResource("static/logo.png");
+            if (logoResource.exists()) {
+                try (InputStream is = logoResource.getInputStream()) {
+                    byte[] logoBytes = is.readAllBytes();
+                    Image logo = Image.getInstance(logoBytes);
+                    logo.scaleToFit(60, 60);
+                    logo.setAlignment(Element.ALIGN_CENTER);
+                    document.add(logo);
+                    document.add(new Paragraph(" "));
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Could not add logo to invoice PDF: {}", e.getMessage());
+        }
+
         // Title
         Font titleFont = new Font(Font.HELVETICA, 24, Font.BOLD, new Color(51, 51, 51));
         Paragraph titlePara = new Paragraph(title, titleFont);
@@ -534,23 +552,64 @@ public class InvoiceService {
     /**
      * Get PDF bytes for download.
      */
-    public byte[] getInvoicePdf(Long invoiceId, Long userId) throws IOException {
+    public byte[] getInvoicePdf(Long invoiceId, Long userId, boolean isAdmin) throws IOException {
         Invoice invoice = invoiceRepository.findById(invoiceId)
                 .orElseThrow(() -> new RuntimeException("Invoice not found"));
 
-        // Security check: user must be customer or issuer
+        // Security check: user must be customer, issuer, or admin
         boolean isCustomer = invoice.getCustomer().getId().equals(userId);
         boolean isIssuer = invoice.getIssuer() != null && invoice.getIssuer().getId().equals(userId);
 
-        if (!isCustomer && !isIssuer) {
+        if (!isCustomer && !isIssuer && !isAdmin) {
             throw new RuntimeException("Access denied to this invoice");
         }
 
-        if (invoice.getPdfPath() == null) {
-            throw new RuntimeException("PDF not available for this invoice");
+        // Generate PDF on-demand if it doesn't exist
+        if (invoice.getPdfPath() == null || !Files.exists(Paths.get(invoice.getPdfPath()))) {
+            log.info("Generating PDF on-demand for invoice {}", invoiceId);
+            generatePdfOnDemand(invoice);
         }
 
         return Files.readAllBytes(Paths.get(invoice.getPdfPath()));
+    }
+
+    /**
+     * Generate PDF on-demand for existing invoices that don't have a PDF.
+     */
+    private void generatePdfOnDemand(Invoice invoice) throws IOException {
+        User customer = invoice.getCustomer();
+        User issuer = invoice.getIssuer();
+        Lesson lesson = invoice.getLesson();
+
+        switch (invoice.getInvoiceType()) {
+            case LESSON_INVOICE:
+                if (issuer != null) {
+                    generateLessonInvoicePdf(invoice, customer, issuer, lesson);
+                }
+                break;
+            case COMMISSION_INVOICE:
+                generateCommissionInvoicePdf(invoice, customer, lesson);
+                break;
+            case SUBSCRIPTION:
+                generateSubscriptionInvoicePdf(invoice, customer);
+                break;
+            case PAYOUT_INVOICE:
+                String yearMonth = extractYearMonthFromDescription(invoice.getDescription());
+                generatePayoutInvoicePdf(invoice, customer, yearMonth);
+                break;
+            default:
+                throw new RuntimeException("Unknown invoice type: " + invoice.getInvoiceType());
+        }
+    }
+
+    /**
+     * Extract year-month from payout description like "Virement des gains - 2026-01"
+     */
+    private String extractYearMonthFromDescription(String description) {
+        if (description != null && description.contains(" - ")) {
+            return description.substring(description.lastIndexOf(" - ") + 3);
+        }
+        return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM"));
     }
 
     /**

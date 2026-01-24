@@ -632,12 +632,12 @@ export class InvoicesComponent implements OnInit {
     // Filter by date range
     if (this.dateFrom) {
       const from = new Date(this.dateFrom);
-      result = result.filter(inv => new Date(inv.issuedAt) >= from);
+      result = result.filter(inv => this.parseDate(inv.issuedAt) >= from);
     }
     if (this.dateTo) {
       const to = new Date(this.dateTo);
       to.setHours(23, 59, 59, 999);
-      result = result.filter(inv => new Date(inv.issuedAt) <= to);
+      result = result.filter(inv => this.parseDate(inv.issuedAt) <= to);
     }
 
     // Sort
@@ -647,7 +647,7 @@ export class InvoicesComponent implements OnInit {
       let comparison = 0;
 
       if (field === 'date') {
-        comparison = new Date(a.issuedAt).getTime() - new Date(b.issuedAt).getTime();
+        comparison = this.parseDate(a.issuedAt).getTime() - this.parseDate(b.issuedAt).getTime();
       } else if (field === 'amount') {
         comparison = a.totalCents - b.totalCents;
       } else if (field === 'number') {
@@ -714,11 +714,24 @@ export class InvoicesComponent implements OnInit {
   }
 
   formatDate(dateString: string): string {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('fr-FR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
+    if (!dateString) return '-';
+    // Format: "25/01/2026 00:41" -> extract dd/MM/yyyy
+    const match = dateString.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
+    if (match) {
+      const [, day, month, year] = match;
+      return `${day}/${month}/${year}`;
+    }
+    return dateString;
+  }
+
+  parseDate(dateString: string): Date {
+    if (!dateString) return new Date(0);
+    // Format: "25/01/2026 00:41"
+    const match = dateString.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
+    if (match) {
+      const [, day, month, year] = match;
+      return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    }
+    return new Date(0);
   }
 }

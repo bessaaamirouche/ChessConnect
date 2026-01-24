@@ -251,11 +251,11 @@
               <div class="history-card__actions">
                 @if (canRateLesson(lesson)) {
                   <button
-                    class="history-card__action-btn history-card__action-btn--rate"
+                    class="history-card__action-btn"
                     (click)="openRatingModal(lesson)"
                     title="Noter le cours"
                   >
-                    <span class="star">&#9733;</span> Noter le cours
+                    <ng-icon name="heroStar" size="14"></ng-icon> Noter le cours
                   </button>
                 }
                 @if (lesson.status === 'CANCELLED' && lesson.cancellationReason) {
@@ -269,7 +269,7 @@
                 }
                 @if (lesson.status === 'COMPLETED' && lesson.teacherObservations && authService.isStudent()) {
                   <button
-                    class="history-card__action-btn history-card__action-btn--observations"
+                    class="history-card__action-btn"
                     (click)="toggleObservations(lesson.id)"
                     title="Voir les observations"
                   >
@@ -278,11 +278,11 @@
                 }
                 @if (lesson.status === 'COMPLETED' && lesson.recordingUrl) {
                   <button
-                    class="history-card__action-btn history-card__action-btn--play"
+                    class="history-card__action-btn"
                     (click)="openRecording(lesson)"
                     title="Revisionner le cours"
                   >
-                    <ng-icon name="heroPlayCircle" size="14"></ng-icon> REVISIONNER LE COURS
+                    <ng-icon name="heroPlayCircle" size="14"></ng-icon> Revisionner
                   </button>
                 }
               </div>

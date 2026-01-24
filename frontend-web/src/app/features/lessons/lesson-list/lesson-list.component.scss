@@ -394,8 +394,9 @@
 
   &__actions {
     display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-xs);
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-sm);
     margin-top: var(--space-sm);
     padding-top: var(--space-sm);
     border-top: 1px solid var(--border-subtle);
@@ -404,31 +405,28 @@
   &__action-btn {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: 6px;
     padding: var(--space-xs) var(--space-sm);
     background: transparent;
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-sm);
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
     cursor: pointer;
     transition: all var(--transition-fast);
 
     &:hover {
       background: var(--bg-tertiary);
+      border-color: var(--border-default);
+      color: var(--text-primary);
     }
 
-    &--rate {
-      color: var(--gold-400);
-      border-color: rgba(212, 168, 75, 0.3);
+    ng-icon {
+      color: var(--text-muted);
+    }
 
-      .star {
-        font-size: 0.875rem;
-      }
-
-      &:hover {
-        background: rgba(212, 168, 75, 0.15);
-        border-color: var(--gold-400);
-      }
+    &:hover ng-icon {
+      color: var(--text-secondary);
     }
 
     &--info {
@@ -440,39 +438,14 @@
       }
     }
 
-    &--observations {
-      color: var(--gold-400);
-      border-color: rgba(212, 168, 75, 0.3);
-
-      &:hover {
-        background: rgba(212, 168, 75, 0.15);
-      }
-    }
-
     &--delete {
       color: var(--text-muted);
       border-color: transparent;
-      margin-left: auto;
 
       &:hover {
         color: var(--error);
         background: rgba(239, 68, 68, 0.15);
         border-color: rgba(239, 68, 68, 0.3);
-      }
-    }
-
-    &--play {
-      color: var(--gold-400);
-      border-color: rgba(212, 168, 75, 0.3);
-      background: rgba(212, 168, 75, 0.1);
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.02em;
-      margin-left: auto;
-
-      &:hover {
-        background: rgba(212, 168, 75, 0.2);
-        border-color: var(--gold-400);
       }
     }
   }

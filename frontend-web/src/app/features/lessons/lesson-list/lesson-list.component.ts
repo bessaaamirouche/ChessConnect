@@ -37,7 +37,8 @@ import {
   heroPlayCircle,
   heroFunnel,
   heroMagnifyingGlass,
-  heroDocumentText
+  heroDocumentText,
+  heroStar
 } from '@ng-icons/heroicons/outline';
 import { CHESS_LEVELS } from '../../../core/models/user.model';
 
@@ -69,7 +70,8 @@ import { CHESS_LEVELS } from '../../../core/models/user.model';
     heroTrash,
     heroPlayCircle,
     heroFunnel,
-    heroMagnifyingGlass
+    heroMagnifyingGlass,
+    heroStar
   })],
   templateUrl: './lesson-list.component.html',
   styleUrl: './lesson-list.component.scss'

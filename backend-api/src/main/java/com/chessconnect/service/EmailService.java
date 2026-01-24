@@ -22,7 +22,7 @@ public class EmailService {
     private final JavaMailSender mailSender;
     private final TemplateEngine templateEngine;
 
-    @Value("${spring.mail.username:noreply@chessconnect.fr}")
+    @Value("${spring.mail.username:support@mychess.fr}")
     private String fromEmail;
 
     @Value("${app.name:Mychess}")

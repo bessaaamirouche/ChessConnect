@@ -15,7 +15,7 @@ public class ContactController {
 
     private final EmailService emailService;
 
-    @Value("${app.admin.email:bessaa.amirouche@gmail.com}")
+    @Value("${app.admin.email:support@mychess.fr}")
     private String adminEmail;
 
     public ContactController(EmailService emailService) {

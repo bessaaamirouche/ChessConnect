@@ -58,7 +58,7 @@ app:
   frontend-url: ${FRONTEND_URL:http://localhost:4200}
   name: ChessConnect
   admin:
-    email: ${ADMIN_EMAIL:bessaa.amirouche@gmail.com}
+    email: ${ADMIN_EMAIL:support@mychess.fr}
 
 # Email Configuration
 spring.mail:

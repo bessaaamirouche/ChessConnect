@@ -1,14 +1,20 @@
 package com.chessconnect.controller;
 
 import com.chessconnect.dto.lesson.BookLessonRequest;
+import com.chessconnect.dto.lesson.LessonResponse;
 import com.chessconnect.dto.payment.CheckoutSessionResponse;
 import com.chessconnect.dto.payment.CreateCheckoutSessionRequest;
 import com.chessconnect.dto.payment.CreateLessonCheckoutRequest;
 import com.chessconnect.dto.payment.PaymentResponse;
 import com.chessconnect.dto.subscription.SubscriptionPlanResponse;
 import com.chessconnect.dto.subscription.SubscriptionResponse;
+import com.chessconnect.model.Lesson;
+import com.chessconnect.model.Payment;
 import com.chessconnect.model.User;
+import com.chessconnect.model.enums.PaymentStatus;
+import com.chessconnect.model.enums.PaymentType;
 import com.chessconnect.model.enums.SubscriptionPlan;
+import com.chessconnect.repository.LessonRepository;
 import com.chessconnect.repository.PaymentRepository;
 import com.chessconnect.repository.UserRepository;
 import com.chessconnect.security.UserDetailsImpl;
@@ -46,6 +52,7 @@ public class PaymentController {
     private final SubscriptionService subscriptionService;
     private final PaymentRepository paymentRepository;
     private final UserRepository userRepository;
+    private final LessonRepository lessonRepository;
     private final LessonService lessonService;
     private final InvoiceService invoiceService;
 
@@ -54,6 +61,7 @@ public class PaymentController {
             SubscriptionService subscriptionService,
             PaymentRepository paymentRepository,
             UserRepository userRepository,
+            LessonRepository lessonRepository,
             LessonService lessonService,
             InvoiceService invoiceService
     ) {
@@ -61,6 +69,7 @@ public class PaymentController {
         this.subscriptionService = subscriptionService;
         this.paymentRepository = paymentRepository;
         this.userRepository = userRepository;
+        this.lessonRepository = lessonRepository;
         this.lessonService = lessonService;
         this.invoiceService = invoiceService;
     }
@@ -441,8 +450,31 @@ public class PaymentController {
                         false // Don't use subscription
                 );
 
-                lessonService.bookLesson(studentId, bookRequest);
+                // Book the lesson and get the response with lesson ID
+                LessonResponse lessonResponse = lessonService.bookLesson(studentId, bookRequest);
                 log.info("Lesson booked for student {} with teacher {} after payment", studentId, teacherId);
+
+                // Create Payment entity linked to the lesson for refund tracking
+                Lesson lesson = lessonRepository.findById(lessonResponse.id())
+                        .orElseThrow(() -> new RuntimeException("Lesson not found after booking"));
+                User student = userRepository.findById(studentId)
+                        .orElseThrow(() -> new RuntimeException("Student not found"));
+                User teacher = userRepository.findById(teacherId)
+                        .orElseThrow(() -> new RuntimeException("Teacher not found"));
+
+                Payment payment = new Payment();
+                payment.setPayer(student);
+                payment.setTeacher(teacher);
+                payment.setLesson(lesson);
+                payment.setPaymentType(PaymentType.ONE_TIME_LESSON);
+                payment.setAmountCents(lesson.getPriceCents());
+                payment.setStripePaymentIntentId(session.getPaymentIntent());
+                payment.setStatus(PaymentStatus.COMPLETED);
+                payment.setProcessedAt(LocalDateTime.now());
+
+                paymentRepository.save(payment);
+                log.info("Payment {} created and linked to lesson {} for refund tracking",
+                        payment.getId(), lesson.getId());
             }
         } catch (Exception e) {
             log.error("Error handling checkout.session.completed", e);

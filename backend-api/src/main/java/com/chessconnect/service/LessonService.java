@@ -51,6 +51,7 @@ public class LessonService {
     private final TeacherBalanceService teacherBalanceService;
     private final StripeService stripeService;
     private final GoogleCalendarService googleCalendarService;
+    private final InvoiceService invoiceService;
 
     public LessonService(
             LessonRepository lessonRepository,
@@ -60,7 +61,8 @@ public class LessonService {
             ZoomService zoomService,
             TeacherBalanceService teacherBalanceService,
             StripeService stripeService,
-            GoogleCalendarService googleCalendarService
+            GoogleCalendarService googleCalendarService,
+            InvoiceService invoiceService
     ) {
         this.lessonRepository = lessonRepository;
         this.userRepository = userRepository;
@@ -70,6 +72,7 @@ public class LessonService {
         this.teacherBalanceService = teacherBalanceService;
         this.stripeService = stripeService;
         this.googleCalendarService = googleCalendarService;
+        this.invoiceService = invoiceService;
     }
 
     @Transactional
@@ -572,6 +575,9 @@ public class LessonService {
 
                 log.info("Refund processed for lesson {}: {} cents ({}%)",
                         lesson.getId(), refundAmount, refundPercentage);
+
+                // Generate credit note (avoir) for the refund
+                invoiceService.generateCreditNote(lesson, refund.getId(), refundPercentage, refundAmount);
             }
         } catch (Exception e) {
             log.error("Failed to process refund for lesson {}: {}", lesson.getId(), e.getMessage());

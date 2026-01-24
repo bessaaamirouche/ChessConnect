@@ -846,4 +846,203 @@ public class InvoiceService {
         // Total section
         addTotalSection(document, invoice);
     }
+
+    /**
+     * Generate a credit note (avoir) for a refunded lesson.
+     * This creates a CREDIT_NOTE invoice that references the original invoice.
+     *
+     * @param lesson The cancelled lesson
+     * @param stripeRefundId The Stripe refund ID
+     * @param refundPercentage The percentage refunded (0-100)
+     * @param refundAmountCents The amount refunded in cents
+     * @return The generated credit note invoice
+     */
+    @Transactional
+    public Invoice generateCreditNote(Lesson lesson, String stripeRefundId, int refundPercentage, int refundAmountCents) {
+        // Find the original lesson invoice
+        List<Invoice> lessonInvoices = invoiceRepository.findByLessonId(lesson.getId());
+        Invoice originalInvoice = lessonInvoices.stream()
+                .filter(inv -> inv.getInvoiceType() == InvoiceType.LESSON_INVOICE)
+                .findFirst()
+                .orElse(null);
+
+        if (originalInvoice == null) {
+            log.warn("No original invoice found for lesson {} - cannot generate credit note", lesson.getId());
+            return null;
+        }
+
+        // Check if credit note already exists for this refund
+        if (stripeRefundId != null) {
+            boolean exists = lessonInvoices.stream()
+                    .anyMatch(inv -> inv.getInvoiceType() == InvoiceType.CREDIT_NOTE
+                            && stripeRefundId.equals(inv.getStripeRefundId()));
+            if (exists) {
+                log.info("Credit note already exists for refund {}", stripeRefundId);
+                return null;
+            }
+        }
+
+        User student = lesson.getStudent();
+        User teacher = lesson.getTeacher();
+
+        // Create credit note
+        Invoice creditNote = new Invoice();
+        creditNote.setInvoiceNumber(generateInvoiceNumber("AV"));
+        creditNote.setInvoiceType(InvoiceType.CREDIT_NOTE);
+        creditNote.setCustomer(student);
+        creditNote.setIssuer(teacher);
+        creditNote.setLesson(lesson);
+        creditNote.setOriginalInvoice(originalInvoice);
+        creditNote.setStripeRefundId(stripeRefundId);
+        creditNote.setRefundPercentage(refundPercentage);
+        creditNote.setSubtotalCents(-refundAmountCents); // Negative for credit note
+        creditNote.setVatCents(0);
+        creditNote.setTotalCents(-refundAmountCents);
+        creditNote.setVatRate(0);
+
+        String refundDescription = refundPercentage == 100
+                ? "Avoir - Annulation de cours"
+                : String.format("Avoir - Remboursement partiel (%d%%)", refundPercentage);
+        creditNote.setDescription(refundDescription);
+        creditNote.setStatus("REFUNDED");
+        creditNote.setIssuedAt(LocalDateTime.now());
+
+        creditNote = invoiceRepository.save(creditNote);
+
+        // Update original invoice status
+        String newStatus = refundPercentage == 100 ? "REFUNDED" : "PARTIALLY_REFUNDED";
+        originalInvoice.setStatus(newStatus);
+        invoiceRepository.save(originalInvoice);
+
+        // Generate PDF for credit note
+        try {
+            generateCreditNotePdf(creditNote, student, teacher, lesson, originalInvoice);
+        } catch (Exception e) {
+            log.error("Error generating credit note PDF", e);
+        }
+
+        log.info("Generated credit note #{} for lesson {} ({}% refund)",
+                creditNote.getInvoiceNumber(), lesson.getId(), refundPercentage);
+
+        return creditNote;
+    }
+
+    /**
+     * Generate PDF for credit note.
+     */
+    private void generateCreditNotePdf(Invoice creditNote, User student, User teacher,
+                                        Lesson lesson, Invoice originalInvoice) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        Document document = new Document(PageSize.A4, 50, 50, 50, 50);
+
+        try {
+            PdfWriter.getInstance(document, baos);
+            document.open();
+
+            // Add content
+            addInvoiceHeader(document, "AVOIR", creditNote.getInvoiceNumber(), creditNote.getIssuedAt());
+            addIssuerInfo(document, teacher);
+            addCustomerInfo(document, student, "Client");
+
+            // Reference to original invoice
+            Font refFont = new Font(Font.HELVETICA, 10, Font.ITALIC);
+            Paragraph refParagraph = new Paragraph(
+                    "Reference facture originale : " + originalInvoice.getInvoiceNumber(),
+                    refFont
+            );
+            refParagraph.setSpacingBefore(15);
+            document.add(refParagraph);
+
+            addCreditNoteTable(document, creditNote, lesson);
+            addCreditNoteTotalSection(document, creditNote);
+            addPaymentInfo(document, "Remboursement via Stripe");
+            addFooter(document);
+
+            document.close();
+
+            // Save PDF
+            String pdfPath = savePdf(baos.toByteArray(), creditNote.getInvoiceNumber());
+            creditNote.setPdfPath(pdfPath);
+            invoiceRepository.save(creditNote);
+
+        } catch (DocumentException e) {
+            log.error("Error creating credit note PDF", e);
+            throw new IOException("Failed to generate PDF", e);
+        }
+    }
+
+    /**
+     * Add credit note table.
+     */
+    private void addCreditNoteTable(Document document, Invoice creditNote, Lesson lesson) throws DocumentException {
+        Font headerFont = new Font(Font.HELVETICA, 10, Font.BOLD, Color.WHITE);
+        Font normalFont = new Font(Font.HELVETICA, 10, Font.NORMAL);
+
+        PdfPTable table = new PdfPTable(4);
+        table.setWidthPercentage(100);
+        table.setWidths(new float[]{3, 1.5f, 1.5f, 1.5f});
+        table.setSpacingBefore(20);
+
+        // Header row
+        Color goldColor = new Color(212, 168, 75);
+        String[] headers = {"Description", "Qte", "Prix unitaire", "Total"};
+        for (String header : headers) {
+            PdfPCell cell = new PdfPCell(new Phrase(header, headerFont));
+            cell.setBackgroundColor(goldColor);
+            cell.setPadding(8);
+            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            table.addCell(cell);
+        }
+
+        // Data row - show negative amount for credit
+        String description = creditNote.getDescription();
+        int refundAmount = Math.abs(creditNote.getTotalCents());
+
+        table.addCell(createCell(description, normalFont, Element.ALIGN_LEFT));
+        table.addCell(createCell("1", normalFont, Element.ALIGN_CENTER));
+        table.addCell(createCell("-" + formatCents(refundAmount), normalFont, Element.ALIGN_RIGHT));
+        table.addCell(createCell("-" + formatCents(refundAmount), normalFont, Element.ALIGN_RIGHT));
+
+        document.add(table);
+    }
+
+    /**
+     * Add credit note total section (negative amounts).
+     */
+    private void addCreditNoteTotalSection(Document document, Invoice creditNote) throws DocumentException {
+        Font normalFont = new Font(Font.HELVETICA, 10, Font.NORMAL);
+        Font boldFont = new Font(Font.HELVETICA, 12, Font.BOLD);
+
+        PdfPTable totalTable = new PdfPTable(2);
+        totalTable.setWidthPercentage(50);
+        totalTable.setHorizontalAlignment(Element.ALIGN_RIGHT);
+        totalTable.setSpacingBefore(20);
+
+        int refundAmount = Math.abs(creditNote.getTotalCents());
+
+        // Subtotal
+        totalTable.addCell(createCell("Sous-total HT:", normalFont, Element.ALIGN_LEFT));
+        totalTable.addCell(createCell("-" + formatCents(refundAmount), normalFont, Element.ALIGN_RIGHT));
+
+        // TVA
+        totalTable.addCell(createCell("TVA (0%):", normalFont, Element.ALIGN_LEFT));
+        totalTable.addCell(createCell("0,00 EUR", normalFont, Element.ALIGN_RIGHT));
+
+        // Total - highlighted in red for credit
+        Font redBoldFont = new Font(Font.HELVETICA, 12, Font.BOLD, new Color(220, 38, 38));
+        PdfPCell totalLabelCell = new PdfPCell(new Phrase("Total rembourse:", boldFont));
+        totalLabelCell.setBorder(0);
+        totalLabelCell.setPadding(5);
+        totalLabelCell.setBackgroundColor(new Color(254, 226, 226)); // Light red
+        totalTable.addCell(totalLabelCell);
+
+        PdfPCell totalValueCell = new PdfPCell(new Phrase("-" + formatCents(refundAmount), redBoldFont));
+        totalValueCell.setBorder(0);
+        totalValueCell.setPadding(5);
+        totalValueCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+        totalValueCell.setBackgroundColor(new Color(254, 226, 226)); // Light red
+        totalTable.addCell(totalValueCell);
+
+        document.add(totalTable);
+    }
 }

@@ -14,6 +14,7 @@ export class InactivityService implements OnDestroy {
   private timeoutId: any;
   private warningTimeoutId: any;
   private isWarningShown = false;
+  private isWatching = false;
   private boundResetTimer: () => void;
   private dialogService = inject(DialogService);
 
@@ -30,11 +31,18 @@ export class InactivityService implements OnDestroy {
       return;
     }
 
+    // Prevent multiple watchers
+    if (this.isWatching) {
+      return;
+    }
+
     // Check if user was inactive while away (tab closed, browser closed)
     if (this.checkStoredActivity()) {
       // User was inactive for too long - logout immediately
       return;
     }
+
+    this.isWatching = true;
 
     // Listen for user activity
     const events = ['mousedown', 'mousemove', 'keydown', 'scroll', 'touchstart', 'click'];
@@ -90,6 +98,8 @@ export class InactivityService implements OnDestroy {
   }
 
   stopWatching(): void {
+    this.isWatching = false;
+
     const events = ['mousedown', 'mousemove', 'keydown', 'scroll', 'touchstart', 'click'];
     events.forEach(event => {
       document.removeEventListener(event, this.boundResetTimer);

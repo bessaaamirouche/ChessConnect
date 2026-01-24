@@ -75,8 +75,21 @@ public class Invoice {
     @Column(name = "stripe_invoice_id")
     private String stripeInvoiceId;
 
+    // For CREDIT_NOTE: reference to the original invoice being refunded
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "original_invoice_id")
+    private Invoice originalInvoice;
+
+    // Stripe Refund ID (for credit notes)
+    @Column(name = "stripe_refund_id")
+    private String stripeRefundId;
+
+    // Refund percentage (for partial refunds)
+    @Column(name = "refund_percentage")
+    private Integer refundPercentage;
+
     @Column(name = "status", nullable = false)
-    private String status = "PAID"; // Always PAID since funds already captured
+    private String status = "PAID"; // PAID, REFUNDED, PARTIALLY_REFUNDED
 
     @Column(name = "issued_at", nullable = false)
     private LocalDateTime issuedAt;
@@ -140,6 +153,15 @@ public class Invoice {
 
     public String getStripeInvoiceId() { return stripeInvoiceId; }
     public void setStripeInvoiceId(String stripeInvoiceId) { this.stripeInvoiceId = stripeInvoiceId; }
+
+    public Invoice getOriginalInvoice() { return originalInvoice; }
+    public void setOriginalInvoice(Invoice originalInvoice) { this.originalInvoice = originalInvoice; }
+
+    public String getStripeRefundId() { return stripeRefundId; }
+    public void setStripeRefundId(String stripeRefundId) { this.stripeRefundId = stripeRefundId; }
+
+    public Integer getRefundPercentage() { return refundPercentage; }
+    public void setRefundPercentage(Integer refundPercentage) { this.refundPercentage = refundPercentage; }
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }

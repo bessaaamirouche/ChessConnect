@@ -261,9 +261,9 @@ public class User {
     public LocalDateTime getLastActiveAt() { return lastActiveAt; }
     public void setLastActiveAt(LocalDateTime lastActiveAt) { this.lastActiveAt = lastActiveAt; }
 
-    // Check if user was active in the last 2 minutes
+    // Check if user was active in the last minute
     public boolean isOnline() {
         if (lastActiveAt == null) return false;
-        return lastActiveAt.isAfter(LocalDateTime.now().minusMinutes(2));
+        return lastActiveAt.isAfter(LocalDateTime.now().minusMinutes(1));
     }
 }

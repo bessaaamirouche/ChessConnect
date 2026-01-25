@@ -45,36 +45,43 @@ export class ChessEngineService {
     return new Promise((resolve, reject) => {
       try {
         // Load Stockfish from local assets
+        console.log('[myChessBot] Loading engine...');
         this.worker = new Worker('/assets/stockfish/stockfish.js');
 
         this.worker.onmessage = (event: MessageEvent) => {
+          console.log('[myChessBot] Received:', event.data);
           this.handleEngineMessage(event.data);
         };
 
         this.worker.onerror = (error) => {
-          console.error('[Stockfish] Worker error:', error);
+          console.error('[myChessBot] Worker error:', error);
           reject(error);
         };
 
-        // Initialize UCI protocol
-        this.sendCommand('uci');
+        // Give the worker time to initialize WASM
+        setTimeout(() => {
+          console.log('[myChessBot] Sending UCI command...');
+          this.sendCommand('uci');
+        }, 500);
 
         // Wait for UCI OK with timeout
         const timeout = setTimeout(() => {
+          console.error('[myChessBot] Timeout - no response from engine');
           reject(new Error('Stockfish initialization timeout'));
-        }, 15000);
+        }, 30000);
 
         const checkReady = setInterval(() => {
           if (this.isReady) {
             clearInterval(checkReady);
             clearTimeout(timeout);
             this.engineReadySignal.set(true);
-            console.log('[Stockfish] Engine ready');
+            console.log('[myChessBot] Engine ready!');
             resolve();
           }
         }, 100);
 
       } catch (error) {
+        console.error('[myChessBot] Init error:', error);
         reject(error);
       }
     });

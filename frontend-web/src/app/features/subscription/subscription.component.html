@@ -46,26 +46,28 @@
               </div>
             }
 
-            <div class="active-subscription-card__features">
-              <h4>Vos avantages Premium</h4>
-              <ul class="premium-features-list">
-                <li><ng-icon name="heroCheck" size="18"></ng-icon> Revisionnage des cours</li>
-                <li><ng-icon name="heroCheck" size="18"></ng-icon> Notifications prioritaires</li>
-                <li><ng-icon name="heroCheck" size="18"></ng-icon> Badge Premium</li>
-              </ul>
-            </div>
-
-            <div class="active-subscription-card__stats">
-              <div class="stat-item">
-                <span class="stat-item__value">{{ paymentService.activeSubscription()!.startDate | date:'dd/MM/yyyy' }}</span>
-                <span class="stat-item__label">Membre depuis</span>
+            <div class="active-subscription-card__row">
+              <div class="active-subscription-card__features">
+                <h4>Vos avantages Premium</h4>
+                <ul class="premium-features-list">
+                  <li><ng-icon name="heroCheck" size="18"></ng-icon> Revisionnage des cours</li>
+                  <li><ng-icon name="heroCheck" size="18"></ng-icon> Notifications prioritaires</li>
+                  <li><ng-icon name="heroCheck" size="18"></ng-icon> Badge Premium</li>
+                </ul>
               </div>
-              @if (paymentService.activeSubscription()!.cancelledAt && paymentService.activeSubscription()!.endDate) {
+
+              <div class="active-subscription-card__stats">
                 <div class="stat-item">
-                  <span class="stat-item__value">{{ paymentService.activeSubscription()!.endDate | date:'dd/MM/yyyy' }}</span>
-                  <span class="stat-item__label">Fin le</span>
+                  <span class="stat-item__value">{{ paymentService.activeSubscription()!.startDate | date:'dd/MM/yyyy' }}</span>
+                  <span class="stat-item__label">Membre depuis</span>
                 </div>
-              }
+                @if (paymentService.activeSubscription()!.cancelledAt && paymentService.activeSubscription()!.endDate) {
+                  <div class="stat-item">
+                    <span class="stat-item__value">{{ paymentService.activeSubscription()!.endDate | date:'dd/MM/yyyy' }}</span>
+                    <span class="stat-item__label">Fin le</span>
+                  </div>
+                }
+              </div>
             </div>
 
             <div class="active-subscription-card__actions">

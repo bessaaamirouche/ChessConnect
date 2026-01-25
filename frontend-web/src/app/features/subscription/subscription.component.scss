@@ -69,8 +69,8 @@
   }
 
   &__stats {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    display: flex;
+    flex-direction: column;
     gap: var(--space-sm);
   }
 
@@ -97,7 +97,20 @@
     font-size: 0.75rem;
   }
 
+  &__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--space-lg);
+
+    @media (max-width: 480px) {
+      flex-direction: column;
+    }
+  }
+
   &__features {
+    flex: 1;
+
     h4 {
       font-size: 0.875rem;
       font-weight: 600;
@@ -455,10 +468,6 @@
 }
 
 @media (max-width: 768px) {
-  .active-subscription-card__stats {
-    grid-template-columns: 1fr;
-  }
-
   .active-subscription-card__actions {
     flex-direction: column;
   }

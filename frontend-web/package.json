@@ -21,6 +21,8 @@
     "@ng-icons/core": "^25.6.1",
     "@ng-icons/heroicons": "^25.6.1",
     "@stripe/stripe-js": "^8.6.1",
+    "chess.js": "^1.0.0-beta.8",
+    "chessground": "^9.2.1",
     "marked": "^17.0.1",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",

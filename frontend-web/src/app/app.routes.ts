@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard, guestGuard, studentGuard, teacherGuard } from './core/guards/auth.guard';
+import { premiumGuard } from './core/guards/premium.guard';
 
 export const routes: Routes = [
   {
@@ -96,6 +97,11 @@ export const routes: Routes = [
     path: 'book/:teacherId',
     canActivate: [authGuard, studentGuard],
     loadComponent: () => import('./features/lessons/book-lesson/book-lesson.component').then(m => m.BookLessonComponent)
+  },
+  {
+    path: 'exercise/:lessonId',
+    canActivate: [premiumGuard],
+    loadComponent: () => import('./features/exercise/exercise.component').then(m => m.ExerciseComponent)
   },
   {
     path: 'lessons/payment/success',

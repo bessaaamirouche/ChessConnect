@@ -1,0 +1,148 @@
+<div class="exercise-page">
+  <header class="exercise-header">
+    <button class="btn btn--ghost" (click)="goBack()">
+      <ng-icon name="heroArrowLeft" size="20"></ng-icon>
+      Retour
+    </button>
+
+    @if (exercise()) {
+      <div class="exercise-header__info">
+        <h1>{{ exercise()!.title }}</h1>
+        <div class="exercise-badges">
+          <span
+            class="difficulty-badge"
+            [style.background-color]="difficultyLabels[exercise()!.difficultyLevel].color + '20'"
+            [style.color]="difficultyLabels[exercise()!.difficultyLevel].color"
+          >
+            <ng-icon name="heroCpuChip" size="14"></ng-icon>
+            {{ difficultyLabels[exercise()!.difficultyLevel].label }}
+          </span>
+          @if (engineService.thinking()) {
+            <span class="thinking-badge">
+              <span class="thinking-dot"></span>
+              L'IA reflechit...
+            </span>
+          }
+        </div>
+      </div>
+    }
+  </header>
+
+  <main class="exercise-content">
+    @if (exerciseService.loading() || gameStatus() === 'loading') {
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Chargement de l'exercice...</p>
+        @if (!engineInitialized()) {
+          <p class="loading-hint">Initialisation du moteur d'echecs...</p>
+        }
+      </div>
+    } @else if (exerciseService.error()) {
+      <div class="error-state">
+        <ng-icon name="heroExclamationTriangle" size="48"></ng-icon>
+        <p>{{ exerciseService.error() }}</p>
+        <button class="btn btn--primary" (click)="goBack()">Retour aux cours</button>
+      </div>
+    } @else if (exercise()) {
+      <div class="game-container">
+        <!-- Chess Board -->
+        <div class="board-section">
+          <app-chess-board
+            #chessBoard
+            [fen]="exercise()!.startingFen"
+            [orientation]="exercise()!.playerColor"
+            [movable]="isPlayerTurn() && gameStatus() === 'playing'"
+            [showControls]="true"
+            (move)="onPlayerMove($event)"
+            (reset)="onReset()"
+            (resign)="onResign()"
+          ></app-chess-board>
+        </div>
+
+        <!-- Game Info Panel -->
+        <div class="info-panel">
+          <!-- Game Status -->
+          @if (gameStatus() !== 'playing' && gameStatus() !== 'loading') {
+            <div
+              class="game-result"
+              [class.game-result--win]="gameStatus() === 'player_won'"
+              [class.game-result--lose]="gameStatus() === 'ai_won'"
+              [class.game-result--draw]="gameStatus() === 'draw'"
+            >
+              @if (gameStatus() === 'player_won') {
+                <ng-icon name="heroTrophy" size="32"></ng-icon>
+                <h2>Victoire !</h2>
+                <p>Felicitations, vous avez battu l'IA !</p>
+              } @else if (gameStatus() === 'ai_won') {
+                <ng-icon name="heroXCircle" size="32"></ng-icon>
+                <h2>Defaite</h2>
+                <p>L'IA a gagne cette partie.</p>
+              } @else {
+                <ng-icon name="heroExclamationTriangle" size="32"></ng-icon>
+                <h2>Match nul</h2>
+                <p>La partie s'est terminee par une egalite.</p>
+              }
+              <button class="btn btn--primary" (click)="onReset()">
+                Rejouer
+              </button>
+            </div>
+          }
+
+          <!-- Turn Indicator -->
+          @if (gameStatus() === 'playing') {
+            <div class="turn-indicator">
+              <div class="turn-indicator__dot" [class.turn-indicator__dot--active]="isPlayerTurn()"></div>
+              <span>{{ isPlayerTurn() ? 'Votre tour' : 'Tour de l\'IA' }}</span>
+            </div>
+          }
+
+          <!-- Evaluation Bar -->
+          @if (engineService.evaluation() !== null && gameStatus() === 'playing') {
+            <div class="evaluation-section">
+              <h3>Evaluation</h3>
+              <div class="eval-bar">
+                <div
+                  class="eval-bar__fill"
+                  [style.width.%]="getEvalBarWidth()"
+                ></div>
+              </div>
+              <span class="eval-value">
+                {{ formatEvaluation() }}
+              </span>
+            </div>
+          }
+
+          <!-- Move History -->
+          <div class="history-section">
+            <h3>
+              <ng-icon name="heroClock" size="16"></ng-icon>
+              Historique ({{ moveCount() }} coups)
+            </h3>
+            <div class="move-list">
+              @for (movePair of formatMoveHistory(); track movePair.moveNumber) {
+                <div class="move-pair">
+                  <span class="move-number">{{ movePair.moveNumber }}.</span>
+                  <span class="move">{{ movePair.white }}</span>
+                  @if (movePair.black) {
+                    <span class="move">{{ movePair.black }}</span>
+                  }
+                </div>
+              }
+              @if (moveHistory().length === 0) {
+                <p class="no-moves">Aucun coup joue</p>
+              }
+            </div>
+          </div>
+
+          <!-- Tips -->
+          @if (exercise()!.description) {
+            <div class="tips-section">
+              <h3>Conseil</h3>
+              <p>{{ exercise()!.description }}</p>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </main>
+</div>

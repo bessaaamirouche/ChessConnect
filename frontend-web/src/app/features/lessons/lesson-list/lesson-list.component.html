@@ -285,6 +285,9 @@
                     <ng-icon name="heroPlayCircle" size="14"></ng-icon> Revisionner
                   </button>
                 }
+                @if (lesson.status === 'COMPLETED' && authService.isStudent()) {
+                  <app-exercise-button [lessonId]="lesson.id"></app-exercise-button>
+                }
               </div>
 
               @if (visibleReasonId() === lesson.id) {

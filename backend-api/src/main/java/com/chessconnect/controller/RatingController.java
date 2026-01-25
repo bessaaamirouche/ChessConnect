@@ -68,4 +68,15 @@ public class RatingController {
                 "reviewCount", reviewCount
         ));
     }
+
+    @GetMapping("/my-rated-lessons")
+    public ResponseEntity<List<Long>> getMyRatedLessonIds(
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        User user = userRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        List<Long> ratedLessonIds = ratingService.getMyRatedLessonIds(user.getId());
+        return ResponseEntity.ok(ratedLessonIds);
+    }
 }

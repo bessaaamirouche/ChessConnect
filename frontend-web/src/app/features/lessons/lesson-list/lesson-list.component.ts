@@ -209,6 +209,15 @@ export class LessonListComponent implements OnInit {
       }
     });
     this.lessonService.loadLessonHistory().subscribe();
+
+    // Load already rated lessons to hide the "Noter" button
+    if (this.authService.isStudent()) {
+      this.ratingService.getMyRatedLessonIds().subscribe({
+        next: (ids) => {
+          this.ratedLessons.set(new Set(ids));
+        }
+      });
+    }
   }
 
   // Load next course for all students with pending lessons

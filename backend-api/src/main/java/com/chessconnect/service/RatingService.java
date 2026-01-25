@@ -97,4 +97,11 @@ public class RatingService {
         Integer count = ratingRepository.getReviewCountForTeacher(teacherId);
         return count != null ? count : 0;
     }
+
+    public List<Long> getMyRatedLessonIds(Long studentId) {
+        return ratingRepository.findByStudentIdOrderByCreatedAtDesc(studentId)
+                .stream()
+                .map(rating -> rating.getLesson().getId())
+                .toList();
+    }
 }

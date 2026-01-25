@@ -57,4 +57,8 @@ export class RatingService {
       tap(summary => this.ratingSummary.set(summary))
     );
   }
+
+  getMyRatedLessonIds(): Observable<number[]> {
+    return this.http.get<number[]>(`${this.apiUrl}/my-rated-lessons`);
+  }
 }

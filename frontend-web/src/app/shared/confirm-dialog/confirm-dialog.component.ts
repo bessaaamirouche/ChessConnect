@@ -92,9 +92,9 @@ export interface ConfirmDialogConfig {
     .dialog-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.4);
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
       z-index: 10000;
       display: flex;
       align-items: center;
@@ -109,27 +109,29 @@ export interface ConfirmDialogConfig {
     }
 
     .dialog {
-      background: var(--bg-secondary);
-      border-radius: 14px;
+      background: rgba(22, 22, 26, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
       width: 100%;
-      max-width: 280px;
+      max-width: 320px;
       box-shadow:
         0 0 0 1px rgba(255, 255, 255, 0.05),
-        0 20px 50px -12px rgba(0, 0, 0, 0.5),
-        0 8px 20px -8px rgba(0, 0, 0, 0.4);
+        0 24px 64px rgba(0, 0, 0, 0.4);
       overflow: hidden;
-      animation: scaleIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
       text-align: center;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
     }
 
     @keyframes scaleIn {
       from {
         opacity: 0;
-        transform: scale(0.95);
+        transform: scale(0.95) translateY(10px);
       }
       to {
         opacity: 1;
-        transform: scale(1);
+        transform: scale(1) translateY(0);
       }
     }
 
@@ -218,18 +220,18 @@ export interface ConfirmDialogConfig {
 
     .dialog__actions {
       display: flex;
-      border-top: 1px solid var(--border-subtle);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
     }
 
     .dialog__btn {
       flex: 1;
-      padding: 12px 16px;
+      padding: 14px 16px;
       font-size: 14px;
       font-weight: 500;
       border: none;
       background: transparent;
       cursor: pointer;
-      transition: all 0.15s ease;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
       position: relative;
 
       &:not(:last-child)::after {
@@ -239,19 +241,19 @@ export interface ConfirmDialogConfig {
         top: 0;
         bottom: 0;
         width: 1px;
-        background: var(--border-subtle);
+        background: rgba(255, 255, 255, 0.08);
       }
 
       &--secondary {
-        color: var(--text-secondary);
+        color: rgba(255, 255, 255, 0.6);
 
         &:hover {
-          background: var(--bg-tertiary);
-          color: var(--text-primary);
+          background: rgba(255, 255, 255, 0.04);
+          color: #ffffff;
         }
 
         &:active {
-          background: var(--bg-primary);
+          background: rgba(255, 255, 255, 0.08);
         }
       }
 
@@ -260,11 +262,11 @@ export interface ConfirmDialogConfig {
         font-weight: 600;
 
         &:hover {
-          background: rgba(212, 168, 75, 0.08);
+          background: rgba(212, 168, 75, 0.1);
         }
 
         &:active {
-          background: rgba(212, 168, 75, 0.12);
+          background: rgba(212, 168, 75, 0.15);
         }
       }
 
@@ -273,11 +275,11 @@ export interface ConfirmDialogConfig {
         font-weight: 600;
 
         &:hover {
-          background: rgba(239, 68, 68, 0.08);
+          background: rgba(239, 68, 68, 0.1);
         }
 
         &:active {
-          background: rgba(239, 68, 68, 0.12);
+          background: rgba(239, 68, 68, 0.15);
         }
       }
     }

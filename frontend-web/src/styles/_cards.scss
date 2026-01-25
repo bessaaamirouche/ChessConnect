@@ -5,32 +5,62 @@
 @use 'variables' as *;
 
 .card {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-subtle);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
   border-radius: var(--radius-lg);
   overflow: hidden;
-  transition: all var(--transition-base);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 
   &--interactive {
     cursor: pointer;
-    @include hover-lift;
 
     &:hover {
-      border-color: var(--border-default);
+      border-color: var(--card-border-hover);
+      transform: translateY(-2px);
+      box-shadow: var(--card-shadow);
     }
   }
 
   &--glass {
-    @include glass-effect;
+    @include glass-effect-linear;
   }
 
   &--gold-border {
-    border-color: var(--border-gold);
+    border-color: rgba(212, 168, 75, 0.2);
 
     &:hover {
-      border-color: var(--gold-400);
-      box-shadow: var(--shadow-gold);
+      border-color: rgba(212, 168, 75, 0.4);
+      box-shadow: 0 8px 32px rgba(212, 168, 75, 0.15);
     }
+  }
+
+  // Linear.app style with border beam
+  &--gold-beam {
+    position: relative;
+    border-color: rgba(212, 168, 75, 0.2);
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold-400), transparent);
+      background-size: 200% 100%;
+      animation: border-beam 3s linear infinite;
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask-composite: exclude;
+      -webkit-mask-composite: xor;
+      pointer-events: none;
+    }
+  }
+
+  @keyframes border-beam {
+    0% { background-position: 0% 0%; }
+    100% { background-position: 200% 0%; }
   }
 
   &__header {
@@ -157,21 +187,43 @@
   &--link {
     cursor: pointer;
     text-decoration: none;
-    transition: all var(--transition-fast);
 
     &:hover {
-      border-color: var(--gold-400);
+      border-color: rgba(212, 168, 75, 0.3);
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(212, 168, 75, 0.15);
+      box-shadow: 0 8px 32px rgba(212, 168, 75, 0.1);
     }
   }
 
   &--gold {
-    border-color: var(--gold-400);
-    background: linear-gradient(135deg, rgba(212, 168, 75, 0.1) 0%, var(--bg-secondary) 100%);
+    border-color: rgba(212, 168, 75, 0.2);
+    background: linear-gradient(135deg, rgba(212, 168, 75, 0.08) 0%, var(--card-bg) 100%);
 
     .stats-card__icon {
-      background: rgba(212, 168, 75, 0.2);
+      background: rgba(212, 168, 75, 0.15);
+    }
+  }
+
+  // Linear.app style with border beam
+  &--gold-beam {
+    position: relative;
+    border-color: rgba(212, 168, 75, 0.2);
+    background: linear-gradient(135deg, rgba(212, 168, 75, 0.08) 0%, var(--card-bg) 100%);
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold-400), transparent);
+      background-size: 200% 100%;
+      animation: border-beam 3s linear infinite;
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask-composite: exclude;
+      -webkit-mask-composite: xor;
+      pointer-events: none;
     }
   }
 
@@ -191,12 +243,12 @@
   &__value {
     font-size: 2rem;
     font-weight: 700;
-    @include gold-text;
+    color: #ffffff;
   }
 
   &__label {
     font-size: 0.875rem;
-    color: var(--text-secondary);
+    color: rgba(255, 255, 255, 0.5);
     margin-top: var(--space-xs);
   }
 }
@@ -208,14 +260,14 @@
   padding: var(--space-2xl) var(--space-xl);
 
   &--featured {
-    border-color: var(--gold-400);
+    border-color: rgba(212, 168, 75, 0.3);
     position: relative;
   }
 
   &__name {
     font-size: 1.25rem;
     font-weight: 600;
-    color: var(--text-primary);
+    color: #ffffff;
     margin-bottom: var(--space-sm);
   }
 
@@ -227,13 +279,13 @@
     span {
       font-size: 1rem;
       font-weight: 400;
-      color: var(--text-muted);
+      color: rgba(255, 255, 255, 0.35);
     }
   }
 
   &__quota {
     font-size: 0.9375rem;
-    color: var(--text-secondary);
+    color: rgba(255, 255, 255, 0.5);
     margin: var(--space-md) 0 var(--space-xl);
   }
 
@@ -247,7 +299,117 @@
       gap: var(--space-sm);
       padding: var(--space-sm) 0;
       font-size: 0.9375rem;
-      color: var(--text-secondary);
+      color: rgba(255, 255, 255, 0.5);
     }
+  }
+}
+
+// ================================================
+// Bento Grid - Linear.app Style
+// ================================================
+
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.bento-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  padding: 24px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+
+  &:hover {
+    border-color: var(--card-border-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--card-shadow);
+  }
+
+  // Tailles variées pour effet bento
+  &--large {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
+
+  &--wide {
+    grid-column: span 2;
+  }
+
+  &--tall {
+    grid-row: span 2;
+  }
+
+  // Gold variant
+  &--gold {
+    border-color: rgba(212, 168, 75, 0.2);
+    background: linear-gradient(135deg, rgba(212, 168, 75, 0.06) 0%, var(--card-bg) 100%);
+
+    &:hover {
+      border-color: rgba(212, 168, 75, 0.4);
+      box-shadow: 0 8px 32px rgba(212, 168, 75, 0.1);
+    }
+  }
+
+  // Gold variant with border beam
+  &--gold-beam {
+    position: relative;
+    border-color: rgba(212, 168, 75, 0.2);
+    background: linear-gradient(135deg, rgba(212, 168, 75, 0.06) 0%, var(--card-bg) 100%);
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold-400), transparent);
+      background-size: 200% 100%;
+      animation: border-beam 3s linear infinite;
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask-composite: exclude;
+      -webkit-mask-composite: xor;
+      pointer-events: none;
+    }
+  }
+
+  &__title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: var(--space-sm);
+  }
+
+  &__value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1;
+  }
+
+  &__label {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: var(--space-xs);
+  }
+
+  &__description {
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.5);
+    line-height: 1.5;
   }
 }

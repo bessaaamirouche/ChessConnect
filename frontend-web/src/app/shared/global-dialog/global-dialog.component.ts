@@ -68,8 +68,9 @@ import {
     .dialog-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(4px);
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
       z-index: 9998;
       animation: fadeIn 0.15s ease-out;
     }
@@ -82,11 +83,11 @@ import {
     @keyframes slideIn {
       from {
         opacity: 0;
-        transform: translate(-50%, -50%) scale(0.95);
+        transform: translate(-50%, -50%) scale(0.95) translateY(10px);
       }
       to {
         opacity: 1;
-        transform: translate(-50%, -50%) scale(1);
+        transform: translate(-50%, -50%) scale(1) translateY(0);
       }
     }
 
@@ -97,13 +98,17 @@ import {
       transform: translate(-50%, -50%);
       width: 90%;
       max-width: 420px;
-      background: var(--bg-secondary, #1a1a1f);
-      border-radius: var(--radius-xl, 16px);
-      border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.1));
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      background: rgba(22, 22, 26, 0.95);
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.05),
+        0 24px 64px rgba(0, 0, 0, 0.4);
       z-index: 9999;
       padding: var(--space-xl, 1.5rem);
-      animation: slideIn 0.2s ease-out;
+      animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
     }
 
     .dialog__icon {
@@ -196,22 +201,23 @@ import {
     .dialog__btn {
       flex: 1;
       padding: var(--space-sm, 0.5rem) var(--space-lg, 1rem);
-      border-radius: var(--radius-md, 8px);
+      border-radius: 8px;
       font-size: 0.9375rem;
       font-weight: 500;
       cursor: pointer;
-      transition: all 0.15s ease;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
       border: none;
     }
 
     .dialog__btn--cancel {
-      background: var(--bg-tertiary, #252530);
-      color: var(--text-secondary, #a8a8a8);
-      border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.1));
+      background: rgba(255, 255, 255, 0.06);
+      color: rgba(255, 255, 255, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
 
       &:hover {
-        background: var(--bg-elevated, #2a2a35);
-        color: var(--text-primary, #f5f3eb);
+        background: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+        border-color: rgba(255, 255, 255, 0.12);
       }
     }
 
@@ -221,6 +227,7 @@ import {
 
       &:hover {
         background: var(--gold-500, #c9a043);
+        transform: translateY(-1px);
       }
     }
 
@@ -230,6 +237,7 @@ import {
 
       &:hover {
         background: #dc2626;
+        transform: translateY(-1px);
       }
     }
 

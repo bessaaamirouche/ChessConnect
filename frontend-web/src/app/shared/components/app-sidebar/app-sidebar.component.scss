@@ -95,15 +95,17 @@ $transition: 0.2s ease;
   }
 }
 
-// Sidebar
+// Sidebar - Linear.app Style
 .sidebar {
   position: fixed;
   top: 0;
   left: 0;
   bottom: 0;
   width: $sidebar-width;
-  background: $sidebar-bg;
-  border-right: 1px solid $sidebar-border;
+  background: rgba(13, 13, 15, 0.8);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   flex-direction: column;
   z-index: 1002;
@@ -360,16 +362,30 @@ $transition: 0.2s ease;
     font-weight: 500;
     text-decoration: none;
     cursor: pointer;
-    transition: $transition;
+    transition: all 0.2s ease;
+    position: relative;
 
     &:hover {
-      background: $hover-bg;
+      background: rgba(255, 255, 255, 0.04);
       color: $text-primary;
     }
 
     &.active {
-      background: $accent-bg;
+      background: rgba(255, 255, 255, 0.08);
       color: $accent-color;
+
+      // Linear.app style active indicator bar
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 2px;
+        height: 16px;
+        background: $accent-color;
+        border-radius: 2px;
+      }
 
       .sidebar__icon {
         color: $accent-color;
@@ -625,23 +641,24 @@ $transition: 0.2s ease;
   }
 }
 
-// Notification Item (iPhone style)
+// Notification Item (Linear.app style)
 .notification-item {
   display: flex;
   align-items: flex-start;
   gap: 10px;
   padding: 12px;
   margin-bottom: 6px;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(22, 22, 26, 0.6);
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 12px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.12);
+    transform: translateY(-1px);
 
     .notification-item__delete {
       opacity: 1;

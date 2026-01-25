@@ -21,5 +21,8 @@
 @import 'styles/utilities';
 @import 'styles/animations';
 
+// Linear.app style effects
+@import 'styles/linear-effects';
+
 // Mobile optimizations (loaded last to override)
 @import 'styles/mobile';

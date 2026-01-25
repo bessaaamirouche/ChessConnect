@@ -4,6 +4,50 @@
 
 @use 'variables' as *;
 
+// ================================================
+// Linear.app Style Atmospheric Backgrounds
+// ================================================
+
+.app-background {
+  position: relative;
+  background: var(--bg-primary);
+
+  &::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(212, 168, 75, 0.08), transparent),
+      radial-gradient(ellipse 60% 40% at 100% 0%, rgba(139, 92, 246, 0.05), transparent),
+      radial-gradient(ellipse 50% 30% at 0% 100%, rgba(212, 168, 75, 0.04), transparent);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+// Subtle variant
+.app-background--subtle {
+  &::before {
+    background:
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(212, 168, 75, 0.04), transparent),
+      radial-gradient(ellipse 60% 40% at 100% 0%, rgba(139, 92, 246, 0.03), transparent);
+  }
+}
+
+// Gold dominant variant
+.app-background--gold {
+  &::before {
+    background:
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(212, 168, 75, 0.1), transparent),
+      radial-gradient(ellipse 50% 30% at 0% 100%, rgba(212, 168, 75, 0.06), transparent);
+  }
+}
+
 // === Container ===
 .container {
   width: 100%;
@@ -157,8 +201,10 @@
 }
 
 .sidebar {
-  background: var(--bg-secondary);
-  border-right: 1px solid var(--border-subtle);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border-right: 1px solid var(--glass-border);
   display: none;
 
   @include respond-to(lg) {
@@ -218,7 +264,7 @@
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      color: var(--text-muted);
+      color: rgba(255, 255, 255, 0.35);
       margin-bottom: var(--space-md);
     }
   }
@@ -230,18 +276,32 @@
     padding: var(--space-sm) var(--space-md);
     margin-bottom: var(--space-xs);
     font-size: 0.9375rem;
-    color: var(--text-secondary);
-    border-radius: var(--radius-md);
-    transition: all var(--transition-fast);
+    color: rgba(255, 255, 255, 0.6);
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    position: relative;
 
     &:hover {
-      background: var(--bg-tertiary);
-      color: var(--text-primary);
+      background: rgba(255, 255, 255, 0.04);
+      color: #ffffff;
     }
 
     &.active {
-      background: rgba(212, 168, 75, 0.1);
+      background: rgba(255, 255, 255, 0.08);
       color: var(--gold-400);
+
+      // Linear.app style active indicator
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 2px;
+        height: 16px;
+        background: var(--gold-400);
+        border-radius: 2px;
+      }
     }
   }
 }

@@ -151,20 +151,33 @@ Chart.register(...registerables);
     }
 
     .stat-card {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-subtle);
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
       border-radius: var(--radius-lg);
       padding: var(--space-lg);
       display: flex;
       flex-direction: column;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+
+      &:hover {
+        border-color: var(--card-border-hover);
+        transform: translateY(-2px);
+      }
 
       @media (max-width: 767px) {
         padding: var(--space-md);
       }
 
       &--gold {
-        border-color: var(--gold-500);
-        background: linear-gradient(135deg, rgba(212, 168, 75, 0.1), transparent);
+        border-color: rgba(212, 168, 75, 0.2);
+        background: linear-gradient(135deg, rgba(212, 168, 75, 0.08), var(--card-bg));
+
+        &:hover {
+          border-color: rgba(212, 168, 75, 0.4);
+          box-shadow: 0 8px 32px rgba(212, 168, 75, 0.1);
+        }
       }
 
       &__label {
@@ -172,14 +185,14 @@ Chart.register(...registerables);
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.05em;
-        color: var(--text-muted);
+        color: rgba(255, 255, 255, 0.35);
         margin-bottom: var(--space-xs);
       }
 
       &__value {
         font-size: 1.75rem;
         font-weight: 700;
-        color: var(--text-primary);
+        color: #ffffff;
 
         @media (max-width: 767px) {
           font-size: 1.5rem;
@@ -188,7 +201,7 @@ Chart.register(...registerables);
 
       &__detail {
         font-size: 0.8125rem;
-        color: var(--text-secondary);
+        color: rgba(255, 255, 255, 0.5);
         margin-top: var(--space-xs);
       }
     }
@@ -245,32 +258,35 @@ Chart.register(...registerables);
     }
 
     .action-card {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-subtle);
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
       border-radius: var(--radius-md);
       padding: var(--space-lg);
       text-decoration: none;
-      transition: all var(--transition-fast);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 
       @media (max-width: 767px) {
         padding: var(--space-md);
       }
 
       &:hover {
-        border-color: var(--gold-500);
+        border-color: rgba(212, 168, 75, 0.4);
         transform: translateY(-2px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
       }
 
       &__title {
         display: block;
         font-weight: 600;
-        color: var(--text-primary);
+        color: #ffffff;
         margin-bottom: var(--space-xs);
       }
 
       &__desc {
         font-size: 0.8125rem;
-        color: var(--text-secondary);
+        color: rgba(255, 255, 255, 0.5);
       }
     }
 

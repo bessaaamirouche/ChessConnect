@@ -57,7 +57,35 @@
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
   --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.6);
+  --shadow-xl: 0 8px 32px rgba(0, 0, 0, 0.3);
   --shadow-gold: 0 4px 20px rgba(212, 168, 75, 0.25);
+
+  // === Linear.app Style Effects ===
+
+  // Gradients atmosphériques
+  --glow-gold: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(212, 168, 75, 0.06), transparent 40%);
+  --glow-purple: radial-gradient(800px circle at 80% 20%, rgba(139, 92, 246, 0.04), transparent 50%);
+
+  // Bordures Linear
+  --border-glow: rgba(255, 255, 255, 0.06);
+  --border-hover: rgba(255, 255, 255, 0.12);
+
+  // Glassmorphism amélioré
+  --glass-bg: rgba(22, 22, 26, 0.8);
+  --glass-bg-solid: rgba(22, 22, 26, 0.95);
+  --glass-blur: 16px;
+  --glass-border: rgba(255, 255, 255, 0.08);
+
+  // Card Linear
+  --card-bg: rgba(22, 22, 26, 0.6);
+  --card-border: rgba(255, 255, 255, 0.06);
+  --card-border-hover: rgba(255, 255, 255, 0.12);
+  --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+
+  // Modal Linear
+  --modal-bg: rgba(22, 22, 26, 0.95);
+  --modal-border: rgba(255, 255, 255, 0.08);
+  --modal-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05), 0 24px 64px rgba(0, 0, 0, 0.4);
 
   // Spacing
   --space-xs: 0.25rem;
@@ -140,6 +168,38 @@ $breakpoints: (
   background: rgba(30, 30, 36, 0.8);
   backdrop-filter: blur(12px);
   border: 1px solid var(--border-subtle);
+}
+
+@mixin glass-effect-linear {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+}
+
+@mixin card-linear {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+
+  &:hover {
+    border-color: var(--card-border-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--card-shadow);
+  }
+}
+
+@mixin card-linear-gold {
+  @include card-linear;
+  border-color: rgba(212, 168, 75, 0.2);
+
+  &:hover {
+    border-color: rgba(212, 168, 75, 0.4);
+    box-shadow: 0 8px 32px rgba(212, 168, 75, 0.15);
+  }
 }
 
 @mixin gold-gradient {

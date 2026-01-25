@@ -85,17 +85,21 @@
 
       </div>
 
-      <div class="hero__scroll-indicator">
+      <button
+        class="hero__scroll-indicator"
+        (click)="scrollToSection('features')"
+        aria-label="Défiler vers la section suivante"
+      >
         <span>Decouvrir</span>
         <div class="hero__scroll-arrow"></div>
-      </div>
+      </button>
     </section>
 
     <!-- FEATURES SECTION -->
     <section class="section section--features" id="features">
       <div class="section__container">
         <div class="section__header" appScrollReveal="fade-up">
-          <h2 class="section__title">Vous voulez progresser<br><span class="gold-text">a votre rythme ?</span></h2>
+          <h2 class="section__title">Vous voulez progresser <span class="gold-text">a votre rythme ?</span></h2>
         </div>
 
         <div class="features-grid" appStaggerReveal>
@@ -313,11 +317,11 @@
           <ng-icon name="heroGift" size="24"></ng-icon>
         </button>
       } @else {
-        <!-- Expanded: full content -->
+        <!-- Expanded: full content with close button outside -->
+        <button class="promo-popup__close" (click)="closePromoPopup()" aria-label="Fermer">
+          <ng-icon name="heroXMark" size="12"></ng-icon>
+        </button>
         <div class="promo-popup__content">
-          <button class="promo-popup__close" (click)="closePromoPopup()">
-            <ng-icon name="heroXMark" size="14"></ng-icon>
-          </button>
           <ng-icon name="heroGift" size="18"></ng-icon>
           <span>Premier cours <strong>gratuit</strong> pour les 100 premiers inscrits !</span>
           <a routerLink="/register" class="promo-popup__btn">J'en profite</a>

@@ -27,6 +27,10 @@ export interface Lesson {
   recordingUrl?: string;
   teacherJoinedAt?: string;
   createdAt: string;
+  // Course information
+  courseId?: number;
+  courseTitle?: string;
+  courseGrade?: string;
 }
 
 export interface BookLessonRequest {
@@ -35,6 +39,7 @@ export interface BookLessonRequest {
   durationMinutes?: number;
   notes?: string;
   useSubscription?: boolean;
+  courseId?: number;
 }
 
 export interface UpdateLessonStatusRequest {

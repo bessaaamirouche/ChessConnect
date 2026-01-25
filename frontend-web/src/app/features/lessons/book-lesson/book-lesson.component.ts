@@ -8,7 +8,9 @@ import { AvailabilityService } from '../../../core/services/availability.service
 import { PaymentService } from '../../../core/services/payment.service';
 import { WalletService } from '../../../core/services/wallet.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { LearningPathService } from '../../../core/services/learning-path.service';
 import { TimeSlot } from '../../../core/models/availability.model';
+import { Course } from '../../../core/models/learning-path.model';
 import { EmbeddedCheckoutComponent } from '../../../shared/embedded-checkout/embedded-checkout.component';
 import { AppSidebarComponent, SidebarSection } from '../../../shared/components/app-sidebar/app-sidebar.component';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
@@ -26,7 +28,10 @@ import {
   heroGift,
   heroSparkles,
   heroWallet,
-  heroDocumentText
+  heroDocumentText,
+  heroBookOpen,
+  heroCheckCircle,
+  heroArrowPath
 } from '@ng-icons/heroicons/outline';
 
 @Component({
@@ -47,7 +52,10 @@ import {
     heroGift,
     heroSparkles,
     heroWallet,
-    heroDocumentText
+    heroDocumentText,
+    heroBookOpen,
+    heroCheckCircle,
+    heroArrowPath
   })],
   templateUrl: './book-lesson.component.html',
   styleUrl: './book-lesson.component.scss'
@@ -84,6 +92,7 @@ export class BookLessonComponent implements OnInit {
   loading = signal(false);
   success = signal(false);
   selectedSlot = signal<TimeSlot | null>(null);
+  selectedCourse = signal<Course | null>(null);
   useFreeTrialSignal = signal(true);
   payWithCreditSignal = signal(false);
 
@@ -91,6 +100,40 @@ export class BookLessonComponent implements OnInit {
   showCheckout = signal(false);
   checkoutClientSecret = signal<string | null>(null);
   checkoutSessionId = signal<string | null>(null);
+
+  // Course selection
+  learningPathLoading = signal(false);
+
+  // Available courses for booking (next course + completed courses for review)
+  availableCourses = computed(() => {
+    const path = this.learningPathService.learningPath();
+    if (!path) return { nextCourses: [], completedCourses: [] };
+
+    const nextCourses: Course[] = [];
+    const completedCourses: Course[] = [];
+
+    for (const grade of path.grades) {
+      if (!grade.isUnlocked) continue;
+
+      for (const course of grade.courses) {
+        if (course.status === 'IN_PROGRESS' || course.status === 'LOCKED') {
+          // First unlocked/in-progress course is the next to do
+          if (nextCourses.length === 0 || course.status === 'IN_PROGRESS') {
+            nextCourses.push(course);
+          }
+          // Only add first locked course after in-progress
+          if (course.status === 'LOCKED' && nextCourses.length < 2) {
+            nextCourses.push(course);
+            break;
+          }
+        } else if (course.status === 'COMPLETED' || course.status === 'PENDING_VALIDATION') {
+          completedCourses.push(course);
+        }
+      }
+    }
+
+    return { nextCourses, completedCourses };
+  });
 
   // Free trial eligibility (student eligible AND teacher accepts free trial)
   freeTrialEligible = this.lessonService.freeTrialEligible;
@@ -142,7 +185,8 @@ export class BookLessonComponent implements OnInit {
     private availabilityService: AvailabilityService,
     public paymentService: PaymentService,
     public walletService: WalletService,
-    public authService: AuthService
+    public authService: AuthService,
+    public learningPathService: LearningPathService
   ) {
     this.bookingForm = this.fb.group({
       notes: ['']
@@ -166,6 +210,13 @@ export class BookLessonComponent implements OnInit {
 
     // Load wallet balance
     this.walletService.loadBalance().subscribe();
+
+    // Load learning path for course selection
+    this.learningPathLoading.set(true);
+    this.learningPathService.loadLearningPath().subscribe({
+      next: () => this.learningPathLoading.set(false),
+      error: () => this.learningPathLoading.set(false)
+    });
   }
 
   loadAvailableSlots(teacherId: number): void {
@@ -222,6 +273,23 @@ export class BookLessonComponent implements OnInit {
     this.selectedSlot.set(slot);
   }
 
+  selectCourse(course: Course): void {
+    this.selectedCourse.set(course);
+  }
+
+  isCourseSelected(course: Course): boolean {
+    const selected = this.selectedCourse();
+    return selected !== null && selected.id === course.id;
+  }
+
+  getGradeIcon(grade: string): string {
+    return this.learningPathService.getGradeIcon(grade as any);
+  }
+
+  getGradeColor(grade: string): string {
+    return this.learningPathService.getGradeColor(grade as any);
+  }
+
   toggleFreeTrial(value: boolean): void {
     this.useFreeTrialSignal.set(value);
   }
@@ -239,11 +307,13 @@ export class BookLessonComponent implements OnInit {
 
   onSubmit(): void {
     const slot = this.selectedSlot();
-    if (!slot || !this.teacherService.selectedTeacher()) return;
+    const course = this.selectedCourse();
+    if (!slot || !course || !this.teacherService.selectedTeacher()) return;
 
     const teacher = this.teacherService.selectedTeacher()!;
     const scheduledAt = slot.dateTime;
     const { notes } = this.bookingForm.value;
+    const courseId = course.id;
 
     this.loading.set(true);
 
@@ -253,7 +323,8 @@ export class BookLessonComponent implements OnInit {
         teacherId: teacher.id,
         scheduledAt,
         notes,
-        useSubscription: false
+        useSubscription: false,
+        courseId
       }).subscribe({
         next: () => {
           this.success.set(true);
@@ -275,7 +346,8 @@ export class BookLessonComponent implements OnInit {
         teacherId: teacher.id,
         scheduledAt: scheduledAt,
         durationMinutes: 60,
-        notes: notes || ''
+        notes: notes || '',
+        courseId
       }).subscribe({
         next: (response) => {
           if (response.success) {
@@ -300,7 +372,8 @@ export class BookLessonComponent implements OnInit {
       teacherId: teacher.id,
       scheduledAt: scheduledAt,
       durationMinutes: 60,
-      notes: notes || ''
+      notes: notes || '',
+      courseId
     }, true).subscribe({
       next: (response) => {
         if (response.clientSecret) {

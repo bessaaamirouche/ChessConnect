@@ -44,6 +44,7 @@ export interface LessonCheckoutRequest {
   scheduledAt: string;
   durationMinutes?: number;
   notes?: string;
+  courseId?: number;
 }
 
 @Injectable({

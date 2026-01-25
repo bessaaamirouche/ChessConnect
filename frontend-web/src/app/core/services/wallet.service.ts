@@ -30,6 +30,7 @@ export interface BookWithCreditRequest {
   scheduledAt: string;
   durationMinutes: number;
   notes?: string;
+  courseId?: number;
 }
 
 export interface BookWithCreditResponse {

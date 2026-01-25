@@ -6,6 +6,7 @@ import { AuthService } from './core/services/auth.service';
 import { NotificationService } from './core/services/notification.service';
 import { InactivityService } from './core/services/inactivity.service';
 import { PresenceService } from './core/services/presence.service';
+import { TrackingService } from './core/services/tracking.service';
 import { interval, Subscription } from 'rxjs';
 
 @Component({
@@ -24,6 +25,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private notificationService = inject(NotificationService);
   private inactivityService = inject(InactivityService);
   private presenceService = inject(PresenceService);
+  private trackingService = inject(TrackingService); // Initialize page tracking
   private checkSubscription?: Subscription;
 
   ngOnInit(): void {

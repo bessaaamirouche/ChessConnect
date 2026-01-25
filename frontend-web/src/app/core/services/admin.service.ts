@@ -107,6 +107,26 @@ export interface Page<T> {
   number: number;
 }
 
+export interface DataPoint {
+  date: string;
+  value: number;
+}
+
+export interface HourlyDataPoint {
+  hour: number;
+  value: number;
+}
+
+export interface AnalyticsResponse {
+  studentRegistrations: DataPoint[];
+  teacherRegistrations: DataPoint[];
+  newSubscriptions: DataPoint[];
+  renewals: DataPoint[];
+  cancellations: DataPoint[];
+  dailyVisits: DataPoint[];
+  hourlyVisits: HourlyDataPoint[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -203,5 +223,11 @@ export class AdminService {
   // Stats
   getStats(): Observable<AdminStatsResponse> {
     return this.http.get<AdminStatsResponse>(`${this.apiUrl}/stats`);
+  }
+
+  // Analytics
+  getAnalytics(period: 'day' | 'week' | 'month' = 'day'): Observable<AnalyticsResponse> {
+    const params = new HttpParams().set('period', period);
+    return this.http.get<AnalyticsResponse>(`${this.apiUrl}/analytics`, { params });
   }
 }

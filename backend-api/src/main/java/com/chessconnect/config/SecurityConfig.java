@@ -65,6 +65,7 @@ public class SecurityConfig {
                         .requestMatchers("/robots.txt").permitAll()
                         .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers("/error").permitAll()
+                        .requestMatchers("/tracking/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

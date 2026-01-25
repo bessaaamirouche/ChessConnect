@@ -1,12 +1,26 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { AdminService, AdminStatsResponse } from '../../../core/services/admin.service';
+import { AdminService, AdminStatsResponse, AnalyticsResponse } from '../../../core/services/admin.service';
+import { RegistrationsChartComponent } from './components/registrations-chart.component';
+import { SubscriptionsChartComponent } from './components/subscriptions-chart.component';
+import { VisitsChartComponent } from './components/visits-chart.component';
+
+// Register Chart.js components
+import { Chart, registerables } from 'chart.js';
+Chart.register(...registerables);
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink, DecimalPipe],
+  imports: [
+    CommonModule,
+    RouterLink,
+    DecimalPipe,
+    RegistrationsChartComponent,
+    SubscriptionsChartComponent,
+    VisitsChartComponent
+  ],
   template: `
     <div class="admin-dashboard">
       <header class="page-header">
@@ -47,6 +61,37 @@ import { AdminService, AdminStatsResponse } from '../../../core/services/admin.s
             </span>
           </div>
         </div>
+
+        <!-- Analytics Charts Section -->
+        <section class="analytics-section">
+          <h2>Analytiques</h2>
+
+          @if (analyticsLoading()) {
+            <div class="analytics-loading">Chargement des graphiques...</div>
+          } @else if (analytics()) {
+            <div class="charts-grid">
+              <app-registrations-chart
+                [students]="analytics()!.studentRegistrations"
+                [teachers]="analytics()!.teacherRegistrations"
+                [period]="selectedPeriod()"
+                (periodChange)="onPeriodChange($event)"
+              />
+
+              <app-subscriptions-chart
+                [newSubscriptions]="analytics()!.newSubscriptions"
+                [renewals]="analytics()!.renewals"
+                [cancellations]="analytics()!.cancellations"
+              />
+
+              <div class="chart-full-width">
+                <app-visits-chart
+                  [dailyVisits]="analytics()!.dailyVisits"
+                  [hourlyVisits]="analytics()!.hourlyVisits"
+                />
+              </div>
+            </div>
+          }
+        </section>
 
         <div class="quick-actions">
           <h2>Actions rapides</h2>
@@ -148,6 +193,38 @@ import { AdminService, AdminStatsResponse } from '../../../core/services/admin.s
       }
     }
 
+    .analytics-section {
+      margin-bottom: var(--space-2xl);
+
+      h2 {
+        font-size: 1.125rem;
+        font-weight: 600;
+        margin-bottom: var(--space-lg);
+      }
+    }
+
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-lg);
+
+      @media (max-width: 900px) {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .chart-full-width {
+      grid-column: 1 / -1;
+    }
+
+    .analytics-loading {
+      text-align: center;
+      padding: var(--space-xl);
+      color: var(--text-muted);
+      background: var(--bg-secondary);
+      border-radius: var(--radius-lg);
+    }
+
     .quick-actions {
       h2 {
         font-size: 1.125rem;
@@ -210,12 +287,16 @@ import { AdminService, AdminStatsResponse } from '../../../core/services/admin.s
 })
 export class AdminDashboardComponent implements OnInit {
   stats = signal<AdminStatsResponse | null>(null);
+  analytics = signal<AnalyticsResponse | null>(null);
   loading = signal(true);
+  analyticsLoading = signal(true);
+  selectedPeriod = signal<'day' | 'week' | 'month'>('day');
 
   constructor(private adminService: AdminService) {}
 
   ngOnInit(): void {
     this.loadStats();
+    this.loadAnalytics();
   }
 
   loadStats(): void {
@@ -228,6 +309,24 @@ export class AdminDashboardComponent implements OnInit {
         this.loading.set(false);
       }
     });
+  }
+
+  loadAnalytics(): void {
+    this.analyticsLoading.set(true);
+    this.adminService.getAnalytics(this.selectedPeriod()).subscribe({
+      next: (data) => {
+        this.analytics.set(data);
+        this.analyticsLoading.set(false);
+      },
+      error: () => {
+        this.analyticsLoading.set(false);
+      }
+    });
+  }
+
+  onPeriodChange(period: 'day' | 'week' | 'month'): void {
+    this.selectedPeriod.set(period);
+    this.loadAnalytics();
   }
 
   formatCents(cents: number): string {

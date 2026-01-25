@@ -5,6 +5,7 @@ import com.chessconnect.dto.lesson.LessonResponse;
 import com.chessconnect.model.Payment;
 import com.chessconnect.model.Subscription;
 import com.chessconnect.service.AdminService;
+import com.chessconnect.service.AnalyticsService;
 import com.chessconnect.service.StripeService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,10 +24,12 @@ public class AdminController {
 
     private final AdminService adminService;
     private final StripeService stripeService;
+    private final AnalyticsService analyticsService;
 
-    public AdminController(AdminService adminService, StripeService stripeService) {
+    public AdminController(AdminService adminService, StripeService stripeService, AnalyticsService analyticsService) {
         this.adminService = adminService;
         this.stripeService = stripeService;
+        this.analyticsService = analyticsService;
     }
 
     // ============= USER MANAGEMENT =============
@@ -221,5 +224,18 @@ public class AdminController {
     @GetMapping("/stats")
     public ResponseEntity<AdminStatsResponse> getStats() {
         return ResponseEntity.ok(adminService.getStats());
+    }
+
+    // ============= ANALYTICS =============
+
+    /**
+     * Get analytics data for charts.
+     * @param period "day" (last 7 days), "week" (last 4 weeks), "month" (last 12 months)
+     */
+    @GetMapping("/analytics")
+    public ResponseEntity<AnalyticsResponse> getAnalytics(
+            @RequestParam(defaultValue = "day") String period
+    ) {
+        return ResponseEntity.ok(analyticsService.getAnalytics(period));
     }
 }

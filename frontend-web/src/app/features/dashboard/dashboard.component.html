@@ -165,23 +165,25 @@
                 </p>
               </div>
             </div>
-            <div class="subscription-status-card__features">
-              <div class="subscription-status-card__feature">
-                <ng-icon name="heroCheck" size="16"></ng-icon> Revisionnage des cours
+            <div class="subscription-status-card__row">
+              <div class="subscription-status-card__features">
+                <div class="subscription-status-card__feature">
+                  <ng-icon name="heroCheck" size="16"></ng-icon> Revisionnage des cours
+                </div>
+                <div class="subscription-status-card__feature">
+                  <ng-icon name="heroCheck" size="16"></ng-icon> Notifications prioritaires
+                </div>
+                <div class="subscription-status-card__feature">
+                  <ng-icon name="heroCheck" size="16"></ng-icon> Badge Premium
+                </div>
               </div>
-              <div class="subscription-status-card__feature">
-                <ng-icon name="heroCheck" size="16"></ng-icon> Notifications prioritaires
-              </div>
-              <div class="subscription-status-card__feature">
-                <ng-icon name="heroCheck" size="16"></ng-icon> Badge Premium
-              </div>
-            </div>
-            <div class="subscription-status-card__details">
-              <div class="subscription-status-card__detail">
-                <span class="subscription-status-card__detail-label">Membre depuis</span>
-                <span class="subscription-status-card__detail-value">
-                  {{ paymentService.activeSubscription()!.startDate | date:'dd/MM/yyyy' }}
-                </span>
+              <div class="subscription-status-card__details">
+                <div class="subscription-status-card__detail">
+                  <span class="subscription-status-card__detail-label">Membre depuis</span>
+                  <span class="subscription-status-card__detail-value">
+                    {{ paymentService.activeSubscription()!.startDate | date:'dd/MM/yyyy' }}
+                  </span>
+                </div>
               </div>
             </div>
           </div>

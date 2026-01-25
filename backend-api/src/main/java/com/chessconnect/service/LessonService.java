@@ -3,7 +3,6 @@ package com.chessconnect.service;
 import com.chessconnect.dto.lesson.BookLessonRequest;
 import com.chessconnect.dto.lesson.LessonResponse;
 import com.chessconnect.dto.lesson.UpdateLessonStatusRequest;
-import com.chessconnect.dto.zoom.ZoomMeetingResponse;
 import com.chessconnect.model.Lesson;
 import com.chessconnect.model.Payment;
 import com.chessconnect.model.Progress;
@@ -18,8 +17,6 @@ import com.chessconnect.repository.PaymentRepository;
 import com.chessconnect.repository.ProgressRepository;
 import com.chessconnect.repository.RatingRepository;
 import com.chessconnect.repository.UserRepository;
-import com.chessconnect.service.zoom.ZoomService;
-import com.stripe.model.Refund;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -52,9 +49,7 @@ public class LessonService {
     private final PaymentRepository paymentRepository;
     private final RatingRepository ratingRepository;
     private final InvoiceRepository invoiceRepository;
-    private final ZoomService zoomService;
     private final TeacherBalanceService teacherBalanceService;
-    private final StripeService stripeService;
     private final GoogleCalendarService googleCalendarService;
     private final InvoiceService invoiceService;
     private final WalletService walletService;
@@ -66,9 +61,7 @@ public class LessonService {
             PaymentRepository paymentRepository,
             RatingRepository ratingRepository,
             InvoiceRepository invoiceRepository,
-            ZoomService zoomService,
             TeacherBalanceService teacherBalanceService,
-            StripeService stripeService,
             GoogleCalendarService googleCalendarService,
             InvoiceService invoiceService,
             WalletService walletService
@@ -79,9 +72,7 @@ public class LessonService {
         this.paymentRepository = paymentRepository;
         this.ratingRepository = ratingRepository;
         this.invoiceRepository = invoiceRepository;
-        this.zoomService = zoomService;
         this.teacherBalanceService = teacherBalanceService;
-        this.stripeService = stripeService;
         this.googleCalendarService = googleCalendarService;
         this.invoiceService = invoiceService;
         this.walletService = walletService;
@@ -292,29 +283,6 @@ public class LessonService {
         // Create event for teacher if connected
         if (googleCalendarService.isConnected(teacher)) {
             googleCalendarService.createLessonEvent(lesson, teacher);
-        }
-    }
-
-    private void createZoomMeeting(Lesson lesson) {
-        try {
-            ZoomMeetingResponse zoomResponse = zoomService.createMeeting(
-                    lesson.getTeacher().getFullName(),
-                    lesson.getStudent().getFullName(),
-                    lesson.getScheduledAt(),
-                    lesson.getDurationMinutes()
-            );
-
-            lesson.setZoomMeetingId(String.valueOf(zoomResponse.id()));
-            lesson.setZoomLink(zoomResponse.joinUrl());
-
-            log.info("Created Zoom meeting {} for lesson {}",
-                    zoomResponse.id(), lesson.getId());
-
-        } catch (Exception e) {
-            log.error("Failed to create Zoom meeting for lesson {}: {}",
-                    lesson.getId(), e.getMessage());
-            // Don't fail the confirmation, just log the error
-            // The teacher can manually add a Zoom link later
         }
     }
 
@@ -553,13 +521,6 @@ public class LessonService {
         lesson.setCancellationReason(reason);
         lesson.setCancelledBy(cancelledBy);
         lesson.setCancelledAt(LocalDateTime.now());
-
-        // Delete video meeting if exists
-        if (lesson.getZoomMeetingId() != null) {
-            zoomService.deleteMeeting(lesson.getZoomMeetingId());
-            lesson.setZoomLink(null);
-            lesson.setZoomMeetingId(null);
-        }
 
         // Process refund for paid lessons
         handlePaidLessonCancellation(lesson, cancelledBy);

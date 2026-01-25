@@ -44,24 +44,8 @@ export class ChessEngineService {
 
     return new Promise((resolve, reject) => {
       try {
-        // Create inline Web Worker for Stockfish
-        const workerCode = `
-          importScripts('https://unpkg.com/stockfish@16.0.0/stockfish.js');
-
-          const stockfish = typeof Stockfish === 'function' ? Stockfish() : STOCKFISH();
-
-          stockfish.addMessageListener(function(msg) {
-            postMessage(msg);
-          });
-
-          onmessage = function(e) {
-            stockfish.postMessage(e.data);
-          };
-        `;
-
-        const blob = new Blob([workerCode], { type: 'application/javascript' });
-        const workerUrl = URL.createObjectURL(blob);
-        this.worker = new Worker(workerUrl);
+        // Load Stockfish from local assets
+        this.worker = new Worker('/assets/stockfish/stockfish.js');
 
         this.worker.onmessage = (event: MessageEvent) => {
           this.handleEngineMessage(event.data);
@@ -85,6 +69,7 @@ export class ChessEngineService {
             clearInterval(checkReady);
             clearTimeout(timeout);
             this.engineReadySignal.set(true);
+            console.log('[Stockfish] Engine ready');
             resolve();
           }
         }, 100);

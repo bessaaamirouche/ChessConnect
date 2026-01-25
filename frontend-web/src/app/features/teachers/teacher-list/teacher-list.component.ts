@@ -19,7 +19,8 @@ import {
   heroArrowRightOnRectangle,
   heroMagnifyingGlass,
   heroXMark,
-  heroBookOpen
+  heroBookOpen,
+  heroWallet
 } from '@ng-icons/heroicons/outline';
 
 @Component({
@@ -38,7 +39,8 @@ import {
     heroArrowRightOnRectangle,
     heroMagnifyingGlass,
     heroXMark,
-    heroBookOpen
+    heroBookOpen,
+    heroWallet
   })],
   templateUrl: './teacher-list.component.html',
   styleUrl: './teacher-list.component.scss'
@@ -60,20 +62,24 @@ export class TeacherListComponent implements OnInit {
 
     if (this.authService.isStudent()) {
       menuItems.push({ label: 'Ma Progression', icon: 'heroTrophy', route: '/progress' });
-      menuItems.push({ label: 'Abonnement', icon: 'heroCreditCard', route: '/subscription' });
       menuItems.push({ label: 'Trouver un Coach', icon: 'heroAcademicCap', route: '/teachers', active: true });
     }
 
+    const compteItems: any[] = [
+      { label: 'Mon Profil', icon: 'heroUserCircle', route: '/settings' }
+    ];
+
+    if (this.authService.isStudent()) {
+      compteItems.push({ label: 'Mon Solde', icon: 'heroWallet', route: '/wallet' });
+      compteItems.push({ label: 'Abonnement', icon: 'heroCreditCard', route: '/subscription' });
+    }
+
+    compteItems.push({ label: 'Mes Factures', icon: 'heroDocumentText', route: '/invoices' });
+    compteItems.push({ label: 'Deconnexion', icon: 'heroArrowRightOnRectangle', action: () => this.logout() });
+
     return [
       { title: 'Menu', items: menuItems },
-      {
-        title: 'Compte',
-        items: [
-          { label: 'Mon Profil', icon: 'heroUserCircle', route: '/settings' },
-          { label: 'Mes Factures', icon: 'heroDocumentText', route: '/invoices' },
-          { label: 'Deconnexion', icon: 'heroArrowRightOnRectangle', action: () => this.logout() }
-        ]
-      }
+      { title: 'Compte', items: compteItems }
     ];
   });
 

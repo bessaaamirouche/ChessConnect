@@ -539,7 +539,7 @@ public class LessonService {
 
     /**
      * Handle cancellation for paid lessons with refund.
-     * Routes to wallet credit refund or Stripe refund depending on payment type.
+     * All refunds are credited to the student's wallet (no Stripe refunds).
      */
     private void handlePaidLessonCancellation(Lesson lesson, String cancelledBy) {
         // Calculate refund percentage
@@ -562,61 +562,27 @@ public class LessonService {
         String refundReason = String.format("Lesson cancelled by %s - %d%% refund",
                 cancelledBy.toLowerCase(), refundPercentage);
 
-        // Check if payment was from credit
-        if (payment.getPaymentType() == PaymentType.LESSON_FROM_CREDIT) {
-            // Refund to wallet
-            try {
-                walletService.refundCreditForLesson(
-                        lesson.getStudent().getId(),
-                        lesson,
-                        lesson.getPriceCents(),
-                        refundPercentage
-                );
+        // All refunds go to wallet (no Stripe refunds)
+        try {
+            walletService.refundCreditForLesson(
+                    lesson.getStudent().getId(),
+                    lesson,
+                    lesson.getPriceCents(),
+                    refundPercentage
+            );
 
-                lesson.setRefundedAmountCents(refundAmount);
-                payment.setStatus(PaymentStatus.REFUNDED);
-                payment.setRefundReason(refundReason);
-                paymentRepository.save(payment);
+            lesson.setRefundedAmountCents(refundAmount);
+            payment.setStatus(PaymentStatus.REFUNDED);
+            payment.setRefundReason(refundReason);
+            paymentRepository.save(payment);
 
-                log.info("Credit refund processed for lesson {}: {} cents ({}%)",
-                        lesson.getId(), refundAmount, refundPercentage);
+            log.info("Wallet refund processed for lesson {}: {} cents ({}%)",
+                    lesson.getId(), refundAmount, refundPercentage);
 
-                // Generate credit note for wallet refund
-                invoiceService.generateCreditNoteForWalletRefund(lesson, refundPercentage, refundAmount);
-            } catch (Exception e) {
-                log.error("Failed to process credit refund for lesson {}: {}", lesson.getId(), e.getMessage());
-            }
-        } else {
-            // Process Stripe refund for card payments
-            if (payment.getStripePaymentIntentId() == null) {
-                log.warn("No Stripe payment intent for lesson {} - cannot process Stripe refund", lesson.getId());
-                return;
-            }
-
-            try {
-                Refund refund = stripeService.createPartialRefund(
-                        payment.getStripePaymentIntentId(),
-                        lesson.getPriceCents(),
-                        refundPercentage,
-                        refundReason
-                );
-
-                if (refund != null) {
-                    lesson.setStripeRefundId(refund.getId());
-                    lesson.setRefundedAmountCents(refundAmount);
-                    payment.setStatus(PaymentStatus.REFUNDED);
-                    payment.setRefundReason(refundReason);
-                    paymentRepository.save(payment);
-
-                    log.info("Stripe refund processed for lesson {}: {} cents ({}%)",
-                            lesson.getId(), refundAmount, refundPercentage);
-
-                    // Generate credit note (avoir) for the Stripe refund
-                    invoiceService.generateCreditNote(lesson, refund.getId(), refundPercentage, refundAmount);
-                }
-            } catch (Exception e) {
-                log.error("Failed to process Stripe refund for lesson {}: {}", lesson.getId(), e.getMessage());
-            }
+            // Generate credit note for wallet refund
+            invoiceService.generateCreditNoteForWalletRefund(lesson, refundPercentage, refundAmount);
+        } catch (Exception e) {
+            log.error("Failed to process wallet refund for lesson {}: {}", lesson.getId(), e.getMessage());
         }
     }
 

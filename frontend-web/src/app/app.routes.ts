@@ -32,18 +32,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/reset-password/reset-password.component').then(m => m.ResetPasswordComponent)
   },
   {
-    path: 'teachers',
-    loadComponent: () => import('./features/teachers/teacher-list/teacher-list.component').then(m => m.TeacherListComponent)
-  },
-  {
     path: 'pricing',
     loadComponent: () => import('./features/pricing/pricing.component').then(m => m.PricingComponent)
   },
-  {
-    path: 'teachers/:id',
-    loadComponent: () => import('./features/teachers/teacher-profile/teacher-profile.component').then(m => m.TeacherProfileComponent)
-  },
-  // User routes with sidebar layout
+  // User routes with sidebar layout (must be before public teacher routes)
   {
     path: '',
     canActivate: [authGuard],
@@ -131,6 +123,15 @@ export const routes: Routes = [
   {
     path: 'blog/:slug',
     loadComponent: () => import('./features/blog/blog-article/blog-article.component').then(m => m.BlogArticleComponent)
+  },
+  // Public teacher routes (for non-authenticated users, must be after auth routes)
+  {
+    path: 'teachers',
+    loadComponent: () => import('./features/teachers/teacher-list/teacher-list.component').then(m => m.TeacherListComponent)
+  },
+  {
+    path: 'teachers/:id',
+    loadComponent: () => import('./features/teachers/teacher-profile/teacher-profile.component').then(m => m.TeacherProfileComponent)
   },
   {
     path: '**',

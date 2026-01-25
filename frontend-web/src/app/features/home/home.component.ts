@@ -24,7 +24,8 @@ import {
   heroArrowRight,
   heroGift,
   heroXMark,
-  heroChartBar
+  heroChartBar,
+  heroEnvelope
 } from '@ng-icons/heroicons/outline';
 
 @Component({
@@ -47,7 +48,8 @@ import {
     heroArrowRight,
     heroGift,
     heroXMark,
-    heroChartBar
+    heroChartBar,
+    heroEnvelope
   })],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'

@@ -346,12 +346,33 @@ public class PaymentController {
                     false // Don't use subscription - this is a paid lesson
             );
 
-            var lesson = lessonService.bookLesson(userId, bookRequest);
-            log.info("Lesson {} booked for student {} after payment confirmation", lesson.id(), userId);
+            var lessonResponse = lessonService.bookLesson(userId, bookRequest);
+            log.info("Lesson {} booked for student {} after payment confirmation", lessonResponse.id(), userId);
+
+            // Create Payment record for refund tracking
+            Lesson lesson = lessonRepository.findById(lessonResponse.id())
+                    .orElseThrow(() -> new RuntimeException("Lesson not found after booking"));
+            User student = userRepository.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("Student not found"));
+            User teacher = userRepository.findById(teacherId)
+                    .orElseThrow(() -> new RuntimeException("Teacher not found"));
+
+            String paymentIntentId = session.getPaymentIntent();
+            int amountCents = session.getAmountTotal() != null ? session.getAmountTotal().intValue() : lesson.getPriceCents();
+
+            Payment payment = new Payment();
+            payment.setPayer(student);
+            payment.setTeacher(teacher);
+            payment.setLesson(lesson);
+            payment.setPaymentType(PaymentType.ONE_TIME_LESSON);
+            payment.setAmountCents(amountCents);
+            payment.setStripePaymentIntentId(paymentIntentId);
+            payment.setStatus(PaymentStatus.COMPLETED);
+            payment.setProcessedAt(LocalDateTime.now());
+            paymentRepository.save(payment);
+            log.info("Payment {} created and linked to lesson {} for refund tracking", payment.getId(), lesson.getId());
 
             // Generate invoices
-            String paymentIntentId = session.getPaymentIntent();
-            int amountCents = session.getAmountTotal() != null ? session.getAmountTotal().intValue() : 0;
             boolean promoApplied = "true".equals(metadata.get("promo_applied"));
 
             if (paymentIntentId != null && amountCents > 0) {
@@ -359,16 +380,16 @@ public class PaymentController {
                         paymentIntentId,
                         userId,
                         teacherId,
-                        lesson.id(),
+                        lessonResponse.id(),
                         amountCents,
                         promoApplied
                 );
-                log.info("Lesson invoices generated for lesson {}", lesson.id());
+                log.info("Lesson invoices generated for lesson {}", lessonResponse.id());
             }
 
             return ResponseEntity.ok(Map.of(
                     "success", true,
-                    "lessonId", lesson.id(),
+                    "lessonId", lessonResponse.id(),
                     "message", "Cours réservé avec succès"
             ));
 

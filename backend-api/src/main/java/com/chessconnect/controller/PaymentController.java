@@ -466,13 +466,16 @@ public class PaymentController {
                 LocalDateTime scheduledAt = LocalDateTime.parse(metadata.get("scheduled_at"));
                 int durationMinutes = Integer.parseInt(metadata.get("duration_minutes"));
                 String notes = metadata.get("notes");
+                String courseIdStr = metadata.get("course_id");
+                Long courseId = (courseIdStr != null && !courseIdStr.isEmpty()) ? Long.parseLong(courseIdStr) : null;
 
                 BookLessonRequest bookRequest = new BookLessonRequest(
                         teacherId,
                         scheduledAt,
                         durationMinutes,
                         notes,
-                        false // Don't use subscription
+                        false, // Don't use subscription
+                        courseId
                 );
 
                 // Book the lesson and get the response with lesson ID

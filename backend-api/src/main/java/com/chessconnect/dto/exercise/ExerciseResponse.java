@@ -28,12 +28,21 @@ public record ExerciseResponse(
         LocalDateTime lessonDate = null;
 
         if (lesson != null) {
-            teacherName = lesson.getTeacher().getFirstName() + " " + lesson.getTeacher().getLastName();
+            // Only use first name for privacy
+            teacherName = lesson.getTeacher().getFirstName();
             lessonDate = lesson.getScheduledAt();
         }
 
-        // The title is either the course title (if linked) or the default title
+        // Extract course title - if it contains "avec" or "Entrainement", it's old format
         String courseTitle = exercise.getTitle();
+        if (courseTitle != null) {
+            // Clean old formats: "Entrainement - Name" or "Cours du XX/XX avec Name"
+            if (courseTitle.contains(" - ") && courseTitle.toLowerCase().contains("entrainement")) {
+                courseTitle = null; // Will use fallback in frontend
+            } else if (courseTitle.toLowerCase().contains(" avec ")) {
+                courseTitle = null; // Will use fallback in frontend
+            }
+        }
 
         return new ExerciseResponse(
             exercise.getId(),

@@ -72,8 +72,10 @@
                     }
                     @if (lesson.courseTitle) {
                       <span class="next-course-label">Cours : {{ lesson.courseTitle }}</span>
-                    } @else if (lesson.status === 'PENDING' && getNextCourse(lesson.studentId); as nextCourse) {
-                      <span class="next-course-label">Prochain cours : {{ nextCourse.title }}</span>
+                    } @else if (lesson.status === 'PENDING') {
+                      @if (getNextCourse(lesson.studentId); as nextCourse) {
+                        <span class="next-course-label">Prochain cours : {{ nextCourse.title }}</span>
+                      }
                     }
                   </div>
                 }

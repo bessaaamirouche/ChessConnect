@@ -1,6 +1,6 @@
 <div class="dashboard" [class.sidebar-collapsed]="sidebarCollapsed()">
   <!-- Sidebar -->
-  <app-sidebar [sections]="sidebarSections" (collapsedChange)="onSidebarCollapsedChange($event)"></app-sidebar>
+  <app-sidebar [sections]="sidebarSections()" (collapsedChange)="onSidebarCollapsedChange($event)"></app-sidebar>
 
   <!-- Main Content -->
   <main class="main-content">
@@ -89,9 +89,9 @@
           }
 
           <!-- Error -->
-          @if (lessonService.error() || paymentService.error()) {
+          @if (lessonService.error() || paymentService.error() || walletService.error()) {
             <div class="alert alert--error">
-              {{ lessonService.error() || paymentService.error() }}
+              {{ lessonService.error() || paymentService.error() || walletService.error() }}
             </div>
           }
 

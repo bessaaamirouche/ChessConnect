@@ -25,7 +25,8 @@ import {
   heroArrowLeft,
   heroGift,
   heroSparkles,
-  heroWallet
+  heroWallet,
+  heroDocumentText
 } from '@ng-icons/heroicons/outline';
 
 @Component({
@@ -45,7 +46,8 @@ import {
     heroArrowLeft,
     heroGift,
     heroSparkles,
-    heroWallet
+    heroWallet,
+    heroDocumentText
   })],
   templateUrl: './book-lesson.component.html',
   styleUrl: './book-lesson.component.scss'
@@ -54,26 +56,37 @@ export class BookLessonComponent implements OnInit {
   bookingForm: FormGroup;
   sidebarCollapsed = signal(false);
 
-  sidebarSections: SidebarSection[] = [
-    {
-      title: 'Menu',
-      items: [
-        { label: 'Mon Espace', icon: 'heroChartBarSquare', route: '/dashboard' },
-        { label: 'Mes Cours', icon: 'heroCalendarDays', route: '/lessons' },
-        { label: 'Ma Progression', icon: 'heroTrophy', route: '/progress' },
-        { label: 'Abonnement', icon: 'heroCreditCard', route: '/subscription' },
-        { label: 'Trouver un Coach', icon: 'heroAcademicCap', route: '/teachers', active: true }
-      ]
-    },
-    {
-      title: 'Compte',
-      items: [
-        { label: 'Mon Profil', icon: 'heroUserCircle', route: '/settings' },
-        { label: 'Mes Factures', icon: 'heroDocumentText', route: '/invoices' },
-        { label: 'Deconnexion', icon: 'heroArrowRightOnRectangle', action: () => this.logout() }
-      ]
-    }
-  ];
+  private formatBalance(cents: number): string {
+    return (cents / 100).toFixed(2).replace('.', ',') + ' €';
+  }
+
+  sidebarSections = computed<SidebarSection[]>(() => {
+    const menuItems: any[] = [
+      { label: 'Mon Espace', icon: 'heroChartBarSquare', route: '/dashboard' },
+      { label: 'Mes Cours', icon: 'heroCalendarDays', route: '/lessons' },
+      { label: 'Ma Progression', icon: 'heroTrophy', route: '/progress' },
+      {
+        label: 'Mon Portefeuille',
+        icon: 'heroWallet',
+        route: '/wallet',
+        badge: this.walletService.balance() > 0 ? this.formatBalance(this.walletService.balance()) : undefined
+      },
+      { label: 'Abonnement', icon: 'heroCreditCard', route: '/subscription' },
+      { label: 'Trouver un Coach', icon: 'heroAcademicCap', route: '/teachers', active: true }
+    ];
+
+    return [
+      { title: 'Menu', items: menuItems },
+      {
+        title: 'Compte',
+        items: [
+          { label: 'Mon Profil', icon: 'heroUserCircle', route: '/settings' },
+          { label: 'Mes Factures', icon: 'heroDocumentText', route: '/invoices' },
+          { label: 'Deconnexion', icon: 'heroArrowRightOnRectangle', action: () => this.logout() }
+        ]
+      }
+    ];
+  });
 
   onSidebarCollapsedChange(collapsed: boolean): void {
     this.sidebarCollapsed.set(collapsed);

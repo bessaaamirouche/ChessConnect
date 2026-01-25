@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap, catchError, of } from 'rxjs';
 import { CheckoutSessionResponse } from './payment.service';
@@ -56,8 +56,9 @@ export class WalletService {
   readonly loading = this.loadingSignal.asReadonly();
   readonly error = this.errorSignal.asReadonly();
 
-  readonly balance = () => this.walletSignal()?.balanceCents ?? 0;
-  readonly hasCredit = () => this.balance() > 0;
+  // Use computed signals for proper reactivity
+  readonly balance = computed(() => this.walletSignal()?.balanceCents ?? 0);
+  readonly hasCredit = computed(() => this.balance() > 0);
 
   constructor(private http: HttpClient) {}
 

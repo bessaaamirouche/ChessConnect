@@ -15,6 +15,7 @@ export interface Exercise {
   timeLimitSeconds?: number;
   teacherName?: string;
   lessonDate?: string;
+  courseTitle?: string;
 }
 
 export const DIFFICULTY_LABELS: Record<DifficultyLevel, { label: string; color: string }> = {

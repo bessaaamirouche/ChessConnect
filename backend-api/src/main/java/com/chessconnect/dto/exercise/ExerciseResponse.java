@@ -19,7 +19,8 @@ public record ExerciseResponse(
     String playerColor,
     Integer timeLimitSeconds,
     String teacherName,
-    LocalDateTime lessonDate
+    LocalDateTime lessonDate,
+    String courseTitle
 ) {
     public static ExerciseResponse from(Exercise exercise) {
         Lesson lesson = exercise.getLesson();
@@ -30,6 +31,9 @@ public record ExerciseResponse(
             teacherName = lesson.getTeacher().getFirstName() + " " + lesson.getTeacher().getLastName();
             lessonDate = lesson.getScheduledAt();
         }
+
+        // The title is either the course title (if linked) or the default title
+        String courseTitle = exercise.getTitle();
 
         return new ExerciseResponse(
             exercise.getId(),
@@ -44,7 +48,8 @@ public record ExerciseResponse(
             exercise.getPlayerColor(),
             exercise.getTimeLimitSeconds(),
             teacherName,
-            lessonDate
+            lessonDate,
+            courseTitle
         );
     }
 }

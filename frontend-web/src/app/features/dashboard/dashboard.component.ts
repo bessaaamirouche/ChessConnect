@@ -13,7 +13,7 @@ import { DialogService } from '../../core/services/dialog.service';
 import { LESSON_STATUS_LABELS, Lesson } from '../../core/models/lesson.model';
 import { CHESS_LEVELS } from '../../core/models/user.model';
 import { DatePipe, DecimalPipe } from '@angular/common';
-import { ConfirmModalComponent } from '../../shared/confirm-modal/confirm-modal.component';
+import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   heroChartBarSquare,
@@ -46,7 +46,7 @@ import {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [RouterLink, DatePipe, DecimalPipe, ReactiveFormsModule, ConfirmModalComponent, NgIconComponent],
+  imports: [RouterLink, DatePipe, DecimalPipe, ReactiveFormsModule, ConfirmDialogComponent, NgIconComponent],
   viewProviders: [provideIcons({
     heroChartBarSquare,
     heroCalendarDays,
@@ -78,7 +78,7 @@ import {
   styleUrl: './dashboard.component.scss'
 })
 export class DashboardComponent implements OnInit {
-  @ViewChild('confirmModal') confirmModal!: ConfirmModalComponent;
+  @ViewChild('confirmDialog') confirmDialog!: ConfirmDialogComponent;
 
   statusLabels = LESSON_STATUS_LABELS;
   CHESS_LEVELS = CHESS_LEVELS;
@@ -357,12 +357,13 @@ export class DashboardComponent implements OnInit {
   }
 
   async cancelLesson(lessonId: number): Promise<void> {
-    const reason = await this.confirmModal.open({
+    const reason = await this.confirmDialog.open({
       title: 'Annuler le cours',
       message: 'Êtes-vous sûr de vouloir annuler ce cours ?',
       confirmText: 'Annuler le cours',
       cancelText: 'Retour',
       type: 'danger',
+      icon: 'warning',
       showInput: true,
       inputLabel: 'Raison de l\'annulation (optionnel)',
       inputPlaceholder: 'Ex: Indisponibilité...'

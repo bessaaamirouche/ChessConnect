@@ -10,7 +10,7 @@ import { JitsiService } from '../../../core/services/jitsi.service';
 import { LearningPathService } from '../../../core/services/learning-path.service';
 import { NextCourse } from '../../../core/models/learning-path.model';
 import { LESSON_STATUS_LABELS, Lesson } from '../../../core/models/lesson.model';
-import { ConfirmModalComponent } from '../../../shared/confirm-modal/confirm-modal.component';
+import { ConfirmDialogComponent } from '../../../shared/confirm-dialog/confirm-dialog.component';
 import { StudentProfileModalComponent } from '../../../shared/student-profile-modal/student-profile-modal.component';
 import { RatingModalComponent } from '../../../shared/rating-modal/rating-modal.component';
 import { VideoCallComponent } from '../../../shared/video-call/video-call.component';
@@ -47,7 +47,7 @@ import { CHESS_LEVELS } from '../../../core/models/user.model';
 @Component({
   selector: 'app-lesson-list',
   standalone: true,
-  imports: [RouterLink, DatePipe, FormsModule, ConfirmModalComponent, NgIconComponent, StudentProfileModalComponent, RatingModalComponent, VideoCallComponent],
+  imports: [RouterLink, DatePipe, FormsModule, ConfirmDialogComponent, NgIconComponent, StudentProfileModalComponent, RatingModalComponent, VideoCallComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({
     heroCalendarDays,
@@ -79,7 +79,7 @@ import { CHESS_LEVELS } from '../../../core/models/user.model';
   styleUrl: './lesson-list.component.scss'
 })
 export class LessonListComponent implements OnInit {
-  @ViewChild('confirmModal') confirmModal!: ConfirmModalComponent;
+  @ViewChild('confirmDialog') confirmDialog!: ConfirmDialogComponent;
 
   statusLabels = LESSON_STATUS_LABELS;
   selectedStudentId = signal<number | null>(null);
@@ -236,14 +236,15 @@ export class LessonListComponent implements OnInit {
   }
 
   async cancelLesson(lessonId: number): Promise<void> {
-    const reason = await this.confirmModal.open({
+    const reason = await this.confirmDialog.open({
       title: 'Annuler le cours',
       message: 'Êtes-vous sûr de vouloir annuler ce cours ?',
-      confirmText: 'Annuler le cours',
+      confirmText: 'Annuler',
       cancelText: 'Retour',
       type: 'danger',
+      icon: 'warning',
       showInput: true,
-      inputLabel: 'Raison de l\'annulation (optionnel)',
+      inputLabel: 'Raison (optionnel)',
       inputPlaceholder: 'Ex: Indisponibilité...'
     });
 
@@ -482,16 +483,19 @@ export class LessonListComponent implements OnInit {
   }
 
   async deleteLesson(lessonId: number): Promise<void> {
-    const confirmed = await this.confirmModal.open({
+    const confirmed = await this.confirmDialog.open({
       title: 'Supprimer le cours',
-      message: 'Êtes-vous sûr de vouloir supprimer ce cours de votre historique ?',
+      message: 'Ce cours sera définitivement supprimé de votre historique.',
       confirmText: 'Supprimer',
       cancelText: 'Annuler',
-      type: 'danger'
+      type: 'danger',
+      icon: 'trash'
     });
 
     if (confirmed !== null) {
-      this.lessonService.deleteLesson(lessonId).subscribe();
+      this.lessonService.deleteLesson(lessonId).subscribe({
+        error: (err) => console.error('Error deleting lesson:', err)
+      });
     }
   }
 

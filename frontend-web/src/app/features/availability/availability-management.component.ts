@@ -6,7 +6,7 @@ import { AvailabilityService } from '../../core/services/availability.service';
 import { SeoService } from '../../core/services/seo.service';
 import { AuthService } from '../../core/services/auth.service';
 import { DAYS_OF_WEEK, HOURS, MINUTES, DayOfWeek, AvailabilityRequest } from '../../core/models/availability.model';
-import { ConfirmModalComponent } from '../../shared/confirm-modal/confirm-modal.component';
+import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   heroChartBarSquare,
@@ -24,7 +24,7 @@ import {
 @Component({
   selector: 'app-availability-management',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, ConfirmModalComponent, NgIconComponent],
+  imports: [CommonModule, FormsModule, RouterLink, ConfirmDialogComponent, NgIconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({
     heroChartBarSquare,
@@ -42,7 +42,7 @@ import {
   styleUrl: './availability-management.component.scss'
 })
 export class AvailabilityManagementComponent implements OnInit {
-  @ViewChild('confirmModal') confirmModal!: ConfirmModalComponent;
+  @ViewChild('confirmDialog') confirmDialog!: ConfirmDialogComponent;
 
   private availabilityService = inject(AvailabilityService);
   private seoService = inject(SeoService);
@@ -148,12 +148,13 @@ export class AvailabilityManagementComponent implements OnInit {
   }
 
   async deleteAvailability(id: number): Promise<void> {
-    const confirmed = await this.confirmModal.open({
+    const confirmed = await this.confirmDialog.open({
       title: 'Supprimer la disponibilité',
       message: 'Êtes-vous sûr de vouloir supprimer cette disponibilité ?',
       confirmText: 'Supprimer',
       cancelText: 'Annuler',
-      type: 'danger'
+      type: 'danger',
+      icon: 'trash'
     });
 
     if (confirmed) {

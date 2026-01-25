@@ -134,7 +134,7 @@ Fonctionnalités exclusives pour les abonnés Premium :
 - **Revisionnage des cours** : Accès aux enregistrements vidéo dans l'historique
 - **Notifications prioritaires** : Alertes email quand les coachs favoris publient des créneaux
 - **Badge Premium** : Badge doré visible sur le profil
-- **Entrainement contre l'IA** : Jouez contre Stockfish apres vos cours pour vous exercer
+- **Entrainement contre myChessBot** : Jouez contre myChessBot apres vos cours pour vous exercer
 
 ### Premier Cours Offert
 
@@ -163,10 +163,10 @@ Systeme de facturation conforme :
 - **Telechargement PDF** : Ouverture dans un nouvel onglet
 - Endpoints API : `GET /api/invoices/me`, `GET /api/invoices/{id}/pdf`
 
-### Entrainement contre l'IA (Premium)
+### Entrainement contre myChessBot (Premium)
 
-Module d'exercice contre Stockfish accessible depuis l'historique des cours :
-- **Stockfish.js** : Moteur d'echecs en WebAssembly (calcul cote client, pas de charge serveur)
+Module d'exercice contre myChessBot accessible depuis l'historique des cours :
+- **myChessBot** : Moteur d'echecs JavaScript leger (calcul cote client, pas de charge serveur)
 - **Chessground** : Echiquier interactif avec animations
 - **Chess.js** : Validation des coups et regles du jeu
 - **Difficulte adaptative** : 5 niveaux (Debutant, Facile, Moyen, Difficile, Expert) mappes sur le niveau du joueur

@@ -1494,6 +1494,34 @@ public class ExerciseService {
         this.courseRepository = courseRepository;
     }
 
+    /**
+     * Update old exercises that still reference "l'IA" to use "myChessBot"
+     */
+    @jakarta.annotation.PostConstruct
+    @Transactional
+    public void updateOldExerciseDescriptions() {
+        List<Exercise> allExercises = exerciseRepository.findAll();
+        int updated = 0;
+        for (Exercise exercise : allExercises) {
+            boolean modified = false;
+            if (exercise.getDescription() != null && exercise.getDescription().contains("l'IA")) {
+                exercise.setDescription(exercise.getDescription().replace("l'IA", "myChessBot"));
+                modified = true;
+            }
+            if (exercise.getTitle() != null && exercise.getTitle().contains("l'IA")) {
+                exercise.setTitle(exercise.getTitle().replace("l'IA", "myChessBot"));
+                modified = true;
+            }
+            if (modified) {
+                exerciseRepository.save(exercise);
+                updated++;
+            }
+        }
+        if (updated > 0) {
+            log.info("Updated {} old exercises to use 'myChessBot' instead of 'l'IA'", updated);
+        }
+    }
+
     // Configuration class for exercises
     private static class ExerciseConfig {
         final String fen;

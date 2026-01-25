@@ -15,7 +15,7 @@ import { PaymentService } from '../../../core/services/payment.service';
       <a
         [routerLink]="['/exercise', lessonId]"
         class="exercise-btn"
-        title="S'entrainer contre l'IA"
+        title="S'entrainer contre myChessBot"
       >
         <ng-icon name="heroCpuChip" size="14"></ng-icon>
         M'exercer

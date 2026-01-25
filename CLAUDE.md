@@ -111,9 +111,12 @@ sudo ufw allow 8282
 - **Suivi de Progression** : Suivez votre parcours d'apprentissage
 - **Abonnement Premium** : 4,99€/mois avec fonctionnalités exclusives (revisionnage, notifications prioritaires, badge Premium)
 - **Paiements Stripe** : Paiements securises integres (mode test)
+- **Portefeuille (Wallet)** : Credit de solde pour payer les cours, remboursements automatiques
+- **Factures PDF** : Generation automatique avec mentions legales, avoir pour remboursements
 - **Video Jitsi Meet** : Cours en visioconference integree
 - **Notifications en temps reel** : Alertes pour nouvelles disponibilites et reservations
-- **Blog SEO** : Articles optimises pour le referencement
+- **Indicateur de presence** : Pastille verte quand un coach est en ligne
+- **Blog SEO** : Articles optimises pour le referencement avec support Markdown
 - **Design Apple-like** : Animations scroll, sections immersives, effets parallax
 
 ### Systeme d'annulation et remboursement
@@ -139,6 +142,25 @@ Fonctionnalités exclusives pour les abonnés Premium :
 - Bouton vert "Reserver gratuitement" au lieu du paiement classique
 - Tracking via le champ `hasUsedFreeTrial` sur le User
 - Endpoints API : `GET /api/lessons/free-trial/eligible`, `POST /api/lessons/free-trial/book`
+
+### Portefeuille (Wallet)
+
+Systeme de credit pour les joueurs :
+- **Crediter son solde** : Paiement Stripe pour ajouter des credits (minimum 10€)
+- **Payer avec le solde** : Option de paiement lors de la reservation si solde suffisant
+- **Remboursements automatiques** : Les annulations creditent le portefeuille (pas de remboursement Stripe)
+- **Historique des transactions** : Liste des credits, debits et remboursements
+- Endpoints API : `GET /api/wallet/balance`, `POST /api/wallet/credit`, `GET /api/wallet/transactions`
+
+### Factures et Avoirs
+
+Systeme de facturation conforme :
+- **Generation automatique** : Facture PDF a chaque paiement (cours ou credit wallet)
+- **Mentions legales** : CANDLE (SIREN, TVA non applicable art. 293B CGI)
+- **Avoirs (Credit Notes)** : Generation automatique lors des remboursements
+- **Filtres par date** : Recherche par plage de dates dans l'historique
+- **Telechargement PDF** : Ouverture dans un nouvel onglet
+- Endpoints API : `GET /api/invoices/me`, `GET /api/invoices/{id}/pdf`
 
 ## Mode Developpement (sans Docker)
 
@@ -185,7 +207,7 @@ Le frontend demarre sur `http://localhost:4200`
 │   ├── /src/app
 │   │   ├── /core             # Services, Guards, Interceptors, Models
 │   │   ├── /features         # Composants par fonctionnalite
-│   │   │   ├── /admin        # Back-office administrateur
+│   │   │   ├── /admin        # Back-office administrateur (users, lessons, accounting, invoices, blog)
 │   │   │   ├── /auth         # Login, Register, Forgot/Reset Password
 │   │   │   ├── /availability # Gestion des disponibilites (prof)
 │   │   │   ├── /blog         # Articles SEO (liste + detail)
@@ -195,7 +217,9 @@ Le frontend demarre sur `http://localhost:4200`
 │   │   │   ├── /progress     # Suivi de progression
 │   │   │   ├── /quiz         # Quiz d'evaluation de niveau
 │   │   │   ├── /subscription # Gestion des abonnements
-│   │   │   └── /teachers     # Liste et profil des coachs
+│   │   │   ├── /teachers     # Liste et profil des coachs
+│   │   │   ├── /wallet       # Portefeuille et transactions
+│   │   │   └── /invoices     # Factures utilisateur
 │   │   └── /shared           # Composants partages (toast, modals, video-call, etc.)
 │   ├── /src/assets
 │   │   ├── logo.svg          # Logo vectoriel mychess
@@ -248,12 +272,60 @@ Le frontend demarre sur `http://localhost:4200`
 ### Interface Utilisateur
 
 - **Badges de role** : Joueur (bleu), Coach (violet), Admin (dore) dans la sidebar
+- **Indicateur de presence** : Pastille verte sur l'avatar des coachs en ligne (activite < 5 min)
 - **Design responsive** : Optimise pour mobile avec touch targets accessibles
 - **Landing page** : Style Apple avec animations au scroll, sections plein ecran
 - **Theme sombre** : Interface elegante avec accents dores
 - **Notifications toast** : Cliquables sans fleches, croix pour fermer
+- **Dialogues de confirmation** : Style macOS avec boutons destructifs en rouge
 - **Menu hamburger mobile** : Fixe, semi-transparent (30% opacite), toujours visible
 - **Footer** : Logo et tagline sur la meme ligne
+
+### Structure de la Sidebar
+
+**Joueur :**
+```
+Menu:
+├── Mon Espace
+├── Mes Cours
+├── Ma Progression
+└── Trouver un Coach
+
+Compte:
+├── Mon Profil
+├── Mon Solde
+├── Abonnement
+├── Mes Factures
+└── Deconnexion
+```
+
+**Coach :**
+```
+Menu:
+├── Mon Espace
+├── Mes Cours
+└── Mes Disponibilites
+
+Compte:
+├── Mon Profil
+├── Mes Factures
+└── Deconnexion
+```
+
+**Admin :**
+```
+Administration:
+├── Vue d'ensemble
+├── Utilisateurs
+├── Cours
+├── Comptabilite
+└── Factures
+
+Compte:
+├── Mon Profil
+├── Mes Factures
+└── Deconnexion
+```
 
 ## API Endpoints
 
@@ -310,6 +382,20 @@ Le frontend demarre sur `http://localhost:4200`
 | POST    | `/checkout/subscription`| Creer session Stripe Checkout   | STUDENT |
 | POST    | `/checkout/lesson`      | Payer un cours a l'unite        | STUDENT |
 | GET     | `/subscription`         | Abonnement actif                | STUDENT |
+
+### Portefeuille (`/api/wallet`)
+| Methode | Endpoint        | Description                     | Auth    |
+|---------|-----------------|--------------------------------|---------|
+| GET     | `/balance`      | Solde actuel du portefeuille   | STUDENT |
+| POST    | `/credit`       | Crediter le portefeuille       | STUDENT |
+| GET     | `/transactions` | Historique des transactions    | STUDENT |
+
+### Factures (`/api/invoices`)
+| Methode | Endpoint        | Description                     | Auth    |
+|---------|-----------------|--------------------------------|---------|
+| GET     | `/me`           | Mes factures                   | JWT     |
+| GET     | `/{id}/pdf`     | Telecharger PDF de la facture  | JWT     |
+| GET     | `/` (admin)     | Toutes les factures            | ADMIN   |
 
 ### Stripe Connect (`/api/stripe-connect`)
 | Methode | Endpoint        | Description                           | Auth    |

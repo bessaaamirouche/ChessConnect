@@ -7,7 +7,7 @@
 
     @if (exercise()) {
       <div class="exercise-header__info">
-        <h1>{{ exercise()!.title }}</h1>
+        <h1>{{ exercise()!.courseTitle || 'Entrainement' }}</h1>
         @if (exercise()!.chessLevel) {
           <p class="lesson-meta">Niveau {{ exercise()!.chessLevel }} - myChessBot en mode {{ difficultyLabels[exercise()!.difficultyLevel].label }}</p>
         }

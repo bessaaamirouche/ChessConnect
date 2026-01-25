@@ -7,7 +7,7 @@
 @forward 'styles/variables';
 
 // Google Fonts - avec latin-ext pour les accents français (é, è, à, ç, etc.)
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&subset=latin,latin-ext&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
 // Reset and base styles
 @import 'styles/reset';

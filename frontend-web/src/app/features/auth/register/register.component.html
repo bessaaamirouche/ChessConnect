@@ -1,5 +1,7 @@
 <div class="auth-page">
-  <a routerLink="/" class="back-home">&larr; Retour à l'accueil</a>
+  <a routerLink="/" class="auth-page__logo">
+    <img src="assets/logo.png" alt="mychess" class="auth-page__logo-img">
+  </a>
   <div class="auth-card card">
     @if (success()) {
       <!-- Success Screen for Students -->
@@ -24,9 +26,6 @@
       </div>
     } @else {
     <div class="auth-card__header">
-      <a routerLink="/" class="auth-card__logo">
-        <img src="assets/logo.png" alt="mychess" class="auth-card__logo-img">
-      </a>
       <h1 class="heading-3">Créer un compte</h1>
     </div>
 

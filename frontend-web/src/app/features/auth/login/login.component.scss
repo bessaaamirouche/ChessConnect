@@ -1,6 +1,7 @@
 @use '../../../../styles/variables' as *;
 
 .auth-page {
+  position: relative;
   min-height: 100vh;
   min-height: 100dvh;
   display: flex;
@@ -12,16 +13,29 @@
   background:
     radial-gradient(ellipse at top, rgba(212, 168, 75, 0.1) 0%, transparent 50%),
     var(--bg-primary);
-}
 
-.back-home {
-  color: var(--text-secondary);
-  font-size: 0.8125rem;
-  text-decoration: none;
-  transition: color var(--transition-fast);
+  &__logo {
+    position: absolute;
+    top: var(--space-md);
+    left: var(--space-md);
+    z-index: 10;
 
-  &:hover {
-    color: var(--gold-400);
+    @include respond-to(sm) {
+      top: var(--space-lg);
+      left: var(--space-lg);
+    }
+  }
+
+  &__logo-img {
+    height: 36px;
+    width: auto;
+    max-width: 140px;
+    object-fit: contain;
+
+    @include respond-to(sm) {
+      height: 44px;
+      max-width: 160px;
+    }
   }
 }
 

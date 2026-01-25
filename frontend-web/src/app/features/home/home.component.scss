@@ -1283,24 +1283,26 @@ $text-muted: #6b6965;
   right: var(--space-lg);
   z-index: 1000;
   background: linear-gradient(135deg, rgba(34, 197, 94, 0.95) 0%, rgba(16, 185, 129, 0.95) 100%);
-  border-radius: 50%;
+  border-radius: 28px;
   padding: 0;
   box-shadow: 0 8px 30px rgba(34, 197, 94, 0.4);
   animation: slideUp 0.5s ease-out, pulse-glow-green 2s ease-in-out infinite;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  height: 56px;
 
   @include respond-down(sm) {
     bottom: var(--space-md);
     right: var(--space-md);
+    height: 48px;
+    border-radius: 24px;
   }
 
   // Expanded state
   &--expanded {
-    border-radius: var(--radius-lg);
-    padding: var(--space-sm) var(--space-lg);
+    padding: 0 var(--space-md);
 
     @include respond-down(sm) {
-      padding: var(--space-xs) var(--space-sm);
+      padding: 0 var(--space-sm);
     }
   }
 
@@ -1331,9 +1333,7 @@ $text-muted: #6b6965;
   }
 
   &__close {
-    position: absolute;
-    top: -6px;
-    right: -6px;
+    flex-shrink: 0;
     width: 22px;
     height: 22px;
     display: flex;
@@ -1345,6 +1345,13 @@ $text-muted: #6b6965;
     color: $ivory;
     cursor: pointer;
     transition: all 0.2s ease;
+    margin-right: var(--space-sm);
+
+    @include respond-down(sm) {
+      width: 18px;
+      height: 18px;
+      margin-right: var(--space-xs);
+    }
 
     &:hover {
       background: #1a1a1c;
@@ -1355,6 +1362,7 @@ $text-muted: #6b6965;
   &__content {
     display: flex;
     align-items: center;
+    height: 100%;
     gap: var(--space-sm);
     color: #0a0a0c;
     font-weight: 500;
@@ -1362,13 +1370,11 @@ $text-muted: #6b6965;
     animation: fadeIn 0.3s ease-out;
 
     @include respond-down(sm) {
-      flex-direction: column;
-      text-align: center;
       gap: var(--space-xs);
-      font-size: 0.75rem;
+      font-size: 0.7rem;
     }
 
-    ng-icon {
+    > ng-icon {
       flex-shrink: 0;
       animation: bounce-gift 1.5s ease-in-out infinite;
     }
@@ -1387,6 +1393,11 @@ $text-muted: #6b6965;
     font-size: 0.75rem;
     white-space: nowrap;
     transition: all 0.2s ease;
+
+    @include respond-down(sm) {
+      padding: 3px var(--space-sm);
+      font-size: 0.65rem;
+    }
 
     &:hover {
       background: #1a1a1c;

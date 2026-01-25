@@ -11,6 +11,7 @@ import com.chessconnect.model.enums.LessonStatus;
 import com.chessconnect.model.enums.PaymentStatus;
 import com.chessconnect.model.enums.PaymentType;
 import com.chessconnect.model.enums.UserRole;
+import com.chessconnect.repository.CreditTransactionRepository;
 import com.chessconnect.repository.InvoiceRepository;
 import com.chessconnect.repository.LessonRepository;
 import com.chessconnect.repository.PaymentRepository;
@@ -49,6 +50,7 @@ public class LessonService {
     private final PaymentRepository paymentRepository;
     private final RatingRepository ratingRepository;
     private final InvoiceRepository invoiceRepository;
+    private final CreditTransactionRepository creditTransactionRepository;
     private final TeacherBalanceService teacherBalanceService;
     private final GoogleCalendarService googleCalendarService;
     private final InvoiceService invoiceService;
@@ -61,6 +63,7 @@ public class LessonService {
             PaymentRepository paymentRepository,
             RatingRepository ratingRepository,
             InvoiceRepository invoiceRepository,
+            CreditTransactionRepository creditTransactionRepository,
             TeacherBalanceService teacherBalanceService,
             GoogleCalendarService googleCalendarService,
             InvoiceService invoiceService,
@@ -72,6 +75,7 @@ public class LessonService {
         this.paymentRepository = paymentRepository;
         this.ratingRepository = ratingRepository;
         this.invoiceRepository = invoiceRepository;
+        this.creditTransactionRepository = creditTransactionRepository;
         this.teacherBalanceService = teacherBalanceService;
         this.googleCalendarService = googleCalendarService;
         this.invoiceService = invoiceService;
@@ -360,6 +364,13 @@ public class LessonService {
             log.info("Nullifying lesson reference in invoice {}", invoice.getId());
             invoice.setLesson(null);
             invoiceRepository.save(invoice);
+        });
+
+        // Nullify lesson reference in credit transactions (keep for accounting history)
+        creditTransactionRepository.findByLessonId(lessonId).forEach(transaction -> {
+            log.info("Nullifying lesson reference in credit transaction {}", transaction.getId());
+            transaction.setLesson(null);
+            creditTransactionRepository.save(transaction);
         });
 
         // Delete related payment if exists

@@ -4,8 +4,10 @@ import com.chessconnect.model.Invoice;
 import com.chessconnect.model.Lesson;
 import com.chessconnect.model.User;
 import com.chessconnect.model.enums.InvoiceType;
+import com.chessconnect.model.Payment;
 import com.chessconnect.repository.InvoiceRepository;
 import com.chessconnect.repository.LessonRepository;
+import com.chessconnect.repository.PaymentRepository;
 import com.chessconnect.repository.UserRepository;
 import com.lowagie.text.*;
 import com.lowagie.text.pdf.*;
@@ -51,15 +53,18 @@ public class InvoiceService {
     private final InvoiceRepository invoiceRepository;
     private final UserRepository userRepository;
     private final LessonRepository lessonRepository;
+    private final PaymentRepository paymentRepository;
 
     public InvoiceService(
             InvoiceRepository invoiceRepository,
             UserRepository userRepository,
-            LessonRepository lessonRepository
+            LessonRepository lessonRepository,
+            PaymentRepository paymentRepository
     ) {
         this.invoiceRepository = invoiceRepository;
         this.userRepository = userRepository;
         this.lessonRepository = lessonRepository;
+        this.paymentRepository = paymentRepository;
     }
 
     /**
@@ -867,8 +872,28 @@ public class InvoiceService {
                 .orElse(null);
 
         if (originalInvoice == null) {
-            log.warn("No original invoice found for lesson {} - cannot generate credit note", lesson.getId());
-            return null;
+            // Create the LESSON_INVOICE first using Payment info
+            Payment payment = paymentRepository.findByLessonId(lesson.getId()).orElse(null);
+            if (payment == null) {
+                log.warn("No payment found for lesson {} - cannot generate credit note", lesson.getId());
+                return null;
+            }
+
+            log.info("Creating missing LESSON_INVOICE for lesson {} before credit note", lesson.getId());
+            originalInvoice = createLessonInvoice(
+                    lesson.getStudent(),
+                    lesson.getTeacher(),
+                    lesson,
+                    payment.getStripePaymentIntentId(),
+                    payment.getAmountCents()
+            );
+
+            // Generate PDF for the original invoice
+            try {
+                generateLessonInvoicePdf(originalInvoice, lesson.getStudent(), lesson.getTeacher(), lesson);
+            } catch (Exception e) {
+                log.error("Error generating lesson invoice PDF", e);
+            }
         }
 
         // Check if credit note already exists for this refund

@@ -269,7 +269,7 @@ public class ExerciseService {
             if (lesson.getTeacherObservations() != null && !lesson.getTeacherObservations().isBlank()) {
                 description = lesson.getTeacherObservations();
             } else {
-                description = "Exercez-vous contre l'IA pour mettre en pratique ce que vous avez appris. Niveau: " + studentLevel.getDisplayName();
+                description = "Exercez-vous contre myChessBot pour mettre en pratique ce que vous avez appris. Niveau: " + studentLevel.getDisplayName();
             }
             exercise.setDescription(description);
             exercise.setStartingFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");

@@ -134,6 +134,7 @@ Fonctionnalités exclusives pour les abonnés Premium :
 - **Revisionnage des cours** : Accès aux enregistrements vidéo dans l'historique
 - **Notifications prioritaires** : Alertes email quand les coachs favoris publient des créneaux
 - **Badge Premium** : Badge doré visible sur le profil
+- **Entrainement contre l'IA** : Jouez contre Stockfish apres vos cours pour vous exercer
 
 ### Premier Cours Offert
 
@@ -161,6 +162,19 @@ Systeme de facturation conforme :
 - **Filtres par date** : Recherche par plage de dates dans l'historique
 - **Telechargement PDF** : Ouverture dans un nouvel onglet
 - Endpoints API : `GET /api/invoices/me`, `GET /api/invoices/{id}/pdf`
+
+### Entrainement contre l'IA (Premium)
+
+Module d'exercice contre Stockfish accessible depuis l'historique des cours :
+- **Stockfish.js** : Moteur d'echecs en WebAssembly (calcul cote client, pas de charge serveur)
+- **Chessground** : Echiquier interactif avec animations
+- **Chess.js** : Validation des coups et regles du jeu
+- **Difficulte adaptative** : 5 niveaux (Debutant, Facile, Moyen, Difficile, Expert) mappes sur le niveau du joueur
+- **Evaluation en temps reel** : Barre d'evaluation de la position
+- **Detection fin de partie** : Mat, pat, nulle
+- Bouton "M'exercer" dans l'historique des cours (visible uniquement pour Premium)
+- Route : `/exercise/:lessonId` protegee par `premiumGuard`
+- Endpoints API : `GET /api/exercises/lesson/{lessonId}`, `GET /api/exercises/{id}`, `GET /api/exercises`
 
 ## Mode Developpement (sans Docker)
 
@@ -414,6 +428,13 @@ Compte:
 | POST    | `/`                   | Creer un article                | ADMIN   |
 | PUT     | `/{id}`               | Modifier un article             | ADMIN   |
 | DELETE  | `/{id}`               | Supprimer un article            | ADMIN   |
+
+### Exercices (`/api/exercises`)
+| Methode | Endpoint              | Description                     | Auth    |
+|---------|-----------------------|---------------------------------|---------|
+| GET     | `/lesson/{lessonId}`  | Exercice lie a un cours         | PREMIUM |
+| GET     | `/{id}`               | Detail d'un exercice            | PREMIUM |
+| GET     | `/`                   | Liste des exercices             | PREMIUM |
 
 ## Variables d'Environnement
 

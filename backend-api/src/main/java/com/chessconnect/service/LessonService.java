@@ -12,9 +12,11 @@ import com.chessconnect.model.enums.LessonStatus;
 import com.chessconnect.model.enums.PaymentStatus;
 import com.chessconnect.model.enums.PaymentType;
 import com.chessconnect.model.enums.UserRole;
+import com.chessconnect.repository.InvoiceRepository;
 import com.chessconnect.repository.LessonRepository;
 import com.chessconnect.repository.PaymentRepository;
 import com.chessconnect.repository.ProgressRepository;
+import com.chessconnect.repository.RatingRepository;
 import com.chessconnect.repository.UserRepository;
 import com.chessconnect.service.zoom.ZoomService;
 import com.stripe.model.Refund;
@@ -48,6 +50,8 @@ public class LessonService {
     private final UserRepository userRepository;
     private final ProgressRepository progressRepository;
     private final PaymentRepository paymentRepository;
+    private final RatingRepository ratingRepository;
+    private final InvoiceRepository invoiceRepository;
     private final ZoomService zoomService;
     private final TeacherBalanceService teacherBalanceService;
     private final StripeService stripeService;
@@ -60,6 +64,8 @@ public class LessonService {
             UserRepository userRepository,
             ProgressRepository progressRepository,
             PaymentRepository paymentRepository,
+            RatingRepository ratingRepository,
+            InvoiceRepository invoiceRepository,
             ZoomService zoomService,
             TeacherBalanceService teacherBalanceService,
             StripeService stripeService,
@@ -71,6 +77,8 @@ public class LessonService {
         this.userRepository = userRepository;
         this.progressRepository = progressRepository;
         this.paymentRepository = paymentRepository;
+        this.ratingRepository = ratingRepository;
+        this.invoiceRepository = invoiceRepository;
         this.zoomService = zoomService;
         this.teacherBalanceService = teacherBalanceService;
         this.stripeService = stripeService;
@@ -373,7 +381,27 @@ public class LessonService {
         // Delete recording files if they exist
         deleteRecordingFiles(lessonId);
 
+        // Delete related rating if exists
+        ratingRepository.findByLessonId(lessonId).ifPresent(rating -> {
+            log.info("Deleting rating {} for lesson {}", rating.getId(), lessonId);
+            ratingRepository.delete(rating);
+        });
+
+        // Nullify lesson reference in invoices (keep invoices for legal/accounting purposes)
+        invoiceRepository.findByLessonId(lessonId).forEach(invoice -> {
+            log.info("Nullifying lesson reference in invoice {}", invoice.getId());
+            invoice.setLesson(null);
+            invoiceRepository.save(invoice);
+        });
+
+        // Delete related payment if exists
+        paymentRepository.findByLessonId(lessonId).ifPresent(payment -> {
+            log.info("Deleting payment {} for lesson {}", payment.getId(), lessonId);
+            paymentRepository.delete(payment);
+        });
+
         lessonRepository.delete(lesson);
+        log.info("Deleted lesson {} by user {}", lessonId, userId);
     }
 
     /**

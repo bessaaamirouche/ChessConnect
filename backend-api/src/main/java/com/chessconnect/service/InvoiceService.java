@@ -633,12 +633,21 @@ public class InvoiceService {
      */
     public List<Invoice> getInvoicesForUser(Long userId) {
         // Get invoices where user is customer (received) or issuer (sent)
-        List<Invoice> received = invoiceRepository.findByCustomerIdOrderByCreatedAtDesc(userId);
+        List<Invoice> received = new java.util.ArrayList<>(
+                invoiceRepository.findByCustomerIdOrderByCreatedAtDesc(userId)
+        );
         List<Invoice> issued = invoiceRepository.findByIssuerIdOrderByCreatedAtDesc(userId);
 
-        // Merge and sort by date
+        // Merge and sort by date (null-safe)
         received.addAll(issued);
-        received.sort((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()));
+        received.sort((a, b) -> {
+            LocalDateTime dateA = a.getCreatedAt();
+            LocalDateTime dateB = b.getCreatedAt();
+            if (dateA == null && dateB == null) return 0;
+            if (dateA == null) return 1; // nulls last
+            if (dateB == null) return -1;
+            return dateB.compareTo(dateA);
+        });
 
         return received;
     }

@@ -40,13 +40,30 @@ public class InvoiceController {
     public ResponseEntity<List<Map<String, Object>>> getMyInvoices(
             @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
-        List<Invoice> invoices = invoiceService.getInvoicesForUser(userDetails.getId());
+        try {
+            List<Invoice> invoices = invoiceService.getInvoicesForUser(userDetails.getId());
 
-        List<Map<String, Object>> response = invoices.stream()
-                .map(inv -> mapInvoiceToResponse(inv, userDetails.getId()))
-                .collect(Collectors.toList());
+            List<Map<String, Object>> response = invoices.stream()
+                    .map(inv -> {
+                        try {
+                            return mapInvoiceToResponse(inv, userDetails.getId());
+                        } catch (Exception e) {
+                            log.error("Error mapping invoice {}: {}", inv.getId(), e.getMessage(), e);
+                            // Return a minimal response for problematic invoices
+                            return Map.<String, Object>of(
+                                    "id", inv.getId(),
+                                    "invoiceNumber", inv.getInvoiceNumber() != null ? inv.getInvoiceNumber() : "N/A",
+                                    "error", "Erreur de chargement"
+                            );
+                        }
+                    })
+                    .collect(Collectors.toList());
 
-        return ResponseEntity.ok(response);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("Error fetching invoices for user {}: {}", userDetails.getId(), e.getMessage(), e);
+            return ResponseEntity.ok(List.of()); // Return empty list instead of 500
+        }
     }
 
     /**

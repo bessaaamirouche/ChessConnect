@@ -22,7 +22,8 @@ import {
   heroShieldCheck,
   heroTrophy,
   heroArrowRight,
-  heroGift
+  heroGift,
+  heroXMark
 } from '@ng-icons/heroicons/outline';
 
 @Component({
@@ -43,7 +44,8 @@ import {
     heroShieldCheck,
     heroTrophy,
     heroArrowRight,
-    heroGift
+    heroGift,
+    heroXMark
   })],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
@@ -57,6 +59,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   mobileMenuOpen = signal(false);
   isScrolled = signal(false);
   scrollProgress = signal(0);
+  showPromoPopup = signal(true);
 
   // Scroll listener reference for cleanup
   private scrollListener: (() => void) | null = null;
@@ -120,6 +123,10 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   closeMobileMenu(): void {
     this.mobileMenuOpen.set(false);
+  }
+
+  closePromoPopup(): void {
+    this.showPromoPopup.set(false);
   }
 
   scrollToSection(sectionId: string): void {

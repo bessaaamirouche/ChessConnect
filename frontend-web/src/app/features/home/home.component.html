@@ -66,21 +66,18 @@
       <div class="hero__decor hero__decor--rook">&#9814;</div>
 
       <div class="hero__content">
-        <h1 class="hero__title hero__title--compact" appScrollReveal="fade-up">
+        <img src="assets/chess-pieces-hero.png" alt="Pieces d'echecs" class="hero__image" appScrollReveal="fade-up">
+
+        <h1 class="hero__title hero__title--compact" appScrollReveal="fade-up" [revealDelay]="100">
           Envie de progresser aux <span class="gold-text">Echecs</span> ?
         </h1>
 
-        <p class="hero__subtitle" appScrollReveal="fade-up" [revealDelay]="100">
+        <p class="hero__subtitle" appScrollReveal="fade-up" [revealDelay]="200">
           Trouvez un coach adapte a votre niveau et avancez<br class="hide-mobile">
           a votre rythme avec un parcours structure.
         </p>
 
-        <div class="hero__free-trial" appScrollReveal="fade-up" [revealDelay]="150">
-          <ng-icon name="heroGift" size="20"></ng-icon>
-          <span>Premier cours <strong>offert</strong> - testez sans engagement</span>
-        </div>
-
-        <div class="hero__cta" appScrollReveal="fade-up" [revealDelay]="200">
+        <div class="hero__cta" appScrollReveal="fade-up" [revealDelay]="300">
           <a routerLink="/register" class="btn btn--primary btn--lg">
             Essayer gratuitement
           </a>
@@ -288,23 +285,6 @@
       </div>
     </section>
 
-    <!-- CTA SECTION -->
-    <section class="section section--cta" id="cta">
-      <div class="section__container">
-        <div class="cta-content" appScrollReveal="scale-up">
-          <h2 class="cta-content__title">Pret a faire votre premier pas ?</h2>
-          <p class="cta-content__subtitle">
-            Votre premier cours est offert. Decouvrez si mychess vous convient.
-          </p>
-          <div class="cta-content__buttons">
-            <a routerLink="/register" class="btn btn--primary btn--xl">
-              Essayer gratuitement
-            </a>
-          </div>
-          <p class="cta-content__note">Sans carte bancaire. Sans engagement.</p>
-        </div>
-      </div>
-    </section>
   </main>
 
   <!-- Footer -->
@@ -346,4 +326,18 @@
       </div>
     </div>
   </footer>
+
+  <!-- Free Trial Popup Banner -->
+  @if (showPromoPopup()) {
+    <div class="promo-popup">
+      <button class="promo-popup__close" (click)="closePromoPopup()">
+        <ng-icon name="heroXMark" size="18"></ng-icon>
+      </button>
+      <div class="promo-popup__content">
+        <ng-icon name="heroGift" size="24"></ng-icon>
+        <span>Premier cours <strong>gratuit</strong> pour les 100 premiers inscrits !</span>
+        <a routerLink="/register" class="promo-popup__btn">J'en profite</a>
+      </div>
+    </div>
+  }
 </div>

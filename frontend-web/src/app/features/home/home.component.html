@@ -25,6 +25,7 @@
         <a href="#features" (click)="scrollToSection('features'); closeMobileMenu()">Avantages</a>
         <a href="#levels" (click)="scrollToSection('levels'); closeMobileMenu()">Parcours</a>
         <a href="#how-it-works" (click)="scrollToSection('how-it-works'); closeMobileMenu()">Fonctionnement</a>
+        <a routerLink="/teachers" (click)="closeMobileMenu()">Nos coachs</a>
         <a routerLink="/pricing" (click)="closeMobileMenu()">Tarifs</a>
         <a routerLink="/blog" (click)="closeMobileMenu()">Blog</a>
 
@@ -78,10 +79,7 @@
 
         <div class="hero__cta" appScrollReveal="fade-up" [revealDelay]="300">
           <a routerLink="/register" class="btn btn--primary btn--lg">
-            Essayer gratuitement
-          </a>
-          <a routerLink="/teachers" class="btn btn--outline btn--lg">
-            Nos coachs
+            Commencer gratuitement
           </a>
         </div>
 

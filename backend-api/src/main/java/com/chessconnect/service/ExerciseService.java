@@ -71,10 +71,23 @@ public class ExerciseService {
 
         DifficultyLevel difficulty = mapChessLevelToDifficulty(studentLevel);
 
+        // Format lesson date
+        java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        String lessonDate = lesson.getScheduledAt().format(formatter);
+
         Exercise exercise = new Exercise();
         exercise.setLesson(lesson);
-        exercise.setTitle("Entrainement - " + lesson.getTeacher().getFirstName() + " " + lesson.getTeacher().getLastName());
-        exercise.setDescription("Exercez-vous contre l'IA apres votre cours avec " + lesson.getTeacher().getFirstName());
+        exercise.setTitle("Cours du " + lessonDate + " avec " + lesson.getTeacher().getFirstName());
+
+        // Use teacher observations as tips if available
+        String description;
+        if (lesson.getTeacherObservations() != null && !lesson.getTeacherObservations().isBlank()) {
+            description = lesson.getTeacherObservations();
+        } else {
+            description = "Exercez-vous contre l'IA pour mettre en pratique ce que vous avez appris. Niveau: " + studentLevel.getDisplayName();
+        }
+        exercise.setDescription(description);
+
         exercise.setStartingFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
         exercise.setDifficultyLevel(difficulty);
         exercise.setChessLevel(studentLevel);

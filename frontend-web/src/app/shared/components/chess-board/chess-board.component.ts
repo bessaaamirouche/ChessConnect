@@ -51,9 +51,15 @@ interface ChessMove {
 
     .chess-board-container {
       width: 100%;
-      max-width: 500px;
+      max-width: min(70vh, 600px);
       aspect-ratio: 1;
       margin: 0 auto;
+    }
+
+    @media (min-width: 1200px) {
+      .chess-board-container {
+        max-width: min(75vh, 700px);
+      }
     }
 
     .chess-board-controls {
@@ -259,9 +265,20 @@ export class ChessBoardComponent implements AfterViewInit, OnDestroy {
 
     const moveResult = this.chess.move({ from, to, promotion });
     if (moveResult) {
-      // Animate the move on the board
-      this.ground.move(from, to);
-      this.updateBoardState();
+      // Update board with new position and highlight last move
+      const turnColor = this.chess.turn() === 'w' ? 'white' : 'black';
+      const isPlayerTurn = turnColor === this.orientation;
+
+      this.ground.set({
+        fen: this.chess.fen(),
+        turnColor,
+        lastMove: [from, to],
+        check: this.chess.inCheck(),
+        movable: {
+          color: isPlayerTurn && this.movable && !this.disabled ? this.orientation : undefined,
+          dests: isPlayerTurn && this.movable && !this.disabled ? this.getValidMoves() : new Map()
+        }
+      });
       return true;
     }
     return false;

@@ -8,6 +8,9 @@
     @if (exercise()) {
       <div class="exercise-header__info">
         <h1>{{ exercise()!.title }}</h1>
+        @if (exercise()!.chessLevel) {
+          <p class="lesson-meta">Niveau {{ exercise()!.chessLevel }} - IA en mode {{ difficultyLabels[exercise()!.difficultyLevel].label }}</p>
+        }
         <div class="exercise-badges">
           <span
             class="difficulty-badge"

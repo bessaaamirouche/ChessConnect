@@ -1,11 +1,11 @@
 package com.chessconnect.model.enums;
 
 public enum DifficultyLevel {
-    DEBUTANT(1, "Debutant", 0, 500),
-    FACILE(2, "Facile", 5, 1000),
-    MOYEN(3, "Moyen", 10, 1500),
-    DIFFICILE(4, "Difficile", 15, 2000),
-    EXPERT(5, "Expert", 20, 3000);
+    DEBUTANT(1, "Debutant", 0, 200),
+    FACILE(2, "Facile", 5, 400),
+    MOYEN(3, "Moyen", 10, 800),
+    DIFFICILE(4, "Difficile", 15, 1500),
+    EXPERT(5, "Expert", 20, 2500);
 
     private final int order;
     private final String displayName;

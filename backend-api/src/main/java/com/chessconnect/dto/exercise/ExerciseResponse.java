@@ -1,8 +1,10 @@
 package com.chessconnect.dto.exercise;
 
 import com.chessconnect.model.Exercise;
+import com.chessconnect.model.Lesson;
 import com.chessconnect.model.enums.ChessLevel;
 import com.chessconnect.model.enums.DifficultyLevel;
+import java.time.LocalDateTime;
 
 public record ExerciseResponse(
     Long id,
@@ -15,12 +17,23 @@ public record ExerciseResponse(
     int thinkTimeMs,
     ChessLevel chessLevel,
     String playerColor,
-    Integer timeLimitSeconds
+    Integer timeLimitSeconds,
+    String teacherName,
+    LocalDateTime lessonDate
 ) {
     public static ExerciseResponse from(Exercise exercise) {
+        Lesson lesson = exercise.getLesson();
+        String teacherName = null;
+        LocalDateTime lessonDate = null;
+
+        if (lesson != null) {
+            teacherName = lesson.getTeacher().getFirstName() + " " + lesson.getTeacher().getLastName();
+            lessonDate = lesson.getScheduledAt();
+        }
+
         return new ExerciseResponse(
             exercise.getId(),
-            exercise.getLesson() != null ? exercise.getLesson().getId() : null,
+            lesson != null ? lesson.getId() : null,
             exercise.getTitle(),
             exercise.getDescription(),
             exercise.getStartingFen(),
@@ -29,7 +42,9 @@ public record ExerciseResponse(
             exercise.getDifficultyLevel().getThinkTimeMs(),
             exercise.getChessLevel(),
             exercise.getPlayerColor(),
-            exercise.getTimeLimitSeconds()
+            exercise.getTimeLimitSeconds(),
+            teacherName,
+            lessonDate
         );
     }
 }

@@ -18,7 +18,13 @@
       font-size: 1.5rem;
       font-weight: 600;
       color: var(--text-primary, #fff);
-      margin: 0 0 0.5rem;
+      margin: 0 0 0.25rem;
+    }
+
+    .lesson-meta {
+      font-size: 0.875rem;
+      color: var(--text-muted, #9ca3af);
+      margin: 0 0 0.75rem;
     }
   }
 }

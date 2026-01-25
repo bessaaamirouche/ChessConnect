@@ -13,6 +13,8 @@ export interface Exercise {
   chessLevel?: ChessLevel;
   playerColor: 'white' | 'black';
   timeLimitSeconds?: number;
+  teacherName?: string;
+  lessonDate?: string;
 }
 
 export const DIFFICULTY_LABELS: Record<DifficultyLevel, { label: string; color: string }> = {

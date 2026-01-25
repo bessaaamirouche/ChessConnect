@@ -66,32 +66,27 @@
       <div class="hero__decor hero__decor--rook">&#9814;</div>
 
       <div class="hero__content">
-        <div class="hero__badge" appScrollReveal="fade-up">
-          <span class="hero__badge-icon">&#9813;</span>
-          <span>La plateforme n°1 des cours d'echecs en ligne</span>
-        </div>
-
-        <h1 class="hero__title" appScrollReveal="fade-up" [revealDelay]="100">
-          <span class="hero__title-line">Maitrisez</span>
-          <span class="hero__title-line hero__title-line--gold">l'Art des Echecs</span>
+        <h1 class="hero__title" appScrollReveal="fade-up">
+          <span class="hero__title-line">Envie de progresser</span>
+          <span class="hero__title-line hero__title-line--gold">aux Echecs ?</span>
         </h1>
 
-        <p class="hero__subtitle" appScrollReveal="fade-up" [revealDelay]="200">
-          Connectez-vous avec des maitres certifies et progressez<br class="hide-mobile">
-          a votre rythme grace a un parcours personnalise.
+        <p class="hero__subtitle" appScrollReveal="fade-up" [revealDelay]="100">
+          Trouvez un coach adapte a votre niveau et avancez<br class="hide-mobile">
+          a votre rythme avec un parcours structure.
         </p>
 
-        <div class="hero__free-trial" appScrollReveal="fade-up" [revealDelay]="250">
+        <div class="hero__free-trial" appScrollReveal="fade-up" [revealDelay]="150">
           <ng-icon name="heroGift" size="20"></ng-icon>
-          <span>Premier cours <strong>100% gratuit</strong> pour tous les nouveaux joueurs !</span>
+          <span>Premier cours <strong>offert</strong> - testez sans engagement</span>
         </div>
 
-        <div class="hero__cta" appScrollReveal="fade-up" [revealDelay]="300">
+        <div class="hero__cta" appScrollReveal="fade-up" [revealDelay]="200">
           <a routerLink="/register" class="btn btn--primary btn--lg">
-            Commencer gratuitement
+            Essayer gratuitement
           </a>
           <a routerLink="/teachers" class="btn btn--outline btn--lg">
-            Voir les coachs
+            Decouvrir les coachs
           </a>
         </div>
 
@@ -108,11 +103,7 @@
       <div class="section__container">
         <div class="section__header" appScrollReveal="fade-up">
           <span class="section__eyebrow">Pourquoi mychess</span>
-          <h2 class="section__title">Une experience<br><span class="gold-text">d'apprentissage unique</span></h2>
-          <p class="section__subtitle">
-            Tout ce dont vous avez besoin pour progresser aux echecs,<br class="hide-mobile">
-            reuni sur une seule plateforme.
-          </p>
+          <h2 class="section__title">Vous voulez progresser<br><span class="gold-text">a votre rythme ?</span></h2>
         </div>
 
         <div class="features-grid" appStaggerReveal>
@@ -120,59 +111,39 @@
             <div class="feature-card__icon">
               <ng-icon name="heroVideoCamera" size="32"></ng-icon>
             </div>
-            <h3 class="feature-card__title">Cours en visio HD</h3>
+            <h3 class="feature-card__title">Cours en visio</h3>
             <p class="feature-card__desc">
-              Apprenez confortablement depuis chez vous avec une qualite video exceptionnelle et un echiquier interactif.
+              Apprenez depuis chez vous avec un echiquier interactif partage avec votre coach.
             </p>
           </div>
 
           <div class="feature-card" appScrollReveal="fade-up" [revealDelay]="100">
             <div class="feature-card__icon">
-              <ng-icon name="heroAcademicCap" size="32"></ng-icon>
+              <ng-icon name="heroChartBar" size="32"></ng-icon>
             </div>
-            <h3 class="feature-card__title">Maitres certifies</h3>
+            <h3 class="feature-card__title">Parcours structure</h3>
             <p class="feature-card__desc">
-              Nos coachs sont tous des joueurs titres avec une experience pedagogique reconnue.
+              5 niveaux progressifs pour apprendre les echecs etape par etape, de debutant a expert.
             </p>
           </div>
 
           <div class="feature-card" appScrollReveal="fade-up" [revealDelay]="200">
             <div class="feature-card__icon">
-              <ng-icon name="heroUserGroup" size="32"></ng-icon>
+              <ng-icon name="heroClock" size="32"></ng-icon>
             </div>
-            <h3 class="feature-card__title">Suivi personnalise</h3>
+            <h3 class="feature-card__title">Horaires flexibles</h3>
             <p class="feature-card__desc">
-              Un cursus adapte a votre niveau qui evolue avec vos progres et vos objectifs.
+              Reservez vos cours selon vos disponibilites, 7j/7, matin comme soir.
             </p>
           </div>
 
           <div class="feature-card" appScrollReveal="fade-up" [revealDelay]="300">
             <div class="feature-card__icon">
-              <ng-icon name="heroClock" size="32"></ng-icon>
-            </div>
-            <h3 class="feature-card__title">Flexibilite totale</h3>
-            <p class="feature-card__desc">
-              Reservez vos cours quand vous le souhaitez, 7j/7, et reprogrammez facilement si necessaire.
-            </p>
-          </div>
-
-          <div class="feature-card" appScrollReveal="fade-up" [revealDelay]="400">
-            <div class="feature-card__icon">
               <ng-icon name="heroShieldCheck" size="32"></ng-icon>
             </div>
-            <h3 class="feature-card__title">Paiement securise</h3>
+            <h3 class="feature-card__title">Premier cours offert</h3>
             <p class="feature-card__desc">
-              Transactions 100% securisees par Stripe. Satisfait ou rembourse sur le premier cours.
-            </p>
-          </div>
-
-          <div class="feature-card" appScrollReveal="fade-up" [revealDelay]="500">
-            <div class="feature-card__icon">
-              <ng-icon name="heroTrophy" size="32"></ng-icon>
-            </div>
-            <h3 class="feature-card__title">Progression garantie</h3>
-            <p class="feature-card__desc">
-              Un systeme de niveaux structure pour mesurer et celebrer chaque etape de votre progression.
+              Testez sans engagement. Paiement securise par Stripe pour les cours suivants.
             </p>
           </div>
         </div>
@@ -183,11 +154,10 @@
     <section class="section section--levels" id="levels">
       <div class="section__container">
         <div class="section__header" appScrollReveal="fade-up">
-          <span class="section__eyebrow">Le parcours apprenti</span>
-          <h2 class="section__title">De debutant a<br><span class="gold-text">maitre des echecs</span></h2>
+          <span class="section__eyebrow">Parcours d'apprentissage</span>
+          <h2 class="section__title">Quel est votre<br><span class="gold-text">niveau actuel ?</span></h2>
           <p class="section__subtitle">
-            Un cursus structure en 5 niveaux pour maitriser les echecs progressivement.<br class="hide-mobile">
-            Votre progression est conservee meme si vous changez de coach.
+            Passez notre quiz gratuit et decouvrez votre niveau parmi nos 5 etapes de progression.
           </p>
         </div>
 
@@ -272,20 +242,20 @@
     <section class="section section--how" id="how-it-works">
       <div class="section__container">
         <div class="section__header" appScrollReveal="fade-up">
-          <span class="section__eyebrow">Comment ca marche</span>
-          <h2 class="section__title">Commencez en<br><span class="gold-text">3 etapes simples</span></h2>
+          <span class="section__eyebrow">Pret a commencer ?</span>
+          <h2 class="section__title">Votre premier cours<br><span class="gold-text">en 3 minutes</span></h2>
         </div>
 
         <div class="steps">
           <div class="step" appScrollReveal="fade-up">
             <div class="step__number">01</div>
             <div class="step__content">
-              <h3 class="step__title">Creez votre compte</h3>
-              <p class="step__desc">Inscrivez-vous gratuitement et passez notre quiz d'evaluation pour determiner votre niveau actuel.</p>
+              <h3 class="step__title">Inscription rapide</h3>
+              <p class="step__desc">Creez votre compte gratuitement et evaluez votre niveau avec notre quiz.</p>
             </div>
             <div class="step__visual">
               <div class="step__icon">
-                <ng-icon name="heroUserGroup" size="40"></ng-icon>
+                <ng-icon name="heroUserPlus" size="40"></ng-icon>
               </div>
             </div>
           </div>
@@ -293,12 +263,12 @@
           <div class="step step--reverse" appScrollReveal="fade-up" [revealDelay]="150">
             <div class="step__number">02</div>
             <div class="step__content">
-              <h3 class="step__title">Choisissez votre coach</h3>
-              <p class="step__desc">Parcourez les profils de nos maitres certifies et selectionnez celui qui correspond a vos objectifs.</p>
+              <h3 class="step__title">Choisissez un coach</h3>
+              <p class="step__desc">Consultez les profils, tarifs et disponibilites pour trouver le coach qui vous convient.</p>
             </div>
             <div class="step__visual">
               <div class="step__icon">
-                <ng-icon name="heroAcademicCap" size="40"></ng-icon>
+                <ng-icon name="heroUsers" size="40"></ng-icon>
               </div>
             </div>
           </div>
@@ -306,72 +276,12 @@
           <div class="step" appScrollReveal="fade-up" [revealDelay]="300">
             <div class="step__number">03</div>
             <div class="step__content">
-              <h3 class="step__title">Reservez et progressez</h3>
-              <p class="step__desc">Planifiez vos cours en fonction de vos disponibilites et suivez votre progression dans votre espace personnel.</p>
+              <h3 class="step__title">Reservez votre cours</h3>
+              <p class="step__desc">Selectionnez un creneau et commencez votre premier cours - c'est offert !</p>
             </div>
             <div class="step__visual">
               <div class="step__icon">
-                <ng-icon name="heroTrophy" size="40"></ng-icon>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- TESTIMONIALS SECTION -->
-    <section class="section section--testimonials" id="testimonials">
-      <div class="section__container">
-        <div class="section__header" appScrollReveal="fade-up">
-          <span class="section__eyebrow">Temoignages</span>
-          <h2 class="section__title">Ils ont progresse<br><span class="gold-text">avec mychess</span></h2>
-        </div>
-
-        <div class="testimonials-grid" appStaggerReveal>
-          <div class="testimonial-card" appScrollReveal="fade-up">
-            <div class="testimonial-card__stars">
-              <span>&#9733;</span><span>&#9733;</span><span>&#9733;</span><span>&#9733;</span><span>&#9733;</span>
-            </div>
-            <p class="testimonial-card__quote">
-              "Apres seulement 3 mois, j'ai gagne 200 points ELO. Les cours sont vraiment adaptes a mon niveau et mon coach est tres pedagogique."
-            </p>
-            <div class="testimonial-card__author">
-              <div class="testimonial-card__avatar">TM</div>
-              <div>
-                <span class="testimonial-card__name">Thomas M.</span>
-                <span class="testimonial-card__level">Niveau Cavalier</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="testimonial-card" appScrollReveal="fade-up" [revealDelay]="100">
-            <div class="testimonial-card__stars">
-              <span>&#9733;</span><span>&#9733;</span><span>&#9733;</span><span>&#9733;</span><span>&#9733;</span>
-            </div>
-            <p class="testimonial-card__quote">
-              "La flexibilite des horaires est parfaite pour mon emploi du temps charge. Je peux prendre des cours meme le soir tard."
-            </p>
-            <div class="testimonial-card__author">
-              <div class="testimonial-card__avatar">SL</div>
-              <div>
-                <span class="testimonial-card__name">Sophie L.</span>
-                <span class="testimonial-card__level">Niveau Fou</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="testimonial-card" appScrollReveal="fade-up" [revealDelay]="200">
-            <div class="testimonial-card__stars">
-              <span>&#9733;</span><span>&#9733;</span><span>&#9733;</span><span>&#9733;</span><span>&#9733;</span>
-            </div>
-            <p class="testimonial-card__quote">
-              "Mon fils de 10 ans adore ses cours. Le coach sait captiver son attention et rendre l'apprentissage ludique."
-            </p>
-            <div class="testimonial-card__author">
-              <div class="testimonial-card__avatar">PD</div>
-              <div>
-                <span class="testimonial-card__name">Pierre D.</span>
-                <span class="testimonial-card__level">Parent de joueur</span>
+                <ng-icon name="heroCalendar" size="40"></ng-icon>
               </div>
             </div>
           </div>
@@ -383,16 +293,16 @@
     <section class="section section--cta" id="cta">
       <div class="section__container">
         <div class="cta-content" appScrollReveal="scale-up">
-          <h2 class="cta-content__title">Pret a maitriser les echecs ?</h2>
+          <h2 class="cta-content__title">Pret a faire votre premier pas ?</h2>
           <p class="cta-content__subtitle">
-            Rejoignez notre communaute de joueurs qui progressent chaque jour avec mychess.
+            Votre premier cours est offert. Decouvrez si mychess vous convient.
           </p>
           <div class="cta-content__buttons">
             <a routerLink="/register" class="btn btn--primary btn--xl">
-              Commencer maintenant
+              Essayer gratuitement
             </a>
           </div>
-          <p class="cta-content__note">Premier cours offert. Sans engagement.</p>
+          <p class="cta-content__note">Sans carte bancaire. Sans engagement.</p>
         </div>
       </div>
     </section>
@@ -403,7 +313,7 @@
     <div class="footer__container">
       <div class="footer__brand">
         <img src="assets/logo.png" alt="myChess" class="footer__logo">
-        <p class="footer__tagline">La plateforme de cours d'echecs en ligne n°1 en France.</p>
+        <p class="footer__tagline">Cours d'echecs en ligne avec des coachs passionnes.</p>
       </div>
 
       <div class="footer__links">

@@ -475,6 +475,23 @@ public class PaymentController {
                 paymentRepository.save(payment);
                 log.info("Payment {} created and linked to lesson {} for refund tracking",
                         payment.getId(), lesson.getId());
+
+                // Generate invoices immediately to ensure credit notes can be created if cancelled
+                String paymentIntentId = session.getPaymentIntent();
+                int amountCents = session.getAmountTotal() != null ? session.getAmountTotal().intValue() : lesson.getPriceCents();
+                boolean promoApplied = "true".equals(metadata.get("promo_applied"));
+
+                if (paymentIntentId != null && amountCents > 0) {
+                    invoiceService.generateInvoicesForPayment(
+                            paymentIntentId,
+                            studentId,
+                            teacherId,
+                            lesson.getId(),
+                            amountCents,
+                            promoApplied
+                    );
+                    log.info("Invoices generated for lesson {} via webhook", lesson.getId());
+                }
             }
         } catch (Exception e) {
             log.error("Error handling checkout.session.completed", e);
@@ -483,10 +500,10 @@ public class PaymentController {
 
     /**
      * Handle payment_intent.succeeded event.
-     * Note: Invoices are now generated in the confirm endpoints, not via webhooks.
+     * Note: Invoices are generated in checkout.session.completed webhook for lessons.
      */
     private void handlePaymentIntentSucceeded(Event event) {
-        log.info("PaymentIntent succeeded event received - invoices will be generated via confirm endpoint");
+        log.info("PaymentIntent succeeded event received");
     }
 
     private void handleSubscriptionUpdated(Event event) {

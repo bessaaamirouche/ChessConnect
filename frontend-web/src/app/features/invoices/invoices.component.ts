@@ -630,15 +630,16 @@ export class InvoicesComponent implements OnInit {
       );
     }
 
-    // Filter by date range
-    if (this.dateFrom()) {
-      const from = new Date(this.dateFrom());
-      result = result.filter(inv => this.parseDate(inv.issuedAt) >= from);
-    }
-    if (this.dateTo()) {
-      const to = new Date(this.dateTo());
-      to.setHours(23, 59, 59, 999);
-      result = result.filter(inv => this.parseDate(inv.issuedAt) <= to);
+    // Filter by date range (only when BOTH dates are set)
+    if (this.dateFrom() && this.dateTo()) {
+      const [fromYear, fromMonth, fromDay] = this.dateFrom().split('-').map(Number);
+      const from = new Date(fromYear, fromMonth - 1, fromDay);
+      const [toYear, toMonth, toDay] = this.dateTo().split('-').map(Number);
+      const to = new Date(toYear, toMonth - 1, toDay, 23, 59, 59, 999);
+      result = result.filter(inv => {
+        const invDate = this.parseDate(inv.issuedAt);
+        return invDate >= from && invDate <= to;
+      });
     }
 
     // Sort

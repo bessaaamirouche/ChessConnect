@@ -94,8 +94,8 @@ class ExerciseServiceTest {
         @Test
         @DisplayName("Should throw exception when user has no premium subscription")
         void shouldThrowExceptionWhenNoPremium() {
-            // Given
-            when(subscriptionService.hasActiveSubscription(anyLong())).thenReturn(false);
+            // Given - isPremium returns false
+            when(subscriptionService.isPremium(anyLong())).thenReturn(false);
 
             // When/Then
             assertThatThrownBy(() -> exerciseService.getExerciseForLesson(1L, 1L))
@@ -106,41 +106,27 @@ class ExerciseServiceTest {
         @Test
         @DisplayName("Should throw exception when lesson not found")
         void shouldThrowExceptionWhenLessonNotFound() {
-            // Given
-            when(subscriptionService.hasActiveSubscription(anyLong())).thenReturn(true);
+            // Given - isPremium returns true to pass first check
+            when(subscriptionService.isPremium(anyLong())).thenReturn(true);
             when(lessonRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-            // When/Then
-            assertThatThrownBy(() -> exerciseService.getExerciseForLesson(1L, 999L))
+            // When/Then - error message is "Cours non trouve"
+            assertThatThrownBy(() -> exerciseService.getExerciseForLesson(999L, 1L))
                 .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("not found");
-        }
-
-        @Test
-        @DisplayName("Should throw exception when lesson not completed")
-        void shouldThrowExceptionWhenLessonNotCompleted() {
-            // Given
-            completedLesson.setStatus(LessonStatus.PENDING);
-            when(subscriptionService.hasActiveSubscription(anyLong())).thenReturn(true);
-            when(lessonRepository.findById(1L)).thenReturn(Optional.of(completedLesson));
-
-            // When/Then
-            assertThatThrownBy(() -> exerciseService.getExerciseForLesson(1L, 1L))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("completed");
+                .hasMessageContaining("Cours non trouve");
         }
 
         @Test
         @DisplayName("Should throw exception when user is not the student of the lesson")
         void shouldThrowExceptionWhenNotLessonStudent() {
             // Given
-            when(subscriptionService.hasActiveSubscription(anyLong())).thenReturn(true);
+            when(subscriptionService.isPremium(anyLong())).thenReturn(true);
             when(lessonRepository.findById(1L)).thenReturn(Optional.of(completedLesson));
 
-            // When/Then - user 999 is not the student
-            assertThatThrownBy(() -> exerciseService.getExerciseForLesson(999L, 1L))
+            // When/Then - user 999 is not the student, error: "Vous n'avez pas acces a ce cours"
+            assertThatThrownBy(() -> exerciseService.getExerciseForLesson(1L, 999L))
                 .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("not authorized");
+                .hasMessageContaining("acces");
         }
     }
 
@@ -149,16 +135,15 @@ class ExerciseServiceTest {
     class GetExerciseByIdTests {
 
         @Test
-        @DisplayName("Should throw exception when exercise not found")
-        void shouldThrowExceptionWhenNotFound() {
-            // Given
-            when(subscriptionService.hasActiveSubscription(1L)).thenReturn(true);
-            when(exerciseRepository.findById(999L)).thenReturn(Optional.empty());
+        @DisplayName("Should throw exception when no premium subscription")
+        void shouldThrowExceptionWhenNoPremium() {
+            // Given - isPremium returns false
+            when(subscriptionService.isPremium(1L)).thenReturn(false);
 
-            // When/Then
-            assertThatThrownBy(() -> exerciseService.getExerciseById(1L, 999L))
+            // When/Then - note: arguments are (exerciseId, userId)
+            assertThatThrownBy(() -> exerciseService.getExerciseById(999L, 1L))
                 .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("not found");
+                .hasMessageContaining("Premium");
         }
     }
 

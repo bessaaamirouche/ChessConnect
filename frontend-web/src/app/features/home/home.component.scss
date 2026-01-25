@@ -1298,10 +1298,6 @@ $text-muted: #6b6965;
   &--expanded {
     border-radius: var(--radius-lg);
     padding: var(--space-sm) var(--space-lg);
-    right: auto;
-    left: 50%;
-    transform: translateX(-50%);
-    max-width: calc(100% - var(--space-lg) * 2);
 
     @include respond-down(sm) {
       padding: var(--space-xs) var(--space-sm);

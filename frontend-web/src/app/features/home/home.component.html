@@ -329,7 +329,7 @@
     <div class="promo-popup" [class.promo-popup--expanded]="promoExpanded()">
       @if (!promoExpanded()) {
         <!-- Collapsed: just the gift icon -->
-        <button class="promo-popup__trigger" (click)="togglePromoExpanded()">
+        <button class="promo-popup__trigger" (click)="expandPromo()">
           <ng-icon name="heroGift" size="24"></ng-icon>
         </button>
       } @else {

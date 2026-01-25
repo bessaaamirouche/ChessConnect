@@ -127,11 +127,11 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   closePromoPopup(): void {
-    this.showPromoPopup.set(false);
+    this.promoExpanded.set(false);
   }
 
-  togglePromoExpanded(): void {
-    this.promoExpanded.update(v => !v);
+  expandPromo(): void {
+    this.promoExpanded.set(true);
   }
 
   scrollToSection(sectionId: string): void {

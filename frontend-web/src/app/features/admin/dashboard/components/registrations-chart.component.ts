@@ -64,33 +64,39 @@ export interface DataPoint {
       color: var(--text-primary, #fff);
     }
 
+    /* Disney+ style pill selector */
     .period-selector {
       display: flex;
-      gap: 0.25rem;
-      background: var(--surface-tertiary, #252525);
-      border-radius: 8px;
-      padding: 0.25rem;
+      gap: 0;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 9999px;
+      padding: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .period-selector button {
-      padding: 0.375rem 0.75rem;
-      font-size: 0.75rem;
+      position: relative;
+      padding: 8px 16px;
+      font-size: 0.8125rem;
+      font-weight: 500;
       border: none;
       background: transparent;
-      color: var(--text-secondary, #888);
+      color: rgba(255, 255, 255, 0.6);
       cursor: pointer;
-      border-radius: 6px;
-      transition: all 0.2s;
+      border-radius: 9999px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      white-space: nowrap;
     }
 
-    .period-selector button:hover {
-      color: var(--text-primary, #fff);
+    .period-selector button:hover:not(.active) {
+      color: rgba(255, 255, 255, 0.9);
     }
 
     .period-selector button.active {
-      background: var(--gold, #d4af37);
+      background: #fff;
       color: #000;
-      font-weight: 500;
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     }
 
     .chart-container {

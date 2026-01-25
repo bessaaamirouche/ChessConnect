@@ -85,7 +85,8 @@ export class InvoiceService {
   /**
    * Format cents to EUR string
    */
-  formatCents(cents: number): string {
+  formatCents(cents: number | null | undefined): string {
+    if (cents == null) return '0.00 EUR';
     return (cents / 100).toFixed(2) + ' EUR';
   }
 }

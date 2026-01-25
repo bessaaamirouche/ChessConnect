@@ -50,10 +50,24 @@ public class InvoiceController {
                         } catch (Exception e) {
                             log.error("Error mapping invoice {}: {}", inv.getId(), e.getMessage(), e);
                             // Return a minimal response for problematic invoices
-                            return Map.<String, Object>of(
-                                    "id", inv.getId(),
-                                    "invoiceNumber", inv.getInvoiceNumber() != null ? inv.getInvoiceNumber() : "N/A",
-                                    "error", "Erreur de chargement"
+                            return Map.<String, Object>ofEntries(
+                                    Map.entry("id", inv.getId()),
+                                    Map.entry("invoiceNumber", inv.getInvoiceNumber() != null ? inv.getInvoiceNumber() : "N/A"),
+                                    Map.entry("invoiceType", inv.getInvoiceType() != null ? inv.getInvoiceType().name() : ""),
+                                    Map.entry("isReceived", false),
+                                    Map.entry("issuerName", ""),
+                                    Map.entry("customerName", ""),
+                                    Map.entry("description", inv.getDescription() != null ? inv.getDescription() : "Erreur de chargement"),
+                                    Map.entry("subtotalCents", inv.getSubtotalCents() != null ? inv.getSubtotalCents() : 0),
+                                    Map.entry("vatCents", inv.getVatCents() != null ? inv.getVatCents() : 0),
+                                    Map.entry("totalCents", inv.getTotalCents() != null ? inv.getTotalCents() : 0),
+                                    Map.entry("vatRate", 0),
+                                    Map.entry("commissionRate", 0),
+                                    Map.entry("promoApplied", false),
+                                    Map.entry("status", inv.getStatus() != null ? inv.getStatus() : "PENDING"),
+                                    Map.entry("hasPdf", false),
+                                    Map.entry("issuedAt", ""),
+                                    Map.entry("createdAt", "")
                             );
                         }
                     })

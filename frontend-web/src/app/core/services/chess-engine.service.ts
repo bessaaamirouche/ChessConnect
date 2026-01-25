@@ -184,11 +184,30 @@ export class ChessEngineService {
   }
 
   getBestMove(timeMs: number = 2000): Promise<EngineEvaluation> {
+    // Ensure minimum thinking time for Stockfish to respond
+    const actualTime = Math.max(timeMs, 300);
+
     return new Promise((resolve) => {
       this.thinkingSignal.set(true);
       this.currentDepth = 0;
       this.pendingCallback = resolve;
-      this.sendCommand(`go movetime ${timeMs}`);
+
+      // Safety timeout in case engine doesn't respond
+      const timeout = setTimeout(() => {
+        if (this.pendingCallback) {
+          console.warn('[Stockfish] Timeout - forcing stop');
+          this.sendCommand('stop');
+        }
+      }, actualTime + 2000);
+
+      // Clear timeout when we get a response
+      const originalCallback = this.pendingCallback;
+      this.pendingCallback = (result) => {
+        clearTimeout(timeout);
+        originalCallback(result);
+      };
+
+      this.sendCommand(`go movetime ${actualTime}`);
     });
   }
 

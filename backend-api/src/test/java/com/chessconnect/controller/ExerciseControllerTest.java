@@ -2,7 +2,7 @@ package com.chessconnect.controller;
 
 import com.chessconnect.dto.exercise.ExerciseResponse;
 import com.chessconnect.model.User;
-import com.chessconnect.model.enums.Role;
+import com.chessconnect.model.enums.UserRole;
 import com.chessconnect.security.JwtService;
 import com.chessconnect.service.ExerciseService;
 import com.fasterxml.jackson.databind.ObjectMapper;

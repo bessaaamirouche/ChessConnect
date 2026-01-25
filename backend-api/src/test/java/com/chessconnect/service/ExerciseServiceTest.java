@@ -61,7 +61,7 @@ class ExerciseServiceTest {
         studentUser.setEmail("student@test.com");
         studentUser.setFirstName("John");
         studentUser.setLastName("Doe");
-        studentUser.setRole(Role.STUDENT);
+        studentUser.setRole(UserRole.STUDENT);
 
         // Setup teacher user
         teacherUser = new User();
@@ -69,7 +69,7 @@ class ExerciseServiceTest {
         teacherUser.setEmail("teacher@test.com");
         teacherUser.setFirstName("Lamine");
         teacherUser.setLastName("Coach");
-        teacherUser.setRole(Role.TEACHER);
+        teacherUser.setRole(UserRole.TEACHER);
 
         // Setup completed lesson
         completedLesson = new Lesson();

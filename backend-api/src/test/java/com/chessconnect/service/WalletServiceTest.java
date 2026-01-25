@@ -1,12 +1,12 @@
 package com.chessconnect.service;
 
-import com.chessconnect.dto.wallet.TransactionResponse;
-import com.chessconnect.dto.wallet.WalletBalanceResponse;
+import com.chessconnect.dto.wallet.CreditTransactionResponse;
+import com.chessconnect.dto.wallet.WalletResponse;
 import com.chessconnect.model.CreditTransaction;
 import com.chessconnect.model.StudentWallet;
 import com.chessconnect.model.User;
-import com.chessconnect.model.enums.Role;
-import com.chessconnect.model.enums.TransactionType;
+import com.chessconnect.model.enums.UserRole;
+import com.chessconnect.model.enums.CreditTransactionType;
 import com.chessconnect.repository.CreditTransactionRepository;
 import com.chessconnect.repository.StudentWalletRepository;
 import com.chessconnect.repository.UserRepository;
@@ -41,13 +41,16 @@ class WalletServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private StripeService stripeService;
+
     @InjectMocks
     private WalletService walletService;
 
     private User studentUser;
     private StudentWallet wallet;
-    private CreditTransaction creditTransaction;
-    private CreditTransaction debitTransaction;
+    private CreditTransaction topUpTransaction;
+    private CreditTransaction lessonPaymentTransaction;
 
     @BeforeEach
     void setUp() {
@@ -57,7 +60,7 @@ class WalletServiceTest {
         studentUser.setEmail("student@test.com");
         studentUser.setFirstName("John");
         studentUser.setLastName("Doe");
-        studentUser.setRole(Role.STUDENT);
+        studentUser.setRole(UserRole.STUDENT);
 
         // Setup wallet
         wallet = new StudentWallet();
@@ -65,23 +68,56 @@ class WalletServiceTest {
         wallet.setUser(studentUser);
         wallet.setBalanceCents(5000); // 50.00 EUR
 
-        // Setup credit transaction
-        creditTransaction = new CreditTransaction();
-        creditTransaction.setId(1L);
-        creditTransaction.setWallet(wallet);
-        creditTransaction.setType(TransactionType.CREDIT);
-        creditTransaction.setAmountCents(5000);
-        creditTransaction.setDescription("Rechargement du portefeuille");
-        creditTransaction.setCreatedAt(LocalDateTime.now().minusDays(1));
+        // Setup top-up transaction
+        topUpTransaction = new CreditTransaction();
+        topUpTransaction.setId(1L);
+        topUpTransaction.setUser(studentUser);
+        topUpTransaction.setTransactionType(CreditTransactionType.TOPUP);
+        topUpTransaction.setAmountCents(5000);
+        topUpTransaction.setDescription("Recharge du portefeuille");
+        topUpTransaction.setCreatedAt(LocalDateTime.now().minusDays(1));
 
-        // Setup debit transaction
-        debitTransaction = new CreditTransaction();
-        debitTransaction.setId(2L);
-        debitTransaction.setWallet(wallet);
-        debitTransaction.setType(TransactionType.DEBIT);
-        debitTransaction.setAmountCents(3000);
-        debitTransaction.setDescription("Paiement cours");
-        debitTransaction.setCreatedAt(LocalDateTime.now());
+        // Setup lesson payment transaction
+        lessonPaymentTransaction = new CreditTransaction();
+        lessonPaymentTransaction.setId(2L);
+        lessonPaymentTransaction.setUser(studentUser);
+        lessonPaymentTransaction.setTransactionType(CreditTransactionType.LESSON_PAYMENT);
+        lessonPaymentTransaction.setAmountCents(3000);
+        lessonPaymentTransaction.setDescription("Paiement cours");
+        lessonPaymentTransaction.setCreatedAt(LocalDateTime.now());
+    }
+
+    @Nested
+    @DisplayName("getWallet Tests")
+    class GetWalletTests {
+
+        @Test
+        @DisplayName("Should return wallet info")
+        void shouldReturnWalletInfo() {
+            // Given
+            when(walletRepository.findByUserId(1L)).thenReturn(Optional.of(wallet));
+
+            // When
+            WalletResponse result = walletService.getWallet(1L);
+
+            // Then
+            assertThat(result).isNotNull();
+            assertThat(result.getBalanceCents()).isEqualTo(5000);
+        }
+
+        @Test
+        @DisplayName("Should return empty wallet if not exists")
+        void shouldReturnEmptyWalletIfNotExists() {
+            // Given
+            when(walletRepository.findByUserId(1L)).thenReturn(Optional.empty());
+
+            // When
+            WalletResponse result = walletService.getWallet(1L);
+
+            // Then
+            assertThat(result).isNotNull();
+            assertThat(result.getBalanceCents()).isEqualTo(0);
+        }
     }
 
     @Nested
@@ -89,17 +125,125 @@ class WalletServiceTest {
     class GetBalanceTests {
 
         @Test
-        @DisplayName("Should return wallet balance")
-        void shouldReturnWalletBalance() {
+        @DisplayName("Should return balance")
+        void shouldReturnBalance() {
             // Given
             when(walletRepository.findByUserId(1L)).thenReturn(Optional.of(wallet));
 
             // When
-            WalletBalanceResponse result = walletService.getBalance(1L);
+            int result = walletService.getBalance(1L);
 
             // Then
-            assertThat(result).isNotNull();
-            assertThat(result.getBalanceCents()).isEqualTo(5000);
+            assertThat(result).isEqualTo(5000);
+        }
+
+        @Test
+        @DisplayName("Should return 0 if wallet not exists")
+        void shouldReturnZeroIfNoWallet() {
+            // Given
+            when(walletRepository.findByUserId(1L)).thenReturn(Optional.empty());
+
+            // When
+            int result = walletService.getBalance(1L);
+
+            // Then
+            assertThat(result).isEqualTo(0);
+        }
+    }
+
+    @Nested
+    @DisplayName("getTransactions Tests")
+    class GetTransactionsTests {
+
+        @Test
+        @DisplayName("Should return all transactions")
+        void shouldReturnAllTransactions() {
+            // Given
+            when(transactionRepository.findByUserIdOrderByCreatedAtDesc(1L))
+                .thenReturn(List.of(lessonPaymentTransaction, topUpTransaction));
+
+            // When
+            List<CreditTransactionResponse> results = walletService.getTransactions(1L);
+
+            // Then
+            assertThat(results).hasSize(2);
+        }
+
+        @Test
+        @DisplayName("Should return empty list when no transactions")
+        void shouldReturnEmptyList() {
+            // Given
+            when(transactionRepository.findByUserIdOrderByCreatedAtDesc(1L))
+                .thenReturn(List.of());
+
+            // When
+            List<CreditTransactionResponse> results = walletService.getTransactions(1L);
+
+            // Then
+            assertThat(results).isEmpty();
+        }
+    }
+
+    @Nested
+    @DisplayName("hasEnoughCredit Tests")
+    class HasEnoughCreditTests {
+
+        @Test
+        @DisplayName("Should return true when balance is sufficient")
+        void shouldReturnTrueWhenSufficient() {
+            // Given
+            when(walletRepository.findByUserId(1L)).thenReturn(Optional.of(wallet));
+
+            // When
+            boolean result = walletService.hasEnoughCredit(1L, 3000);
+
+            // Then
+            assertThat(result).isTrue();
+        }
+
+        @Test
+        @DisplayName("Should return false when balance is insufficient")
+        void shouldReturnFalseWhenInsufficient() {
+            // Given
+            when(walletRepository.findByUserId(1L)).thenReturn(Optional.of(wallet));
+
+            // When
+            boolean result = walletService.hasEnoughCredit(1L, 10000);
+
+            // Then
+            assertThat(result).isFalse();
+        }
+
+        @Test
+        @DisplayName("Should return false when wallet not exists")
+        void shouldReturnFalseWhenNoWallet() {
+            // Given
+            when(walletRepository.findByUserId(1L)).thenReturn(Optional.empty());
+
+            // When
+            boolean result = walletService.hasEnoughCredit(1L, 100);
+
+            // Then
+            assertThat(result).isFalse();
+        }
+    }
+
+    @Nested
+    @DisplayName("getOrCreateWallet Tests")
+    class GetOrCreateWalletTests {
+
+        @Test
+        @DisplayName("Should return existing wallet")
+        void shouldReturnExistingWallet() {
+            // Given
+            when(walletRepository.findByUserId(1L)).thenReturn(Optional.of(wallet));
+
+            // When
+            StudentWallet result = walletService.getOrCreateWallet(1L);
+
+            // Then
+            assertThat(result).isEqualTo(wallet);
+            verify(walletRepository, never()).save(any());
         }
 
         @Test
@@ -115,110 +259,28 @@ class WalletServiceTest {
             });
 
             // When
-            WalletBalanceResponse result = walletService.getBalance(1L);
+            StudentWallet result = walletService.getOrCreateWallet(1L);
 
             // Then
             assertThat(result).isNotNull();
-            assertThat(result.getBalanceCents()).isEqualTo(0);
             verify(walletRepository).save(any(StudentWallet.class));
         }
-    }
-
-    @Nested
-    @DisplayName("getTransactions Tests")
-    class GetTransactionsTests {
 
         @Test
-        @DisplayName("Should return all transactions")
-        void shouldReturnAllTransactions() {
+        @DisplayName("Should throw exception for non-student users")
+        void shouldThrowExceptionForNonStudent() {
             // Given
-            when(walletRepository.findByUserId(1L)).thenReturn(Optional.of(wallet));
-            when(transactionRepository.findByWalletIdOrderByCreatedAtDesc(1L))
-                .thenReturn(List.of(debitTransaction, creditTransaction));
+            User teacherUser = new User();
+            teacherUser.setId(2L);
+            teacherUser.setRole(UserRole.TEACHER);
 
-            // When
-            List<TransactionResponse> results = walletService.getTransactions(1L);
-
-            // Then
-            assertThat(results).hasSize(2);
-            assertThat(results.get(0).getType()).isEqualTo("DEBIT");
-            assertThat(results.get(1).getType()).isEqualTo("CREDIT");
-        }
-
-        @Test
-        @DisplayName("Should return empty list when no transactions")
-        void shouldReturnEmptyList() {
-            // Given
-            when(walletRepository.findByUserId(1L)).thenReturn(Optional.of(wallet));
-            when(transactionRepository.findByWalletIdOrderByCreatedAtDesc(1L))
-                .thenReturn(List.of());
-
-            // When
-            List<TransactionResponse> results = walletService.getTransactions(1L);
-
-            // Then
-            assertThat(results).isEmpty();
-        }
-    }
-
-    @Nested
-    @DisplayName("Credit Operations Tests")
-    class CreditOperationsTests {
-
-        @Test
-        @DisplayName("Should credit wallet")
-        void shouldCreditWallet() {
-            // Given
-            when(walletRepository.findByUserId(1L)).thenReturn(Optional.of(wallet));
-            when(walletRepository.save(any(StudentWallet.class))).thenAnswer(i -> i.getArgument(0));
-            when(transactionRepository.save(any(CreditTransaction.class))).thenAnswer(invocation -> {
-                CreditTransaction saved = invocation.getArgument(0);
-                saved.setId(3L);
-                return saved;
-            });
-
-            // When
-            walletService.creditWallet(1L, 2000, "Test credit");
-
-            // Then
-            verify(walletRepository).save(argThat(w -> w.getBalanceCents() == 7000));
-            verify(transactionRepository).save(argThat(t ->
-                t.getType() == TransactionType.CREDIT && t.getAmountCents() == 2000
-            ));
-        }
-
-        @Test
-        @DisplayName("Should debit wallet")
-        void shouldDebitWallet() {
-            // Given
-            when(walletRepository.findByUserId(1L)).thenReturn(Optional.of(wallet));
-            when(walletRepository.save(any(StudentWallet.class))).thenAnswer(i -> i.getArgument(0));
-            when(transactionRepository.save(any(CreditTransaction.class))).thenAnswer(invocation -> {
-                CreditTransaction saved = invocation.getArgument(0);
-                saved.setId(3L);
-                return saved;
-            });
-
-            // When
-            walletService.debitWallet(1L, 2000, "Test debit");
-
-            // Then
-            verify(walletRepository).save(argThat(w -> w.getBalanceCents() == 3000));
-            verify(transactionRepository).save(argThat(t ->
-                t.getType() == TransactionType.DEBIT && t.getAmountCents() == 2000
-            ));
-        }
-
-        @Test
-        @DisplayName("Should throw exception when insufficient balance")
-        void shouldThrowWhenInsufficientBalance() {
-            // Given
-            when(walletRepository.findByUserId(1L)).thenReturn(Optional.of(wallet));
+            when(walletRepository.findByUserId(2L)).thenReturn(Optional.empty());
+            when(userRepository.findById(2L)).thenReturn(Optional.of(teacherUser));
 
             // When/Then
-            assertThatThrownBy(() -> walletService.debitWallet(1L, 10000, "Too much"))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("Insufficient");
+            assertThatThrownBy(() -> walletService.getOrCreateWallet(2L))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Only students");
         }
     }
 
@@ -227,23 +289,23 @@ class WalletServiceTest {
     class TransactionTypeTests {
 
         @Test
-        @DisplayName("CREDIT type should be for adding money")
-        void creditTypeShouldBeForAddingMoney() {
-            assertThat(TransactionType.CREDIT).isNotNull();
-            assertThat(creditTransaction.getType()).isEqualTo(TransactionType.CREDIT);
+        @DisplayName("TOPUP type should be for adding money")
+        void topupTypeShouldBeForAddingMoney() {
+            assertThat(CreditTransactionType.TOPUP).isNotNull();
+            assertThat(topUpTransaction.getTransactionType()).isEqualTo(CreditTransactionType.TOPUP);
         }
 
         @Test
-        @DisplayName("DEBIT type should be for spending money")
-        void debitTypeShouldBeForSpendingMoney() {
-            assertThat(TransactionType.DEBIT).isNotNull();
-            assertThat(debitTransaction.getType()).isEqualTo(TransactionType.DEBIT);
+        @DisplayName("LESSON_PAYMENT type should be for spending money")
+        void lessonPaymentTypeShouldBeForSpendingMoney() {
+            assertThat(CreditTransactionType.LESSON_PAYMENT).isNotNull();
+            assertThat(lessonPaymentTransaction.getTransactionType()).isEqualTo(CreditTransactionType.LESSON_PAYMENT);
         }
 
         @Test
         @DisplayName("REFUND type should exist for refunds")
         void refundTypeShouldExist() {
-            assertThat(TransactionType.REFUND).isNotNull();
+            assertThat(CreditTransactionType.REFUND).isNotNull();
         }
     }
 
@@ -266,10 +328,10 @@ class WalletServiceTest {
             when(walletRepository.findByUserId(1L)).thenReturn(Optional.of(wallet));
 
             // When
-            WalletBalanceResponse result = walletService.getBalance(1L);
+            int result = walletService.getBalance(1L);
 
             // Then
-            assertThat(result.getBalanceCents()).isEqualTo(0);
+            assertThat(result).isEqualTo(0);
         }
     }
 }

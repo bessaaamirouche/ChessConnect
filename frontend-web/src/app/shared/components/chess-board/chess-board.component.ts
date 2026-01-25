@@ -51,14 +51,20 @@ interface ChessMove {
 
     .chess-board-container {
       width: 100%;
-      max-width: min(70vh, 600px);
+      max-width: min(80vh, 560px);
       aspect-ratio: 1;
       margin: 0 auto;
     }
 
-    @media (min-width: 1200px) {
+    @media (min-width: 1024px) {
       .chess-board-container {
-        max-width: min(75vh, 700px);
+        max-width: min(82vh, 640px);
+      }
+    }
+
+    @media (min-width: 1400px) {
+      .chess-board-container {
+        max-width: min(85vh, 720px);
       }
     }
 

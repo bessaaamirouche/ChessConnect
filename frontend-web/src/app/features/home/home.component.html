@@ -326,15 +326,23 @@
 
   <!-- Free Trial Popup Banner -->
   @if (showPromoPopup()) {
-    <div class="promo-popup">
-      <button class="promo-popup__close" (click)="closePromoPopup()">
-        <ng-icon name="heroXMark" size="14"></ng-icon>
-      </button>
-      <div class="promo-popup__content">
-        <ng-icon name="heroGift" size="18"></ng-icon>
-        <span>Premier cours <strong>gratuit</strong> pour les 100 premiers inscrits !</span>
-        <a routerLink="/register" class="promo-popup__btn">J'en profite</a>
-      </div>
+    <div class="promo-popup" [class.promo-popup--expanded]="promoExpanded()">
+      @if (!promoExpanded()) {
+        <!-- Collapsed: just the gift icon -->
+        <button class="promo-popup__trigger" (click)="togglePromoExpanded()">
+          <ng-icon name="heroGift" size="24"></ng-icon>
+        </button>
+      } @else {
+        <!-- Expanded: full content -->
+        <button class="promo-popup__close" (click)="closePromoPopup()">
+          <ng-icon name="heroXMark" size="14"></ng-icon>
+        </button>
+        <div class="promo-popup__content">
+          <ng-icon name="heroGift" size="18"></ng-icon>
+          <span>Premier cours <strong>gratuit</strong> pour les 100 premiers inscrits !</span>
+          <a routerLink="/register" class="promo-popup__btn">J'en profite</a>
+        </div>
+      }
     </div>
   }
 </div>

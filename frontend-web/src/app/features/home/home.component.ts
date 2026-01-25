@@ -60,6 +60,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   isScrolled = signal(false);
   scrollProgress = signal(0);
   showPromoPopup = signal(true);
+  promoExpanded = signal(false);
 
   // Scroll listener reference for cleanup
   private scrollListener: (() => void) | null = null;
@@ -127,6 +128,10 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   closePromoPopup(): void {
     this.showPromoPopup.set(false);
+  }
+
+  togglePromoExpanded(): void {
+    this.promoExpanded.update(v => !v);
   }
 
   scrollToSection(sectionId: string): void {

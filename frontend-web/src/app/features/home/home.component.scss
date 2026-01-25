@@ -1279,22 +1279,59 @@ $text-muted: #6b6965;
 // === Promo Popup Banner ===
 .promo-popup {
   position: fixed;
-  bottom: var(--space-md);
-  left: 50%;
-  transform: translateX(-50%);
+  bottom: var(--space-lg);
+  right: var(--space-lg);
   z-index: 1000;
   background: linear-gradient(135deg, rgba(34, 197, 94, 0.95) 0%, rgba(16, 185, 129, 0.95) 100%);
-  border-radius: var(--radius-lg);
-  padding: var(--space-sm) var(--space-lg);
+  border-radius: 50%;
+  padding: 0;
   box-shadow: 0 8px 30px rgba(34, 197, 94, 0.4);
   animation: slideUp 0.5s ease-out, pulse-glow-green 2s ease-in-out infinite;
-  max-width: calc(100% - var(--space-lg) * 2);
-  font-size: 0.85rem;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 
   @include respond-down(sm) {
-    padding: var(--space-xs) var(--space-sm);
-    bottom: var(--space-sm);
-    font-size: 0.75rem;
+    bottom: var(--space-md);
+    right: var(--space-md);
+  }
+
+  // Expanded state
+  &--expanded {
+    border-radius: var(--radius-lg);
+    padding: var(--space-sm) var(--space-lg);
+    right: auto;
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: calc(100% - var(--space-lg) * 2);
+
+    @include respond-down(sm) {
+      padding: var(--space-xs) var(--space-sm);
+    }
+  }
+
+  &__trigger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    background: transparent;
+    border: none;
+    color: #0a0a0c;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+
+    @include respond-down(sm) {
+      width: 48px;
+      height: 48px;
+    }
+
+    &:hover {
+      transform: scale(1.1);
+    }
+
+    ng-icon {
+      animation: bounce-gift 1.5s ease-in-out infinite;
+    }
   }
 
   &__close {
@@ -1325,11 +1362,14 @@ $text-muted: #6b6965;
     gap: var(--space-sm);
     color: #0a0a0c;
     font-weight: 500;
+    font-size: 0.85rem;
+    animation: fadeIn 0.3s ease-out;
 
     @include respond-down(sm) {
       flex-direction: column;
       text-align: center;
       gap: var(--space-xs);
+      font-size: 0.75rem;
     }
 
     ng-icon {
@@ -1356,6 +1396,15 @@ $text-muted: #6b6965;
       background: #1a1a1c;
       transform: translateY(-2px);
     }
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 

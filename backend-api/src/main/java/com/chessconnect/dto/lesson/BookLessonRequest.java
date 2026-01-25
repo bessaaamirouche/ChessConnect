@@ -14,7 +14,9 @@ public record BookLessonRequest(
 
         String notes,
 
-        Boolean useSubscription
+        Boolean useSubscription,
+
+        Long courseId
 ) {
     public BookLessonRequest {
         if (durationMinutes == null) {

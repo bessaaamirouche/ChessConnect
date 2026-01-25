@@ -100,6 +100,10 @@ public class Lesson {
     @Column(name = "is_free_trial")
     private Boolean isFreeTrial = false;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "course_id")
+    private Course course;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -203,6 +207,9 @@ public class Lesson {
 
     public Boolean getIsFreeTrial() { return isFreeTrial; }
     public void setIsFreeTrial(Boolean isFreeTrial) { this.isFreeTrial = isFreeTrial; }
+
+    public Course getCourse() { return course; }
+    public void setCourse(Course course) { this.course = course; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }

@@ -150,7 +150,7 @@ public class StripeService {
             int durationMinutes,
             String notes
     ) throws StripeException {
-        return createLessonPaymentSession(student, teacherId, amountCents, description, scheduledAt, durationMinutes, notes, false);
+        return createLessonPaymentSession(student, teacherId, amountCents, description, scheduledAt, durationMinutes, notes, false, null);
     }
 
     public Session createLessonPaymentSession(
@@ -163,6 +163,20 @@ public class StripeService {
             String notes,
             boolean embedded
     ) throws StripeException {
+        return createLessonPaymentSession(student, teacherId, amountCents, description, scheduledAt, durationMinutes, notes, embedded, null);
+    }
+
+    public Session createLessonPaymentSession(
+            User student,
+            Long teacherId,
+            int amountCents,
+            String description,
+            String scheduledAt,
+            int durationMinutes,
+            String notes,
+            boolean embedded,
+            Long courseId
+    ) throws StripeException {
         SessionCreateParams.Builder paramsBuilder = SessionCreateParams.builder()
                 .setMode(SessionCreateParams.Mode.PAYMENT)
                 .addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
@@ -172,6 +186,7 @@ public class StripeService {
                 .putMetadata("scheduled_at", scheduledAt)
                 .putMetadata("duration_minutes", String.valueOf(durationMinutes))
                 .putMetadata("notes", notes != null ? notes : "")
+                .putMetadata("course_id", courseId != null ? courseId.toString() : "")
                 .putMetadata("type", "ONE_TIME_LESSON")
                 // Copy metadata to PaymentIntent for invoice generation webhook
                 .setPaymentIntentData(

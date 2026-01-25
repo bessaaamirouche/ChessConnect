@@ -20,4 +20,6 @@ public class CreateLessonCheckoutRequest {
     private String notes;
 
     private boolean embedded = false;
+
+    private Long courseId;
 }

@@ -105,7 +105,8 @@ public class PaymentController {
                     request.getScheduledAt().toString(),
                     request.getDurationMinutes(),
                     request.getNotes(),
-                    request.isEmbedded()
+                    request.isEmbedded(),
+                    request.getCourseId()
             );
 
             CheckoutSessionResponse.CheckoutSessionResponseBuilder responseBuilder = CheckoutSessionResponse.builder()
@@ -336,6 +337,8 @@ public class PaymentController {
             LocalDateTime scheduledAt = LocalDateTime.parse(metadata.get("scheduled_at"));
             int durationMinutes = Integer.parseInt(metadata.get("duration_minutes"));
             String notes = metadata.get("notes");
+            String courseIdStr = metadata.get("course_id");
+            Long courseId = (courseIdStr != null && !courseIdStr.isEmpty()) ? Long.parseLong(courseIdStr) : null;
 
             // Book the lesson
             BookLessonRequest bookRequest = new BookLessonRequest(
@@ -343,7 +346,8 @@ public class PaymentController {
                     scheduledAt,
                     durationMinutes,
                     notes,
-                    false // Don't use subscription - this is a paid lesson
+                    false, // Don't use subscription - this is a paid lesson
+                    courseId
             );
 
             var lessonResponse = lessonService.bookLesson(userId, bookRequest);

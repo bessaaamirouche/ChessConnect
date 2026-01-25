@@ -11,6 +11,8 @@ import com.chessconnect.model.enums.LessonStatus;
 import com.chessconnect.model.enums.PaymentStatus;
 import com.chessconnect.model.enums.PaymentType;
 import com.chessconnect.model.enums.UserRole;
+import com.chessconnect.model.Course;
+import com.chessconnect.repository.CourseRepository;
 import com.chessconnect.repository.CreditTransactionRepository;
 import com.chessconnect.repository.InvoiceRepository;
 import com.chessconnect.repository.LessonRepository;
@@ -51,6 +53,7 @@ public class LessonService {
     private final RatingRepository ratingRepository;
     private final InvoiceRepository invoiceRepository;
     private final CreditTransactionRepository creditTransactionRepository;
+    private final CourseRepository courseRepository;
     private final TeacherBalanceService teacherBalanceService;
     private final GoogleCalendarService googleCalendarService;
     private final InvoiceService invoiceService;
@@ -64,6 +67,7 @@ public class LessonService {
             RatingRepository ratingRepository,
             InvoiceRepository invoiceRepository,
             CreditTransactionRepository creditTransactionRepository,
+            CourseRepository courseRepository,
             TeacherBalanceService teacherBalanceService,
             GoogleCalendarService googleCalendarService,
             InvoiceService invoiceService,
@@ -76,6 +80,7 @@ public class LessonService {
         this.ratingRepository = ratingRepository;
         this.invoiceRepository = invoiceRepository;
         this.creditTransactionRepository = creditTransactionRepository;
+        this.courseRepository = courseRepository;
         this.teacherBalanceService = teacherBalanceService;
         this.googleCalendarService = googleCalendarService;
         this.invoiceService = invoiceService;
@@ -116,6 +121,13 @@ public class LessonService {
         lesson.setDurationMinutes(request.durationMinutes());
         lesson.setNotes(request.notes());
         lesson.setStatus(LessonStatus.PENDING);
+
+        // Set the course if provided
+        if (request.courseId() != null) {
+            Course course = courseRepository.findById(request.courseId())
+                    .orElse(null);
+            lesson.setCourse(course);
+        }
 
         // All lessons are paid at the coach's hourly rate
         lesson.setIsFromSubscription(false);
@@ -183,6 +195,13 @@ public class LessonService {
         lesson.setIsFromSubscription(false);
         lesson.setIsFreeTrial(true); // Mark as free trial
         lesson.setPriceCents(0); // Free!
+
+        // Set the course if provided
+        if (request.courseId() != null) {
+            Course course = courseRepository.findById(request.courseId())
+                    .orElse(null);
+            lesson.setCourse(course);
+        }
 
         Lesson savedLesson = lessonRepository.save(lesson);
 

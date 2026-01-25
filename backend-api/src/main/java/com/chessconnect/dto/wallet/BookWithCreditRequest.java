@@ -14,5 +14,7 @@ public record BookWithCreditRequest(
         @NotNull(message = "Duration is required")
         Integer durationMinutes,
 
-        String notes
+        String notes,
+
+        Long courseId
 ) {}

@@ -1,5 +1,6 @@
 package com.chessconnect.dto.lesson;
 
+import com.chessconnect.model.Course;
 import com.chessconnect.model.Lesson;
 import com.chessconnect.model.Progress;
 import com.chessconnect.model.User;
@@ -33,12 +34,20 @@ public record LessonResponse(
         String teacherObservations,
         String recordingUrl,
         LocalDateTime teacherJoinedAt,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        Long courseId,
+        String courseTitle,
+        String courseGrade
 ) {
     public static LessonResponse from(Lesson lesson) {
         User student = lesson.getStudent();
         Progress progress = student.getProgress();
         String level = progress != null ? progress.getCurrentLevel().name() : null;
+
+        Course course = lesson.getCourse();
+        Long courseId = course != null ? course.getId() : null;
+        String courseTitle = course != null ? course.getTitle() : null;
+        String courseGrade = course != null ? course.getGrade().name() : null;
 
         return new LessonResponse(
                 lesson.getId(),
@@ -66,7 +75,10 @@ public record LessonResponse(
                 lesson.getTeacherObservations(),
                 lesson.getRecordingUrl(),
                 lesson.getTeacherJoinedAt(),
-                lesson.getCreatedAt()
+                lesson.getCreatedAt(),
+                courseId,
+                courseTitle,
+                courseGrade
         );
     }
 }

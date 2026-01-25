@@ -237,7 +237,8 @@ public class WalletController {
                     request.scheduledAt(),
                     request.durationMinutes(),
                     request.notes(),
-                    false
+                    false,
+                    request.courseId()
             );
 
             LessonResponse lessonResponse = lessonService.bookLesson(userId, bookRequest);

@@ -8,6 +8,7 @@ import { RatingService } from '../../../core/services/rating.service';
 import { SeoService } from '../../../core/services/seo.service';
 import { JitsiService } from '../../../core/services/jitsi.service';
 import { LearningPathService } from '../../../core/services/learning-path.service';
+import { WalletService } from '../../../core/services/wallet.service';
 import { NextCourse } from '../../../core/models/learning-path.model';
 import { LESSON_STATUS_LABELS, Lesson } from '../../../core/models/lesson.model';
 import { ConfirmDialogComponent } from '../../../shared/confirm-dialog/confirm-dialog.component';
@@ -176,6 +177,7 @@ export class LessonListComponent implements OnInit {
     private seoService: SeoService,
     private jitsiService: JitsiService,
     private learningPathService: LearningPathService,
+    private walletService: WalletService,
     private route: ActivatedRoute,
     private router: Router
   ) {
@@ -249,7 +251,14 @@ export class LessonListComponent implements OnInit {
     });
 
     if (reason !== null) {
-      this.lessonService.cancelLesson(lessonId, reason as string || undefined).subscribe();
+      this.lessonService.cancelLesson(lessonId, reason as string || undefined).subscribe({
+        next: () => {
+          // Reload wallet balance after cancellation (for refund)
+          if (this.authService.isStudent()) {
+            this.walletService.loadBalance().subscribe();
+          }
+        }
+      });
     }
   }
 

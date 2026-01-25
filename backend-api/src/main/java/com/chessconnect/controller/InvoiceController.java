@@ -159,7 +159,7 @@ public class InvoiceController {
     private Map<String, Object> mapInvoiceToResponse(Invoice invoice, Long currentUserId) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
-        boolean isReceived = invoice.getCustomer().getId().equals(currentUserId);
+        boolean isReceived = invoice.getCustomer() != null && invoice.getCustomer().getId().equals(currentUserId);
 
         String issuerName;
         if (invoice.getIssuer() != null) {
@@ -171,29 +171,36 @@ public class InvoiceController {
             issuerName = "mychess";
         }
 
-        String customerName = invoice.getCustomer().getFirstName() + " " + invoice.getCustomer().getLastName();
-        if (invoice.getCustomer().getCompanyName() != null && !invoice.getCustomer().getCompanyName().isBlank()) {
-            customerName = invoice.getCustomer().getCompanyName();
+        String customerName = "Inconnu";
+        if (invoice.getCustomer() != null) {
+            customerName = invoice.getCustomer().getFirstName() + " " + invoice.getCustomer().getLastName();
+            if (invoice.getCustomer().getCompanyName() != null && !invoice.getCustomer().getCompanyName().isBlank()) {
+                customerName = invoice.getCustomer().getCompanyName();
+            }
         }
+
+        // Handle potentially null dates
+        String issuedAtStr = invoice.getIssuedAt() != null ? invoice.getIssuedAt().format(formatter) : "";
+        String createdAtStr = invoice.getCreatedAt() != null ? invoice.getCreatedAt().format(formatter) : "";
 
         return Map.ofEntries(
                 Map.entry("id", invoice.getId()),
-                Map.entry("invoiceNumber", invoice.getInvoiceNumber()),
-                Map.entry("invoiceType", invoice.getInvoiceType().name()),
+                Map.entry("invoiceNumber", invoice.getInvoiceNumber() != null ? invoice.getInvoiceNumber() : ""),
+                Map.entry("invoiceType", invoice.getInvoiceType() != null ? invoice.getInvoiceType().name() : ""),
                 Map.entry("isReceived", isReceived),
                 Map.entry("issuerName", issuerName),
                 Map.entry("customerName", customerName),
-                Map.entry("description", invoice.getDescription()),
-                Map.entry("subtotalCents", invoice.getSubtotalCents()),
-                Map.entry("vatCents", invoice.getVatCents()),
-                Map.entry("totalCents", invoice.getTotalCents()),
+                Map.entry("description", invoice.getDescription() != null ? invoice.getDescription() : ""),
+                Map.entry("subtotalCents", invoice.getSubtotalCents() != null ? invoice.getSubtotalCents() : 0),
+                Map.entry("vatCents", invoice.getVatCents() != null ? invoice.getVatCents() : 0),
+                Map.entry("totalCents", invoice.getTotalCents() != null ? invoice.getTotalCents() : 0),
                 Map.entry("vatRate", invoice.getVatRate() != null ? invoice.getVatRate() : 0),
                 Map.entry("commissionRate", invoice.getCommissionRate() != null ? invoice.getCommissionRate() : 0),
                 Map.entry("promoApplied", invoice.getPromoApplied() != null && invoice.getPromoApplied()),
-                Map.entry("status", invoice.getStatus()),
+                Map.entry("status", invoice.getStatus() != null ? invoice.getStatus() : ""),
                 Map.entry("hasPdf", true), // PDFs can now be generated on-demand
-                Map.entry("issuedAt", invoice.getIssuedAt().format(formatter)),
-                Map.entry("createdAt", invoice.getCreatedAt().format(formatter)),
+                Map.entry("issuedAt", issuedAtStr),
+                Map.entry("createdAt", createdAtStr),
                 Map.entry("lessonId", invoice.getLesson() != null ? invoice.getLesson().getId() : null)
         );
     }
@@ -214,29 +221,36 @@ public class InvoiceController {
             issuerName = "mychess";
         }
 
-        String customerName = invoice.getCustomer().getFirstName() + " " + invoice.getCustomer().getLastName();
-        if (invoice.getCustomer().getCompanyName() != null && !invoice.getCustomer().getCompanyName().isBlank()) {
-            customerName = invoice.getCustomer().getCompanyName();
+        String customerName = "Inconnu";
+        if (invoice.getCustomer() != null) {
+            customerName = invoice.getCustomer().getFirstName() + " " + invoice.getCustomer().getLastName();
+            if (invoice.getCustomer().getCompanyName() != null && !invoice.getCustomer().getCompanyName().isBlank()) {
+                customerName = invoice.getCustomer().getCompanyName();
+            }
         }
+
+        // Handle potentially null dates
+        String issuedAtStr = invoice.getIssuedAt() != null ? invoice.getIssuedAt().format(formatter) : "";
+        String createdAtStr = invoice.getCreatedAt() != null ? invoice.getCreatedAt().format(formatter) : "";
 
         return Map.ofEntries(
                 Map.entry("id", invoice.getId()),
-                Map.entry("invoiceNumber", invoice.getInvoiceNumber()),
-                Map.entry("invoiceType", invoice.getInvoiceType().name()),
+                Map.entry("invoiceNumber", invoice.getInvoiceNumber() != null ? invoice.getInvoiceNumber() : ""),
+                Map.entry("invoiceType", invoice.getInvoiceType() != null ? invoice.getInvoiceType().name() : ""),
                 Map.entry("isReceived", false),
                 Map.entry("issuerName", issuerName),
                 Map.entry("customerName", customerName),
-                Map.entry("description", invoice.getDescription()),
-                Map.entry("subtotalCents", invoice.getSubtotalCents()),
-                Map.entry("vatCents", invoice.getVatCents()),
-                Map.entry("totalCents", invoice.getTotalCents()),
+                Map.entry("description", invoice.getDescription() != null ? invoice.getDescription() : ""),
+                Map.entry("subtotalCents", invoice.getSubtotalCents() != null ? invoice.getSubtotalCents() : 0),
+                Map.entry("vatCents", invoice.getVatCents() != null ? invoice.getVatCents() : 0),
+                Map.entry("totalCents", invoice.getTotalCents() != null ? invoice.getTotalCents() : 0),
                 Map.entry("vatRate", invoice.getVatRate() != null ? invoice.getVatRate() : 0),
                 Map.entry("commissionRate", invoice.getCommissionRate() != null ? invoice.getCommissionRate() : 0),
                 Map.entry("promoApplied", invoice.getPromoApplied() != null && invoice.getPromoApplied()),
-                Map.entry("status", invoice.getStatus()),
+                Map.entry("status", invoice.getStatus() != null ? invoice.getStatus() : ""),
                 Map.entry("hasPdf", true), // PDFs can now be generated on-demand
-                Map.entry("issuedAt", invoice.getIssuedAt().format(formatter)),
-                Map.entry("createdAt", invoice.getCreatedAt().format(formatter)),
+                Map.entry("issuedAt", issuedAtStr),
+                Map.entry("createdAt", createdAtStr),
                 Map.entry("lessonId", invoice.getLesson() != null ? invoice.getLesson().getId() : null)
         );
     }

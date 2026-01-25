@@ -10,6 +10,7 @@ import { TeacherService } from '../../core/services/teacher.service';
 import { SeoService } from '../../core/services/seo.service';
 import { StripeConnectService } from '../../core/services/stripe-connect.service';
 import { DialogService } from '../../core/services/dialog.service';
+import { WalletService } from '../../core/services/wallet.service';
 import { LESSON_STATUS_LABELS, Lesson } from '../../core/models/lesson.model';
 import { CHESS_LEVELS } from '../../core/models/user.model';
 import { DatePipe, DecimalPipe } from '@angular/common';
@@ -123,7 +124,8 @@ export class DashboardComponent implements OnInit {
     private http: HttpClient,
     private seoService: SeoService,
     private stripeConnectService: StripeConnectService,
-    private dialogService: DialogService
+    private dialogService: DialogService,
+    private walletService: WalletService
   ) {
     this.seoService.setDashboardPage();
     this.settingsForm = this.fb.group({
@@ -370,7 +372,14 @@ export class DashboardComponent implements OnInit {
     });
 
     if (reason !== null) {
-      this.lessonService.cancelLesson(lessonId, reason as string || undefined).subscribe();
+      this.lessonService.cancelLesson(lessonId, reason as string || undefined).subscribe({
+        next: () => {
+          // Reload wallet balance after cancellation (for refund)
+          if (this.authService.isStudent()) {
+            this.walletService.loadBalance().subscribe();
+          }
+        }
+      });
     }
   }
 

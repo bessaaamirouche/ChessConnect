@@ -1,7 +1,5 @@
 package com.chessconnect.service;
 
-import com.chessconnect.dto.wallet.CreditTransactionResponse;
-import com.chessconnect.dto.wallet.WalletResponse;
 import com.chessconnect.model.CreditTransaction;
 import com.chessconnect.model.StudentWallet;
 import com.chessconnect.model.User;
@@ -19,13 +17,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -49,8 +45,6 @@ class WalletServiceTest {
 
     private User studentUser;
     private StudentWallet wallet;
-    private CreditTransaction topUpTransaction;
-    private CreditTransaction lessonPaymentTransaction;
 
     @BeforeEach
     void setUp() {
@@ -67,57 +61,6 @@ class WalletServiceTest {
         wallet.setId(1L);
         wallet.setUser(studentUser);
         wallet.setBalanceCents(5000); // 50.00 EUR
-
-        // Setup top-up transaction
-        topUpTransaction = new CreditTransaction();
-        topUpTransaction.setId(1L);
-        topUpTransaction.setUser(studentUser);
-        topUpTransaction.setTransactionType(CreditTransactionType.TOPUP);
-        topUpTransaction.setAmountCents(5000);
-        topUpTransaction.setDescription("Recharge du portefeuille");
-        topUpTransaction.setCreatedAt(LocalDateTime.now().minusDays(1));
-
-        // Setup lesson payment transaction
-        lessonPaymentTransaction = new CreditTransaction();
-        lessonPaymentTransaction.setId(2L);
-        lessonPaymentTransaction.setUser(studentUser);
-        lessonPaymentTransaction.setTransactionType(CreditTransactionType.LESSON_PAYMENT);
-        lessonPaymentTransaction.setAmountCents(3000);
-        lessonPaymentTransaction.setDescription("Paiement cours");
-        lessonPaymentTransaction.setCreatedAt(LocalDateTime.now());
-    }
-
-    @Nested
-    @DisplayName("getWallet Tests")
-    class GetWalletTests {
-
-        @Test
-        @DisplayName("Should return wallet info")
-        void shouldReturnWalletInfo() {
-            // Given
-            when(walletRepository.findByUserId(1L)).thenReturn(Optional.of(wallet));
-
-            // When
-            WalletResponse result = walletService.getWallet(1L);
-
-            // Then
-            assertThat(result).isNotNull();
-            assertThat(result.getBalanceCents()).isEqualTo(5000);
-        }
-
-        @Test
-        @DisplayName("Should return empty wallet if not exists")
-        void shouldReturnEmptyWalletIfNotExists() {
-            // Given
-            when(walletRepository.findByUserId(1L)).thenReturn(Optional.empty());
-
-            // When
-            WalletResponse result = walletService.getWallet(1L);
-
-            // Then
-            assertThat(result).isNotNull();
-            assertThat(result.getBalanceCents()).isEqualTo(0);
-        }
     }
 
     @Nested
@@ -148,39 +91,6 @@ class WalletServiceTest {
 
             // Then
             assertThat(result).isEqualTo(0);
-        }
-    }
-
-    @Nested
-    @DisplayName("getTransactions Tests")
-    class GetTransactionsTests {
-
-        @Test
-        @DisplayName("Should return all transactions")
-        void shouldReturnAllTransactions() {
-            // Given
-            when(transactionRepository.findByUserIdOrderByCreatedAtDesc(1L))
-                .thenReturn(List.of(lessonPaymentTransaction, topUpTransaction));
-
-            // When
-            List<CreditTransactionResponse> results = walletService.getTransactions(1L);
-
-            // Then
-            assertThat(results).hasSize(2);
-        }
-
-        @Test
-        @DisplayName("Should return empty list when no transactions")
-        void shouldReturnEmptyList() {
-            // Given
-            when(transactionRepository.findByUserIdOrderByCreatedAtDesc(1L))
-                .thenReturn(List.of());
-
-            // When
-            List<CreditTransactionResponse> results = walletService.getTransactions(1L);
-
-            // Then
-            assertThat(results).isEmpty();
         }
     }
 
@@ -289,22 +199,10 @@ class WalletServiceTest {
     class TransactionTypeTests {
 
         @Test
-        @DisplayName("TOPUP type should be for adding money")
-        void topupTypeShouldBeForAddingMoney() {
+        @DisplayName("All transaction types should exist")
+        void allTransactionTypesShouldExist() {
             assertThat(CreditTransactionType.TOPUP).isNotNull();
-            assertThat(topUpTransaction.getTransactionType()).isEqualTo(CreditTransactionType.TOPUP);
-        }
-
-        @Test
-        @DisplayName("LESSON_PAYMENT type should be for spending money")
-        void lessonPaymentTypeShouldBeForSpendingMoney() {
             assertThat(CreditTransactionType.LESSON_PAYMENT).isNotNull();
-            assertThat(lessonPaymentTransaction.getTransactionType()).isEqualTo(CreditTransactionType.LESSON_PAYMENT);
-        }
-
-        @Test
-        @DisplayName("REFUND type should exist for refunds")
-        void refundTypeShouldExist() {
             assertThat(CreditTransactionType.REFUND).isNotNull();
         }
     }

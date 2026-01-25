@@ -86,6 +86,11 @@ export const routes: Routes = [
         loadComponent: () => import('./features/invoices/invoices.component').then(m => m.InvoicesComponent)
       },
       {
+        path: 'wallet',
+        canActivate: [studentGuard],
+        loadComponent: () => import('./features/wallet/wallet.component').then(m => m.WalletComponent)
+      },
+      {
         path: 'teachers',
         loadComponent: () => import('./features/teachers/teacher-list/teacher-list.component').then(m => m.TeacherListComponent)
       },

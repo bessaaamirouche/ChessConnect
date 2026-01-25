@@ -1,7 +1,8 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { WalletService } from '../../core/services/wallet.service';
 import { AppSidebarComponent, SidebarSection } from '../../shared/components/app-sidebar/app-sidebar.component';
 
 @Component({
@@ -11,13 +12,25 @@ import { AppSidebarComponent, SidebarSection } from '../../shared/components/app
   templateUrl: './user-layout.component.html',
   styleUrl: './user-layout.component.scss'
 })
-export class UserLayoutComponent {
+export class UserLayoutComponent implements OnInit {
   private authService = inject(AuthService);
+  private walletService = inject(WalletService);
 
   sidebarCollapsed = signal(false);
 
   onSidebarCollapsedChange(collapsed: boolean): void {
     this.sidebarCollapsed.set(collapsed);
+  }
+
+  ngOnInit(): void {
+    // Load wallet balance for students
+    if (this.authService.isStudent()) {
+      this.walletService.loadBalance().subscribe();
+    }
+  }
+
+  private formatBalance(cents: number): string {
+    return (cents / 100).toFixed(2).replace('.', ',') + ' €';
   }
 
   sidebarSections = computed<SidebarSection[]>(() => {
@@ -50,6 +63,12 @@ export class UserLayoutComponent {
 
       if (this.authService.isStudent()) {
         menuItems.push({ label: 'Ma Progression', icon: 'heroTrophy', route: '/progress' });
+        menuItems.push({
+          label: 'Mon Portefeuille',
+          icon: 'heroWallet',
+          route: '/wallet',
+          badge: this.walletService.balance() > 0 ? this.formatBalance(this.walletService.balance()) : undefined
+        });
         menuItems.push({ label: 'Abonnement', icon: 'heroCreditCard', route: '/subscription' });
         menuItems.push({ label: 'Trouver un Coach', icon: 'heroAcademicCap', route: '/teachers' });
       }

@@ -530,3 +530,105 @@ $sidebar-collapsed-width: 95px;
   flex-direction: column;
   gap: var(--space-sm);
 }
+
+// Wallet info
+.wallet-info {
+  margin-bottom: var(--space-md);
+
+  &__card {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-md);
+    border-radius: var(--radius-md);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-subtle);
+    transition: all var(--transition-base);
+
+    &--active {
+      border-color: var(--gold-400);
+      background: rgba(212, 168, 75, 0.08);
+    }
+  }
+
+  &__icon {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-full);
+    background: rgba(212, 168, 75, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gold-400);
+    flex-shrink: 0;
+  }
+
+  &__content {
+    flex: 1;
+
+    strong {
+      display: block;
+      font-size: 0.9375rem;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+  }
+
+  &__balance {
+    font-size: 0.875rem;
+    color: var(--gold-400);
+    font-weight: 600;
+    margin: 0;
+  }
+
+  &__toggle {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    cursor: pointer;
+
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--gold-400);
+      cursor: pointer;
+    }
+
+    &-label {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+  }
+
+  &__insufficient {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    padding: var(--space-xs) var(--space-sm);
+    background: var(--bg-secondary);
+    border-radius: var(--radius-sm);
+  }
+}
+
+// Credit payment button variant
+.btn--credit {
+  background: linear-gradient(135deg, var(--gold-400) 0%, var(--gold-500) 100%);
+  color: var(--text-inverse);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  font-weight: 600;
+  box-shadow: 0 4px 14px rgba(212, 168, 75, 0.35);
+
+  &:hover:not(:disabled) {
+    background: linear-gradient(135deg, var(--gold-500) 0%, #b8860b 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(212, 168, 75, 0.4);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+}

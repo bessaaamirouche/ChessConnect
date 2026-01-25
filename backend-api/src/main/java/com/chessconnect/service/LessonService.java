@@ -10,6 +10,7 @@ import com.chessconnect.model.Progress;
 import com.chessconnect.model.User;
 import com.chessconnect.model.enums.LessonStatus;
 import com.chessconnect.model.enums.PaymentStatus;
+import com.chessconnect.model.enums.PaymentType;
 import com.chessconnect.model.enums.UserRole;
 import com.chessconnect.repository.LessonRepository;
 import com.chessconnect.repository.PaymentRepository;
@@ -52,6 +53,7 @@ public class LessonService {
     private final StripeService stripeService;
     private final GoogleCalendarService googleCalendarService;
     private final InvoiceService invoiceService;
+    private final WalletService walletService;
 
     public LessonService(
             LessonRepository lessonRepository,
@@ -62,7 +64,8 @@ public class LessonService {
             TeacherBalanceService teacherBalanceService,
             StripeService stripeService,
             GoogleCalendarService googleCalendarService,
-            InvoiceService invoiceService
+            InvoiceService invoiceService,
+            WalletService walletService
     ) {
         this.lessonRepository = lessonRepository;
         this.userRepository = userRepository;
@@ -73,6 +76,7 @@ public class LessonService {
         this.stripeService = stripeService;
         this.googleCalendarService = googleCalendarService;
         this.invoiceService = invoiceService;
+        this.walletService = walletService;
     }
 
     @Transactional
@@ -534,7 +538,8 @@ public class LessonService {
     }
 
     /**
-     * Handle cancellation for paid lessons with Stripe refund.
+     * Handle cancellation for paid lessons with refund.
+     * Routes to wallet credit refund or Stripe refund depending on payment type.
      */
     private void handlePaidLessonCancellation(Lesson lesson, String cancelledBy) {
         // Calculate refund percentage
@@ -548,40 +553,70 @@ public class LessonService {
 
         // Find the payment for this lesson
         Payment payment = paymentRepository.findByLessonId(lesson.getId()).orElse(null);
-        if (payment == null || payment.getStripePaymentIntentId() == null) {
+        if (payment == null) {
             log.warn("No payment found for lesson {} - cannot process refund", lesson.getId());
             return;
         }
 
-        // Process Stripe refund
-        try {
-            int refundAmount = (lesson.getPriceCents() * refundPercentage) / 100;
-            String refundReason = String.format("Lesson cancelled by %s - %d%% refund",
-                    cancelledBy.toLowerCase(), refundPercentage);
+        int refundAmount = (lesson.getPriceCents() * refundPercentage) / 100;
+        String refundReason = String.format("Lesson cancelled by %s - %d%% refund",
+                cancelledBy.toLowerCase(), refundPercentage);
 
-            Refund refund = stripeService.createPartialRefund(
-                    payment.getStripePaymentIntentId(),
-                    lesson.getPriceCents(),
-                    refundPercentage,
-                    refundReason
-            );
+        // Check if payment was from credit
+        if (payment.getPaymentType() == PaymentType.LESSON_FROM_CREDIT) {
+            // Refund to wallet
+            try {
+                walletService.refundCreditForLesson(
+                        lesson.getStudent().getId(),
+                        lesson,
+                        lesson.getPriceCents(),
+                        refundPercentage
+                );
 
-            if (refund != null) {
-                lesson.setStripeRefundId(refund.getId());
                 lesson.setRefundedAmountCents(refundAmount);
                 payment.setStatus(PaymentStatus.REFUNDED);
                 payment.setRefundReason(refundReason);
                 paymentRepository.save(payment);
 
-                log.info("Refund processed for lesson {}: {} cents ({}%)",
+                log.info("Credit refund processed for lesson {}: {} cents ({}%)",
                         lesson.getId(), refundAmount, refundPercentage);
 
-                // Generate credit note (avoir) for the refund
-                invoiceService.generateCreditNote(lesson, refund.getId(), refundPercentage, refundAmount);
+                // Generate credit note for wallet refund
+                invoiceService.generateCreditNoteForWalletRefund(lesson, refundPercentage, refundAmount);
+            } catch (Exception e) {
+                log.error("Failed to process credit refund for lesson {}: {}", lesson.getId(), e.getMessage());
             }
-        } catch (Exception e) {
-            log.error("Failed to process refund for lesson {}: {}", lesson.getId(), e.getMessage());
-            // Don't fail the cancellation, but log the error
+        } else {
+            // Process Stripe refund for card payments
+            if (payment.getStripePaymentIntentId() == null) {
+                log.warn("No Stripe payment intent for lesson {} - cannot process Stripe refund", lesson.getId());
+                return;
+            }
+
+            try {
+                Refund refund = stripeService.createPartialRefund(
+                        payment.getStripePaymentIntentId(),
+                        lesson.getPriceCents(),
+                        refundPercentage,
+                        refundReason
+                );
+
+                if (refund != null) {
+                    lesson.setStripeRefundId(refund.getId());
+                    lesson.setRefundedAmountCents(refundAmount);
+                    payment.setStatus(PaymentStatus.REFUNDED);
+                    payment.setRefundReason(refundReason);
+                    paymentRepository.save(payment);
+
+                    log.info("Stripe refund processed for lesson {}: {} cents ({}%)",
+                            lesson.getId(), refundAmount, refundPercentage);
+
+                    // Generate credit note (avoir) for the Stripe refund
+                    invoiceService.generateCreditNote(lesson, refund.getId(), refundPercentage, refundAmount);
+                }
+            } catch (Exception e) {
+                log.error("Failed to process Stripe refund for lesson {}: {}", lesson.getId(), e.getMessage());
+            }
         }
     }
 

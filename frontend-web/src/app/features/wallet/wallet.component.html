@@ -1,0 +1,172 @@
+<div class="wallet-page">
+  <header class="page-header">
+    <div>
+      <h1 class="page-header__title">Mon Portefeuille</h1>
+      <p class="page-header__subtitle">Rechargez votre crédit et payez vos cours en un clic</p>
+    </div>
+  </header>
+
+  <!-- Balance Card -->
+  <section class="section">
+    <div class="balance-card">
+      <div class="balance-card__icon">
+        <ng-icon name="heroWallet" size="40"></ng-icon>
+      </div>
+      <div class="balance-card__content">
+        <span class="balance-card__label">Solde actuel</span>
+        <span class="balance-card__amount">{{ formatPrice(walletService.balance()) }}</span>
+      </div>
+      <button class="btn btn--primary btn--lg balance-card__btn" (click)="openTopUpModal()">
+        <ng-icon name="heroPlusCircle" size="20"></ng-icon>
+        Recharger
+      </button>
+    </div>
+  </section>
+
+  <!-- Stats -->
+  @if (walletService.wallet()) {
+    <section class="section">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <ng-icon name="heroArrowUpCircle" size="24" class="stat-card__icon stat-card__icon--credit"></ng-icon>
+          <span class="stat-card__value">{{ formatPrice(walletService.wallet()!.totalTopUpsCents) }}</span>
+          <span class="stat-card__label">Total rechargé</span>
+        </div>
+        <div class="stat-card">
+          <ng-icon name="heroArrowDownCircle" size="24" class="stat-card__icon stat-card__icon--debit"></ng-icon>
+          <span class="stat-card__value">{{ formatPrice(walletService.wallet()!.totalUsedCents) }}</span>
+          <span class="stat-card__label">Total dépensé</span>
+        </div>
+        <div class="stat-card">
+          <ng-icon name="heroArrowPath" size="24" class="stat-card__icon stat-card__icon--refund"></ng-icon>
+          <span class="stat-card__value">{{ formatPrice(walletService.wallet()!.totalRefundedCents) }}</span>
+          <span class="stat-card__label">Total remboursé</span>
+        </div>
+      </div>
+    </section>
+  }
+
+  <!-- Transactions -->
+  <section class="section">
+    <div class="section__header">
+      <h2 class="section__title">Historique des transactions</h2>
+    </div>
+
+    @if (walletService.loading()) {
+      <div class="loading-state">
+        <span class="spinner spinner--lg"></span>
+      </div>
+    } @else if (walletService.transactions().length === 0) {
+      <div class="empty-state">
+        <ng-icon name="heroWallet" size="48"></ng-icon>
+        <p>Aucune transaction pour le moment</p>
+        <p class="text-muted">Rechargez votre crédit pour réserver des cours</p>
+      </div>
+    } @else {
+      <div class="transactions-list">
+        @for (transaction of walletService.transactions(); track transaction.id) {
+          <div class="transaction-item" [class]="getTransactionClass(transaction.transactionType)">
+            <div class="transaction-item__icon">
+              <ng-icon [name]="getTransactionIcon(transaction.transactionType)" size="24"></ng-icon>
+            </div>
+            <div class="transaction-item__content">
+              <span class="transaction-item__label">{{ walletService.getTransactionTypeLabel(transaction.transactionType) }}</span>
+              <span class="transaction-item__desc">{{ transaction.description }}</span>
+              <span class="transaction-item__date">{{ transaction.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+            <div class="transaction-item__amount">
+              <span [class.positive]="transaction.transactionType !== 'LESSON_PAYMENT'"
+                    [class.negative]="transaction.transactionType === 'LESSON_PAYMENT'">
+                {{ walletService.getTransactionSign(transaction.transactionType) }}{{ formatPrice(transaction.amountCents) }}
+              </span>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </section>
+
+  <!-- Error Message -->
+  @if (walletService.error()) {
+    <div class="alert alert--error">
+      {{ walletService.error() }}
+      <button class="alert__close" (click)="walletService.clearError()">×</button>
+    </div>
+  }
+
+  <!-- Top Up Modal -->
+  @if (showTopUpModal()) {
+    <div class="modal-overlay" (click)="closeTopUpModal()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal__header">
+          <h3>Recharger mon crédit</h3>
+          <button class="modal__close" (click)="closeTopUpModal()">×</button>
+        </div>
+        <div class="modal__body">
+          <p class="modal__description">Choisissez un montant ou entrez un montant personnalisé (minimum 5€)</p>
+
+          <div class="amount-options">
+            @for (option of topUpOptions; track option.amountCents) {
+              <button
+                class="amount-option"
+                [class.amount-option--selected]="selectedAmount() === option.amountCents"
+                [class.amount-option--popular]="option.popular"
+                (click)="selectAmount(option.amountCents)"
+              >
+                @if (option.popular) {
+                  <span class="amount-option__badge">Populaire</span>
+                }
+                {{ option.label }}
+              </button>
+            }
+          </div>
+
+          <div class="custom-amount">
+            <label for="customAmount">Montant personnalisé</label>
+            <div class="custom-amount__input-wrapper">
+              <input
+                type="text"
+                id="customAmount"
+                [value]="customAmount()"
+                (input)="onCustomAmountChange($event)"
+                placeholder="Ex: 75"
+                class="form-control"
+              />
+              <span class="custom-amount__currency">€</span>
+            </div>
+          </div>
+
+          <div class="topup-summary">
+            <span>Montant à payer :</span>
+            <span class="topup-summary__amount">{{ formatPrice(getSelectedAmountCents()) }}</span>
+          </div>
+        </div>
+        <div class="modal__footer">
+          <button class="btn btn--ghost" (click)="closeTopUpModal()">Annuler</button>
+          <button
+            class="btn btn--primary"
+            (click)="processTopUp()"
+            [disabled]="!isValidAmount() || processing()"
+          >
+            @if (processing()) {
+              <span class="spinner spinner--sm"></span>
+              Chargement...
+            } @else {
+              Payer {{ formatPrice(getSelectedAmountCents()) }}
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Embedded Checkout -->
+  @if (showCheckout() && checkoutClientSecret()) {
+    <app-embedded-checkout
+      [clientSecret]="checkoutClientSecret()!"
+      [title]="'Recharge de crédit'"
+      (closed)="closeCheckout()"
+      (completed)="onCheckoutCompleted()"
+    ></app-embedded-checkout>
+  }
+</div>

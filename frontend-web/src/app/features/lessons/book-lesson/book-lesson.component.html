@@ -61,6 +61,31 @@
                 </div>
               </div>
             </div>
+
+            <!-- Wallet Balance -->
+            @if (walletService.balance() > 0) {
+              <div class="wallet-info">
+                <div class="wallet-info__card" [class.wallet-info__card--active]="payWithCreditSignal()">
+                  <span class="wallet-info__icon"><ng-icon name="heroWallet" size="20"></ng-icon></span>
+                  <div class="wallet-info__content">
+                    <strong>Mon Portefeuille</strong>
+                    <p class="wallet-info__balance">Solde: {{ walletService.formatPrice(walletService.balance()) }}</p>
+                  </div>
+                  @if (canPayWithCredit()) {
+                    <label class="wallet-info__toggle">
+                      <input
+                        type="checkbox"
+                        [checked]="payWithCreditSignal()"
+                        (change)="togglePayWithCredit($any($event.target).checked)"
+                      />
+                      <span class="wallet-info__toggle-label">Utiliser</span>
+                    </label>
+                  } @else {
+                    <span class="wallet-info__insufficient">Solde insuffisant</span>
+                  }
+                </div>
+              </div>
+            }
           }
 
           <!-- Error -->
@@ -158,12 +183,15 @@
               class="btn btn--block"
               [class.btn--primary]="!canUseFreeTrial() || !useFreeTrialSignal()"
               [class.btn--free-trial]="canUseFreeTrial() && useFreeTrialSignal()"
+              [class.btn--credit]="payWithCreditSignal() && canPayWithCredit()"
               [disabled]="!selectedSlot() || loading()"
             >
               @if (loading()) {
                 <span class="spinner spinner--sm"></span>
                 @if (canUseFreeTrial() && useFreeTrialSignal()) {
                   Reservation...
+                } @else if (payWithCreditSignal() && canPayWithCredit()) {
+                  Paiement...
                 } @else if (requiresPayment()) {
                   Redirection...
                 } @else {
@@ -173,7 +201,11 @@
                 @if (canUseFreeTrial() && useFreeTrialSignal()) {
                   <ng-icon name="heroGift" size="18"></ng-icon>
                   Reserver mon cours gratuit
+                } @else if (payWithCreditSignal() && canPayWithCredit()) {
+                  <ng-icon name="heroWallet" size="18"></ng-icon>
+                  Payer avec mon credit
                 } @else if (requiresPayment()) {
+                  <ng-icon name="heroCreditCard" size="18"></ng-icon>
                   Payer {{ formatPrice(teacherService.selectedTeacher()?.hourlyRateCents) }}
                 } @else {
                   Confirmer

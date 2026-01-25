@@ -6,6 +6,7 @@ import { TeacherService } from '../../../core/services/teacher.service';
 import { LessonService } from '../../../core/services/lesson.service';
 import { AvailabilityService } from '../../../core/services/availability.service';
 import { PaymentService } from '../../../core/services/payment.service';
+import { WalletService } from '../../../core/services/wallet.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { TimeSlot } from '../../../core/models/availability.model';
 import { EmbeddedCheckoutComponent } from '../../../shared/embedded-checkout/embedded-checkout.component';
@@ -23,7 +24,8 @@ import {
   heroArrowRightOnRectangle,
   heroArrowLeft,
   heroGift,
-  heroSparkles
+  heroSparkles,
+  heroWallet
 } from '@ng-icons/heroicons/outline';
 
 @Component({
@@ -42,7 +44,8 @@ import {
     heroArrowRightOnRectangle,
     heroArrowLeft,
     heroGift,
-    heroSparkles
+    heroSparkles,
+    heroWallet
   })],
   templateUrl: './book-lesson.component.html',
   styleUrl: './book-lesson.component.scss'
@@ -79,6 +82,7 @@ export class BookLessonComponent implements OnInit {
   success = signal(false);
   selectedSlot = signal<TimeSlot | null>(null);
   useFreeTrialSignal = signal(true);
+  payWithCreditSignal = signal(false);
 
   // Embedded checkout
   showCheckout = signal(false);
@@ -92,6 +96,13 @@ export class BookLessonComponent implements OnInit {
   canUseFreeTrial = computed(() => {
     const teacher = this.teacherService.selectedTeacher();
     return this.freeTrialEligible() && teacher?.acceptsFreeTrial === true;
+  });
+
+  // Check if user has enough credit for the lesson
+  canPayWithCredit = computed(() => {
+    const teacher = this.teacherService.selectedTeacher();
+    if (!teacher?.hourlyRateCents) return false;
+    return this.walletService.hasEnoughCredit(teacher.hourlyRateCents);
   });
 
   teacherSlots = this.availabilityService.teacherSlots;
@@ -127,6 +138,7 @@ export class BookLessonComponent implements OnInit {
     public lessonService: LessonService,
     private availabilityService: AvailabilityService,
     public paymentService: PaymentService,
+    public walletService: WalletService,
     public authService: AuthService
   ) {
     this.bookingForm = this.fb.group({
@@ -148,6 +160,9 @@ export class BookLessonComponent implements OnInit {
 
     // Check free trial eligibility
     this.lessonService.checkFreeTrialEligibility().subscribe();
+
+    // Load wallet balance
+    this.walletService.loadBalance().subscribe();
   }
 
   loadAvailableSlots(teacherId: number): void {
@@ -208,6 +223,10 @@ export class BookLessonComponent implements OnInit {
     this.useFreeTrialSignal.set(value);
   }
 
+  togglePayWithCredit(value: boolean): void {
+    this.payWithCreditSignal.set(value);
+  }
+
   isSlotSelected(slot: TimeSlot): boolean {
     const selected = this.selectedSlot();
     return selected !== null &&
@@ -247,7 +266,33 @@ export class BookLessonComponent implements OnInit {
       return;
     }
 
-    // All lessons require payment at coach's rate
+    // Pay with credit
+    if (this.payWithCreditSignal() && this.canPayWithCredit()) {
+      this.walletService.bookWithCredit({
+        teacherId: teacher.id,
+        scheduledAt: scheduledAt,
+        durationMinutes: 60,
+        notes: notes || ''
+      }).subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.success.set(true);
+            this.loading.set(false);
+            setTimeout(() => {
+              this.router.navigate(['/dashboard']);
+            }, 2000);
+          } else {
+            this.loading.set(false);
+          }
+        },
+        error: () => {
+          this.loading.set(false);
+        }
+      });
+      return;
+    }
+
+    // Pay with card via Stripe
     this.paymentService.createLessonCheckout({
       teacherId: teacher.id,
       scheduledAt: scheduledAt,

@@ -853,6 +853,148 @@ public class InvoiceService {
     }
 
     /**
+     * Generate invoice for credit top-up.
+     */
+    @Transactional
+    public Invoice generateTopUpInvoice(Long studentId, int amountCents, String stripePaymentIntentId) {
+        // Check if invoice already exists for this payment
+        if (stripePaymentIntentId != null && invoiceRepository.existsByStripePaymentIntentId(stripePaymentIntentId)) {
+            log.info("Top-up invoice already exists for payment intent: {}", stripePaymentIntentId);
+            List<Invoice> existing = invoiceRepository.findByStripePaymentIntentId(stripePaymentIntentId);
+            return existing.isEmpty() ? null : existing.get(0);
+        }
+
+        User student = userRepository.findById(studentId)
+                .orElseThrow(() -> new RuntimeException("Student not found: " + studentId));
+
+        Invoice invoice = new Invoice();
+        invoice.setInvoiceNumber(generateInvoiceNumber("REC"));
+        invoice.setInvoiceType(InvoiceType.SUBSCRIPTION); // Using SUBSCRIPTION type for platform payments
+        invoice.setCustomer(student);
+        invoice.setIssuer(null); // Platform is the issuer
+        invoice.setStripePaymentIntentId(stripePaymentIntentId);
+        invoice.setSubtotalCents(amountCents);
+        invoice.setVatCents(0);
+        invoice.setTotalCents(amountCents);
+        invoice.setVatRate(0);
+        invoice.setDescription("Recharge de crédit Mychess");
+        invoice.setStatus("PAID");
+        invoice.setIssuedAt(LocalDateTime.now());
+
+        invoice = invoiceRepository.save(invoice);
+
+        // Generate PDF
+        try {
+            generateTopUpInvoicePdf(invoice, student);
+        } catch (Exception e) {
+            log.error("Error generating top-up invoice PDF", e);
+        }
+
+        log.info("Generated top-up invoice #{} for student {}", invoice.getInvoiceNumber(), studentId);
+
+        return invoice;
+    }
+
+    /**
+     * Generate PDF for top-up invoice.
+     */
+    private void generateTopUpInvoicePdf(Invoice invoice, User student) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        Document document = new Document(PageSize.A4, 50, 50, 50, 50);
+
+        try {
+            PdfWriter.getInstance(document, baos);
+            document.open();
+
+            // Add content
+            addInvoiceHeader(document, "FACTURE DE RECHARGE", invoice.getInvoiceNumber(), invoice.getIssuedAt());
+            addPlatformIssuerInfo(document);
+            addCustomerInfo(document, student, "Client");
+            addSubscriptionInvoiceTable(document, invoice); // Reuse subscription table format
+            addPaymentInfo(document, "Paye par carte bancaire via Stripe");
+            addFooter(document);
+
+            document.close();
+
+            // Save PDF
+            String pdfPath = savePdf(baos.toByteArray(), invoice.getInvoiceNumber());
+            invoice.setPdfPath(pdfPath);
+            invoiceRepository.save(invoice);
+
+        } catch (DocumentException e) {
+            log.error("Error creating top-up invoice PDF", e);
+            throw new IOException("Failed to generate PDF", e);
+        }
+    }
+
+    /**
+     * Generate invoices for a lesson paid with credit (no Stripe payment).
+     */
+    @Transactional
+    public List<Invoice> generateInvoicesForCreditPayment(
+            Long studentId,
+            Long teacherId,
+            Long lessonId,
+            int totalAmountCents
+    ) {
+        User student = userRepository.findById(studentId)
+                .orElseThrow(() -> new RuntimeException("Student not found: " + studentId));
+        User teacher = userRepository.findById(teacherId)
+                .orElseThrow(() -> new RuntimeException("Teacher not found: " + teacherId));
+        Lesson lesson = lessonId != null ? lessonRepository.findById(lessonId).orElse(null) : null;
+
+        // Generate a unique reference for credit payment (no Stripe ID)
+        String creditPaymentRef = "CREDIT-" + lessonId + "-" + System.currentTimeMillis();
+
+        // Calculate commission (standard rate for credit payments)
+        double commissionRate = STANDARD_COMMISSION_RATE;
+        int commissionCents = (int) Math.round(totalAmountCents * commissionRate / 100);
+
+        // Generate Invoice 1: Teacher -> Student (lesson service)
+        Invoice lessonInvoice = new Invoice();
+        lessonInvoice.setInvoiceNumber(generateInvoiceNumber("FAC"));
+        lessonInvoice.setInvoiceType(InvoiceType.LESSON_INVOICE);
+        lessonInvoice.setCustomer(student);
+        lessonInvoice.setIssuer(teacher);
+        lessonInvoice.setLesson(lesson);
+        lessonInvoice.setStripePaymentIntentId(creditPaymentRef);
+        lessonInvoice.setSubtotalCents(totalAmountCents);
+        lessonInvoice.setVatCents(0);
+        lessonInvoice.setTotalCents(totalAmountCents);
+        lessonInvoice.setVatRate(0);
+        lessonInvoice.setDescription("Cours d'echecs - 1 heure (paye par credit)");
+        lessonInvoice.setStatus("PAID");
+        lessonInvoice.setIssuedAt(LocalDateTime.now());
+        lessonInvoice = invoiceRepository.save(lessonInvoice);
+
+        // Generate Invoice 2: Platform -> Teacher (commission fees)
+        Invoice commissionInvoice = createCommissionInvoice(
+                teacher, lesson, creditPaymentRef, commissionCents, commissionRate, false
+        );
+
+        // Generate PDFs
+        try {
+            generateLessonInvoicePdf(lessonInvoice, student, teacher, lesson);
+            generateCommissionInvoicePdf(commissionInvoice, teacher, lesson);
+        } catch (Exception e) {
+            log.error("Error generating PDF invoices for credit payment", e);
+        }
+
+        log.info("Generated invoices for credit payment: lesson invoice #{}, commission invoice #{}",
+                lessonInvoice.getInvoiceNumber(), commissionInvoice.getInvoiceNumber());
+
+        return List.of(lessonInvoice, commissionInvoice);
+    }
+
+    /**
+     * Generate a credit note for wallet refund (no Stripe refund).
+     */
+    @Transactional
+    public Invoice generateCreditNoteForWalletRefund(Lesson lesson, int refundPercentage, int refundAmountCents) {
+        return generateCreditNote(lesson, null, refundPercentage, refundAmountCents);
+    }
+
+    /**
      * Generate a credit note (avoir) for a refunded lesson.
      * This creates a CREDIT_NOTE invoice that references the original invoice.
      *
@@ -939,15 +1081,19 @@ public class InvoiceService {
         originalInvoice.setStatus(newStatus);
         invoiceRepository.save(originalInvoice);
 
+        // Determine refund method
+        boolean isWalletRefund = stripeRefundId == null;
+
         // Generate PDF for credit note
         try {
-            generateCreditNotePdf(creditNote, student, teacher, lesson, originalInvoice);
+            generateCreditNotePdf(creditNote, student, teacher, lesson, originalInvoice, isWalletRefund);
         } catch (Exception e) {
             log.error("Error generating credit note PDF", e);
         }
 
-        log.info("Generated credit note #{} for lesson {} ({}% refund)",
-                creditNote.getInvoiceNumber(), lesson.getId(), refundPercentage);
+        log.info("Generated credit note #{} for lesson {} ({}% refund, {})",
+                creditNote.getInvoiceNumber(), lesson.getId(), refundPercentage,
+                isWalletRefund ? "wallet" : "Stripe");
 
         return creditNote;
     }
@@ -956,7 +1102,7 @@ public class InvoiceService {
      * Generate PDF for credit note.
      */
     private void generateCreditNotePdf(Invoice creditNote, User student, User teacher,
-                                        Lesson lesson, Invoice originalInvoice) throws IOException {
+                                        Lesson lesson, Invoice originalInvoice, boolean isWalletRefund) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         Document document = new Document(PageSize.A4, 50, 50, 50, 50);
 
@@ -980,7 +1126,10 @@ public class InvoiceService {
 
             addCreditNoteTable(document, creditNote, lesson);
             addCreditNoteTotalSection(document, creditNote);
-            addPaymentInfo(document, "Remboursement via Stripe");
+            String paymentMethod = isWalletRefund
+                    ? "Remboursement credite sur le portefeuille"
+                    : "Remboursement via Stripe";
+            addPaymentInfo(document, paymentMethod);
             addFooter(document);
 
             document.close();

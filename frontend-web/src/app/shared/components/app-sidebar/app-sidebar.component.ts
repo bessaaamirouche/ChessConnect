@@ -24,7 +24,8 @@ import {
   heroCheckCircle,
   heroExclamationCircle,
   heroInformationCircle,
-  heroExclamationTriangle
+  heroExclamationTriangle,
+  heroWallet
 } from '@ng-icons/heroicons/outline';
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationCenterService, AppNotification } from '../../../core/services/notification-center.service';
@@ -70,7 +71,8 @@ export interface SidebarSection {
       heroCheckCircle,
       heroExclamationCircle,
       heroInformationCircle,
-      heroExclamationTriangle
+      heroExclamationTriangle,
+      heroWallet
     })
   ],
   template: `

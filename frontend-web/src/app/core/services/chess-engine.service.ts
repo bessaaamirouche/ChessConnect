@@ -58,11 +58,9 @@ export class ChessEngineService {
           reject(error);
         };
 
-        // Give the worker time to initialize WASM
-        setTimeout(() => {
-          console.log('[myChessBot] Sending UCI command...');
-          this.sendCommand('uci');
-        }, 500);
+        // Send UCI command immediately (no WASM to load)
+        console.log('[myChessBot] Sending UCI command...');
+        this.sendCommand('uci');
 
         // Wait for UCI OK with timeout
         const timeout = setTimeout(() => {
@@ -89,9 +87,7 @@ export class ChessEngineService {
 
   private handleEngineMessage(message: string): void {
     if (message === 'uciok') {
-      // Set default options for lower memory usage
-      this.sendCommand('setoption name Hash value 16');
-      this.sendCommand('setoption name Threads value 1');
+      // myChessBot is ready, just send isready
       this.sendCommand('isready');
     }
 
@@ -151,16 +147,6 @@ export class ChessEngineService {
   setDifficulty(level: string): void {
     const skillLevel = this.SKILL_LEVELS[level] ?? 10;
     this.sendCommand(`setoption name Skill Level value ${skillLevel}`);
-
-    // Enable strength limiting for lower levels
-    const limitStrength = skillLevel < 20;
-    this.sendCommand(`setoption name UCI_LimitStrength value ${limitStrength}`);
-
-    if (limitStrength) {
-      // Approximate ELO based on skill level
-      const elo = 1350 + (skillLevel * 60);
-      this.sendCommand(`setoption name UCI_Elo value ${elo}`);
-    }
   }
 
   setPosition(fen: string): void {
@@ -176,9 +162,6 @@ export class ChessEngineService {
   }
 
   getBestMove(timeMs: number = 2000): Promise<EngineEvaluation> {
-    // Ensure minimum thinking time for Stockfish to respond
-    const actualTime = Math.max(timeMs, 300);
-
     return new Promise((resolve) => {
       this.thinkingSignal.set(true);
       this.currentDepth = 0;
@@ -187,10 +170,10 @@ export class ChessEngineService {
       // Safety timeout in case engine doesn't respond
       const timeout = setTimeout(() => {
         if (this.pendingCallback) {
-          console.warn('[Stockfish] Timeout - forcing stop');
+          console.warn('[myChessBot] Timeout - forcing stop');
           this.sendCommand('stop');
         }
-      }, actualTime + 2000);
+      }, 5000);
 
       // Clear timeout when we get a response
       const originalCallback = this.pendingCallback;
@@ -199,7 +182,7 @@ export class ChessEngineService {
         originalCallback(result);
       };
 
-      this.sendCommand(`go movetime ${actualTime}`);
+      this.sendCommand('go');
     });
   }
 

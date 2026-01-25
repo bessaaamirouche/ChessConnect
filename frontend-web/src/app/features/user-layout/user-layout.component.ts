@@ -29,10 +29,6 @@ export class UserLayoutComponent implements OnInit {
     }
   }
 
-  private formatBalance(cents: number): string {
-    return (cents / 100).toFixed(2).replace('.', ',') + ' €';
-  }
-
   sidebarSections = computed<SidebarSection[]>(() => {
     const sections: SidebarSection[] = [];
 
@@ -63,13 +59,6 @@ export class UserLayoutComponent implements OnInit {
 
       if (this.authService.isStudent()) {
         menuItems.push({ label: 'Ma Progression', icon: 'heroTrophy', route: '/progress' });
-        menuItems.push({
-          label: 'Mon Portefeuille',
-          icon: 'heroWallet',
-          route: '/wallet',
-          badge: this.walletService.balance() > 0 ? this.formatBalance(this.walletService.balance()) : undefined
-        });
-        menuItems.push({ label: 'Abonnement', icon: 'heroCreditCard', route: '/subscription' });
         menuItems.push({ label: 'Trouver un Coach', icon: 'heroAcademicCap', route: '/teachers' });
       }
 
@@ -77,13 +66,21 @@ export class UserLayoutComponent implements OnInit {
     }
 
     // Compte section
+    const compteItems: any[] = [
+      { label: 'Mon Profil', icon: 'heroUserCircle', route: '/settings' }
+    ];
+
+    if (this.authService.isStudent()) {
+      compteItems.push({ label: 'Mon Solde', icon: 'heroWallet', route: '/wallet' });
+      compteItems.push({ label: 'Abonnement', icon: 'heroCreditCard', route: '/subscription' });
+    }
+
+    compteItems.push({ label: 'Mes Factures', icon: 'heroDocumentText', route: '/invoices' });
+    compteItems.push({ label: 'Deconnexion', icon: 'heroArrowRightOnRectangle', action: () => this.logout() });
+
     sections.push({
       title: 'Compte',
-      items: [
-        { label: 'Mon Profil', icon: 'heroUserCircle', route: '/settings' },
-        { label: 'Mes Factures', icon: 'heroDocumentText', route: '/invoices' },
-        { label: 'Deconnexion', icon: 'heroArrowRightOnRectangle', action: () => this.logout() }
-      ]
+      items: compteItems
     });
 
     return sections;

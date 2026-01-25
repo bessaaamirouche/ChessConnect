@@ -553,6 +553,929 @@ public class ExerciseService {
                 "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
                 "Jouez une partie complete en appliquant les principes : centre, developpement, roque.",
                 "white"));
+
+        // =====================================================
+        // NIVEAU CAVALIER - 45 cours (Intermediaire)
+        // =====================================================
+
+        // Tactiques de base
+        COURSE_EXERCISE_CONFIGS.put("fourchette du cavalier",
+            new ExerciseConfig(
+                "r1bqkb1r/pppp1ppp/2n5/4N3/4n3/8/PPPP1PPP/RNBQKB1R w KQkq - 0 5",
+                "Le Cavalier est le roi des fourchettes ! Trouvez la fourchette royale.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("fourchette de pion",
+            new ExerciseConfig(
+                "r1bqkbnr/ppp2ppp/2n5/3p4/3pP3/5N2/PPP2PPP/RNBQKB1R w KQkq - 0 5",
+                "Meme le humble Pion peut fourchetter deux pieces !",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("clouage absolu",
+            new ExerciseConfig(
+                "r1bqk2r/pppp1ppp/2n2n2/4p3/1b2P3/2N2N2/PPPP1PPP/R1BQKB1R w KQkq - 4 4",
+                "Le clouage absolu : la piece clouee ne peut pas bouger car le Roi est derriere.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("clouage relatif",
+            new ExerciseConfig(
+                "r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4",
+                "Le clouage relatif : la piece peut bouger mais perdrait du materiel.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("exploiter un clouage",
+            new ExerciseConfig(
+                "r1bqkb1r/ppppnppp/5n2/4p3/2B1P3/3P1N2/PPP2PPP/RNBQK2R w KQkq - 0 5",
+                "Une piece clouee est une cible ! Ajoutez de la pression dessus.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("brochette",
+            new ExerciseConfig(
+                "4k3/8/8/8/8/8/4R3/4K3 w - - 0 1",
+                "La brochette : attaquez une piece de valeur, la piece derriere sera capturee.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("attaque double",
+            new ExerciseConfig(
+                "r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4",
+                "Creez deux menaces simultanees : l'adversaire ne peut parer les deux !",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("attaque a la decouverte",
+            new ExerciseConfig(
+                "r1bqkb1r/pppp1ppp/2n2n2/4N3/2B1P3/8/PPPP1PPP/RNBQK2R w KQkq - 0 5",
+                "Bougez une piece pour reveler une attaque cachee derriere.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("echec a la decouverte",
+            new ExerciseConfig(
+                "r1bqk2r/pppp1ppp/2n2n2/4N3/1bB1P3/8/PPPP1PPP/RNBQK2R w KQkq - 0 5",
+                "L'echec a la decouverte : la piece qui bouge peut attaquer n'importe quoi !",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("echec double",
+            new ExerciseConfig(
+                "r1bqk2r/pppp1Npp/2n2n2/4p3/1bB1P3/8/PPPP1PPP/RNBQK2R b KQkq - 0 5",
+                "L'echec double est devastateur : deux pieces donnent echec simultanement !",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("sacrifice d'attraction",
+            new ExerciseConfig(
+                "r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/3P1N2/PPP2PPP/RNBQK2R w KQkq - 0 5",
+                "Sacrifiez pour attirer une piece sur une case defavorable.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("sacrifice de deviation",
+            new ExerciseConfig(
+                "r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQ1RK1 w kq - 5 5",
+                "Le sacrifice de deviation eloigne un defenseur cle.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("sacrifice de destruction",
+            new ExerciseConfig(
+                "r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/3P1N2/PPP2PPP/RNBQ1RK1 w kq - 0 6",
+                "Detruisez le defenseur pour exposer une faiblesse.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("motifs tactiques",
+            new ExerciseConfig(
+                "r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4",
+                "Combinez plusieurs motifs tactiques pour une attaque decisive.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("attaque sur f7",
+            new ExerciseConfig(
+                "r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 4 4",
+                "f7 est le talon d'Achille des Noirs. Attaquez-le !",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("mat en 3",
+            new ExerciseConfig(
+                "r1bqk2r/pppp1Qpp/2n2n2/2b1p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 5",
+                "Trouvez le mat en 3 coups. Calculez precisement !",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("tactique niveau 1",
+            new ExerciseConfig(
+                "r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4",
+                "Exercice tactique : trouvez le meilleur coup !",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("defense passive",
+            new ExerciseConfig(
+                "r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 4 4",
+                "Parfois, il suffit de proteger simplement la piece attaquee.",
+                "black"));
+        COURSE_EXERCISE_CONFIGS.put("defense active",
+            new ExerciseConfig(
+                "r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 4 4",
+                "Defendez en contre-attaquant ! La meilleure defense est parfois l'attaque.",
+                "black"));
+        COURSE_EXERCISE_CONFIGS.put("parer les menaces",
+            new ExerciseConfig(
+                "r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 4 4",
+                "Identifiez la menace adverse et trouvez la parade.",
+                "black"));
+
+        // Finales CAVALIER
+        COURSE_EXERCISE_CONFIGS.put("roi + dame vs roi",
+            new ExerciseConfig(
+                "8/8/8/4k3/8/8/3QK3/8 w - - 0 1",
+                "Le mat Dame + Roi est le plus facile. Repoussez le Roi adverse vers le bord.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("roi + tour vs roi",
+            new ExerciseConfig(
+                "8/8/8/4k3/8/8/4K3/4R3 w - - 0 1",
+                "La technique de l'escalier : coupez le Roi adverse et approchez le votre.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("roi + 2 fous vs roi",
+            new ExerciseConfig(
+                "8/8/8/4k3/8/8/2B1K3/3B4 w - - 0 1",
+                "Coordonnez vos deux Fous pour pousser le Roi dans un coin.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("fou + cavalier vs roi",
+            new ExerciseConfig(
+                "8/8/8/4k3/8/8/2B1K3/3N4 w - - 0 1",
+                "Le mat le plus difficile ! Le Roi doit aller dans le coin de la couleur du Fou.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("mat du coin",
+            new ExerciseConfig(
+                "7k/8/6K1/8/8/8/8/6R1 w - - 0 1",
+                "Poussez le Roi dans le coin pour donner mat.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("opposition simple",
+            new ExerciseConfig(
+                "8/8/8/3k4/8/3K4/3P4/8 w - - 0 1",
+                "L'opposition directe : Rois face a face avec une case entre eux.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("regle du carre",
+            new ExerciseConfig(
+                "8/8/8/8/P7/8/8/4k1K1 w - - 0 1",
+                "Le Roi adverse peut-il rattraper le pion ? Comptez les cases !",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("pion passe en finale",
+            new ExerciseConfig(
+                "8/8/8/8/P3k3/8/8/4K3 w - - 0 1",
+                "Un pion passe est un atout majeur en finale. Faites-le avancer !",
+                "white"));
+
+        // Ouvertures CAVALIER
+        COURSE_EXERCISE_CONFIGS.put("principes de l'ouverture",
+            new ExerciseConfig(
+                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+                "Les 4 regles d'or : centre, developpement, roque, connecter les Tours.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("italienne - introduction",
+            new ExerciseConfig(
+                "r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 3 3",
+                "L'Italienne : 1.e4 e5 2.Cf3 Cc6 3.Fc4. Visez f7 !",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("espagnole - introduction",
+            new ExerciseConfig(
+                "r1bqkbnr/pppp1ppp/2n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 3 3",
+                "L'Espagnole : 1.e4 e5 2.Cf3 Cc6 3.Fb5. Pression sur e5.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("francaise - introduction",
+            new ExerciseConfig(
+                "rnbqkbnr/pppp1ppp/4p3/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
+                "La Francaise : 1.e4 e6. Les Noirs construisent une forteresse.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("sicilienne - introduction",
+            new ExerciseConfig(
+                "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
+                "La Sicilienne : 1.e4 c5. Defense asymetrique et combative.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("gambit dame - introduction",
+            new ExerciseConfig(
+                "rnbqkbnr/ppp1pppp/8/3p4/2PP4/8/PP2PPPP/RNBQKBNR b KQkq - 0 2",
+                "Le Gambit Dame : 1.d4 d5 2.c4. Controlez le centre !",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("indienne - introduction",
+            new ExerciseConfig(
+                "rnbqkb1r/pppppppp/5n2/8/3P4/8/PPP1PPPP/RNBQKBNR w KQkq - 1 2",
+                "Les defenses Indiennes : developpement flexible avec Cf6.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("pieges d'ouverture",
+            new ExerciseConfig(
+                "r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 4 4",
+                "Attention aux pieges ! Le mat du berger guette les imprudents.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("activite des pieces",
+            new ExerciseConfig(
+                "r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4",
+                "Des pieces actives valent plus que des pieces passives.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("coordination des pieces",
+            new ExerciseConfig(
+                "r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQ1RK1 w kq - 5 5",
+                "Vos pieces doivent travailler ensemble, pas isolement.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("tours sur colonnes ouvertes",
+            new ExerciseConfig(
+                "r4rk1/ppp2ppp/2n2n2/3p4/3P4/2N2N2/PPP2PPP/R4RK1 w - - 0 10",
+                "Placez vos Tours sur les colonnes ouvertes (sans pions).",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("fou bon vs fou mauvais",
+            new ExerciseConfig(
+                "r1bqk2r/ppp2ppp/2np1n2/2b1p3/2B1P3/2NP1N2/PPP2PPP/R1BQK2R w KQkq - 0 6",
+                "Un bon Fou a ses pions sur l'autre couleur. Evaluez vos Fous !",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("cavalier vs fou",
+            new ExerciseConfig(
+                "r1bqk2r/ppp2ppp/2np1n2/2b1p3/2B1P3/2NP1N2/PPP2PPP/R1BQK2R w KQkq - 0 6",
+                "Cavalier en position fermee, Fou en position ouverte.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("tactique niveau 2",
+            new ExerciseConfig(
+                "r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/3P1N2/PPP2PPP/RNBQK2R w KQkq - 0 5",
+                "Exercices tactiques plus complexes. Calculez bien !",
+                "white"));
+
+        // =====================================================
+        // NIVEAU FOU - 45 cours (Confirme)
+        // =====================================================
+
+        // Ouvertures approfondies
+        COURSE_EXERCISE_CONFIGS.put("italienne - approfondie",
+            new ExerciseConfig(
+                "r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/2P2N2/PP1P1PPP/RNBQK2R b KQkq - 0 5",
+                "L'Italienne avec c3 : preparez d4 pour un centre ideal.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("espagnole - approfondie",
+            new ExerciseConfig(
+                "r1bqkb1r/1ppp1ppp/p1n2n2/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 0 4",
+                "La variante a6 de l'Espagnole. Le Fou recule en a4 ou c4.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("sicilienne najdorf",
+            new ExerciseConfig(
+                "rnbqkb1r/1p2pppp/p2p1n2/8/3NP3/2N5/PPP2PPP/R1BQKB1R w KQkq - 0 6",
+                "La Najdorf : a6 prepare b5 et offre de la flexibilite.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("sicilienne dragon",
+            new ExerciseConfig(
+                "rnbqkb1r/pp2pp1p/3p1np1/8/3NP3/2N5/PPP2PPP/R1BQKB1R w KQkq - 0 6",
+                "Le Dragon : g6 et Fg7 visent le centre et l'aile dame.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("francaise avancee",
+            new ExerciseConfig(
+                "rnbqkb1r/ppp2ppp/4pn2/3pP3/3P4/2N5/PPP2PPP/R1BQKBNR b KQkq - 0 4",
+                "3.e5 : l'avancee francaise. Les Noirs attaquent la chaine.",
+                "black"));
+        COURSE_EXERCISE_CONFIGS.put("caro-kann",
+            new ExerciseConfig(
+                "rnbqkbnr/pp2pppp/2p5/3p4/3PP3/8/PPP2PPP/RNBQKBNR w KQkq - 0 3",
+                "La Caro-Kann est solide. Les Noirs veulent reprendre en d5.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("scandinave",
+            new ExerciseConfig(
+                "rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
+                "1...d5 : la Scandinave. Directe mais risquee.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("gambit dame accepte",
+            new ExerciseConfig(
+                "rnbqkbnr/ppp1pppp/8/8/2pP4/8/PP2PPPP/RNBQKBNR w KQkq - 0 3",
+                "2...dxc4 : les Blancs ont le centre, les Noirs le pion c4.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("gambit dame refuse",
+            new ExerciseConfig(
+                "rnbqkbnr/ppp2ppp/4p3/3p4/2PP4/8/PP2PPPP/RNBQKBNR w KQkq - 0 3",
+                "2...e6 : solide et classique. Le centre est bloque.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("defense slave",
+            new ExerciseConfig(
+                "rnbqkbnr/pp2pppp/2p5/3p4/2PP4/8/PP2PPPP/RNBQKBNR w KQkq - 0 3",
+                "La Slave : c6 soutient d5 et libere le Fc8.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("nimzo-indienne",
+            new ExerciseConfig(
+                "rnbqk2r/pppp1ppp/4pn2/8/1bPP4/2N5/PP2PPPP/R1BQKBNR w KQkq - 2 4",
+                "La Nimzo : Fb4 cloue Cc3 et controle e4.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("est-indienne",
+            new ExerciseConfig(
+                "rnbqk2r/ppp1ppbp/3p1np1/8/2PPP3/2N5/PP3PPP/R1BQKBNR w KQkq - 0 5",
+                "L'Est-Indienne : les Noirs preparent f5 ou e5.",
+                "black"));
+        COURSE_EXERCISE_CONFIGS.put("ouverture anglaise",
+            new ExerciseConfig(
+                "rnbqkbnr/pppppppp/8/8/2P5/8/PP1PPPPP/RNBQKBNR b KQkq - 0 1",
+                "1.c4 : l'Anglaise. Controle indirect du centre.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("ouverture reti",
+            new ExerciseConfig(
+                "rnbqkbnr/pppppppp/8/8/8/5N2/PPPPPPPP/RNBQKB1R b KQkq - 1 1",
+                "1.Cf3 : l'ouverture Reti. Flexible et hypermoderne.",
+                "white"));
+
+        // Structures de pions
+        COURSE_EXERCISE_CONFIGS.put("pions isoles",
+            new ExerciseConfig(
+                "r1bqkb1r/pp3ppp/2n1pn2/3p4/3P4/2N2N2/PP2PPPP/R1BQKB1R w KQkq - 0 6",
+                "Le pion isole : faiblesse a attaquer ou case forte devant.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("pions pendants",
+            new ExerciseConfig(
+                "r1bqkb1r/pp3ppp/2n1pn2/8/2pP4/2N2N2/PP2PPPP/R1BQKB1R w KQkq - 0 6",
+                "Les pions pendants : dynamiques mais fragiles.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("pions doubles",
+            new ExerciseConfig(
+                "r1bqkb1r/pp2pppp/2n2n2/3p4/3P4/2P2N2/PP2PPPP/RNBQKB1R w KQkq - 0 5",
+                "Les pions doubles sont souvent une faiblesse structurelle.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("chaine de pions",
+            new ExerciseConfig(
+                "rnbqkb1r/ppp2ppp/4pn2/3pP3/3P4/8/PPP2PPP/RNBQKBNR w KQkq - 0 4",
+                "Attaquez la base de la chaine de pions adverse.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("pions passes",
+            new ExerciseConfig(
+                "8/pp3ppp/8/3P4/8/8/PP3PPP/8 w - - 0 1",
+                "Un pion passe doit etre pousse ou bloque.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("pion passe protege",
+            new ExerciseConfig(
+                "8/pp3ppp/8/2PP4/8/8/PP3PPP/8 w - - 0 1",
+                "Le pion passe protege est un atout strategique majeur.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("cases faibles",
+            new ExerciseConfig(
+                "r1bqk2r/pp2ppbp/2np1np1/8/3NP3/2N1B3/PPP1BPPP/R2QK2R w KQkq - 0 8",
+                "Occupez les cases faibles avec vos pieces.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("avant-postes",
+            new ExerciseConfig(
+                "r1bqk2r/ppp2ppp/2n1pn2/3p4/3P4/2N1PN2/PP3PPP/R1BQKB1R w KQkq - 0 6",
+                "Un avant-poste est une case ideale pour un Cavalier.",
+                "white"));
+
+        // Strategie de milieu de partie
+        COURSE_EXERCISE_CONFIGS.put("colonne ouverte",
+            new ExerciseConfig(
+                "r4rk1/ppp2ppp/2n2n2/3p4/3P4/2N2N2/PPP2PPP/R4RK1 w - - 0 10",
+                "Controlez les colonnes ouvertes avec vos Tours.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("colonne semi-ouverte",
+            new ExerciseConfig(
+                "r4rk1/ppp2ppp/2n2n2/3p4/3PP3/2N2N2/PPP2PPP/R4RK1 w - - 0 10",
+                "Sur une colonne semi-ouverte, pressez le pion adverse.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("7eme rangee",
+            new ExerciseConfig(
+                "6k1/ppp2ppp/8/8/8/8/PPP2PPP/1R4K1 w - - 0 1",
+                "Une Tour en 7eme rangee est tres puissante.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("deux tours en 7eme",
+            new ExerciseConfig(
+                "6k1/ppp2ppp/8/8/8/8/PPP2PPP/RR4K1 w - - 0 1",
+                "Deux Tours en 7eme = mat ou gain de materiel.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("attaque sur le roque",
+            new ExerciseConfig(
+                "r1bq1rk1/ppp2ppp/2n2n2/3p4/3P4/2N2N2/PPPQ1PPP/R1B2RK1 w - - 0 10",
+                "Pour attaquer le roque, ouvrez des lignes vers le Roi.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("sacrifice en h7",
+            new ExerciseConfig(
+                "r1bq1rk1/pppn1ppp/4pn2/3p4/3P1B2/2NBPN2/PPP2PPP/R2QK2R w KQ - 0 8",
+                "Le sacrifice grec Fxh7+ est un classique !",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("attaque avec pions",
+            new ExerciseConfig(
+                "r1bq1rk1/ppp2ppp/2n2n2/3p4/3P4/2N2N2/PPPQ1PPP/R1B2RK1 w - - 0 10",
+                "Avancez vos pions pour ouvrir des lignes d'attaque.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("defense du roque",
+            new ExerciseConfig(
+                "r1bq1rk1/ppp2ppp/2n2n2/3p4/3P4/2N2N2/PPPQ1PPP/R1B2RK1 b - - 0 10",
+                "Defendez votre roque : h6, Rh8, Ff8 sont des coups utiles.",
+                "black"));
+        COURSE_EXERCISE_CONFIGS.put("jeu sur les deux ailes",
+            new ExerciseConfig(
+                "r1bq1rk1/ppp2ppp/2n2n2/3p4/3P4/2N2N2/PPP2PPP/R1BQ1RK1 w - - 0 10",
+                "Alternez les menaces sur les deux ailes pour desequilibrer.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("centre ferme",
+            new ExerciseConfig(
+                "r1bqk2r/ppp2ppp/2np1n2/2b1p3/2B1P3/2NP1N2/PPP2PPP/R1BQK2R w KQkq - 0 6",
+                "Centre ferme : jouez sur les ailes !",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("centre ouvert",
+            new ExerciseConfig(
+                "r1bqkb1r/ppp2ppp/2n2n2/4p3/3pP3/2N2N2/PPP2PPP/R1BQKB1R w KQkq - 0 5",
+                "Centre ouvert : l'activite des pieces prime !",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("echanger les dames",
+            new ExerciseConfig(
+                "r1b1k2r/ppp2ppp/2n2n2/3qp3/3P4/2N2N2/PPP2PPP/R1BQK2R w KQkq - 0 8",
+                "Echangez les Dames si vous avez l'avantage materiel.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("garder les dames",
+            new ExerciseConfig(
+                "r1bqk2r/ppp2ppp/2n2n2/3p4/3P4/2N2N2/PPPQ1PPP/R1B1KB1R w KQkq - 0 8",
+                "Gardez la Dame pour attaquer le Roi adverse.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("majorite de pions",
+            new ExerciseConfig(
+                "8/ppp2ppp/8/8/3P4/8/PPP2PPP/8 w - - 0 1",
+                "Utilisez votre majorite de pions pour creer un pion passe.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("minorite de pions",
+            new ExerciseConfig(
+                "r1bqk2r/1pp2ppp/p1np1n2/4p3/2PP4/2N2N2/PP2PPPP/R1BQKB1R w KQkq - 0 6",
+                "L'attaque de minorite b4-b5 cree des faiblesses adverses.",
+                "white"));
+
+        // Finales FOU
+        COURSE_EXERCISE_CONFIGS.put("finales de tours - bases",
+            new ExerciseConfig(
+                "8/8/8/4k3/4p3/4K3/8/4R3 w - - 0 1",
+                "Les finales de Tours sont les plus courantes. Activite !",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("position de lucena",
+            new ExerciseConfig(
+                "1K1k4/1P6/8/8/8/8/r7/4R3 w - - 0 1",
+                "Construisez le pont de Lucena pour promouvoir.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("position de philidor",
+            new ExerciseConfig(
+                "8/5k2/8/8/8/R7/4PK2/r7 w - - 0 1",
+                "La defense Philidor : Tour en 6eme rangee puis echecs.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("fous de meme couleur",
+            new ExerciseConfig(
+                "8/8/8/4k3/8/4K3/2B5/5b2 w - - 0 1",
+                "Finales de Fous de meme couleur : le Roi actif gagne.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("fous de couleurs opposees",
+            new ExerciseConfig(
+                "8/8/8/4k3/8/4K3/2B5/2b5 w - - 0 1",
+                "Fous opposes = souvent nulle, meme avec 2 pions de plus.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("finales de cavaliers",
+            new ExerciseConfig(
+                "8/8/8/4k3/8/4K3/3N4/8 w - - 0 1",
+                "Le Cavalier progresse lentement. Le Roi doit aider.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("evaluation positionnelle",
+            new ExerciseConfig(
+                "r1bqkb1r/ppp2ppp/2n2n2/3pp3/2PP4/2N2N2/PP2PPPP/R1BQKB1R w KQkq - 0 5",
+                "Evaluez : structure de pions, activite, securite du Roi.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("strategie niveau 1",
+            new ExerciseConfig(
+                "r1bqk2r/ppp2ppp/2n2n2/3p4/3P4/2N2N2/PPP2PPP/R1BQKB1R w KQkq - 0 6",
+                "Trouvez le meilleur plan strategique dans cette position.",
+                "white"));
+
+        // =====================================================
+        // NIVEAU TOUR - 45 cours (Avance)
+        // =====================================================
+
+        // Preparation et etude
+        COURSE_EXERCISE_CONFIGS.put("preparation d'ouverture",
+            new ExerciseConfig(
+                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+                "Preparez vos ouvertures en etudiant les coups critiques.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("repertoire d'ouvertures",
+            new ExerciseConfig(
+                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+                "Construisez un repertoire coherent avec les Blancs et les Noirs.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("nouveautes theoriques",
+            new ExerciseConfig(
+                "r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4",
+                "Les nouveautes theoriques surprennent l'adversaire.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("analyse avec moteur",
+            new ExerciseConfig(
+                "r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4",
+                "Utilisez le moteur pour comprendre, pas pour memoriser.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("bases de donnees",
+            new ExerciseConfig(
+                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+                "Etudiez les parties des maitres pour comprendre les plans.",
+                "white"));
+
+        // Finales avancees
+        COURSE_EXERCISE_CONFIGS.put("opposition distante",
+            new ExerciseConfig(
+                "8/8/8/8/3k4/8/8/3K4 w - - 0 1",
+                "L'opposition distante : 3 ou 5 cases entre les Rois.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("zugzwang",
+            new ExerciseConfig(
+                "8/8/8/3k4/8/3K4/3P4/8 w - - 0 1",
+                "Zugzwang : celui qui doit jouer perd. Forcez-le !",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("finales de tours avancees",
+            new ExerciseConfig(
+                "8/8/4k3/8/4P3/8/4K3/r7 w - - 0 1",
+                "Finales Tour+Pion vs Tour : technique avancee.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("tour active vs tour passive",
+            new ExerciseConfig(
+                "8/8/4k3/8/4P3/8/4K3/r7 w - - 0 1",
+                "La Tour active domine toujours la Tour passive.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("tour + pion vs tour",
+            new ExerciseConfig(
+                "8/8/8/4k3/4P3/8/4K3/r7 w - - 0 1",
+                "Les cles : position du Roi defenseur et activite de la Tour.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("tour + 2 pions vs tour + pion",
+            new ExerciseConfig(
+                "8/8/8/4k3/4PP2/8/4K3/r7 w - - 0 1",
+                "L'avantage d'un pion est souvent decisif avec les Tours.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("finales de pions complexes",
+            new ExerciseConfig(
+                "8/8/8/1p1k4/1P6/3K4/8/8 w - - 0 1",
+                "Calcul precis requis dans les finales de pions complexes.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("pions passes lies",
+            new ExerciseConfig(
+                "8/8/8/3PP3/8/4k3/8/4K3 w - - 0 1",
+                "Deux pions passes lies sont une force irresistible.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("roi actif en finale",
+            new ExerciseConfig(
+                "8/8/4k3/8/8/4K3/4P3/8 w - - 0 1",
+                "En finale, le Roi devient une piece d'attaque !",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("triangle de reti",
+            new ExerciseConfig(
+                "8/8/8/8/8/1k6/1P6/K7 w - - 0 1",
+                "L'etude de Reti : le Roi poursuit deux objectifs.",
+                "white"));
+
+        // Strategie avancee
+        COURSE_EXERCISE_CONFIGS.put("prophylaxie",
+            new ExerciseConfig(
+                "r1bqk2r/ppp2ppp/2n2n2/3p4/3P4/2N2N2/PPP2PPP/R1BQKB1R w KQkq - 0 6",
+                "La prophylaxie : empechezles plans adverses avant de jouer.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("coup d'attente",
+            new ExerciseConfig(
+                "r1bqk2r/ppp2ppp/2n2n2/3p4/3P4/2N2N2/PPP2PPP/R1BQKB1R w KQkq - 0 6",
+                "Le coup d'attente passe le trait pour creer un zugzwang.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("amelioration des pieces",
+            new ExerciseConfig(
+                "r1bqk2r/ppp2ppp/2n2n2/3p4/3P4/2N2N2/PPP2PPP/R1BQKB1R w KQkq - 0 6",
+                "Ameliorez vos pieces une par une vers leurs cases ideales.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("restriction",
+            new ExerciseConfig(
+                "r1bqk2r/ppp2ppp/2n2n2/3p4/3P4/2N2N2/PPP2PPP/R1BQKB1R w KQkq - 0 6",
+                "Limitez l'activite des pieces adverses.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("echanges favorables",
+            new ExerciseConfig(
+                "r1bqk2r/ppp2ppp/2n2n2/3p4/3P4/2N2N2/PPP2PPP/R1BQKB1R w KQkq - 0 6",
+                "Echangez les pieces actives adverses, gardez les votres.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("garder la tension",
+            new ExerciseConfig(
+                "r1bqk2r/ppp2ppp/2n2n2/3p4/2PP4/2N2N2/PP3PPP/R1BQKB1R b KQkq - 0 6",
+                "Ne resolvez pas la tension trop tot. Gardez les options.",
+                "black"));
+        COURSE_EXERCISE_CONFIGS.put("plan a long terme",
+            new ExerciseConfig(
+                "r1bqk2r/ppp2ppp/2n2n2/3p4/3P4/2N2N2/PPP2PPP/R1BQKB1R w KQkq - 0 6",
+                "Elaborez un plan sur plusieurs coups, pas un seul coup.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("changer de plan",
+            new ExerciseConfig(
+                "r1bqk2r/ppp2ppp/2n2n2/3p4/3P4/2N2N2/PPP2PPP/R1BQKB1R w KQkq - 0 6",
+                "Adaptez votre plan si la position change.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("initiative",
+            new ExerciseConfig(
+                "r1bqk2r/ppp2ppp/2n2n2/3p4/3P4/2N2N2/PPP2PPP/R1BQKB1R w KQkq - 0 6",
+                "L'initiative vaut souvent plus que du materiel.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("compensation",
+            new ExerciseConfig(
+                "r1bqk2r/ppp2ppp/2n2n2/3p4/3P4/2N2N2/PPP2PPP/R1BQKB1R w KQkq - 0 6",
+                "Evaluez la compensation pour le materiel sacrifie.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("attaque roi non roque",
+            new ExerciseConfig(
+                "r1bqk2r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4",
+                "Attaquez le Roi au centre avant qu'il ne roque !",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("roques opposes",
+            new ExerciseConfig(
+                "r3kb1r/ppp1qppp/2n2n2/3p4/3P4/2N2N2/PPPQ1PPP/R3KB1R w KQkq - 0 8",
+                "Roques opposes : course a l'attaque. Avancez vos pions !",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("sacrifices positionnels",
+            new ExerciseConfig(
+                "r1bqk2r/ppp2ppp/2n2n2/3p4/3P4/2N2N2/PPP2PPP/R1BQKB1R w KQkq - 0 6",
+                "Un sacrifice positionnel donne un avantage durable.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("sacrifice de qualite",
+            new ExerciseConfig(
+                "r1bqk2r/ppp2ppp/2n2n2/3p4/3P4/2N2N2/PPP2PPP/R1BQKB1R w KQkq - 0 6",
+                "Tour contre piece mineure + compensation = bon echange.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("cases fortes",
+            new ExerciseConfig(
+                "r1bqk2r/ppp2ppp/2n2n2/3p4/3P4/2N2N2/PPP2PPP/R1BQKB1R w KQkq - 0 6",
+                "Une piece sur une case forte domine la position.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("fou dominant",
+            new ExerciseConfig(
+                "r1bqk2r/ppp2ppp/2n2n2/3p4/3P4/2N2N2/PPP2PPP/R1BQKB1R w KQkq - 0 6",
+                "En position ouverte, le Fou domine le Cavalier.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("cavalier dominant",
+            new ExerciseConfig(
+                "r1bqk2r/ppp2ppp/2np1n2/2b1p3/2B1P3/2NP1N2/PPP2PPP/R1BQK2R w KQkq - 0 6",
+                "En position fermee, le Cavalier brille sur un avant-poste.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("paire de fous",
+            new ExerciseConfig(
+                "r1bqk2r/ppp2ppp/2n2n2/3p4/3P4/2N2N2/PPP2PPP/R1BQKB1R w KQkq - 0 6",
+                "La paire de Fous est un avantage a long terme.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("fous opposes milieu",
+            new ExerciseConfig(
+                "r1bqk2r/ppp2ppp/2n2n2/3p4/3P4/2N2N2/PPP2PPP/R1BQKB1R w KQkq - 0 6",
+                "Fous opposes en milieu de partie = potentiel d'attaque.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("pieces mineures finale",
+            new ExerciseConfig(
+                "8/8/8/4k3/8/4K3/2B5/3n4 w - - 0 1",
+                "Fou vs Cavalier en finale : tout depend de la structure.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("evaluation dynamique",
+            new ExerciseConfig(
+                "r1bqk2r/ppp2ppp/2n2n2/3p4/3P4/2N2N2/PPP2PPP/R1BQKB1R w KQkq - 0 6",
+                "L'evaluation dynamique tient compte du temps et de l'activite.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("positions critiques",
+            new ExerciseConfig(
+                "r1bqk2r/ppp2ppp/2n2n2/3p4/3P4/2N2N2/PPP2PPP/R1BQKB1R w KQkq - 0 6",
+                "Identifiez les moments critiques ou tout se decide.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("gestion du temps",
+            new ExerciseConfig(
+                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+                "Investissez votre temps dans les positions critiques.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("calcul des variantes",
+            new ExerciseConfig(
+                "r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 4 4",
+                "Methode de calcul : coups forces puis evaluation.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("visualisation",
+            new ExerciseConfig(
+                "r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 4 4",
+                "Visualisez la position apres la sequence de coups.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("coups candidats",
+            new ExerciseConfig(
+                "r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 4 4",
+                "Listez les coups candidats avant de calculer.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("elimination des coups",
+            new ExerciseConfig(
+                "r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 4 4",
+                "Eliminez les mauvais coups pour trouver le meilleur.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("intuition",
+            new ExerciseConfig(
+                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+                "L'intuition se developpe avec l'experience et l'etude.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("parties de maitres",
+            new ExerciseConfig(
+                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+                "Etudiez les parties de maitres pour comprendre les plans.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("strategie niveau 2",
+            new ExerciseConfig(
+                "r1bqk2r/ppp2ppp/2n2n2/3p4/3P4/2N2N2/PPP2PPP/R1BQKB1R w KQkq - 0 6",
+                "Positions strategiques complexes. Trouvez le meilleur plan !",
+                "white"));
+
+        // =====================================================
+        // NIVEAU DAME - 45 cours (Expert)
+        // =====================================================
+
+        // Analyse et preparation
+        COURSE_EXERCISE_CONFIGS.put("analyse approfondie",
+            new ExerciseConfig(
+                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+                "L'analyse approfondie revele les subtilites de la position.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("preparation psychologique",
+            new ExerciseConfig(
+                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+                "La preparation mentale est aussi importante que la technique.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("differents styles",
+            new ExerciseConfig(
+                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+                "Adaptez votre jeu au style de l'adversaire.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("sacrifices speculatifs",
+            new ExerciseConfig(
+                "r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/3P1N2/PPP2PPP/RNBQK2R w KQkq - 0 5",
+                "Les sacrifices speculatifs offrent compensation floue mais dangereuse.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("attaque et defense",
+            new ExerciseConfig(
+                "r1bqk2r/ppp2ppp/2n2n2/3p4/3P4/2N2N2/PPP2PPP/R1BQKB1R w KQkq - 0 6",
+                "L'equilibre parfait entre attaque et defense.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("positions dynamiques",
+            new ExerciseConfig(
+                "r1bqk2r/ppp2ppp/2n2n2/3p4/3P4/2N2N2/PPP2PPP/R1BQKB1R w KQkq - 0 6",
+                "En position dynamique, le temps compte plus que le materiel.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("positions statiques",
+            new ExerciseConfig(
+                "r1bqk2r/ppp2ppp/2n2n2/3p4/3P4/2N2N2/PPP2PPP/R1BQKB1R w KQkq - 0 6",
+                "En position statique, accumulez petits avantages.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("transformation avantages",
+            new ExerciseConfig(
+                "r1bqk2r/ppp2ppp/2n2n2/3p4/3P4/2N2N2/PPP2PPP/R1BQKB1R w KQkq - 0 6",
+                "Transformez un avantage en un autre plus exploitable.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("jeu technique",
+            new ExerciseConfig(
+                "8/8/8/4k3/4P3/4K3/8/8 w - - 0 1",
+                "Le jeu technique convertit l'avantage en victoire.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("defendre positions difficiles",
+            new ExerciseConfig(
+                "8/8/8/4k3/8/4K3/4p3/8 w - - 0 1",
+                "L'art de la defense dans les positions inferieures.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("ressources defensives",
+            new ExerciseConfig(
+                "8/8/8/4k3/8/4K3/4p3/8 w - - 0 1",
+                "Trouvez les ressources cachees pour sauver la partie.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("contre-jeu",
+            new ExerciseConfig(
+                "r1bqk2r/ppp2ppp/2n2n2/3p4/3P4/2N2N2/PPP2PPP/R1BQKB1R b KQkq - 0 6",
+                "Creez du contre-jeu pour compliquer la tache de l'attaquant.",
+                "black"));
+        COURSE_EXERCISE_CONFIGS.put("finales theoriques",
+            new ExerciseConfig(
+                "8/8/8/4k3/8/4K3/8/8 w - - 0 1",
+                "Les finales theoriques : connaissances essentielles.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("finales tours complexes",
+            new ExerciseConfig(
+                "8/8/4k3/8/4P3/4K3/8/r7 w - - 0 1",
+                "Maitrise complete des finales de Tours.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("finales pieces mineures",
+            new ExerciseConfig(
+                "8/8/8/4k3/8/4K3/2B5/3n4 w - - 0 1",
+                "Nuances des finales de pieces mineures.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("finales de dames",
+            new ExerciseConfig(
+                "8/8/8/4k3/8/4K3/3Q4/3q4 w - - 0 1",
+                "Techniques speciales des finales de Dames.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("etudes finales celebres",
+            new ExerciseConfig(
+                "8/8/8/4k3/8/4K3/8/8 w - - 0 1",
+                "Les etudes classiques : Reti, Saavedra, et autres.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("preparation tournoi",
+            new ExerciseConfig(
+                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+                "Preparez-vous physiquement et mentalement avant un tournoi.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("gestion tournoi",
+            new ExerciseConfig(
+                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+                "Gerez votre energie et vos emotions pendant le tournoi.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("analyse post-tournoi",
+            new ExerciseConfig(
+                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+                "Analysez vos parties pour identifier axes d'amelioration.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("adversaires plus forts",
+            new ExerciseConfig(
+                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+                "Contre un adversaire plus fort : solidite et opportunisme.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("adversaires plus faibles",
+            new ExerciseConfig(
+                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+                "Ne sous-estimez jamais un adversaire plus faible.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("parties rapides",
+            new ExerciseConfig(
+                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+                "En rapide et blitz : intuition et experience priment.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("parties longues",
+            new ExerciseConfig(
+                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+                "En parties longues : analyse approfondie et patience.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("style universel",
+            new ExerciseConfig(
+                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+                "Le style universel s'adapte a toutes les positions.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("parties modeles - tactique",
+            new ExerciseConfig(
+                "r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 4 4",
+                "Etudiez les combinaisons brillantes des grands maitres.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("parties modeles - strategie",
+            new ExerciseConfig(
+                "r1bqk2r/ppp2ppp/2n2n2/3p4/3P4/2N2N2/PPP2PPP/R1BQKB1R w KQkq - 0 6",
+                "Les plans magistraux de Capablanca, Karpov, Carlsen.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("parties modeles - finales",
+            new ExerciseConfig(
+                "8/8/8/4k3/4P3/4K3/8/8 w - - 0 1",
+                "La technique parfaite des grands finalistes.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("steinitz capablanca",
+            new ExerciseConfig(
+                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+                "Steinitz a Capablanca : les fondements positionnels.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("alekhine botvinnik",
+            new ExerciseConfig(
+                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+                "Alekhine a Botvinnik : l'ere sovietique commence.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("smyslov spassky",
+            new ExerciseConfig(
+                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+                "Smyslov a Spassky : l'age d'or des echecs.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("fischer",
+            new ExerciseConfig(
+                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+                "Bobby Fischer : le genie americain qui a tout change.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("karpov kasparov",
+            new ExerciseConfig(
+                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+                "Karpov vs Kasparov : la plus grande rivalite.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("kramnik carlsen",
+            new ExerciseConfig(
+                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+                "Kramnik a Carlsen : l'ere moderne des echecs.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("evolution des echecs",
+            new ExerciseConfig(
+                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+                "Du romantisme a l'ere informatique : evolution du jeu.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("echecs et informatique",
+            new ExerciseConfig(
+                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+                "L'impact des moteurs sur la theorie et le jeu.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("preparer avec ordinateur",
+            new ExerciseConfig(
+                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+                "Utilisez l'ordinateur comme outil, pas comme bequille.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("au-dela de l'ordinateur",
+            new ExerciseConfig(
+                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+                "L'humain voit ce que la machine ne comprend pas.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("style personnel",
+            new ExerciseConfig(
+                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+                "Developpez votre propre style de jeu.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("philosophie du jeu",
+            new ExerciseConfig(
+                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+                "L'approche mentale des champions.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("enseigner les echecs",
+            new ExerciseConfig(
+                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+                "Transmettez votre savoir aux autres.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("competition haut niveau",
+            new ExerciseConfig(
+                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+                "Les exigences du jeu professionnel.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("maintenir son niveau",
+            new ExerciseConfig(
+                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+                "L'entrainement continu pour rester au sommet.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("passion des echecs",
+            new ExerciseConfig(
+                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+                "Cultivez votre amour du jeu.",
+                "white"));
+        COURSE_EXERCISE_CONFIGS.put("maitrise complete",
+            new ExerciseConfig(
+                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+                "Le chemin vers la maitrise ne s'arrete jamais.",
+                "white"));
     }
 
     public ExerciseService(

@@ -38,15 +38,11 @@
         <a routerLink="/teachers" class="nav__pill">Nos coachs</a>
         <a routerLink="/pricing" class="nav__pill">Tarifs</a>
         <a routerLink="/blog" class="nav__pill">Blog</a>
-      </div>
-
-      <!-- Desktop Auth Actions -->
-      <div class="nav__actions">
         @if (authService.isAuthenticated()) {
-          <a routerLink="/dashboard" class="nav__btn nav__btn--primary">Mon Espace</a>
+          <a routerLink="/dashboard" class="nav__pill">Mon Espace</a>
         } @else {
-          <a routerLink="/login" class="nav__btn nav__btn--ghost">Connexion</a>
-          <a routerLink="/register" class="nav__btn nav__btn--primary">Commencer</a>
+          <a routerLink="/login" class="nav__pill">Connexion</a>
+          <a routerLink="/register" class="nav__pill">Inscription</a>
         }
       </div>
 
@@ -65,7 +61,7 @@
             <a routerLink="/dashboard" class="nav__btn nav__btn--primary" (click)="closeMobileMenu()">Mon Espace</a>
           } @else {
             <a routerLink="/login" class="nav__btn nav__btn--ghost" (click)="closeMobileMenu()">Connexion</a>
-            <a routerLink="/register" class="nav__btn nav__btn--primary" (click)="closeMobileMenu()">Commencer</a>
+            <a routerLink="/register" class="nav__btn nav__btn--primary" (click)="closeMobileMenu()">Inscription</a>
           }
         </div>
       </div>

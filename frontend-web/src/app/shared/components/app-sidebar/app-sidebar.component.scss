@@ -110,7 +110,7 @@ $transition: 0.2s ease;
   display: flex;
   flex-direction: column;
   z-index: 9992;
-  transition: width $transition, transform $transition;
+  transition: width $transition, transform $transition, background $transition;
 
 
   &.collapsed {
@@ -189,9 +189,12 @@ $transition: 0.2s ease;
     right: 0;
     transform: translateX(100%);
     width: $sidebar-width;
-    background: #0d0d0d;
-    backdrop-filter: none;
+    background: #0d0d0d !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    opacity: 1 !important;
     z-index: 9995;
+    box-shadow: -4px 0 24px rgba(0, 0, 0, 0.8);
 
     &.mobile-active {
       transform: translateX(0);
@@ -199,6 +202,7 @@ $transition: 0.2s ease;
 
     &.collapsed {
       width: $sidebar-width;
+      background: #0d0d0d !important;
 
       .sidebar__logo-text,
       .sidebar__section-title,

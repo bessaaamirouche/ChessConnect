@@ -32,10 +32,6 @@ export const routes: Routes = [
     canActivate: [guestGuard],
     loadComponent: () => import('./features/auth/reset-password/reset-password.component').then(m => m.ResetPasswordComponent)
   },
-  {
-    path: 'pricing',
-    loadComponent: () => import('./features/pricing/pricing.component').then(m => m.PricingComponent)
-  },
   // User routes with sidebar layout (must be before public teacher routes)
   {
     path: '',

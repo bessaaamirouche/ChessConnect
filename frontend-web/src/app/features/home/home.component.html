@@ -36,7 +36,6 @@
            [class.nav__pill--active]="activeSection() === 'how-it-works'"
            (click)="scrollToSection('how-it-works')">Fonctionnement</a>
         <a routerLink="/teachers" class="nav__pill">Nos coachs</a>
-        <a routerLink="/pricing" class="nav__pill">Tarifs</a>
         <a routerLink="/blog" class="nav__pill">Blog</a>
         @if (authService.isAuthenticated()) {
           <a routerLink="/dashboard" class="nav__pill">Mon Espace</a>
@@ -52,7 +51,6 @@
         <a href="#levels" (click)="scrollToSection('levels'); closeMobileMenu()">Parcours</a>
         <a href="#how-it-works" (click)="scrollToSection('how-it-works'); closeMobileMenu()">Fonctionnement</a>
         <a routerLink="/teachers" (click)="closeMobileMenu()">Nos coachs</a>
-        <a routerLink="/pricing" (click)="closeMobileMenu()">Tarifs</a>
         <a routerLink="/blog" (click)="closeMobileMenu()">Blog</a>
 
         <!-- Mobile-only auth buttons -->

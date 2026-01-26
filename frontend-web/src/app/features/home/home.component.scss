@@ -82,13 +82,16 @@ $text-muted: #6b6965;
     margin: 0 auto;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
+    position: relative;
   }
 
   &__logo {
     display: flex;
     align-items: center;
     z-index: 1001;
+    position: absolute;
+    left: 0;
 
     &-img {
       height: 36px;

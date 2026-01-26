@@ -42,7 +42,6 @@ $sidebar-collapsed-width: 95px;
   padding: var(--space-xl);
   min-height: 100vh;
   position: relative;
-  z-index: 1;
 
   @include respond-down(md) {
     padding: var(--space-md);

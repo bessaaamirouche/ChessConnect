@@ -83,12 +83,12 @@ $transition: 0.2s ease;
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
-  z-index: 9994;
+  z-index: 1001;
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity $transition;
 
   &.active {
     display: block;
@@ -96,21 +96,19 @@ $transition: 0.2s ease;
   }
 }
 
-// Sidebar - Linear.app Style
+// Sidebar
 .sidebar {
   position: fixed;
   top: 0;
   left: 0;
   bottom: 0;
   width: $sidebar-width;
-  background: rgba(13, 13, 15, 0.8);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  background: $sidebar-bg;
+  border-right: 1px solid $sidebar-border;
   display: flex;
   flex-direction: column;
-  z-index: 9992;
-  transition: width $transition, transform $transition, background $transition;
+  z-index: 1002;
+  transition: width $transition, transform $transition;
 
 
   &.collapsed {
@@ -185,16 +183,8 @@ $transition: 0.2s ease;
   }
 
   @media (max-width: 768px) {
-    left: auto;
-    right: 0;
-    transform: translateX(100%);
+    transform: translateX(-100%);
     width: $sidebar-width;
-    background: #0d0d0d !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-    opacity: 1 !important;
-    z-index: 9995;
-    box-shadow: -4px 0 24px rgba(0, 0, 0, 0.8);
 
     &.mobile-active {
       transform: translateX(0);
@@ -202,7 +192,6 @@ $transition: 0.2s ease;
 
     &.collapsed {
       width: $sidebar-width;
-      background: #0d0d0d !important;
 
       .sidebar__logo-text,
       .sidebar__section-title,
@@ -373,30 +362,16 @@ $transition: 0.2s ease;
     font-weight: 500;
     text-decoration: none;
     cursor: pointer;
-    transition: all 0.2s ease;
-    position: relative;
+    transition: $transition;
 
     &:hover {
-      background: rgba(255, 255, 255, 0.04);
+      background: $hover-bg;
       color: $text-primary;
     }
 
     &.active {
-      background: rgba(255, 255, 255, 0.08);
+      background: $accent-bg;
       color: $accent-color;
-
-      // Linear.app style active indicator bar
-      &::before {
-        content: '';
-        position: absolute;
-        left: 0;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 2px;
-        height: 16px;
-        background: $accent-color;
-        border-radius: 2px;
-      }
 
       .sidebar__icon {
         color: $accent-color;
@@ -652,24 +627,23 @@ $transition: 0.2s ease;
   }
 }
 
-// Notification Item (Linear.app style)
+// Notification Item
 .notification-item {
   display: flex;
   align-items: flex-start;
   gap: 10px;
   padding: 12px;
   margin-bottom: 6px;
-  background: rgba(22, 22, 26, 0.6);
+  background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 12px;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.2s ease;
   position: relative;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.04);
-    border-color: rgba(255, 255, 255, 0.12);
-    transform: translateY(-1px);
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.1);
 
     .notification-item__delete {
       opacity: 1;

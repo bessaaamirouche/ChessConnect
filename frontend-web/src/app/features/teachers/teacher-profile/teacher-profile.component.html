@@ -60,17 +60,16 @@
                 >
                   <span class="icon-heart">{{ isFavorite() ? '&#9829;' : '&#9825;' }}</span>
                 </button>
-                @if (isFavorite()) {
-                  <button
-                    class="btn-icon"
-                    [class.btn-icon--active]="notifyEnabled()"
-                    (click)="toggleNotifications()"
-                    [title]="notifyEnabled() ? 'Désactiver les notifications' : 'Recevoir un email lors de nouveaux créneaux'"
-                  >
-                    <span class="icon-bell">{{ notifyEnabled() ? '&#128276;' : '&#128277;' }}</span>
-                  </button>
-                }
               </div>
+              <!-- Email notifications toggle (Premium only) -->
+              @if (isFavorite() && paymentService.hasActiveSubscription()) {
+                <label class="notify-toggle" (click)="toggleNotifications()">
+                  <span class="notify-toggle__label">M'alerter par email</span>
+                  <span class="notify-toggle__switch" [class.notify-toggle__switch--active]="notifyEnabled()">
+                    <span class="notify-toggle__knob"></span>
+                  </span>
+                </label>
+              }
             </div>
           }
         </div>

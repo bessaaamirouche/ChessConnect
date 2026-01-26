@@ -3,6 +3,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TeacherService } from '../../../core/services/teacher.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { FavoriteService } from '../../../core/services/favorite.service';
+import { PaymentService } from '../../../core/services/payment.service';
 import { SeoService } from '../../../core/services/seo.service';
 import { StructuredDataService } from '../../../core/services/structured-data.service';
 import { ToastService } from '../../../core/services/toast.service';
@@ -19,6 +20,7 @@ export class TeacherProfileComponent implements OnInit {
   private structuredDataService = inject(StructuredDataService);
   private favoriteService = inject(FavoriteService);
   private toastService = inject(ToastService);
+  paymentService = inject(PaymentService);
 
   isFavorite = signal(false);
   notifyEnabled = signal(false);
@@ -44,7 +46,7 @@ export class TeacherProfileComponent implements OnInit {
         ]);
       });
 
-      // Load favorite status for students
+      // Load favorite status and subscription for students
       if (this.authService.isStudent()) {
         this.favoriteService.loadFavorites().subscribe(favorites => {
           const fav = favorites.find(f => f.teacherId === this.teacherId);
@@ -53,6 +55,7 @@ export class TeacherProfileComponent implements OnInit {
             this.notifyEnabled.set(fav.notifyNewSlots);
           }
         });
+        this.paymentService.loadActiveSubscription().subscribe();
       }
     }
   }

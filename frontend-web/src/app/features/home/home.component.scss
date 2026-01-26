@@ -1360,10 +1360,8 @@ $text-muted: #6b6965;
   @include respond-down(sm) {
     bottom: var(--space-md);
     left: var(--space-md);
-    height: 48px;
-    border-radius: 24px;
-    transform: scale(0.8);
-    transform-origin: bottom left;
+    height: 44px;
+    border-radius: 22px;
   }
 
   // Expanded state - keep position: fixed, just add padding
@@ -1388,8 +1386,8 @@ $text-muted: #6b6965;
     transition: transform 0.2s ease;
 
     @include respond-down(sm) {
-      width: 48px;
-      height: 48px;
+      width: 44px;
+      height: 44px;
     }
 
     &:hover {
@@ -1403,8 +1401,8 @@ $text-muted: #6b6965;
 
   &__close {
     position: absolute;
-    top: -10px;
-    right: -10px;
+    top: -8px;
+    right: -8px;
     width: 24px;
     height: 24px;
     display: flex;
@@ -1418,16 +1416,17 @@ $text-muted: #6b6965;
     transition: all 0.2s ease;
     z-index: 10;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-    // Prevent scale from parent affecting this element
-    transform: scale(1.25);
 
     @include respond-down(sm) {
-      transform: scale(1.25);
+      width: 22px;
+      height: 22px;
+      top: -6px;
+      right: -6px;
     }
 
     &:hover {
       background: #1a1a1c;
-      transform: scale(1.4);
+      transform: scale(1.1);
       border-color: rgba(34, 197, 94, 0.8);
     }
 

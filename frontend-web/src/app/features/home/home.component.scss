@@ -442,7 +442,7 @@ $text-muted: #6b6965;
     filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.4));
 
     @include respond-down(sm) {
-      max-width: 280px;
+      max-width: 400px;
       margin-bottom: var(--space-lg);
     }
   }

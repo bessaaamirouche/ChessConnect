@@ -184,8 +184,8 @@ $text-muted: #6b6965;
     gap: 4px;
     transform: translateX(100%);
     opacity: 0;
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
-                opacity 0.4s ease;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+                opacity 0.5s ease;
     z-index: 1002;
     overflow-y: auto;
     backdrop-filter: blur(20px);

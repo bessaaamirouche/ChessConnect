@@ -211,6 +211,9 @@ export class BookLessonComponent implements OnInit {
     // Load wallet balance
     this.walletService.loadBalance().subscribe();
 
+    // Load subscription status (for premium priority banner)
+    this.paymentService.loadActiveSubscription().subscribe();
+
     // Load learning path for course selection
     this.learningPathLoading.set(true);
     this.learningPathService.loadLearningPath().subscribe({

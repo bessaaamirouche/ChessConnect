@@ -193,6 +193,18 @@
           <div class="slots-section">
             <h4 class="slots-title">Choisissez un creneau</h4>
 
+            <!-- Premium Priority Banner (for non-premium users) -->
+            @if (!paymentService.hasActiveSubscription()) {
+              <a routerLink="/subscription" class="premium-priority-banner">
+                <ng-icon name="heroSparkles" size="18" class="premium-priority-banner__icon"></ng-icon>
+                <div class="premium-priority-banner__content">
+                  <strong>Acces prioritaire aux creneaux</strong>
+                  <span>Les membres Premium reservent avant les autres</span>
+                </div>
+                <span class="premium-priority-banner__cta">Decouvrir</span>
+              </a>
+            }
+
             @if (slotsLoading()) {
               <div class="slots-loading">
                 <span class="spinner spinner--md"></span>

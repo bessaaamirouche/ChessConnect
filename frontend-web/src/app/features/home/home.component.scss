@@ -188,6 +188,7 @@ $text-muted: #6b6965;
     overflow-y: auto;
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
+    opacity: 0.75;
 
     &.active {
       transform: translateX(0);

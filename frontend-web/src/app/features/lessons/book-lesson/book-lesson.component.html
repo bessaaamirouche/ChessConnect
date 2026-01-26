@@ -107,87 +107,55 @@
                 <span class="spinner spinner--sm"></span>
                 <span>Chargement des cours...</span>
               </div>
+            } @else if (unlockedGrades().length === 0) {
+              <div class="course-section__empty">
+                <p>Aucun cours disponible. Completez le quiz pour debloquer votre parcours.</p>
+              </div>
             } @else {
-              <!-- Next course(s) to take -->
-              @if (availableCourses().nextCourses.length > 0) {
-                <div class="course-group">
-                  <span class="course-group__label">Prochain cours</span>
-                  <div class="course-list">
-                    @for (course of availableCourses().nextCourses; track course.id) {
-                      <button
-                        type="button"
-                        class="course-card"
-                        [class.course-card--selected]="isCourseSelected(course)"
-                        [class.course-card--in-progress]="course.status === 'IN_PROGRESS'"
-                        (click)="selectCourse(course)"
-                      >
-                        <div class="course-card__badge" [style.background]="getGradeColor(course.grade)">
-                          {{ getGradeIcon(course.grade) }}
-                        </div>
-                        <div class="course-card__content">
-                          <span class="course-card__title">{{ course.title }}</span>
-                          <span class="course-card__meta">
-                            {{ course.grade }}
-                            @if (course.status === 'IN_PROGRESS') {
-                              <span class="course-card__status">En cours</span>
-                            }
-                          </span>
-                        </div>
-                        @if (isCourseSelected(course)) {
-                          <ng-icon name="heroCheckCircle" size="20" class="course-card__check"></ng-icon>
-                        }
-                      </button>
-                    }
+              <div class="course-selectors">
+                <!-- Level Dropdown -->
+                <div class="course-selector">
+                  <label class="course-selector__label">Niveau</label>
+                  <div class="select-wrapper">
+                    <select
+                      class="select"
+                      [value]="selectedLevel() || ''"
+                      (change)="selectLevel($any($event.target).value || null)"
+                    >
+                      <option value="" disabled>Choisir un niveau</option>
+                      @for (grade of unlockedGrades(); track grade.grade) {
+                        <option [value]="grade.grade">
+                          {{ getGradeIcon(grade.grade) }} {{ getLevelDisplayName($any(grade.grade)) }}
+                        </option>
+                      }
+                    </select>
                   </div>
                 </div>
-              }
 
-              <!-- Completed courses (for review) -->
-              @if (availableCourses().completedCourses.length > 0) {
-                <div class="course-group">
-                  <span class="course-group__label">
-                    <ng-icon name="heroArrowPath" size="14"></ng-icon>
-                    Revoir un cours
-                  </span>
-                  <div class="course-list course-list--compact">
-                    @for (course of availableCourses().completedCourses; track course.id) {
-                      <button
-                        type="button"
-                        class="course-card course-card--completed"
-                        [class.course-card--selected]="isCourseSelected(course)"
-                        (click)="selectCourse(course)"
-                      >
-                        <div class="course-card__badge course-card__badge--sm" [style.background]="getGradeColor(course.grade)">
-                          {{ getGradeIcon(course.grade) }}
-                        </div>
-                        <div class="course-card__content">
-                          <span class="course-card__title">{{ course.title }}</span>
-                          <span class="course-card__meta">{{ course.grade }}</span>
-                        </div>
-                        @if (isCourseSelected(course)) {
-                          <ng-icon name="heroCheckCircle" size="18" class="course-card__check"></ng-icon>
-                        }
-                      </button>
-                    }
+                <!-- Course Dropdown -->
+                <div class="course-selector">
+                  <label class="course-selector__label">Cours</label>
+                  <div class="select-wrapper">
+                    <select
+                      class="select"
+                      [value]="selectedCourse()?.id || ''"
+                      (change)="selectCourse(coursesForSelectedLevel()[$any($event.target).selectedIndex - 1])"
+                      [disabled]="!selectedLevel()"
+                    >
+                      <option value="" disabled>Choisir un cours</option>
+                      @for (course of coursesForSelectedLevel(); track course.id) {
+                        <option [value]="course.id">
+                          {{ course.title }}
+                          @if (course.status === 'COMPLETED') { (Termine) }
+                          @else if (course.status === 'IN_PROGRESS') { (En cours) }
+                        </option>
+                      }
+                    </select>
                   </div>
                 </div>
-              }
-
-              @if (availableCourses().nextCourses.length === 0 && availableCourses().completedCourses.length === 0) {
-                <div class="course-section__empty">
-                  <p>Aucun cours disponible. Completez le quiz pour debloquer votre parcours.</p>
-                </div>
-              }
+              </div>
             }
           </div>
-
-          <!-- Selected Course Info -->
-          @if (selectedCourse()) {
-            <div class="selected-course-info">
-              <span class="selected-course-info__label">Cours selectionne :</span>
-              <span class="selected-course-info__value">{{ selectedCourse()!.title }}</span>
-            </div>
-          }
 
           <!-- Available Slots -->
           <div class="slots-section">

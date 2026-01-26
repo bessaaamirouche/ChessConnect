@@ -10,7 +10,8 @@ import { WalletService } from '../../../core/services/wallet.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { LearningPathService } from '../../../core/services/learning-path.service';
 import { TimeSlot } from '../../../core/models/availability.model';
-import { Course } from '../../../core/models/learning-path.model';
+import { Course, GradeWithCourses } from '../../../core/models/learning-path.model';
+import { ChessLevel, CHESS_LEVELS } from '../../../core/models/user.model';
 import { EmbeddedCheckoutComponent } from '../../../shared/embedded-checkout/embedded-checkout.component';
 import { AppSidebarComponent, SidebarSection } from '../../../shared/components/app-sidebar/app-sidebar.component';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
@@ -103,36 +104,27 @@ export class BookLessonComponent implements OnInit {
 
   // Course selection
   learningPathLoading = signal(false);
+  selectedLevel = signal<ChessLevel | null>(null);
 
-  // Available courses for booking (next course + completed courses for review)
-  availableCourses = computed(() => {
+  // Get unlocked grades for the level dropdown
+  unlockedGrades = computed(() => {
     const path = this.learningPathService.learningPath();
-    if (!path) return { nextCourses: [], completedCourses: [] };
+    if (!path) return [];
+    return path.grades.filter(g => g.isUnlocked);
+  });
 
-    const nextCourses: Course[] = [];
-    const completedCourses: Course[] = [];
+  // Get courses for the selected level
+  coursesForSelectedLevel = computed(() => {
+    const level = this.selectedLevel();
+    if (!level) return [];
 
-    for (const grade of path.grades) {
-      if (!grade.isUnlocked) continue;
+    const path = this.learningPathService.learningPath();
+    if (!path) return [];
 
-      for (const course of grade.courses) {
-        if (course.status === 'IN_PROGRESS' || course.status === 'LOCKED') {
-          // First unlocked/in-progress course is the next to do
-          if (nextCourses.length === 0 || course.status === 'IN_PROGRESS') {
-            nextCourses.push(course);
-          }
-          // Only add first locked course after in-progress
-          if (course.status === 'LOCKED' && nextCourses.length < 2) {
-            nextCourses.push(course);
-            break;
-          }
-        } else if (course.status === 'COMPLETED' || course.status === 'PENDING_VALIDATION') {
-          completedCourses.push(course);
-        }
-      }
-    }
+    const grade = path.grades.find(g => g.grade === level);
+    if (!grade || !grade.isUnlocked) return [];
 
-    return { nextCourses, completedCourses };
+    return grade.courses;
   });
 
   // Free trial eligibility (student eligible AND teacher accepts free trial)
@@ -217,7 +209,14 @@ export class BookLessonComponent implements OnInit {
     // Load learning path for course selection
     this.learningPathLoading.set(true);
     this.learningPathService.loadLearningPath().subscribe({
-      next: () => this.learningPathLoading.set(false),
+      next: () => {
+        this.learningPathLoading.set(false);
+        // Auto-select first unlocked level
+        const unlocked = this.unlockedGrades();
+        if (unlocked.length > 0) {
+          this.selectedLevel.set(unlocked[0].grade as ChessLevel);
+        }
+      },
       error: () => this.learningPathLoading.set(false)
     });
   }
@@ -276,8 +275,18 @@ export class BookLessonComponent implements OnInit {
     this.selectedSlot.set(slot);
   }
 
+  selectLevel(level: ChessLevel | null): void {
+    this.selectedLevel.set(level);
+    // Reset selected course when level changes
+    this.selectedCourse.set(null);
+  }
+
   selectCourse(course: Course): void {
     this.selectedCourse.set(course);
+  }
+
+  getLevelDisplayName(level: ChessLevel): string {
+    return CHESS_LEVELS[level]?.label || level;
   }
 
   isCourseSelected(course: Course): boolean {

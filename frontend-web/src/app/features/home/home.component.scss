@@ -183,35 +183,17 @@ $text-muted: #6b6965;
     flex-direction: column;
     gap: 4px;
     transform: translateX(100%);
+    opacity: 0;
     transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
-                opacity 0.3s ease;
+                opacity 0.4s ease;
     z-index: 1002;
     overflow-y: auto;
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    opacity: 0;
 
     &.active {
       transform: translateX(0);
       opacity: 0.95;
-    }
-
-    // Staggered animation for menu items
-    a {
-      opacity: 0;
-      transform: translateX(20px);
-      transition: opacity 0.3s ease, transform 0.3s ease;
-    }
-
-    &.active a {
-      opacity: 1;
-      transform: translateX(0);
-
-      @for $i from 1 through 8 {
-        &:nth-child(#{$i}) {
-          transition-delay: #{$i * 0.05}s;
-        }
-      }
     }
 
     @include respond-to(lg) {
@@ -240,14 +222,6 @@ $text-muted: #6b6965;
     margin-top: auto;
     padding-top: var(--space-lg);
     border-top: 1px solid rgba(255, 255, 255, 0.08);
-    opacity: 0;
-    transform: translateY(10px);
-    transition: opacity 0.3s ease 0.25s, transform 0.3s ease 0.25s;
-
-    .nav__links.active & {
-      opacity: 1;
-      transform: translateY(0);
-    }
 
     @include respond-to(lg) {
       display: none;
@@ -1429,8 +1403,8 @@ $text-muted: #6b6965;
 
   &__close {
     position: absolute;
-    top: -8px;
-    left: -8px;
+    top: -10px;
+    left: -10px;
     width: 24px;
     height: 24px;
     display: flex;
@@ -1444,17 +1418,16 @@ $text-muted: #6b6965;
     transition: all 0.2s ease;
     z-index: 10;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    // Prevent scale from parent affecting this element
+    transform: scale(1.25);
 
     @include respond-down(sm) {
-      width: 22px;
-      height: 22px;
-      top: -6px;
-      left: -6px;
+      transform: scale(1.25);
     }
 
     &:hover {
       background: #1a1a1c;
-      transform: scale(1.15);
+      transform: scale(1.4);
       border-color: rgba(34, 197, 94, 0.8);
     }
 

@@ -65,6 +65,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   scrollProgress = signal(0);
   showPromoPopup = signal(true);
   promoExpanded = signal(false);
+  activeSection = signal<string>('features');
 
   // Scroll listener reference for cleanup
   private scrollListener: (() => void) | null = null;
@@ -120,6 +121,27 @@ export class HomeComponent implements OnInit, OnDestroy {
     // Update scroll progress (0 to 1)
     const progress = documentHeight > 0 ? Math.min(scrollY / documentHeight, 1) : 0;
     this.scrollProgress.set(progress);
+
+    // Update active section for pill tabs
+    this.updateActiveSection();
+  }
+
+  private updateActiveSection(): void {
+    const sections = ['features', 'levels', 'how-it-works'];
+    const navHeight = 100;
+
+    for (const sectionId of sections.reverse()) {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        const rect = element.getBoundingClientRect();
+        if (rect.top <= navHeight + 100) {
+          this.activeSection.set(sectionId);
+          return;
+        }
+      }
+    }
+    // Default to first section
+    this.activeSection.set('features');
   }
 
   toggleMobileMenu(): void {

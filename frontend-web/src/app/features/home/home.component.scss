@@ -294,6 +294,48 @@ $text-muted: #6b6965;
       }
     }
   }
+
+  // Disney+ Style Pill Tabs Navigation
+  &__pills {
+    display: none;
+    align-items: center;
+    gap: 4px;
+    padding: 4px;
+    background: rgba(30, 30, 35, 0.9);
+    border-radius: 50px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+
+    @include respond-to(lg) {
+      display: flex;
+    }
+  }
+
+  &__pill {
+    position: relative;
+    padding: 10px 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.6);
+    border-radius: 50px;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    white-space: nowrap;
+
+    &:hover {
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    &--active {
+      background: #ffffff;
+      color: #0a0a0c;
+      font-weight: 600;
+
+      &:hover {
+        color: #0a0a0c;
+      }
+    }
+  }
 }
 
 // === Main Content ===

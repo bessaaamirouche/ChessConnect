@@ -21,6 +21,25 @@
       <!-- Mobile menu overlay -->
       <div class="nav__mobile-overlay" [class.active]="mobileMenuOpen()" (click)="closeMobileMenu()"></div>
 
+      <!-- Desktop Pill Tabs Navigation (Disney+ style) -->
+      <div class="nav__pills">
+        <a href="#features"
+           class="nav__pill"
+           [class.nav__pill--active]="activeSection() === 'features'"
+           (click)="scrollToSection('features')">Avantages</a>
+        <a href="#levels"
+           class="nav__pill"
+           [class.nav__pill--active]="activeSection() === 'levels'"
+           (click)="scrollToSection('levels')">Parcours</a>
+        <a href="#how-it-works"
+           class="nav__pill"
+           [class.nav__pill--active]="activeSection() === 'how-it-works'"
+           (click)="scrollToSection('how-it-works')">Fonctionnement</a>
+        <a routerLink="/teachers" class="nav__pill">Nos coachs</a>
+        <a routerLink="/blog" class="nav__pill">Blog</a>
+      </div>
+
+      <!-- Mobile Drawer Menu -->
       <div class="nav__links" [class.active]="mobileMenuOpen()">
         <a href="#features" (click)="scrollToSection('features'); closeMobileMenu()">Avantages</a>
         <a href="#levels" (click)="scrollToSection('levels'); closeMobileMenu()">Parcours</a>

@@ -41,8 +41,8 @@
         @if (authService.isAuthenticated()) {
           <a routerLink="/dashboard" class="nav__pill">Mon Espace</a>
         } @else {
-          <a routerLink="/login" class="nav__pill">Connexion</a>
-          <a routerLink="/register" class="nav__pill">Inscription</a>
+          <a routerLink="/login" class="nav__pill">S'identifier</a>
+          <a routerLink="/register" class="nav__pill">S'inscrire</a>
         }
       </div>
 
@@ -60,8 +60,8 @@
           @if (authService.isAuthenticated()) {
             <a routerLink="/dashboard" class="nav__btn nav__btn--primary" (click)="closeMobileMenu()">Mon Espace</a>
           } @else {
-            <a routerLink="/login" class="nav__btn nav__btn--ghost" (click)="closeMobileMenu()">Connexion</a>
-            <a routerLink="/register" class="nav__btn nav__btn--primary" (click)="closeMobileMenu()">Inscription</a>
+            <a routerLink="/login" class="nav__btn nav__btn--ghost" (click)="closeMobileMenu()">S'identifier</a>
+            <a routerLink="/register" class="nav__btn nav__btn--primary" (click)="closeMobileMenu()">S'inscrire</a>
           }
         </div>
       </div>

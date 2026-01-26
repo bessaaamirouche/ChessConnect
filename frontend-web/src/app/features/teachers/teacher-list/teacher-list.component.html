@@ -97,7 +97,7 @@
       </div>
 
       <div class="search-results">
-        {{ filteredTeachers().length }} coach{{ filteredTeachers().length > 1 ? 's' : '' }} trouvé{{ filteredTeachers().length > 1 ? 's' : '' }}
+        {{ totalFilteredCount() }} coach{{ totalFilteredCount() > 1 ? 's' : '' }} trouvé{{ totalFilteredCount() > 1 ? 's' : '' }}
       </div>
     </div>
 
@@ -105,7 +105,7 @@
       <div class="loading-state">
         <span class="spinner spinner--lg"></span>
       </div>
-    } @else if (filteredTeachers().length === 0) {
+    } @else if (totalFilteredCount() === 0) {
       <div class="empty-state">
         <div class="empty-state__icon"><ng-icon name="heroAcademicCap" size="48"></ng-icon></div>
         @if (hasActiveFilters()) {
@@ -122,73 +122,126 @@
         }
       </div>
     } @else {
-      <div class="teachers-grid">
-        @for (teacher of filteredTeachers(); track teacher.id) {
-          <div class="teacher-card" [class.teacher-card--favorite]="isFavorite(teacher.id)">
-            @if (authService.isStudent()) {
-              <button
-                class="teacher-card__fav-btn"
-                [class.teacher-card__fav-btn--active]="isFavorite(teacher.id)"
-                (click)="toggleFavorite(teacher.id, $event)"
-                [title]="isFavorite(teacher.id) ? 'Retirer des favoris' : 'Ajouter aux favoris'"
-              >
-                &#9829;
-              </button>
-            }
-            <div class="teacher-card__header">
-              <div class="avatar-container">
-                <div class="avatar">
-                  @if (teacher.avatarUrl) {
-                    <img [src]="teacher.avatarUrl" [alt]="teacher.firstName">
-                  } @else {
-                    {{ getInitials(teacher.firstName, teacher.lastName) }}
+      <!-- Mes Favoris Section (Students only) -->
+      @if (authService.isStudent() && favoriteTeachers().length > 0) {
+        <div class="section-header">
+          <h2 class="section-header__title">
+            <span class="section-header__icon">&#9733;</span>
+            Mes Favoris
+          </h2>
+          <span class="section-header__count">{{ favoriteTeachers().length }}</span>
+        </div>
+        <div class="teachers-grid teachers-grid--favorites">
+          @for (teacher of favoriteTeachers(); track teacher.id) {
+            <div class="teacher-card teacher-card--favorite">
+              <div class="teacher-card__header">
+                <div class="avatar-container">
+                  <div class="avatar">
+                    @if (teacher.avatarUrl) {
+                      <img [src]="teacher.avatarUrl" [alt]="teacher.firstName">
+                    } @else {
+                      {{ getInitials(teacher.firstName, teacher.lastName) }}
+                    }
+                  </div>
+                  @if (teacher.isOnline) {
+                    <span class="online-indicator" title="En ligne"></span>
                   }
                 </div>
-                @if (teacher.isOnline) {
-                  <span class="online-indicator" title="En ligne"></span>
-                }
-              </div>
-              <div class="teacher-card__info">
-                <h3 class="teacher-card__name">
-                  {{ formatCoachName(teacher.firstName, teacher.lastName) }}
-                </h3>
-                <span class="teacher-card__rate">
-                  {{ formatPrice(teacher.hourlyRateCents) }}
-                </span>
-                @if (teacher.averageRating) {
-                  <span class="teacher-card__rating">
-                    &#9733; {{ teacher.averageRating.toFixed(1) }}
-                    <span class="review-count">({{ teacher.reviewCount }})</span>
+                <div class="teacher-card__info">
+                  <h3 class="teacher-card__name">
+                    {{ formatCoachName(teacher.firstName, teacher.lastName) }}
+                  </h3>
+                  <span class="teacher-card__rate">
+                    {{ formatPrice(teacher.hourlyRateCents) }}
                   </span>
-                }
+                  @if (teacher.averageRating) {
+                    <span class="teacher-card__rating">
+                      &#9733; {{ teacher.averageRating.toFixed(1) }}
+                      <span class="review-count">({{ teacher.reviewCount }})</span>
+                    </span>
+                  }
+                </div>
               </div>
-            </div>
 
-            @if (teacher.bio) {
-              <p class="teacher-card__bio">
-                {{ teacher.bio }}
-              </p>
-            }
-
-            <div class="teacher-card__badges">
-              @if (teacher.acceptsSubscription) {
-                <span class="badge badge--gold">Accepte les abos</span>
-              }
-            </div>
-
-            <div class="teacher-card__actions">
-              <a [routerLink]="['/teachers', teacher.id]" class="btn btn--ghost btn--sm">
-                Voir le profil
-              </a>
-              @if (authService.isStudent()) {
+              <div class="teacher-card__actions">
+                <a [routerLink]="['/teachers', teacher.id]" class="btn btn--ghost btn--sm">
+                  Voir le profil
+                </a>
                 <a [routerLink]="['/book', teacher.id]" class="btn btn--primary btn--sm">
                   Réserver
                 </a>
-              }
+              </div>
             </div>
+          }
+        </div>
+      }
+
+      <!-- Tous les Coachs Section -->
+      @if (filteredTeachers().length > 0) {
+        @if (authService.isStudent() && favoriteTeachers().length > 0) {
+          <div class="section-header">
+            <h2 class="section-header__title">Tous les Coachs</h2>
+            <span class="section-header__count">{{ filteredTeachers().length }}</span>
           </div>
         }
-      </div>
+        <div class="teachers-grid">
+          @for (teacher of filteredTeachers(); track teacher.id) {
+            <div class="teacher-card">
+              <div class="teacher-card__header">
+                <div class="avatar-container">
+                  <div class="avatar">
+                    @if (teacher.avatarUrl) {
+                      <img [src]="teacher.avatarUrl" [alt]="teacher.firstName">
+                    } @else {
+                      {{ getInitials(teacher.firstName, teacher.lastName) }}
+                    }
+                  </div>
+                  @if (teacher.isOnline) {
+                    <span class="online-indicator" title="En ligne"></span>
+                  }
+                </div>
+                <div class="teacher-card__info">
+                  <h3 class="teacher-card__name">
+                    {{ formatCoachName(teacher.firstName, teacher.lastName) }}
+                  </h3>
+                  <span class="teacher-card__rate">
+                    {{ formatPrice(teacher.hourlyRateCents) }}
+                  </span>
+                  @if (teacher.averageRating) {
+                    <span class="teacher-card__rating">
+                      &#9733; {{ teacher.averageRating.toFixed(1) }}
+                      <span class="review-count">({{ teacher.reviewCount }})</span>
+                    </span>
+                  }
+                </div>
+              </div>
+
+              @if (teacher.bio) {
+                <p class="teacher-card__bio">
+                  {{ teacher.bio }}
+                </p>
+              }
+
+              <div class="teacher-card__badges">
+                @if (teacher.acceptsSubscription) {
+                  <span class="badge badge--gold">Accepte les abos</span>
+                }
+              </div>
+
+              <div class="teacher-card__actions">
+                <a [routerLink]="['/teachers', teacher.id]" class="btn btn--ghost btn--sm">
+                  Voir le profil
+                </a>
+                @if (authService.isStudent()) {
+                  <a [routerLink]="['/book', teacher.id]" class="btn btn--primary btn--sm">
+                    Réserver
+                  </a>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
     }
   </main>
 </div>

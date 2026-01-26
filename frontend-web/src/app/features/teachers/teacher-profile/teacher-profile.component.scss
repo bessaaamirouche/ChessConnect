@@ -2,94 +2,8 @@
 
 .profile-page {
   min-height: 100vh;
+  background: var(--bg-primary);
   padding-bottom: var(--space-3xl);
-}
-
-.profile {
-  padding-top: var(--space-2xl);
-
-  &__header {
-    display: flex;
-    align-items: center;
-    gap: var(--space-xl);
-    padding: var(--space-2xl);
-    margin-bottom: var(--space-xl);
-
-    .avatar {
-      width: 120px;
-      height: 120px;
-      font-size: 2.5rem;
-    }
-  }
-
-  &__info {
-    flex: 1;
-  }
-
-  &__meta {
-    display: flex;
-    align-items: center;
-    gap: var(--space-lg);
-    margin-top: var(--space-sm);
-  }
-
-  &__rate {
-    font-size: 1.5rem;
-    font-weight: 700;
-    @include gold-text;
-  }
-
-  &__rating {
-    display: flex;
-    align-items: center;
-    gap: var(--space-xs);
-    font-size: 1rem;
-    color: var(--text-primary);
-
-    .star {
-      color: var(--gold-400);
-      font-size: 1.25rem;
-    }
-
-    .review-count {
-      color: var(--text-muted);
-      font-size: 0.875rem;
-    }
-  }
-
-  &__languages {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-sm);
-    margin-top: var(--space-sm);
-  }
-
-  &__content {
-    .card {
-      padding: var(--space-xl);
-    }
-  }
-
-  &__stats {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: var(--space-lg);
-    text-align: center;
-  }
-}
-
-.stat {
-  &__value {
-    display: block;
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--gold-400);
-  }
-
-  &__label {
-    font-size: 0.875rem;
-    color: var(--text-muted);
-  }
 }
 
 .loading-state {
@@ -98,119 +12,404 @@
   padding: var(--space-3xl);
 }
 
-.language-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 36px;
-  padding: 6px 12px;
-  background: rgba(212, 168, 75, 0.15);
-  border: 1px solid var(--gold-400);
-  border-radius: var(--radius-sm);
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--gold-400);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+// iOS-style Contact Card
+.contact-card {
+  max-width: 500px;
+  margin: var(--space-xl) auto 0;
+  background: var(--bg-secondary);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+
+  // Header with gradient
+  &__header {
+    background: linear-gradient(180deg, rgba(212, 168, 75, 0.15) 0%, transparent 100%);
+    padding: var(--space-2xl) var(--space-xl) var(--space-xl);
+    text-align: center;
+    position: relative;
+  }
+
+  &__avatar {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto var(--space-md);
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--gold-400), var(--gold-600));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 20px rgba(212, 168, 75, 0.3);
+    overflow: hidden;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  &__initials {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--bg-primary);
+  }
+
+  &__name {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 var(--space-xs);
+    letter-spacing: -0.02em;
+  }
+
+  &__title {
+    font-size: 0.9375rem;
+    color: var(--text-muted);
+    margin: 0;
+  }
+
+  &__status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: var(--space-sm);
+    padding: 4px 12px;
+    background: rgba(34, 197, 94, 0.15);
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #22c55e;
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      background: #22c55e;
+      border-radius: 50%;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+  }
+
+  // Action buttons row (iOS style)
+  &__actions {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-xl);
+    padding: var(--space-lg) var(--space-xl);
+    border-bottom: 1px solid var(--border-subtle);
+
+    &--single {
+      padding: var(--space-md) var(--space-xl) var(--space-lg);
+    }
+  }
+
+  // Info sections
+  &__sections {
+    padding: 0;
+  }
 }
 
-.profile__actions {
+// iOS-style action buttons
+.action-btn {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  gap: var(--space-md);
-}
-
-.profile__buttons {
-  display: flex;
-  gap: var(--space-sm);
-}
-
-.btn-icon {
-  display: flex;
   align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  background: var(--bg-secondary);
+  gap: 6px;
+  padding: var(--space-sm);
+  background: transparent;
+  border: none;
   cursor: pointer;
+  text-decoration: none;
   transition: all 0.2s ease;
+  min-width: 70px;
 
-  .icon-heart {
+  &__icon {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-tertiary);
+    border-radius: 50%;
     font-size: 1.5rem;
-    line-height: 1;
-    color: var(--text-muted);
+    transition: all 0.2s ease;
+  }
+
+  &__label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-secondary);
   }
 
   &:hover {
-    border-color: var(--gold-400);
-    background: rgba(212, 168, 75, 0.1);
-  }
-
-  &--active {
-    border-color: var(--gold-400);
-    background: rgba(212, 168, 75, 0.15);
-
-    .icon-heart {
-      color: #e74c3c;
+    .action-btn__icon {
+      background: rgba(212, 168, 75, 0.15);
+    }
+    .action-btn__label {
+      color: var(--gold-400);
     }
   }
-}
 
-// Email notification toggle (Premium feature)
-.notify-toggle {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  cursor: pointer;
-  user-select: none;
-
-  &__label {
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-    white-space: nowrap;
-  }
-
-  &__switch {
-    position: relative;
-    width: 44px;
-    height: 24px;
-    background: var(--bg-tertiary);
-    border: 1px solid var(--border-subtle);
-    border-radius: 12px;
-    transition: all 0.2s ease;
-
-    &--active {
+  &--primary {
+    .action-btn__icon {
       background: var(--gold-400);
-      border-color: var(--gold-400);
+      color: var(--bg-primary);
+    }
+    .action-btn__label {
+      color: var(--gold-400);
+    }
 
-      .notify-toggle__knob {
-        transform: translateX(20px);
-        background: var(--bg-primary);
+    &:hover {
+      .action-btn__icon {
+        background: var(--gold-500);
+        transform: scale(1.05);
       }
     }
   }
 
-  &__knob {
-    position: absolute;
-    top: 2px;
-    left: 2px;
-    width: 18px;
-    height: 18px;
-    background: var(--text-muted);
-    border-radius: 50%;
-    transition: all 0.2s ease;
+  &--active {
+    .action-btn__icon {
+      background: rgba(212, 168, 75, 0.2);
+      color: var(--gold-400);
+    }
+    .action-btn__label {
+      color: var(--gold-400);
+    }
   }
 
-  &:hover {
-    .notify-toggle__label {
+  &--large {
+    flex-direction: row;
+    gap: var(--space-sm);
+    padding: var(--space-md) var(--space-xl);
+    background: var(--gold-400);
+    border-radius: 12px;
+    min-width: auto;
+
+    .action-btn__icon {
+      width: auto;
+      height: auto;
+      background: transparent;
+      font-size: 1.25rem;
+      color: var(--bg-primary);
+    }
+
+    .action-btn__label {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--bg-primary);
+    }
+
+    &:hover {
+      background: var(--gold-500);
+      transform: translateY(-2px);
+    }
+  }
+}
+
+// Info sections (iOS Settings style)
+.info-section {
+  padding: 0 var(--space-lg);
+  border-bottom: 1px solid var(--border-subtle);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &--bio {
+    padding: var(--space-md) var(--space-lg);
+  }
+
+  &__title {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    margin-bottom: var(--space-sm);
+  }
+
+  &__text {
+    font-size: 0.9375rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  &__hint {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin: 0;
+    padding: 0 0 var(--space-md);
+  }
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md) 0;
+  border-bottom: 1px solid var(--border-subtle);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &__label {
+    font-size: 0.9375rem;
+    color: var(--text-primary);
+  }
+
+  &__value {
+    font-size: 0.9375rem;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+
+    .star {
       color: var(--gold-400);
     }
 
-    .notify-toggle__switch:not(.notify-toggle__switch--active) {
-      border-color: var(--gold-400);
+    .text-muted {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+    }
+
+    &--gold {
+      font-weight: 600;
+      color: var(--gold-400);
+    }
+
+    &--badge {
+      padding: 2px 10px;
+      background: rgba(212, 168, 75, 0.15);
+      border-radius: 10px;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: var(--gold-400);
+    }
+
+    &--success {
+      padding: 2px 10px;
+      background: rgba(34, 197, 94, 0.15);
+      border-radius: 10px;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: #22c55e;
+    }
+  }
+
+  &--toggle {
+    padding: var(--space-sm) 0;
+  }
+}
+
+// iOS-style toggle
+.toggle {
+  position: relative;
+  display: inline-block;
+  width: 51px;
+  height: 31px;
+  cursor: pointer;
+
+  input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  &__slider {
+    position: absolute;
+    inset: 0;
+    background: var(--bg-tertiary);
+    border-radius: 31px;
+    transition: all 0.3s ease;
+
+    &::before {
+      content: '';
+      position: absolute;
+      width: 27px;
+      height: 27px;
+      left: 2px;
+      bottom: 2px;
+      background: white;
+      border-radius: 50%;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
+    }
+  }
+
+  input:checked + &__slider {
+    background: var(--gold-400);
+
+    &::before {
+      transform: translateX(20px);
+    }
+  }
+}
+
+// Responsive
+@media (max-width: 600px) {
+  .contact-card {
+    margin: var(--space-md);
+    border-radius: 16px;
+
+    &__header {
+      padding: var(--space-xl) var(--space-md) var(--space-md);
+    }
+
+    &__avatar {
+      width: 100px;
+      height: 100px;
+    }
+
+    &__initials {
+      font-size: 2rem;
+    }
+
+    &__name {
+      font-size: 1.5rem;
+    }
+
+    &__actions {
+      gap: var(--space-lg);
+      padding: var(--space-md);
+    }
+  }
+
+  .action-btn {
+    min-width: 60px;
+
+    &__icon {
+      width: 44px;
+      height: 44px;
+      font-size: 1.25rem;
+    }
+
+    &__label {
+      font-size: 0.6875rem;
+    }
+  }
+
+  .info-section {
+    padding: 0 var(--space-md);
+
+    &--bio {
+      padding: var(--space-sm) var(--space-md);
+    }
+  }
+
+  .info-row {
+    padding: var(--space-sm) 0;
+
+    &__label,
+    &__value {
+      font-size: 0.875rem;
     }
   }
 }

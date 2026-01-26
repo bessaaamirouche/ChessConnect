@@ -94,14 +94,38 @@ export class TeacherListComponent implements OnInit {
   // Free trial mode: true = show only coaches accepting free trial, false = show all
   useFreeTrialMode = signal(true);
 
-  // Sort teachers: favorites first, then by name
+  // Favorite teachers (separate list)
+  favoriteTeachers = computed(() => {
+    const favoriteIds = this.favoriteService.favoriteTeacherIds();
+    const query = this.searchQuery().toLowerCase().trim();
+    const min = this.minRate();
+    const max = this.maxRate();
+
+    return this.teacherService.teachers().filter(teacher => {
+      if (!favoriteIds.has(teacher.id)) return false;
+
+      // Apply same filters
+      const fullName = `${teacher.firstName} ${teacher.lastName}`.toLowerCase();
+      const matchesName = !query || fullName.includes(query);
+      const rate = teacher.hourlyRateCents ? teacher.hourlyRateCents / 100 : 0;
+      const matchesMinRate = min === null || rate >= min;
+      const matchesMaxRate = max === null || rate <= max;
+
+      return matchesName && matchesMinRate && matchesMaxRate;
+    });
+  });
+
+  // Non-favorite teachers (all others)
   filteredTeachers = computed(() => {
     const query = this.searchQuery().toLowerCase().trim();
     const min = this.minRate();
     const max = this.maxRate();
     const favoriteIds = this.favoriteService.favoriteTeacherIds();
 
-    const filtered = this.teacherService.teachers().filter(teacher => {
+    return this.teacherService.teachers().filter(teacher => {
+      // Exclude favorites (they're shown separately)
+      if (favoriteIds.has(teacher.id)) return false;
+
       // Filter by name
       const fullName = `${teacher.firstName} ${teacher.lastName}`.toLowerCase();
       const matchesName = !query || fullName.includes(query);
@@ -112,15 +136,12 @@ export class TeacherListComponent implements OnInit {
       const matchesMaxRate = max === null || rate <= max;
 
       return matchesName && matchesMinRate && matchesMaxRate;
-    });
+    }).sort((a, b) => a.firstName.localeCompare(b.firstName));
+  });
 
-    // Sort: favorites first
-    return filtered.sort((a, b) => {
-      const aIsFav = favoriteIds.has(a.id) ? 0 : 1;
-      const bIsFav = favoriteIds.has(b.id) ? 0 : 1;
-      if (aIsFav !== bIsFav) return aIsFav - bIsFav;
-      return a.firstName.localeCompare(b.firstName);
-    });
+  // Total count for display
+  totalFilteredCount = computed(() => {
+    return this.favoriteTeachers().length + this.filteredTeachers().length;
   });
 
   // Free trial eligibility signal

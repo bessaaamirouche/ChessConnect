@@ -245,10 +245,56 @@ $sidebar-collapsed-width: 95px;
   color: var(--text-secondary);
 }
 
+// Section Headers (Mes Favoris / Tous les Coachs)
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+  margin-top: var(--space-xl);
+
+  &:first-of-type {
+    margin-top: 0;
+  }
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+  }
+
+  &__icon {
+    color: var(--gold-400);
+    font-size: 1rem;
+  }
+
+  &__count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    height: 24px;
+    padding: 0 var(--space-xs);
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+}
+
 .teachers-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: var(--space-lg);
+
+  &--favorites {
+    margin-bottom: var(--space-xl);
+  }
 }
 
 .teacher-card {

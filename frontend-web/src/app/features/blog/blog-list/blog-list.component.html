@@ -16,23 +16,24 @@
   <!-- Categories Filter -->
   <section class="categories" appScrollReveal="fade-up" [revealDelay]="200">
     <div class="categories__container">
-      <button
-        class="category-btn"
-        [class.active]="selectedCategory() === null"
-        (click)="selectCategory(null)"
-      >
-        Tous
-      </button>
-      @for (category of categories(); track category) {
+      <div class="categories__pills">
         <button
           class="category-btn"
-          [class.active]="selectedCategory() === category"
-          [style.--category-color]="getCategoryColor(category)"
-          (click)="selectCategory(category)"
+          [class.active]="selectedCategory() === null"
+          (click)="selectCategory(null)"
         >
-          {{ getCategoryLabel(category) }}
+          Tous
         </button>
-      }
+        @for (category of categories(); track category) {
+          <button
+            class="category-btn"
+            [class.active]="selectedCategory() === category"
+            (click)="selectCategory(category)"
+          >
+            {{ getCategoryLabel(category) }}
+          </button>
+        }
+      </div>
     </div>
   </section>
 

@@ -145,9 +145,9 @@
                       <option value="" disabled>Choisir un cours</option>
                       @for (course of coursesForSelectedLevel(); track course.id) {
                         <option [value]="course.id">
+                          @if (course.status === 'COMPLETED') { ✓ }
                           {{ course.title }}
-                          @if (course.status === 'COMPLETED') { (Termine) }
-                          @else if (course.status === 'IN_PROGRESS') { (En cours) }
+                          @if (course.status === 'IN_PROGRESS') { (En cours) }
                         </option>
                       }
                     </select>

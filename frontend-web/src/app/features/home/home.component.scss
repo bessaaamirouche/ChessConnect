@@ -1347,7 +1347,7 @@ $text-muted: #6b6965;
 .promo-popup {
   position: fixed;
   bottom: var(--space-lg);
-  right: var(--space-lg);
+  left: var(--space-lg);
   z-index: 1000;
   background: linear-gradient(135deg, rgba(34, 197, 94, 0.95) 0%, rgba(16, 185, 129, 0.95) 100%);
   border-radius: 28px;
@@ -1359,11 +1359,11 @@ $text-muted: #6b6965;
 
   @include respond-down(sm) {
     bottom: var(--space-md);
-    right: var(--space-md);
+    left: var(--space-md);
     height: 48px;
     border-radius: 24px;
     transform: scale(0.8);
-    transform-origin: bottom right;
+    transform-origin: bottom left;
   }
 
   // Expanded state - keep position: fixed, just add padding
@@ -1404,7 +1404,7 @@ $text-muted: #6b6965;
   &__close {
     position: absolute;
     top: -10px;
-    left: -10px;
+    right: -10px;
     width: 24px;
     height: 24px;
     display: flex;

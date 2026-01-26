@@ -184,7 +184,7 @@ $text-muted: #6b6965;
     bottom: 0;
     width: 300px;
     max-width: 85vw;
-    background: #0a0a0c; // Explicit opaque dark background
+    background: #0a0a0c;
     border-left: 1px solid rgba($gold, 0.2);
     padding: 100px var(--space-lg) var(--space-lg);
     display: flex;
@@ -199,17 +199,9 @@ $text-muted: #6b6965;
       transform: translateX(0);
     }
 
+    // Hide on desktop - pills are used instead
     @include respond-to(lg) {
-      position: static;
-      width: auto;
-      max-width: none;
-      background: transparent;
-      border: none;
-      padding: 0;
-      flex-direction: row;
-      gap: var(--space-xs);
-      transform: none;
-      overflow: visible;
+      display: none;
     }
 
     a:not(.nav__btn) {

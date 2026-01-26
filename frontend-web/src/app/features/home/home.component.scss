@@ -1386,9 +1386,10 @@ $text-muted: #6b6965;
   @include respond-down(sm) {
     bottom: var(--space-md);
     right: var(--space-md);
-    left: var(--space-md);
     height: 48px;
     border-radius: 24px;
+    transform: scale(0.8);
+    transform-origin: bottom right;
   }
 
   // Expanded state - keep position: fixed, just add padding
@@ -1397,8 +1398,6 @@ $text-muted: #6b6965;
 
     @include respond-down(sm) {
       padding: 0 var(--space-sm);
-      left: var(--space-md);
-      right: var(--space-md);
     }
   }
 
@@ -1431,7 +1430,7 @@ $text-muted: #6b6965;
   &__close {
     position: absolute;
     top: -8px;
-    right: -8px;
+    left: -8px;
     width: 24px;
     height: 24px;
     display: flex;
@@ -1450,7 +1449,7 @@ $text-muted: #6b6965;
       width: 22px;
       height: 22px;
       top: -6px;
-      right: -6px;
+      left: -6px;
     }
 
     &:hover {
@@ -1468,7 +1467,6 @@ $text-muted: #6b6965;
   &__content {
     display: flex;
     align-items: center;
-    justify-content: center;
     height: 100%;
     gap: var(--space-sm);
     color: #0a0a0c;
@@ -1478,17 +1476,12 @@ $text-muted: #6b6965;
 
     @include respond-down(sm) {
       gap: var(--space-xs);
-      font-size: 0.75rem;
+      font-size: 0.7rem;
     }
 
     > ng-icon {
       flex-shrink: 0;
       animation: bounce-gift 1.5s ease-in-out infinite;
-    }
-
-    span {
-      flex: 1;
-      text-align: center;
     }
 
     strong {

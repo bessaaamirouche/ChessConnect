@@ -189,7 +189,7 @@ public class QuizService {
             case FOU -> 45;
             case TOUR -> 45;
             case DAME -> 45;
-            case ROI -> Integer.MAX_VALUE;
+            case ROI -> 0; // Max level, no more lessons required
         };
     }
 }

@@ -54,7 +54,7 @@ import {
   styleUrl: './progress.component.scss'
 })
 export class ProgressComponent implements OnInit {
-  levels: ChessLevel[] = ['PION', 'CAVALIER', 'FOU', 'TOUR', 'DAME'];
+  levels: ChessLevel[] = ['PION', 'CAVALIER', 'FOU', 'TOUR', 'DAME', 'ROI'];
   CHESS_LEVELS = CHESS_LEVELS;
 
   expandedLevel = signal<ChessLevel | null>(null);

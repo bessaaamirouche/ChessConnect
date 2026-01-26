@@ -418,25 +418,17 @@ public class LearningPathService {
         List<Course> gradeCourses,
         Map<Long, UserCourseProgress> progressMap
     ) {
+        // Keep existing progress status if any (COMPLETED, IN_PROGRESS, PENDING_VALIDATION)
         if (progress != null && progress.getStatus() != CourseStatus.LOCKED) {
             return progress.getStatus();
         }
 
+        // If grade is not unlocked, course is locked
         if (!isGradeUnlocked) {
             return CourseStatus.LOCKED;
         }
 
-        if (courseIndex == 0) {
-            return progress != null ? progress.getStatus() : CourseStatus.IN_PROGRESS;
-        }
-
-        Course previousCourse = gradeCourses.get(courseIndex - 1);
-        UserCourseProgress previousProgress = progressMap.get(previousCourse.getId());
-
-        if (previousProgress != null && previousProgress.getStatus() == CourseStatus.COMPLETED) {
-            return progress != null ? progress.getStatus() : CourseStatus.IN_PROGRESS;
-        }
-
-        return CourseStatus.LOCKED;
+        // If grade is unlocked, ALL courses in it are accessible (no sequential requirement)
+        return progress != null ? progress.getStatus() : CourseStatus.IN_PROGRESS;
     }
 }

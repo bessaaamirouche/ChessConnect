@@ -44,22 +44,23 @@ export class ProgressService {
   readonly lessonsToNextLevel = computed(() => {
     const p = this.progressSignal();
     if (!p) return 0;
-    // DAME level has 0 required lessons (max level)
-    if (p.currentLevel === 'DAME' || p.lessonsRequiredForNextLevel === 0) return 0;
+    // ROI level has 0 required lessons (max level)
+    if (p.currentLevel === 'ROI' || p.lessonsRequiredForNextLevel === 0) return 0;
     return Math.max(0, p.lessonsRequiredForNextLevel - p.lessonsAtCurrentLevel);
   });
 
   readonly isMaxLevel = computed(() =>
-    this.currentLevel() === 'DAME'
+    this.currentLevel() === 'ROI'
   );
 
   readonly overallProgress = computed(() => {
     const p = this.progressSignal();
     if (!p) return 0;
 
+    // 6 levels total (PION to ROI), each level = 100/6 ≈ 16.67%
     const levelOrder = CHESS_LEVELS[p.currentLevel].order;
-    const baseProgress = (levelOrder - 1) * 20;
-    const levelProgress = (p.progressPercentage / 100) * 20;
+    const baseProgress = (levelOrder - 1) * (100 / 6);
+    const levelProgress = (p.progressPercentage / 100) * (100 / 6);
 
     return Math.min(100, baseProgress + levelProgress);
   });

@@ -40,8 +40,8 @@ public class ProgressResponse {
                 .lessonsAtCurrentLevel(progress.getLessonsAtCurrentLevel())
                 .lessonsRequiredForNextLevel(progress.getLessonsRequiredForNextLevel())
                 .progressPercentage(progress.getProgressPercentage())
-                .nextLevel(current != ChessLevel.DAME ? next : null)
-                .nextLevelDisplayName(current != ChessLevel.DAME ? next.getDisplayName() : null)
+                .nextLevel(current != ChessLevel.ROI ? next : null)
+                .nextLevelDisplayName(current != ChessLevel.ROI ? next.getDisplayName() : null)
                 .lastLessonDate(progress.getLastLessonDate())
                 .createdAt(progress.getCreatedAt())
                 .build();

@@ -38,6 +38,9 @@ public class CourseDataInitializer implements CommandLineRunner {
             // Grade DAME (Expert) - 45 cours
             courses.addAll(createDameCourses());
 
+            // Grade ROI (Maître) - 45 cours
+            courses.addAll(createRoiCourses());
+
             courseRepository.saveAll(courses);
             System.out.println("✓ " + courses.size() + " cours initialisés avec succès");
         }
@@ -296,6 +299,57 @@ public class CourseDataInitializer implements CommandLineRunner {
             {"Vers la maîtrise complète", "Le chemin ne s'arrête jamais"}
         };
         return createCoursesForLevel(data, ChessLevel.DAME, 30);
+    }
+
+    private List<Course> createRoiCourses() {
+        String[][] data = {
+            {"La théorie des cases correspondantes", "Maîtrisez les finales de pions complexes"},
+            {"Les finales de Tours théoriques avancées", "Positions critiques à connaître"},
+            {"Le principe des deux faiblesses", "Exploitez les faiblesses multiples"},
+            {"La forteresse", "L'art de construire une défense imprenable"},
+            {"Les sacrifices de pièce pour l'attaque", "Quand sacrifier vaut le gain"},
+            {"L'attaque Anglaise contre la Najdorf", "Préparation d'une arme redoutable"},
+            {"Les structures Maroczy Bind", "Domination spatiale stratégique"},
+            {"La transformation des avantages", "Convertissez vos atouts en victoire"},
+            {"Les finales de Cavalier complexes", "Subtilités du Cavalier en finale"},
+            {"L'initiative permanente", "Gardez la pression sans relâche"},
+            {"Les sacrifices de qualité modernes", "Quand la Tour vaut moins que la position"},
+            {"Les positions IQP avancées", "Pion Dame isolé: force ou faiblesse?"},
+            {"La préparation spécifique", "Préparer contre un adversaire précis"},
+            {"Les structures de pions Carlsbad", "Plans typiques et manœuvres"},
+            {"L'attaque minoritaire approfondie", "Quand et comment l'appliquer"},
+            {"Les finales Fou contre Cavalier", "Évaluation précise"},
+            {"Le zeitnot stratégique", "Profiter du manque de temps adverse"},
+            {"Les coups prophylactiques avancés", "Anticipez les menaces cachées"},
+            {"La restriction maximale", "Paralysez les pièces adverses"},
+            {"Les études de finales célèbres", "Trouvailles géniales à connaître"},
+            {"Le jeu en zeitnot", "Technique sous pression temporelle"},
+            {"Les parties à double tranchant", "Naviguer dans le chaos calculé"},
+            {"L'évaluation des positions non-standard", "Au-delà des règles classiques"},
+            {"Les gambits positionnels modernes", "Sacrifices d'espace et de temps"},
+            {"La défense des positions inférieures", "Maximisez vos chances de sauvetage"},
+            {"Les finales de pions avec Roi actif", "Technique du Roi centralisé"},
+            {"L'ouverture Catalane approfondie", "Plans stratégiques et pièges"},
+            {"La variante Sveshnikov de la Sicilienne", "Comprendre le pion arriéré d5"},
+            {"Les structures Hedgehog", "Défense élastique et contre-jeu"},
+            {"Le jeu avec deux résultats possibles", "Jouer pour gagner ou annuler"},
+            {"Les positions avec roques opposés", "Course aux attaques maîtrisée"},
+            {"L'analyse de parties de champions", "Méthode d'étude approfondie"},
+            {"Les nouveautés théoriques profondes", "Comment innover en ouverture"},
+            {"La préparation psychologique avancée", "Gérer la pression du haut niveau"},
+            {"Les parties lentes vs parties rapides", "Adapter son approche au format"},
+            {"Le blitz de haut niveau", "Réflexes et intuition aiguisés"},
+            {"Les tendances modernes des ouvertures", "État de l'art théorique"},
+            {"L'utilisation avancée des moteurs", "Analyse assistée intelligente"},
+            {"Les finales de Dames complexes", "Technique et calcul précis"},
+            {"Le jeu positionnel de Karpov", "La méthode du Boa"},
+            {"Le jeu dynamique de Kasparov", "L'attaque comme philosophie"},
+            {"Le style universel de Carlsen", "Adaptabilité maximale"},
+            {"La préparation en tournoi d'élite", "Routine du joueur professionnel"},
+            {"L'analyse post-mortem approfondie", "Tirez le maximum de vos parties"},
+            {"Vers la maîtrise absolue", "Le voyage ne fait que commencer"}
+        };
+        return createCoursesForLevel(data, ChessLevel.ROI, 35);
     }
 
     private List<Course> createCoursesForLevel(String[][] data, ChessLevel level, int baseMinutes) {

@@ -168,7 +168,8 @@ export class QuizService {
       CAVALIER: '♞',
       FOU: '♝',
       TOUR: '♜',
-      DAME: '♛'
+      DAME: '♛',
+      ROI: '♚'
     };
     return icons[level];
   }
@@ -179,7 +180,8 @@ export class QuizService {
       CAVALIER: 'Cavalier',
       FOU: 'Fou',
       TOUR: 'Tour',
-      DAME: 'Dame'
+      DAME: 'Dame',
+      ROI: 'Roi'
     };
     return labels[level];
   }

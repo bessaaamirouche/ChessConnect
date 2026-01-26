@@ -1,6 +1,6 @@
 export type UserRole = 'STUDENT' | 'TEACHER' | 'ADMIN';
 
-export type ChessLevel = 'PION' | 'CAVALIER' | 'FOU' | 'TOUR' | 'DAME';
+export type ChessLevel = 'PION' | 'CAVALIER' | 'FOU' | 'TOUR' | 'DAME' | 'ROI';
 
 export interface User {
   id: number;
@@ -110,5 +110,6 @@ export const CHESS_LEVELS: Record<ChessLevel, { order: number; label: string; de
   CAVALIER: { order: 2, label: 'Cavalier', description: 'Intermédiaire' },
   FOU: { order: 3, label: 'Fou', description: 'Confirmé' },
   TOUR: { order: 4, label: 'Tour', description: 'Avancé' },
-  DAME: { order: 5, label: 'Dame', description: 'Expert' }
+  DAME: { order: 5, label: 'Dame', description: 'Expert' },
+  ROI: { order: 6, label: 'Roi', description: 'Maître' }
 };

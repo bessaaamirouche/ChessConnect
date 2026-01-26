@@ -195,7 +195,8 @@ export class LearningPathService {
       CAVALIER: '♞',
       FOU: '♝',
       TOUR: '♜',
-      DAME: '♛'
+      DAME: '♛',
+      ROI: '♚'
     };
     return icons[grade];
   }
@@ -206,7 +207,8 @@ export class LearningPathService {
       CAVALIER: '#22c55e',
       FOU: '#3b82f6',
       TOUR: '#a855f7',
-      DAME: '#eab308'
+      DAME: '#eab308',
+      ROI: '#dc2626'
     };
     return colors[grade];
   }

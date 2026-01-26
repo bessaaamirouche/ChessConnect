@@ -33,7 +33,7 @@ type QuizStep = 'intro' | 'questions' | 'result';
 export class QuizComponent implements OnInit {
   step = signal<QuizStep>('intro');
   CHESS_LEVELS = CHESS_LEVELS;
-  levels: ChessLevel[] = ['PION', 'CAVALIER', 'FOU', 'TOUR', 'DAME'];
+  levels: ChessLevel[] = ['PION', 'CAVALIER', 'FOU', 'TOUR', 'DAME', 'ROI'];
 
   constructor(
     public quizService: QuizService,
@@ -78,6 +78,11 @@ export class QuizComponent implements OnInit {
 
   goPrevious(): void {
     this.quizService.goToPrevious();
+  }
+
+  skipQuestion(): void {
+    // Skip to next question without answering
+    this.quizService.goToNext();
   }
 
   submitQuiz(): void {

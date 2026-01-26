@@ -130,6 +130,7 @@ public class QuizService {
         quizResult.setFouScore(scoresByLevel.get(ChessLevel.FOU));
         quizResult.setTourScore(scoresByLevel.get(ChessLevel.TOUR));
         quizResult.setDameScore(scoresByLevel.get(ChessLevel.DAME));
+        quizResult.setRoiScore(scoresByLevel.get(ChessLevel.ROI));
 
         resultRepository.save(quizResult);
 
@@ -183,11 +184,12 @@ public class QuizService {
 
     private int calculateRequiredLessons(ChessLevel level) {
         return switch (level) {
-            case PION -> 10;
-            case CAVALIER -> 15;
-            case FOU -> 20;
-            case TOUR -> 25;
-            case DAME -> Integer.MAX_VALUE;
+            case PION -> 45;
+            case CAVALIER -> 45;
+            case FOU -> 45;
+            case TOUR -> 45;
+            case DAME -> 45;
+            case ROI -> Integer.MAX_VALUE;
         };
     }
 }

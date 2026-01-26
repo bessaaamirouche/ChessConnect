@@ -95,7 +95,8 @@ export class ProgressService {
       CAVALIER: '♞',
       FOU: '♝',
       TOUR: '♜',
-      DAME: '♛'
+      DAME: '♛',
+      ROI: '♚'
     };
     return icons[level];
   }
@@ -106,7 +107,8 @@ export class ProgressService {
       CAVALIER: '#22c55e',
       FOU: '#3b82f6',
       TOUR: '#a855f7',
-      DAME: '#eab308'
+      DAME: '#eab308',
+      ROI: '#dc2626'
     };
     return colors[level];
   }

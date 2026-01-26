@@ -21,6 +21,7 @@ public record QuizResultResponse(
         if (result.getFouScore() != null) scores.put(ChessLevel.FOU, result.getFouScore());
         if (result.getTourScore() != null) scores.put(ChessLevel.TOUR, result.getTourScore());
         if (result.getDameScore() != null) scores.put(ChessLevel.DAME, result.getDameScore());
+        if (result.getRoiScore() != null) scores.put(ChessLevel.ROI, result.getRoiScore());
 
         ChessLevel level = result.getDeterminedLevel();
         String message = generateMessage(level);
@@ -42,6 +43,7 @@ public record QuizResultResponse(
             case FOU -> "Excellentes connaissances ! Vous êtes prêt pour le niveau Fou.";
             case TOUR -> "Vous êtes un joueur avancé ! Vous commencez au niveau Tour.";
             case DAME -> "Impressionnant ! Vous maîtrisez les échecs au niveau Dame.";
+            case ROI -> "Exceptionnel ! Vous êtes un véritable maître des échecs au niveau Roi.";
         };
     }
 }

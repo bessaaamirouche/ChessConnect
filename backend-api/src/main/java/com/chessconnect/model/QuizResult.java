@@ -35,6 +35,9 @@ public class QuizResult {
     @Column(name = "dame_score")
     private Integer dameScore;
 
+    @Column(name = "roi_score")
+    private Integer roiScore;
+
     @Column(name = "completed_at", nullable = false)
     private LocalDateTime completedAt;
 
@@ -70,6 +73,9 @@ public class QuizResult {
 
     public Integer getDameScore() { return dameScore; }
     public void setDameScore(Integer dameScore) { this.dameScore = dameScore; }
+
+    public Integer getRoiScore() { return roiScore; }
+    public void setRoiScore(Integer roiScore) { this.roiScore = roiScore; }
 
     public LocalDateTime getCompletedAt() { return completedAt; }
     public void setCompletedAt(LocalDateTime completedAt) { this.completedAt = completedAt; }

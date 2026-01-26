@@ -282,6 +282,12 @@
     color: var(--text-muted);
   }
 
+  &__right {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+
   .btn {
     display: inline-flex;
     align-items: center;

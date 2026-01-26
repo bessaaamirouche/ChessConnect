@@ -5,7 +5,8 @@ public enum ChessLevel {
     CAVALIER(2, "Cavalier", "Intermédiaire"),
     FOU(3, "Fou", "Confirmé"),
     TOUR(4, "Tour", "Avancé"),
-    DAME(5, "Dame", "Expert");
+    DAME(5, "Dame", "Expert"),
+    ROI(6, "Roi", "Maître");
 
     private final int order;
     private final String displayName;
@@ -35,7 +36,8 @@ public enum ChessLevel {
             case CAVALIER -> FOU;
             case FOU -> TOUR;
             case TOUR -> DAME;
-            case DAME -> DAME;
+            case DAME -> ROI;
+            case ROI -> ROI;
         };
     }
 }

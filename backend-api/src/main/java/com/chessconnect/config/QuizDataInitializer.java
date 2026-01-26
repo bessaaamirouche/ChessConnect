@@ -25,15 +25,16 @@ public class QuizDataInitializer implements CommandLineRunner {
         if (questionRepository.count() == 0) {
             List<QuizQuestion> questions = new ArrayList<>();
 
-            // 5 questions per level = 25 total
+            // 5 questions per level = 30 total
             questions.addAll(createPionQuestions());
             questions.addAll(createCavalierQuestions());
             questions.addAll(createFouQuestions());
             questions.addAll(createTourQuestions());
             questions.addAll(createDameQuestions());
+            questions.addAll(createRoiQuestions());
 
             questionRepository.saveAll(questions);
-            System.out.println("✓ 25 questions de quiz initialisées avec succès");
+            System.out.println("✓ 30 questions de quiz initialisées avec succès");
         }
     }
 
@@ -361,6 +362,72 @@ public class QuizDataInitializer implements CommandLineRunner {
             "Fuir avec le Roi",
             "B",
             "La défense dynamique consiste à se défendre de façon active : créer des contre-menaces, maintenir l'initiative, utiliser des ressources tactiques plutôt que de défendre passivement.",
+            5
+        ));
+
+        return questions;
+    }
+
+    private List<QuizQuestion> createRoiQuestions() {
+        List<QuizQuestion> questions = new ArrayList<>();
+
+        questions.add(new QuizQuestion(
+            ChessLevel.ROI,
+            "Qu'est-ce que la théorie des cases correspondantes en finale de pions ?",
+            "Une technique pour calculer le mat",
+            "Un système pour déterminer quelles cases chaque Roi doit occuper pour gagner ou annuler",
+            "Une méthode pour évaluer les structures de pions",
+            "Une règle d'ouverture moderne",
+            "B",
+            "La théorie des cases correspondantes (ou conjugaison des cases) est un concept avancé des finales de pions où chaque case occupée par un Roi correspond à une case que l'autre Roi doit occuper pour maintenir l'équilibre.",
+            1
+        ));
+
+        questions.add(new QuizQuestion(
+            ChessLevel.ROI,
+            "Dans la variante Najdorf de la Sicilienne, quelle est l'idée derrière 6.Fg5 (l'Attaque Anglaise) ?",
+            "Développer le Fou rapidement",
+            "Préparer f4 et une attaque sur l'aile roi avec g4-g5",
+            "Échanger les Fous de cases noires",
+            "Contrôler la case d5",
+            "B",
+            "L'Attaque Anglaise (6.Fg5 suivi de Dd2, f3, 0-0-0, g4) vise une attaque directe sur le roque noir avec la poussée g4-g5 pour ouvrir des lignes contre le Roi.",
+            2
+        ));
+
+        questions.add(new QuizQuestion(
+            ChessLevel.ROI,
+            "Qu'est-ce que le concept de 'forteresse' aux échecs ?",
+            "Une position où le matériel supérieur ne peut pas forcer le gain",
+            "Un roque avec tous les pions intacts",
+            "Une structure de pions imprenable",
+            "Une technique d'attaque sur le Roi adverse",
+            "A",
+            "Une forteresse est une position défensive où malgré un désavantage matériel significatif, l'adversaire ne peut pas progresser ni forcer le gain. C'est un concept crucial en finale.",
+            3
+        ));
+
+        questions.add(new QuizQuestion(
+            ChessLevel.ROI,
+            "Quelle est la caractéristique principale du système de Maroczy (Bind) ?",
+            "Une attaque rapide sur le Roi",
+            "Le contrôle spatial avec les pions c4 et e4 empêchant ...d5",
+            "Un sacrifice de pion pour l'initiative",
+            "Un système basé sur le fianchetto des deux Fous",
+            "B",
+            "Le Maroczy Bind (étau de Maroczy) est une structure où les Blancs placent leurs pions en c4 et e4, contrôlant d5 et limitant l'espace des Noirs. C'est une arme stratégique durable.",
+            4
+        ));
+
+        questions.add(new QuizQuestion(
+            ChessLevel.ROI,
+            "Qu'est-ce que le principe de la 'transformation des avantages' de Steinitz ?",
+            "Échanger ses pièces quand on a l'avantage",
+            "Convertir un type d'avantage temporaire en un avantage permanent d'une autre nature",
+            "Transformer un pion en Dame",
+            "Changer de plan quand l'adversaire défend bien",
+            "B",
+            "La transformation des avantages est un concept stratégique où l'on convertit un avantage temporaire (initiative, espace) en un avantage permanent (structure de pions, matériel) avant qu'il ne disparaisse.",
             5
         ));
 

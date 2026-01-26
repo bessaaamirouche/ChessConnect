@@ -79,7 +79,7 @@ public class Progress {
         this.lessonsAtCurrentLevel++;
         this.lastLessonDate = LocalDateTime.now();
 
-        if (lessonsAtCurrentLevel >= lessonsRequiredForNextLevel && currentLevel != ChessLevel.DAME) {
+        if (lessonsAtCurrentLevel >= lessonsRequiredForNextLevel && currentLevel != ChessLevel.ROI) {
             levelUp();
         }
     }
@@ -96,12 +96,13 @@ public class Progress {
             case CAVALIER -> 45;
             case FOU -> 45;
             case TOUR -> 45;
-            case DAME -> 0; // Max level, no more required
+            case DAME -> 45;
+            case ROI -> 0; // Max level, no more required
         };
     }
 
     public double getProgressPercentage() {
-        if (currentLevel == ChessLevel.DAME) return 100.0;
+        if (currentLevel == ChessLevel.ROI) return 100.0;
         return (double) lessonsAtCurrentLevel / lessonsRequiredForNextLevel * 100;
     }
 }

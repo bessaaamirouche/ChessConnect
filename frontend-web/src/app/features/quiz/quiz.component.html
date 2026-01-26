@@ -7,16 +7,16 @@
           <h1 class="quiz-intro__title">Evaluez votre niveau</h1>
           <p class="quiz-intro__description">
             Ce quiz va determiner votre niveau aux echecs en vous posant des questions progressives,
-            du niveau Pion jusqu'au niveau Dame.
+            du niveau Pion jusqu'au niveau Roi.
           </p>
 
           <div class="quiz-intro__info">
             <div class="quiz-intro__info-item">
-              <span class="quiz-intro__info-value">25</span>
+              <span class="quiz-intro__info-value">30</span>
               <span class="quiz-intro__info-label">Questions</span>
             </div>
             <div class="quiz-intro__info-item">
-              <span class="quiz-intro__info-value">5</span>
+              <span class="quiz-intro__info-value">6</span>
               <span class="quiz-intro__info-label">Niveaux</span>
             </div>
             <div class="quiz-intro__info-item">
@@ -140,22 +140,34 @@
               {{ quizService.answeredCount() }} / {{ quizService.totalQuestions() }} repondues
             </span>
 
-            <button
-              class="btn btn--primary"
-              (click)="goNext()"
-              [disabled]="!quizService.currentAnswer() || quizService.submitting()"
-            >
-              @if (quizService.submitting()) {
-                <span class="spinner spinner--sm"></span>
-                Envoi...
-              } @else if (quizService.isLastQuestion()) {
-                Terminer
-                <ng-icon name="heroCheckCircle"></ng-icon>
-              } @else {
-                Suivant
-                <ng-icon name="heroArrowRight"></ng-icon>
+            <div class="quiz-nav__right">
+              @if (!quizService.isLastQuestion()) {
+                <button
+                  class="btn btn--ghost"
+                  (click)="skipQuestion()"
+                  [disabled]="quizService.submitting()"
+                >
+                  Passer
+                </button>
               }
-            </button>
+
+              <button
+                class="btn btn--primary"
+                (click)="goNext()"
+                [disabled]="!quizService.currentAnswer() || quizService.submitting()"
+              >
+                @if (quizService.submitting()) {
+                  <span class="spinner spinner--sm"></span>
+                  Envoi...
+                } @else if (quizService.isLastQuestion()) {
+                  Terminer
+                  <ng-icon name="heroCheckCircle"></ng-icon>
+                } @else {
+                  Suivant
+                  <ng-icon name="heroArrowRight"></ng-icon>
+                }
+              </button>
+            </div>
           </div>
         </div>
       }

@@ -133,7 +133,8 @@ export class ProgressComponent implements OnInit {
       CAVALIER: 45,
       FOU: 45,
       TOUR: 45,
-      DAME: 0
+      DAME: 45,
+      ROI: 0
     };
     return requirements[level];
   }

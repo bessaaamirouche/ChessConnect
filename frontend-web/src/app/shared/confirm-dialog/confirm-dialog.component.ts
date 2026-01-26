@@ -271,15 +271,15 @@ export interface ConfirmDialogConfig {
       }
 
       &--danger {
-        color: #ef4444;
+        color: var(--gold-400);
         font-weight: 600;
 
         &:hover {
-          background: rgba(239, 68, 68, 0.1);
+          background: rgba(212, 168, 75, 0.1);
         }
 
         &:active {
-          background: rgba(239, 68, 68, 0.15);
+          background: rgba(212, 168, 75, 0.15);
         }
       }
     }

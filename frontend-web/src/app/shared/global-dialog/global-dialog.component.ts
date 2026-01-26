@@ -232,11 +232,11 @@ import {
     }
 
     .dialog__btn--danger {
-      background: #ef4444;
-      color: white;
+      background: var(--gold-400, #d4a84b);
+      color: var(--bg-primary, #0f0f12);
 
       &:hover {
-        background: #dc2626;
+        background: var(--gold-500, #c9a043);
         transform: translateY(-1px);
       }
     }

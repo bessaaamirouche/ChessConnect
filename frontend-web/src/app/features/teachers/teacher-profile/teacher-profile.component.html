@@ -64,7 +64,7 @@
               <!-- Email notifications toggle (Premium only) -->
               @if (isFavorite() && paymentService.hasActiveSubscription()) {
                 <label class="notify-toggle" (click)="toggleNotifications()">
-                  <span class="notify-toggle__label">M'alerter par email</span>
+                  <span class="notify-toggle__label">Recevoir ses disponibilites par email</span>
                   <span class="notify-toggle__switch" [class.notify-toggle__switch--active]="notifyEnabled()">
                     <span class="notify-toggle__knob"></span>
                   </span>

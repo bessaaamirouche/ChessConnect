@@ -44,21 +44,19 @@ $text-muted: #6b6965;
   left: 0;
   right: 0;
   z-index: 1000;
-  padding: var(--space-sm) var(--space-md);
+  padding: var(--space-md) var(--space-lg);
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-
-  @include respond-to(md) {
-    padding: var(--space-md) var(--space-lg);
-  }
 
   @include respond-to(lg) {
     padding: var(--space-lg) var(--space-xl);
   }
 
   &--scrolled {
-    background: rgba($bg-dark, 0.9);
-    backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba($gold, 0.1);
+    @include respond-to(lg) {
+      background: rgba($bg-dark, 0.9);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba($gold, 0.1);
+    }
   }
 
   &__container {
@@ -71,27 +69,22 @@ $text-muted: #6b6965;
   }
 
   &__logo {
-    display: none; // Hidden on mobile to save space for pills
+    display: none;
     align-items: center;
     z-index: 1001;
     position: absolute;
     left: 0;
 
-    @include respond-to(md) {
+    @include respond-to(lg) {
       display: flex;
     }
 
     &-img {
-      height: 32px;
+      height: 44px;
       width: auto;
-      max-width: 120px;
+      max-width: 180px;
       object-fit: contain;
       transition: transform var(--transition-fast);
-
-      @include respond-to(lg) {
-        height: 44px;
-        max-width: 180px;
-      }
 
       &:hover {
         transform: scale(1.05);
@@ -99,20 +92,168 @@ $text-muted: #6b6965;
     }
   }
 
+  // Disney+ Style Hamburger Button
   &__hamburger {
-    display: none; // Hidden on all screen sizes - using pills navbar instead
+    position: fixed;
+    top: var(--space-md);
+    right: var(--space-md);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    width: 44px;
+    height: 44px;
+    background: rgba(30, 30, 35, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 9999;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+
+    @include respond-to(lg) {
+      display: none;
+    }
+
+    span {
+      display: block;
+      width: 18px;
+      height: 2px;
+      background: #ffffff;
+      border-radius: 2px;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    &:hover {
+      background: rgba(50, 50, 55, 0.95);
+    }
+
+    &.active {
+      background: #ffffff;
+
+      span {
+        background: #0a0a0c;
+      }
+
+      span:nth-child(1) {
+        transform: rotate(45deg) translate(5px, 5px);
+      }
+      span:nth-child(2) {
+        opacity: 0;
+      }
+      span:nth-child(3) {
+        transform: rotate(-45deg) translate(5px, -5px);
+      }
+    }
   }
 
   &__mobile-overlay {
-    display: none; // Hidden - using pills navbar instead
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 1001;
+
+    &.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    @include respond-to(lg) {
+      display: none;
+    }
   }
 
+  // Disney+ Style Mobile Drawer
   &__links {
-    display: none; // Hidden - using pills navbar instead
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 240px;
+    background: rgba(20, 20, 24, 0.98);
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 80px var(--space-md) var(--space-lg);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    transform: translateX(100%);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 1002;
+    overflow-y: auto;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+
+    &.active {
+      transform: translateX(0);
+    }
+
+    @include respond-to(lg) {
+      display: none;
+    }
+
+    a:not(.nav__btn) {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 0.9375rem;
+      font-weight: 500;
+      padding: 12px 16px;
+      border-radius: 50px;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+
+      &:hover {
+        color: #ffffff;
+        background: rgba(255, 255, 255, 0.08);
+      }
+    }
   }
 
   &__mobile-actions {
-    display: none; // Hidden - using pills navbar instead
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: auto;
+    padding-top: var(--space-lg);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+
+    @include respond-to(lg) {
+      display: none;
+    }
+
+    .nav__btn {
+      display: block;
+      width: 100%;
+      text-align: center;
+      padding: 12px 16px;
+      font-size: 0.9375rem;
+      font-weight: 500;
+      border-radius: 50px;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+
+      &--primary {
+        background: #ffffff;
+        color: #0a0a0c;
+        font-weight: 600;
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.9);
+        }
+      }
+
+      &--ghost {
+        color: rgba(255, 255, 255, 0.6);
+        background: transparent;
+
+        &:hover {
+          color: #ffffff;
+          background: rgba(255, 255, 255, 0.08);
+        }
+      }
+    }
   }
 
   &__actions {
@@ -152,46 +293,30 @@ $text-muted: #6b6965;
 
   // Disney+ Style Pill Tabs Navigation
   &__pills {
-    display: flex;
+    display: none;
     align-items: center;
-    gap: 2px;
-    padding: 3px;
+    gap: 4px;
+    padding: 4px;
     background: rgba(30, 30, 35, 0.9);
     border-radius: 50px;
     border: 1px solid rgba(255, 255, 255, 0.08);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
 
-    @include respond-to(md) {
-      gap: 4px;
-      padding: 4px;
+    @include respond-to(lg) {
+      display: flex;
     }
   }
 
   &__pill {
     position: relative;
-    padding: 6px 10px;
-    font-size: 0.7rem;
+    padding: 10px 20px;
+    font-size: 0.875rem;
     font-weight: 500;
     color: rgba(255, 255, 255, 0.6);
     border-radius: 50px;
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     white-space: nowrap;
-
-    @include respond-to(sm) {
-      padding: 8px 14px;
-      font-size: 0.75rem;
-    }
-
-    @include respond-to(md) {
-      padding: 10px 18px;
-      font-size: 0.8125rem;
-    }
-
-    @include respond-to(lg) {
-      padding: 10px 20px;
-      font-size: 0.875rem;
-    }
 
     &:hover {
       color: rgba(255, 255, 255, 0.9);

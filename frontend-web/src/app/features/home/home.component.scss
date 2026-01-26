@@ -570,7 +570,7 @@ $text-muted: #6b6965;
 
       .btn {
         width: 100%;
-        max-width: 280px;
+        max-width: 200px;
         justify-content: center;
       }
     }
@@ -790,7 +790,7 @@ $text-muted: #6b6965;
 
   &--lg {
     padding: var(--space-md) var(--space-2xl);
-    font-size: 1rem;
+    font-size: 0.85rem;
   }
 
   &--xl {

@@ -1669,7 +1669,7 @@ public class ExerciseService {
             case CAVALIER -> DifficultyLevel.FACILE;
             case FOU -> DifficultyLevel.MOYEN;
             case TOUR -> DifficultyLevel.DIFFICILE;
-            case DAME -> DifficultyLevel.EXPERT;
+            case DAME, ROI -> DifficultyLevel.EXPERT;
         };
     }
 

@@ -15,6 +15,7 @@ public record NextCourseResponse(
             case FOU -> "Fou";
             case TOUR -> "Tour";
             case DAME -> "Dame";
+            case ROI -> "Roi";
         };
         return new NextCourseResponse(courseId, title, grade, gradeName);
     }

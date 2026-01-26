@@ -65,11 +65,12 @@ public class ProgressController {
 
     private int getLessonsRequired(ChessLevel level) {
         return switch (level) {
-            case PION -> 10;
-            case CAVALIER -> 15;
-            case FOU -> 20;
-            case TOUR -> 25;
-            case DAME -> 0;
+            case PION -> 45;
+            case CAVALIER -> 45;
+            case FOU -> 45;
+            case TOUR -> 45;
+            case DAME -> 45;
+            case ROI -> 0;
         };
     }
 

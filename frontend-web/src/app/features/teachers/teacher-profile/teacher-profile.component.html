@@ -129,17 +129,30 @@
             </div>
           }
 
-          <!-- Email notifications toggle (Premium only) -->
-          @if (authService.isStudent() && isFavorite() && paymentService.hasActiveSubscription()) {
+          <!-- Email notifications toggle (disabled for non-Premium) -->
+          @if (authService.isStudent() && isFavorite()) {
             <div class="info-section">
               <div class="info-row info-row--toggle">
                 <span class="info-row__label">Alertes email</span>
-                <label class="toggle" (click)="toggleNotifications(); $event.preventDefault()">
-                  <input type="checkbox" [checked]="notifyEnabled()">
-                  <span class="toggle__slider"></span>
-                </label>
+                @if (paymentService.hasActiveSubscription()) {
+                  <label class="toggle" (click)="toggleNotifications(); $event.preventDefault()">
+                    <input type="checkbox" [checked]="notifyEnabled()">
+                    <span class="toggle__slider"></span>
+                  </label>
+                } @else {
+                  <label class="toggle toggle--disabled">
+                    <input type="checkbox" disabled>
+                    <span class="toggle__slider"></span>
+                  </label>
+                }
               </div>
-              <p class="info-section__hint">Recevoir un email quand ce coach publie des creneaux</p>
+              @if (paymentService.hasActiveSubscription()) {
+                <p class="info-section__hint">Recevoir un email quand ce coach publie des creneaux</p>
+              } @else {
+                <p class="info-section__hint info-section__hint--premium">
+                  <a routerLink="/subscription">Passez Premium</a> pour recevoir les alertes de disponibilites
+                </p>
+              }
             </div>
           }
         </div>

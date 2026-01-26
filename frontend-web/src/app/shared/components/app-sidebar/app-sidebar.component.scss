@@ -101,6 +101,7 @@ $transition: 0.2s ease;
   position: fixed;
   top: 0;
   left: 0;
+  right: auto;
   bottom: 0;
   width: $sidebar-width;
   background: $sidebar-bg;
@@ -183,7 +184,11 @@ $transition: 0.2s ease;
   }
 
   @media (max-width: 768px) {
-    transform: translateX(-100%);
+    left: auto;
+    right: 0;
+    border-right: none;
+    border-left: 1px solid $sidebar-border;
+    transform: translateX(100%);
     width: $sidebar-width;
 
     &.mobile-active {

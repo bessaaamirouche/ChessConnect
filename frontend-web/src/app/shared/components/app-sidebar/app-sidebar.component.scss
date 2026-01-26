@@ -83,12 +83,12 @@ $transition: 0.2s ease;
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
-  z-index: 9991;
+  z-index: 9994;
   opacity: 0;
-  transition: opacity $transition;
+  transition: opacity 0.3s ease;
 
   &.active {
     display: block;
@@ -112,11 +112,6 @@ $transition: 0.2s ease;
   z-index: 9992;
   transition: width $transition, transform $transition;
 
-  // Solid background on mobile for better visibility
-  @media (max-width: 768px) {
-    background: $sidebar-bg;
-    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.5);
-  }
 
   &.collapsed {
     width: $sidebar-collapsed-width;
@@ -190,8 +185,13 @@ $transition: 0.2s ease;
   }
 
   @media (max-width: 768px) {
-    transform: translateX(-100%);
+    left: auto;
+    right: 0;
+    transform: translateX(100%);
     width: $sidebar-width;
+    background: #0d0d0d;
+    backdrop-filter: none;
+    z-index: 9995;
 
     &.mobile-active {
       transform: translateX(0);

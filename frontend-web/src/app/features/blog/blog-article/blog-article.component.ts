@@ -3,6 +3,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { ArticleService } from '../../../core/services/article.service';
 import { SeoService } from '../../../core/services/seo.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { ArticleDetail, ARTICLE_CATEGORIES } from '../../../core/models/article.model';
 import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.directive';
 import { MarkdownPipe } from '../../../shared/pipes/markdown.pipe';
@@ -22,10 +23,12 @@ export class BlogArticleComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private articleService = inject(ArticleService);
   private seoService = inject(SeoService);
+  authService = inject(AuthService);
 
   article = signal<ArticleDetail | null>(null);
   loading = signal(true);
   error = signal(false);
+  mobileMenuOpen = signal(false);
 
   categoryLabels = ARTICLE_CATEGORIES;
 
@@ -101,5 +104,13 @@ export class BlogArticleComponent implements OnInit {
   shareOnFacebook(): void {
     const url = encodeURIComponent(window.location.href);
     window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
+  }
+
+  toggleMobileMenu(): void {
+    this.mobileMenuOpen.update(open => !open);
+  }
+
+  closeMobileMenu(): void {
+    this.mobileMenuOpen.set(false);
   }
 }

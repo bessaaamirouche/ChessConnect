@@ -1,11 +1,56 @@
 <div class="blog">
+  <!-- Navbar -->
+  <nav class="nav">
+    <div class="nav__container">
+      <a routerLink="/" class="nav__logo">
+        <img src="assets/logo.png" alt="myChess" class="nav__logo-img">
+      </a>
+
+      <!-- Mobile hamburger -->
+      <button class="nav__hamburger" [class.active]="mobileMenuOpen()" (click)="toggleMobileMenu()">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <!-- Mobile menu overlay -->
+      <div class="nav__mobile-overlay" [class.active]="mobileMenuOpen()" (click)="closeMobileMenu()"></div>
+
+      <!-- Desktop Pill Tabs Navigation -->
+      <div class="nav__pills">
+        <a routerLink="/" class="nav__pill">Accueil</a>
+        <a routerLink="/teachers" class="nav__pill">Nos coachs</a>
+        <a routerLink="/blog" class="nav__pill nav__pill--active">Blog</a>
+        @if (authService.isAuthenticated()) {
+          <a routerLink="/dashboard" class="nav__pill">Mon Espace</a>
+        } @else {
+          <a routerLink="/login" class="nav__pill">S'identifier</a>
+          <a routerLink="/register" class="nav__pill">S'inscrire</a>
+        }
+      </div>
+
+      <!-- Mobile Drawer Menu -->
+      <div class="nav__links" [class.active]="mobileMenuOpen()">
+        <a routerLink="/" (click)="closeMobileMenu()">Accueil</a>
+        <a routerLink="/teachers" (click)="closeMobileMenu()">Nos coachs</a>
+        <a routerLink="/blog" (click)="closeMobileMenu()">Blog</a>
+
+        <!-- Mobile-only auth buttons -->
+        <div class="nav__mobile-actions">
+          @if (authService.isAuthenticated()) {
+            <a routerLink="/dashboard" class="nav__btn nav__btn--primary" (click)="closeMobileMenu()">Mon Espace</a>
+          } @else {
+            <a routerLink="/login" class="nav__btn nav__btn--ghost" (click)="closeMobileMenu()">S'identifier</a>
+            <a routerLink="/register" class="nav__btn nav__btn--primary" (click)="closeMobileMenu()">S'inscrire</a>
+          }
+        </div>
+      </div>
+    </div>
+  </nav>
+
   <!-- Header -->
   <header class="blog-header">
     <div class="blog-header__container">
-      <a routerLink="/" class="blog-header__back">
-        <ng-icon name="heroArrowLeft" size="20"></ng-icon>
-        Retour
-      </a>
       <h1 class="blog-header__title" appScrollReveal="fade-up">Blog</h1>
       <p class="blog-header__subtitle" appScrollReveal="fade-up" [revealDelay]="100">
         Conseils, strategies et actualites du monde des echecs

@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { ArticleService } from '../../../core/services/article.service';
 import { SeoService } from '../../../core/services/seo.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { ArticleList, ArticlePage, ARTICLE_CATEGORIES } from '../../../core/models/article.model';
 import { ScrollRevealDirective, StaggerRevealDirective } from '../../../shared/directives/scroll-reveal.directive';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
@@ -20,6 +21,7 @@ import { heroClock, heroArrowRight, heroArrowLeft } from '@ng-icons/heroicons/ou
 export class BlogListComponent implements OnInit {
   private articleService = inject(ArticleService);
   private seoService = inject(SeoService);
+  authService = inject(AuthService);
 
   articles = signal<ArticleList[]>([]);
   categories = signal<string[]>([]);
@@ -27,6 +29,7 @@ export class BlogListComponent implements OnInit {
   currentPage = signal(0);
   totalPages = signal(0);
   loading = signal(false);
+  mobileMenuOpen = signal(false);
 
   categoryLabels = ARTICLE_CATEGORIES;
 
@@ -93,5 +96,13 @@ export class BlogListComponent implements OnInit {
 
   formatDate(dateString: string): string {
     return this.articleService.formatDate(dateString);
+  }
+
+  toggleMobileMenu(): void {
+    this.mobileMenuOpen.update(open => !open);
+  }
+
+  closeMobileMenu(): void {
+    this.mobileMenuOpen.set(false);
   }
 }

@@ -105,7 +105,7 @@ $text-muted: #6b6965;
     width: 44px;
     height: 44px;
     background: rgba(30, 30, 35, 0.9);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba($gold, 0.2);
     border-radius: 50%;
     cursor: pointer;
     z-index: 9999;
@@ -121,20 +121,21 @@ $text-muted: #6b6965;
       display: block;
       width: 18px;
       height: 2px;
-      background: #ffffff;
+      background: $gold;
       border-radius: 2px;
       transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     &:hover {
       background: rgba(50, 50, 55, 0.95);
+      border-color: rgba($gold, 0.4);
     }
 
     &.active {
-      background: #ffffff;
+      background: $gold;
 
       span {
-        background: #0a0a0c;
+        background: $bg-dark;
       }
 
       span:nth-child(1) {
@@ -177,7 +178,7 @@ $text-muted: #6b6965;
     bottom: 0;
     width: 240px;
     background: rgba(20, 20, 24, 0.98);
-    border-left: 1px solid rgba(255, 255, 255, 0.08);
+    border-left: 1px solid rgba($gold, 0.2);
     padding: 80px var(--space-md) var(--space-lg);
     display: flex;
     flex-direction: column;
@@ -201,7 +202,7 @@ $text-muted: #6b6965;
     }
 
     a:not(.nav__btn) {
-      color: rgba(255, 255, 255, 0.6);
+      color: $ivory-muted;
       font-size: 0.9375rem;
       font-weight: 500;
       padding: 12px 16px;
@@ -209,8 +210,8 @@ $text-muted: #6b6965;
       transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 
       &:hover {
-        color: #ffffff;
-        background: rgba(255, 255, 255, 0.08);
+        color: $gold;
+        background: rgba($gold, 0.1);
       }
     }
   }
@@ -221,7 +222,7 @@ $text-muted: #6b6965;
     gap: 8px;
     margin-top: auto;
     padding-top: var(--space-lg);
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-top: 1px solid rgba($gold, 0.2);
 
     @include respond-to(lg) {
       display: none;
@@ -238,22 +239,22 @@ $text-muted: #6b6965;
       transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 
       &--primary {
-        background: #ffffff;
-        color: #0a0a0c;
+        background: $gold;
+        color: $bg-dark;
         font-weight: 600;
 
         &:hover {
-          background: rgba(255, 255, 255, 0.9);
+          background: $gold-light;
         }
       }
 
       &--ghost {
-        color: rgba(255, 255, 255, 0.6);
+        color: $ivory-muted;
         background: transparent;
 
         &:hover {
-          color: #ffffff;
-          background: rgba(255, 255, 255, 0.08);
+          color: $gold;
+          background: rgba($gold, 0.1);
         }
       }
     }
@@ -302,7 +303,7 @@ $text-muted: #6b6965;
     padding: 4px;
     background: rgba(30, 30, 35, 0.9);
     border-radius: 50px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba($gold, 0.2);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
 
@@ -316,22 +317,22 @@ $text-muted: #6b6965;
     padding: 10px 20px;
     font-size: 0.875rem;
     font-weight: 500;
-    color: rgba(255, 255, 255, 0.6);
+    color: $ivory-muted;
     border-radius: 50px;
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     white-space: nowrap;
 
     &:hover {
-      color: rgba(255, 255, 255, 0.9);
+      color: $ivory;
     }
 
     &--active {
-      background: #ffffff;
-      color: #0a0a0c;
+      background: $gold;
+      color: $bg-dark;
       font-weight: 600;
 
       &:hover {
-        color: #0a0a0c;
+        color: $bg-dark;
       }
     }
   }

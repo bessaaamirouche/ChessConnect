@@ -1,9 +1,9 @@
 <div class="user-layout app-background" [class.sidebar-collapsed]="sidebarCollapsed()">
-  <!-- Sidebar -->
-  <app-sidebar [sections]="sidebarSections()" (collapsedChange)="onSidebarCollapsedChange($event)"></app-sidebar>
-
   <!-- Main Content -->
   <main class="user-main">
     <router-outlet></router-outlet>
   </main>
+
+  <!-- Sidebar (after main so it renders on top) -->
+  <app-sidebar [sections]="sidebarSections()" (collapsedChange)="onSidebarCollapsedChange($event)"></app-sidebar>
 </div>

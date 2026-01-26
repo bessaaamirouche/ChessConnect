@@ -574,24 +574,20 @@ $transition: 0.2s ease;
   &__clear {
     display: flex;
     align-items: center;
-    gap: 4px;
-    padding: 4px 8px;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
     background: transparent;
     border: 1px solid rgba(231, 76, 60, 0.3);
     border-radius: 6px;
     color: #e74c3c;
-    font-size: 0.6875rem;
-    font-weight: 500;
     cursor: pointer;
     transition: $transition;
 
     &:hover {
-      background: rgba(231, 76, 60, 0.1);
+      background: rgba(231, 76, 60, 0.15);
       border-color: rgba(231, 76, 60, 0.5);
-    }
-
-    ng-icon {
-      font-size: 0.875rem;
     }
   }
 
@@ -646,7 +642,7 @@ $transition: 0.2s ease;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 12px;
-  cursor: pointer;
+  cursor: default;
   transition: all 0.2s ease;
   position: relative;
 
@@ -656,6 +652,40 @@ $transition: 0.2s ease;
 
     .notification-item__delete {
       opacity: 1;
+    }
+  }
+
+  // Clickable notifications (with link)
+  &.clickable {
+    cursor: pointer;
+
+    &:hover {
+      background: rgba(212, 168, 75, 0.1);
+      border-color: rgba(212, 168, 75, 0.25);
+      transform: translateX(2px);
+
+      .notification-item__title {
+        color: $accent-color;
+      }
+    }
+
+    // Add arrow indicator
+    &::after {
+      content: '→';
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.875rem;
+      color: $text-muted;
+      opacity: 0;
+      transition: all 0.2s ease;
+    }
+
+    &:hover::after {
+      opacity: 1;
+      color: $accent-color;
+      right: 8px;
     }
   }
 

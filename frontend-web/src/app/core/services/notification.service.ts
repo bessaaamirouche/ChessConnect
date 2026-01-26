@@ -163,7 +163,7 @@ export class NotificationService implements OnDestroy {
 
       byTeacher.forEach(({ teacherId }, teacherName) => {
         const message = `M. ${teacherName} vient d'ajouter une disponibilite`;
-        const link = `/teachers/${teacherId}`;
+        const link = `/book/${teacherId}`;
         this.toastService.info(message, 8000, link);
         this.notificationCenter.info('Nouvelle disponibilite', message, link);
       });

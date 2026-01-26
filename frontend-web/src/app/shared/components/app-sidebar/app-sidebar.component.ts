@@ -171,9 +171,8 @@ export interface SidebarSection {
               <div class="notification-center__header">
                 <span class="notification-center__title">Centre de notifications</span>
                 @if (notificationCenter.hasNotifications()) {
-                  <button class="notification-center__clear" (click)="clearAllNotifications()">
-                    <ng-icon name="heroTrash" size="14"></ng-icon>
-                    Tout effacer
+                  <button class="notification-center__clear" (click)="clearAllNotifications()" title="Tout effacer">
+                    <ng-icon name="heroTrash" size="16"></ng-icon>
                   </button>
                 }
               </div>
@@ -189,6 +188,7 @@ export interface SidebarSection {
                     <div
                       class="notification-item"
                       [class.unread]="!notification.read"
+                      [class.clickable]="notification.link"
                       [class.info]="notification.type === 'info'"
                       [class.success]="notification.type === 'success'"
                       [class.warning]="notification.type === 'warning'"

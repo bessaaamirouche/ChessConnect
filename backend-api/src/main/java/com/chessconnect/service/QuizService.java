@@ -134,10 +134,10 @@ public class QuizService {
 
         resultRepository.save(quizResult);
 
-        // Update student's progress level
-        updateStudentLevel(studentId, determinedLevel);
+        // NOTE: Quiz is now informational only - level is NOT updated
+        // The coach will evaluate and set the student's level during the first lesson
 
-        log.info("Quiz completed for student {}: determined level = {}", studentId, determinedLevel);
+        log.info("Quiz completed for student {} (informational): suggested level = {}", studentId, determinedLevel);
 
         return QuizResultResponse.from(quizResult, totalByLevel);
     }
@@ -156,40 +156,4 @@ public class QuizService {
                 });
     }
 
-    /**
-     * Update the student's progress to the determined level.
-     */
-    private void updateStudentLevel(Long studentId, ChessLevel newLevel) {
-        Progress progress = progressRepository.findByStudentId(studentId)
-                .orElse(null);
-
-        if (progress == null) {
-            // Create new progress if not exists
-            User student = userRepository.findById(studentId).orElse(null);
-            if (student != null) {
-                progress = new Progress();
-                progress.setStudent(student);
-            }
-        }
-
-        if (progress != null) {
-            progress.setCurrentLevel(newLevel);
-            progress.setLessonsAtCurrentLevel(0);
-            progress.setLessonsRequiredForNextLevel(calculateRequiredLessons(newLevel));
-            progressRepository.save(progress);
-
-            log.info("Updated progress for student {} to level {}", studentId, newLevel);
-        }
-    }
-
-    private int calculateRequiredLessons(ChessLevel level) {
-        return switch (level) {
-            case PION -> 45;
-            case CAVALIER -> 45;
-            case FOU -> 45;
-            case TOUR -> 45;
-            case DAME -> 45;
-            case ROI -> 0; // Max level, no more lessons required
-        };
-    }
 }

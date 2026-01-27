@@ -232,6 +232,55 @@ public class LearningPathService {
     }
 
     /**
+     * Set the student's level (Teacher only)
+     * This unlocks all courses at the given level and below
+     */
+    @Transactional
+    public void setStudentLevel(Long teacherId, Long studentId, ChessLevel level) {
+        User student = userRepository.findById(studentId)
+            .orElseThrow(() -> new RuntimeException("Student not found"));
+
+        Progress progress = progressRepository.findByStudentId(studentId)
+            .orElseGet(() -> {
+                Progress newProgress = new Progress();
+                newProgress.setStudent(student);
+                return newProgress;
+            });
+
+        // Update level and mark as evaluated by coach
+        progress.setCurrentLevel(level);
+        progress.setLevelSetByCoach(true);
+        progress.setEvaluatedByTeacherId(teacherId);
+        progress.setEvaluatedAt(java.time.LocalDateTime.now());
+        progress.setLessonsAtCurrentLevel(0);
+        progressRepository.save(progress);
+
+        // Unlock all courses at the given level and below
+        unlockCoursesForLevel(student, level);
+    }
+
+    /**
+     * Unlock all courses at the given level and below
+     */
+    private void unlockCoursesForLevel(User student, ChessLevel targetLevel) {
+        List<Course> allCourses = courseRepository.findAllOrderByGradeAndOrder();
+
+        for (Course course : allCourses) {
+            // Only unlock courses at or below the target level
+            if (course.getGrade().getOrder() <= targetLevel.getOrder()) {
+                // Check if progress already exists
+                if (!userCourseProgressRepository.existsByUserIdAndCourseId(student.getId(), course.getId())) {
+                    UserCourseProgress newProgress = new UserCourseProgress();
+                    newProgress.setUser(student);
+                    newProgress.setCourse(course);
+                    newProgress.setStatus(CourseStatus.IN_PROGRESS);
+                    userCourseProgressRepository.save(newProgress);
+                }
+            }
+        }
+    }
+
+    /**
      * Get student profile with all courses (for teachers)
      */
     @Transactional(readOnly = true)
@@ -243,6 +292,17 @@ public class LearningPathService {
             .orElse(null);
         ChessLevel currentLevel = studentProgress != null ? studentProgress.getCurrentLevel() : ChessLevel.PION;
         int totalLessonsCompleted = studentProgress != null ? studentProgress.getTotalLessonsCompleted() : 0;
+        Boolean levelSetByCoach = studentProgress != null ? studentProgress.getLevelSetByCoach() : false;
+        Long evaluatedByTeacherId = studentProgress != null ? studentProgress.getEvaluatedByTeacherId() : null;
+        java.time.LocalDateTime evaluatedAt = studentProgress != null ? studentProgress.getEvaluatedAt() : null;
+
+        // Get evaluator teacher name if exists
+        String evaluatedByTeacherName = null;
+        if (evaluatedByTeacherId != null) {
+            evaluatedByTeacherName = userRepository.findById(evaluatedByTeacherId)
+                .map(u -> u.getFirstName() + " " + u.getLastName())
+                .orElse(null);
+        }
 
         List<Course> allCourses = courseRepository.findAllOrderByGradeAndOrder();
         Map<Long, UserCourseProgress> progressMap = userCourseProgressRepository.findByUserId(studentId)
@@ -311,6 +371,10 @@ public class LearningPathService {
             student.getLastName(),
             currentLevel,
             totalLessonsCompleted,
+            levelSetByCoach,
+            evaluatedByTeacherId,
+            evaluatedByTeacherName,
+            evaluatedAt,
             grades
         );
     }

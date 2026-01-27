@@ -3,6 +3,7 @@ package com.chessconnect.controller;
 import com.chessconnect.dto.learningpath.CourseResponse;
 import com.chessconnect.dto.learningpath.LearningPathResponse;
 import com.chessconnect.dto.learningpath.NextCourseResponse;
+import com.chessconnect.dto.progress.SetLevelRequest;
 import com.chessconnect.dto.student.StudentProfileResponse;
 import com.chessconnect.security.UserDetailsImpl;
 import com.chessconnect.service.LearningPathService;
@@ -71,6 +72,21 @@ public class LearningPathController {
     @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<StudentProfileResponse> getStudentProfile(
             @PathVariable Long studentId) {
+        StudentProfileResponse response = learningPathService.getStudentProfile(studentId);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Set student level (Teacher only)
+     * This is used during the first lesson to evaluate and set the student's level
+     */
+    @PostMapping("/students/{studentId}/level")
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseEntity<StudentProfileResponse> setStudentLevel(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable Long studentId,
+            @RequestBody SetLevelRequest request) {
+        learningPathService.setStudentLevel(userDetails.getId(), studentId, request.level());
         StudentProfileResponse response = learningPathService.getStudentProfile(studentId);
         return ResponseEntity.ok(response);
     }

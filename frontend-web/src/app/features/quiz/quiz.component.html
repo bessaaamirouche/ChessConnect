@@ -4,10 +4,10 @@
       @if (step() === 'intro') {
         <div class="quiz-intro">
           <div class="quiz-intro__icon">♟</div>
-          <h1 class="quiz-intro__title">Evaluez votre niveau</h1>
+          <h1 class="quiz-intro__title">Testez vos connaissances</h1>
           <p class="quiz-intro__description">
-            Ce quiz va determiner votre niveau aux echecs en vous posant des questions progressives,
-            du niveau Pion jusqu'au niveau Roi.
+            Ce quiz est indicatif et vous permet de tester vos connaissances aux echecs.
+            Votre niveau officiel sera determine par votre coach lors de votre premier cours.
           </p>
 
           <div class="quiz-intro__info">
@@ -178,11 +178,15 @@
           <div class="quiz-result">
             <div class="quiz-result__header">
               <div class="quiz-result__icon">{{ getLevelIcon(result.determinedLevel) }}</div>
-              <h1 class="quiz-result__title">Votre niveau : {{ result.levelDisplayName }}</h1>
+              <h1 class="quiz-result__title">Niveau suggere : {{ result.levelDisplayName }}</h1>
               <p class="quiz-result__subtitle">{{ result.levelDescription }}</p>
             </div>
 
             <p class="quiz-result__message">{{ result.message }}</p>
+
+            <div class="quiz-result__notice">
+              <strong>Note :</strong> Ce resultat est indicatif. Votre coach evaluera officiellement votre niveau lors de votre premier cours avec des exercices pratiques.
+            </div>
 
             <!-- Scores by Level -->
             <div class="quiz-result__scores">

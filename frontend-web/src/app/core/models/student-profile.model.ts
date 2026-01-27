@@ -10,5 +10,9 @@ export interface StudentProfile {
   currentLevelDisplayName: string;
   totalLessonsCompleted: number;
   progressPercentage: number;
+  levelSetByCoach: boolean;
+  evaluatedByTeacherId?: number;
+  evaluatedByTeacherName?: string;
+  evaluatedAt?: string;
   courseProgress: GradeWithCourses[];
 }

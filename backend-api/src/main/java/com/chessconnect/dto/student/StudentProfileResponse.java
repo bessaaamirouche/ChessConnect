@@ -3,6 +3,7 @@ package com.chessconnect.dto.student;
 import com.chessconnect.dto.learningpath.GradeWithCoursesResponse;
 import com.chessconnect.model.enums.ChessLevel;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public record StudentProfileResponse(
@@ -14,6 +15,10 @@ public record StudentProfileResponse(
     String currentLevelDisplayName,
     Integer totalLessonsCompleted,
     Double progressPercentage,
+    Boolean levelSetByCoach,
+    Long evaluatedByTeacherId,
+    String evaluatedByTeacherName,
+    LocalDateTime evaluatedAt,
     List<GradeWithCoursesResponse> courseProgress
 ) {
     public static StudentProfileResponse create(
@@ -22,6 +27,10 @@ public record StudentProfileResponse(
         String lastName,
         ChessLevel currentLevel,
         Integer totalLessonsCompleted,
+        Boolean levelSetByCoach,
+        Long evaluatedByTeacherId,
+        String evaluatedByTeacherName,
+        LocalDateTime evaluatedAt,
         List<GradeWithCoursesResponse> courseProgress
     ) {
         int totalCourses = courseProgress.stream()
@@ -43,6 +52,10 @@ public record StudentProfileResponse(
             currentLevel.getDisplayName(),
             totalLessonsCompleted,
             progressPercentage,
+            levelSetByCoach,
+            evaluatedByTeacherId,
+            evaluatedByTeacherName,
+            evaluatedAt,
             courseProgress
         );
     }

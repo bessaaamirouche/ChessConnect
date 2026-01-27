@@ -1,8 +1,9 @@
 import { Component, Input, Output, EventEmitter, signal, OnInit } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { LearningPathService } from '../../core/services/learning-path.service';
 import { Course } from '../../core/models/learning-path.model';
-import { ChessLevel } from '../../core/models/user.model';
+import { ChessLevel, CHESS_LEVELS } from '../../core/models/user.model';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   heroXMark,
@@ -11,13 +12,14 @@ import {
   heroClock,
   heroCheckBadge,
   heroChevronDown,
-  heroChevronUp
+  heroChevronUp,
+  heroAcademicCap
 } from '@ng-icons/heroicons/outline';
 
 @Component({
   selector: 'app-student-profile-modal',
   standalone: true,
-  imports: [NgIconComponent, DecimalPipe],
+  imports: [NgIconComponent, DecimalPipe, FormsModule],
   viewProviders: [provideIcons({
     heroXMark,
     heroCheckCircle,
@@ -25,7 +27,8 @@ import {
     heroClock,
     heroCheckBadge,
     heroChevronDown,
-    heroChevronUp
+    heroChevronUp,
+    heroAcademicCap
   })],
   templateUrl: './student-profile-modal.component.html',
   styleUrl: './student-profile-modal.component.scss'
@@ -37,6 +40,14 @@ export class StudentProfileModalComponent implements OnInit {
 
   expandedGrade = signal<ChessLevel | null>(null);
   validatingCourse = signal<number | null>(null);
+  selectedLevel = signal<ChessLevel>('PION');
+  settingLevel = signal<boolean>(false);
+
+  readonly chessLevels = Object.entries(CHESS_LEVELS).map(([key, value]) => ({
+    value: key as ChessLevel,
+    label: value.label,
+    icon: value.icon
+  }));
 
   constructor(public learningPathService: LearningPathService) {}
 
@@ -88,6 +99,25 @@ export class StudentProfileModalComponent implements OnInit {
 
   canValidate(course: Course): boolean {
     return course.status === 'IN_PROGRESS' || course.status === 'PENDING_VALIDATION';
+  }
+
+  setLevel(): void {
+    if (this.settingLevel()) return;
+
+    this.settingLevel.set(true);
+    this.learningPathService.setStudentLevel(this.studentId, this.selectedLevel()).subscribe({
+      next: () => {
+        this.settingLevel.set(false);
+      },
+      error: () => {
+        this.settingLevel.set(false);
+      }
+    });
+  }
+
+  onLevelChange(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    this.selectedLevel.set(select.value as ChessLevel);
   }
 
   getGradeIcon(grade: ChessLevel): string {

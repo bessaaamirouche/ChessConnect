@@ -32,6 +32,15 @@ public class Progress {
     @Column(name = "last_lesson_date")
     private LocalDateTime lastLessonDate;
 
+    @Column(name = "level_set_by_coach", nullable = false)
+    private Boolean levelSetByCoach = false;
+
+    @Column(name = "evaluated_by_teacher_id")
+    private Long evaluatedByTeacherId;
+
+    @Column(name = "evaluated_at")
+    private LocalDateTime evaluatedAt;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -70,6 +79,15 @@ public class Progress {
 
     public LocalDateTime getLastLessonDate() { return lastLessonDate; }
     public void setLastLessonDate(LocalDateTime lastLessonDate) { this.lastLessonDate = lastLessonDate; }
+
+    public Boolean getLevelSetByCoach() { return levelSetByCoach; }
+    public void setLevelSetByCoach(Boolean levelSetByCoach) { this.levelSetByCoach = levelSetByCoach; }
+
+    public Long getEvaluatedByTeacherId() { return evaluatedByTeacherId; }
+    public void setEvaluatedByTeacherId(Long evaluatedByTeacherId) { this.evaluatedByTeacherId = evaluatedByTeacherId; }
+
+    public LocalDateTime getEvaluatedAt() { return evaluatedAt; }
+    public void setEvaluatedAt(LocalDateTime evaluatedAt) { this.evaluatedAt = evaluatedAt; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }

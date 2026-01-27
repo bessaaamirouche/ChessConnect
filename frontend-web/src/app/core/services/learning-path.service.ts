@@ -125,6 +125,21 @@ export class LearningPathService {
     );
   }
 
+  /**
+   * Set student level (Teacher only)
+   * This is used during the first lesson to evaluate and set the student's level
+   */
+  setStudentLevel(studentId: number, level: ChessLevel): Observable<StudentProfile> {
+    return this.http.post<StudentProfile>(
+      `${this.apiUrl}/students/${studentId}/level`,
+      { level }
+    ).pipe(
+      tap(profile => {
+        this.studentProfileSignal.set(profile);
+      })
+    );
+  }
+
   private updateCourseInPath(updatedCourse: Course): void {
     const currentPath = this.learningPathSignal();
     if (!currentPath) return;

@@ -5,6 +5,7 @@ import com.chessconnect.model.enums.InvoiceType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -48,7 +49,10 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
     List<Invoice> findByLessonId(Long lessonId);
 
     // Delete by user (for cascade delete)
+    @Modifying
     void deleteByCustomerId(Long customerId);
+
+    @Modifying
     void deleteByIssuerId(Long issuerId);
 
     // Find all invoices (admin)

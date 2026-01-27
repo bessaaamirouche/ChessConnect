@@ -4,6 +4,7 @@ import com.chessconnect.model.UserCourseProgress;
 import com.chessconnect.model.enums.ChessLevel;
 import com.chessconnect.model.enums.CourseStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -29,5 +30,6 @@ public interface UserCourseProgressRepository extends JpaRepository<UserCoursePr
 
     boolean existsByUserIdAndCourseId(Long userId, Long courseId);
 
+    @Modifying
     void deleteByUserId(Long userId);
 }

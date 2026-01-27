@@ -1,7 +1,9 @@
-import { Component, OnInit, signal, inject, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, inject, computed } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Subscription } from 'rxjs';
 import { AdminService, AccountingResponse, TeacherBalanceResponse } from '../../../core/services/admin.service';
+import { AdminStateService } from '../../../core/services/admin-state.service';
 import { DialogService } from '../../../core/services/dialog.service';
 
 @Component({
@@ -615,7 +617,7 @@ import { DialogService } from '../../../core/services/dialog.service';
     }
   `]
 })
-export class AccountingComponent implements OnInit {
+export class AccountingComponent implements OnInit, OnDestroy {
   accounting = signal<AccountingResponse | null>(null);
   balances = signal<TeacherBalanceResponse[]>([]);
   loading = signal(true);
@@ -623,6 +625,8 @@ export class AccountingComponent implements OnInit {
   searchQuery = '';
   transferAmounts: Map<number, number> = new Map(); // teacherId -> amount in cents
   private dialogService = inject(DialogService);
+  private adminStateService = inject(AdminStateService);
+  private stateSubscription?: Subscription;
 
   // Filtered balances based on search query
   filteredBalances = computed(() => {
@@ -647,6 +651,18 @@ export class AccountingComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadData();
+
+    // Subscribe to data changes from other admin components
+    this.stateSubscription = this.adminStateService.onDataChange$.subscribe((change) => {
+      // Refresh accounting data when users or lessons change
+      if (change.type === 'user' || change.type === 'lesson' || change.type === 'all') {
+        this.loadData();
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.stateSubscription?.unsubscribe();
   }
 
   loadData(): void {

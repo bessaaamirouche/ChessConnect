@@ -2,6 +2,7 @@ package com.chessconnect.repository;
 
 import com.chessconnect.model.TeacherPayout;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -18,5 +19,6 @@ public interface TeacherPayoutRepository extends JpaRepository<TeacherPayout, Lo
 
     List<TeacherPayout> findByIsPaidFalse();
 
+    @Modifying
     void deleteByTeacherId(Long teacherId);
 }

@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { SeoService } from '../../../core/services/seo.service';
+import { NotificationCenterService } from '../../../core/services/notification-center.service';
 import { UserRole, AVAILABLE_LANGUAGES } from '../../../core/models/user.model';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { heroAcademicCap, heroUserGroup, heroPlayCircle, heroArrowRight } from '@ng-icons/heroicons/outline';
@@ -19,6 +20,7 @@ import { DateInputComponent } from '../../../shared/components/date-input/date-i
 })
 export class RegisterComponent {
   private seoService = inject(SeoService);
+  private notificationCenter = inject(NotificationCenterService);
 
   registerForm: FormGroup;
   loading = signal(false);
@@ -123,6 +125,14 @@ export class RegisterComponent {
 
     this.authService.register(formValue).subscribe({
       next: () => {
+        // Send welcome notification
+        const roleName = this.selectedRole() === 'STUDENT' ? 'joueur' : 'coach';
+        this.notificationCenter.success(
+          'Bienvenue sur mychess !',
+          `Votre compte ${roleName} a ete cree avec succes. Bonne partie !`,
+          '/dashboard'
+        );
+
         // For students, show success screen with quiz option
         if (this.selectedRole() === 'STUDENT') {
           this.success.set(true);

@@ -10,6 +10,7 @@ import com.chessconnect.model.TeacherBalance;
 import com.chessconnect.model.User;
 import com.chessconnect.model.enums.InvoiceType;
 import com.chessconnect.model.enums.LessonStatus;
+import com.chessconnect.model.enums.PaymentStatus;
 import com.chessconnect.model.enums.UserRole;
 import com.chessconnect.model.TeacherPayout;
 import com.chessconnect.repository.*;
@@ -50,6 +51,9 @@ public class AdminService {
     private final ProgressRepository progressRepository;
     private final InvoiceRepository invoiceRepository;
     private final InvoiceService invoiceService;
+    private final WalletService walletService;
+    private final UserNotificationService userNotificationService;
+    private final UserNotificationRepository userNotificationRepository;
 
     public AdminService(
             UserRepository userRepository,
@@ -67,7 +71,10 @@ public class AdminService {
             PasswordResetTokenRepository passwordResetTokenRepository,
             ProgressRepository progressRepository,
             InvoiceRepository invoiceRepository,
-            InvoiceService invoiceService
+            InvoiceService invoiceService,
+            WalletService walletService,
+            UserNotificationService userNotificationService,
+            UserNotificationRepository userNotificationRepository
     ) {
         this.userRepository = userRepository;
         this.lessonRepository = lessonRepository;
@@ -85,6 +92,9 @@ public class AdminService {
         this.progressRepository = progressRepository;
         this.invoiceRepository = invoiceRepository;
         this.invoiceService = invoiceService;
+        this.walletService = walletService;
+        this.userNotificationService = userNotificationService;
+        this.userNotificationRepository = userNotificationRepository;
     }
 
     /**
@@ -194,7 +204,7 @@ public class AdminService {
 
     /**
      * Delete a user permanently.
-     * Checks for pending/confirmed lessons before deletion.
+     * For teachers: automatically cancels all pending/confirmed lessons and refunds students.
      * Deletes all related data in correct order to avoid FK constraint violations.
      */
     @Transactional
@@ -207,22 +217,28 @@ public class AdminService {
             throw new IllegalArgumentException("Cannot delete admin users");
         }
 
-        // Check for active lessons (PENDING or CONFIRMED) - optimized query
-        Long activeLessonsCount = lessonRepository.countActiveLessonsByUserId(userId);
+        log.info("Deleting user {} ({} {}) and all related data...", userId, user.getFirstName(), user.getLastName());
 
-        if (activeLessonsCount > 0) {
-            throw new IllegalArgumentException(
-                    "Impossible de supprimer cet utilisateur: " + activeLessonsCount + " cours en attente ou confirmes");
+        // For teachers: cancel all active lessons and refund students
+        if (user.getRole() == UserRole.TEACHER) {
+            cancelAndRefundTeacherLessons(userId, user.getFullName());
         }
 
-        log.info("Deleting user {} ({} {}) and all related data...", userId, user.getFirstName(), user.getLastName());
+        // For students: cancel their active lessons (student-initiated cancellation rules apply)
+        if (user.getRole() == UserRole.STUDENT) {
+            cancelStudentLessons(userId);
+        }
 
         // Delete all related data in correct order (FK dependencies)
         // 1. Password reset tokens
         passwordResetTokenRepository.deleteByUserId(userId);
         log.debug("Deleted password reset tokens for user {}", userId);
 
-        // 2. Ratings (as student who gave ratings, or as teacher who received ratings)
+        // 2. Ratings - delete ratings that reference lessons belonging to this user first (FK constraint)
+        ratingRepository.deleteByLessonUserId(userId);
+        log.debug("Deleted ratings by lesson for user {}", userId);
+
+        // 3. Ratings (as student who gave ratings, or as teacher who received ratings)
         ratingRepository.deleteByStudentId(userId);
         ratingRepository.deleteByTeacherId(userId);
         log.debug("Deleted ratings for user {}", userId);
@@ -275,9 +291,134 @@ public class AdminService {
         progressRepository.deleteByStudentId(userId);
         log.debug("Deleted progress for user {}", userId);
 
-        // 11. Finally delete the user
+        // 11. User notifications
+        userNotificationRepository.deleteByUserId(userId);
+        log.debug("Deleted notifications for user {}", userId);
+
+        // 12. Finally delete the user
         userRepository.delete(user);
         log.info("User {} deleted successfully", userId);
+    }
+
+    /**
+     * Cancel all active lessons for a teacher and refund students 100%.
+     * Called when admin deletes a teacher account.
+     */
+    private void cancelAndRefundTeacherLessons(Long teacherId, String teacherName) {
+        List<Lesson> activeLessons = lessonRepository.findByTeacherIdAndStatusIn(
+                teacherId,
+                List.of(LessonStatus.PENDING, LessonStatus.CONFIRMED)
+        );
+
+        if (activeLessons.isEmpty()) {
+            log.info("No active lessons to cancel for teacher {}", teacherId);
+            return;
+        }
+
+        log.info("Cancelling {} active lessons for teacher {} and refunding students...", activeLessons.size(), teacherId);
+
+        for (Lesson lesson : activeLessons) {
+            try {
+                // Set cancellation info
+                lesson.setCancelledBy("ADMIN");
+                lesson.setCancellationReason("Compte coach supprime par l'administrateur");
+                lesson.setCancelledAt(LocalDateTime.now());
+                lesson.setStatus(LessonStatus.CANCELLED);
+                lesson.setRefundPercentage(100); // Full refund for admin deletion
+
+                // Process refund to student's wallet
+                if (lesson.getPriceCents() != null && lesson.getPriceCents() > 0) {
+                    Payment payment = paymentRepository.findByLessonId(lesson.getId()).orElse(null);
+
+                    if (payment != null) {
+                        int refundAmount = lesson.getPriceCents();
+
+                        // Refund to student's wallet
+                        walletService.refundCreditForLesson(
+                                lesson.getStudent().getId(),
+                                lesson,
+                                lesson.getPriceCents(),
+                                100 // 100% refund
+                        );
+
+                        lesson.setRefundedAmountCents(refundAmount);
+                        payment.setStatus(PaymentStatus.REFUNDED);
+                        payment.setRefundReason("Compte coach supprime - remboursement 100%");
+                        paymentRepository.save(payment);
+
+                        // Generate credit note
+                        invoiceService.generateCreditNoteForWalletRefund(lesson, 100, refundAmount);
+
+                        // Send notification to student about the refund
+                        userNotificationService.notifyRefund(
+                                lesson.getStudent().getId(),
+                                refundAmount,
+                                "Suite a la suppression du compte de votre coach " + teacherName + "."
+                        );
+
+                        log.info("Refunded {} cents to student {} for lesson {}",
+                                refundAmount, lesson.getStudent().getId(), lesson.getId());
+                    }
+                }
+
+                lessonRepository.save(lesson);
+                log.info("Cancelled lesson {} (student: {}, scheduled: {})",
+                        lesson.getId(), lesson.getStudent().getEmail(), lesson.getScheduledAt());
+
+            } catch (Exception e) {
+                log.error("Failed to cancel/refund lesson {}: {}", lesson.getId(), e.getMessage());
+                // Continue with other lessons even if one fails
+            }
+        }
+
+        log.info("Finished cancelling {} lessons for teacher {}", activeLessons.size(), teacherId);
+    }
+
+    /**
+     * Cancel all active lessons for a student being deleted.
+     * Uses normal student cancellation rules (may not get full refund depending on timing).
+     */
+    private void cancelStudentLessons(Long studentId) {
+        List<Lesson> activeLessons = lessonRepository.findByStudentIdAndStatusIn(
+                studentId,
+                List.of(LessonStatus.PENDING, LessonStatus.CONFIRMED)
+        );
+
+        if (activeLessons.isEmpty()) {
+            log.info("No active lessons to cancel for student {}", studentId);
+            return;
+        }
+
+        log.info("Cancelling {} active lessons for student {}...", activeLessons.size(), studentId);
+
+        for (Lesson lesson : activeLessons) {
+            try {
+                // Set cancellation info - use ADMIN since admin is deleting
+                lesson.setCancelledBy("ADMIN");
+                lesson.setCancellationReason("Compte joueur supprime par l'administrateur");
+                lesson.setCancelledAt(LocalDateTime.now());
+                lesson.setStatus(LessonStatus.CANCELLED);
+                lesson.setRefundPercentage(100); // Full refund when admin deletes
+
+                // Process refund - but since student is being deleted, just mark as refunded
+                // No need to credit wallet since account is being deleted
+                if (lesson.getPriceCents() != null && lesson.getPriceCents() > 0) {
+                    Payment payment = paymentRepository.findByLessonId(lesson.getId()).orElse(null);
+                    if (payment != null) {
+                        lesson.setRefundedAmountCents(lesson.getPriceCents());
+                        payment.setStatus(PaymentStatus.REFUNDED);
+                        payment.setRefundReason("Compte joueur supprime - pas de remboursement (compte supprime)");
+                        paymentRepository.save(payment);
+                    }
+                }
+
+                lessonRepository.save(lesson);
+                log.info("Cancelled lesson {} for deleted student", lesson.getId());
+
+            } catch (Exception e) {
+                log.error("Failed to cancel lesson {} for student: {}", lesson.getId(), e.getMessage());
+            }
+        }
     }
 
     /**
@@ -525,12 +666,14 @@ public class AdminService {
     /**
      * Get admin dashboard stats
      * Optimized: Uses aggregate queries instead of loading all lessons into memory
+     * Note: totalUsers excludes ADMIN users to match the user list view
      */
     @Transactional(readOnly = true)
     public AdminStatsResponse getStats() {
-        long totalUsers = userRepository.count();
         long totalStudents = userRepository.countByRole(UserRole.STUDENT);
         long totalTeachers = userRepository.countByRole(UserRole.TEACHER);
+        // Exclude admins from total count to match user list view
+        long totalUsers = totalStudents + totalTeachers;
         long activeSubscriptions = subscriptionRepository.countByIsActiveTrue();
         long totalLessons = lessonRepository.count();
 

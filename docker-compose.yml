@@ -66,14 +66,17 @@ services:
       - chessconnect-network
     restart: unless-stopped
 
-  # Angular Frontend (served via Nginx)
+  # Angular Frontend (SSR with Node.js)
   frontend:
     build:
       context: ./frontend-web
       dockerfile: Dockerfile
     container_name: chessconnect-frontend
+    environment:
+      PORT: 4000
+      API_URL: http://backend:8282/api
     ports:
-      - "4200:80"
+      - "4200:4000"
     depends_on:
       - backend
     networks:

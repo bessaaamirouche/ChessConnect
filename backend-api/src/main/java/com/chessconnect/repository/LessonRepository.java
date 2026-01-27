@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import org.springframework.data.jpa.repository.Modifying;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Collection;
@@ -85,8 +87,10 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
     @Query("SELECT COUNT(l) FROM Lesson l WHERE l.scheduledAt BETWEEN :start AND :end")
     Long countByScheduledAtBetween(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 
+    @Modifying
     void deleteByStudentId(Long studentId);
 
+    @Modifying
     void deleteByTeacherId(Long teacherId);
 
     // Teacher profile stats
@@ -153,4 +157,8 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
     @Query("SELECT u.id, COUNT(l) FROM User u LEFT JOIN Lesson l ON (l.student.id = u.id OR l.teacher.id = u.id) " +
            "WHERE u.id IN :userIds GROUP BY u.id")
     List<Object[]> countLessonsByUserIds(@Param("userIds") List<Long> userIds);
+
+    // Find active lessons for teacher/student by status (for admin deletion with refund)
+    List<Lesson> findByTeacherIdAndStatusIn(Long teacherId, Collection<LessonStatus> statuses);
+    List<Lesson> findByStudentIdAndStatusIn(Long studentId, Collection<LessonStatus> statuses);
 }

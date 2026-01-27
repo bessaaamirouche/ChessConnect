@@ -1,5 +1,5 @@
-import { Component, Input, Output, EventEmitter, signal, computed, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, Input, Output, EventEmitter, signal, computed, inject, OnInit, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
@@ -25,10 +25,13 @@ import {
   heroExclamationCircle,
   heroInformationCircle,
   heroExclamationTriangle,
-  heroWallet
+  heroWallet,
+  heroStar
 } from '@ng-icons/heroicons/outline';
+import { heroStarSolid } from '@ng-icons/heroicons/solid';
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationCenterService, AppNotification } from '../../../core/services/notification-center.service';
+import { PaymentService } from '../../../core/services/payment.service';
 
 export interface SidebarItem {
   label: string;
@@ -72,7 +75,9 @@ export interface SidebarSection {
       heroExclamationCircle,
       heroInformationCircle,
       heroExclamationTriangle,
-      heroWallet
+      heroWallet,
+      heroStar,
+      heroStarSolid
     })
   ],
   template: `
@@ -248,17 +253,32 @@ export interface SidebarSection {
       <div class="sidebar__footer">
         @if (!collapsed()) {
           <div class="sidebar__user">
-            <div class="sidebar__user-avatar">
+            <div class="sidebar__user-avatar" [class.premium]="isPremium()">
               {{ userInitials() }}
+              @if (isPremium()) {
+                <span class="sidebar__user-avatar-badge">
+                  <ng-icon name="heroStarSolid" size="10"></ng-icon>
+                </span>
+              }
             </div>
             <div class="sidebar__user-info">
-              <span class="sidebar__user-name">{{ userName() }}</span>
+              <div class="sidebar__user-name-row">
+                <span class="sidebar__user-name">{{ userName() }}</span>
+                @if (isPremium()) {
+                  <span class="sidebar__premium-badge">PREMIUM</span>
+                }
+              </div>
               <span class="sidebar__user-role">{{ userRoleLabel() }}</span>
             </div>
           </div>
         } @else {
-          <div class="sidebar__user-avatar sidebar__user-avatar--small" [title]="userName()">
+          <div class="sidebar__user-avatar sidebar__user-avatar--small" [class.premium]="isPremium()" [title]="userName() + (isPremium() ? ' (Premium)' : '')">
             {{ userInitials() }}
+            @if (isPremium()) {
+              <span class="sidebar__user-avatar-badge sidebar__user-avatar-badge--small">
+                <ng-icon name="heroStarSolid" size="8"></ng-icon>
+              </span>
+            }
           </div>
         }
       </div>
@@ -266,13 +286,15 @@ export interface SidebarSection {
   `,
   styleUrl: './app-sidebar.component.scss'
 })
-export class AppSidebarComponent {
+export class AppSidebarComponent implements OnInit {
   @Input() sections: SidebarSection[] = [];
   @Output() onLogout = new EventEmitter<void>();
   @Output() collapsedChange = new EventEmitter<boolean>();
 
   private authService = inject(AuthService);
   private router = inject(Router);
+  private paymentService = inject(PaymentService);
+  private platformId = inject(PLATFORM_ID);
   notificationCenter = inject(NotificationCenterService);
 
   collapsed = signal(false);
@@ -301,9 +323,16 @@ export class AppSidebarComponent {
     }
   });
 
+  isPremium = computed(() => {
+    const user = this.authService.currentUser();
+    return user?.role === 'STUDENT' && this.paymentService.hasActiveSubscription();
+  });
+
   toggleCollapse(): void {
     this.collapsed.update(v => !v);
-    localStorage.setItem('sidebar_collapsed', String(this.collapsed()));
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem('sidebar_collapsed', String(this.collapsed()));
+    }
     this.collapsedChange.emit(this.collapsed());
   }
 
@@ -316,10 +345,17 @@ export class AppSidebarComponent {
   }
 
   ngOnInit(): void {
-    const saved = localStorage.getItem('sidebar_collapsed');
-    if (saved === 'true') {
-      this.collapsed.set(true);
-      this.collapsedChange.emit(true);
+    if (isPlatformBrowser(this.platformId)) {
+      const saved = localStorage.getItem('sidebar_collapsed');
+      if (saved === 'true') {
+        this.collapsed.set(true);
+        this.collapsedChange.emit(true);
+      }
+    }
+
+    // Load subscription status for students
+    if (this.authService.isStudent()) {
+      this.paymentService.loadActiveSubscription().subscribe();
     }
   }
 

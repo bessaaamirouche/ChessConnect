@@ -65,6 +65,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormsModule } from '@angular/f
       </div>
 
       @if (showCalendar()) {
+        <div class="calendar-backdrop" (click)="showCalendar.set(false)"></div>
         <div class="calendar-dropdown">
           <div class="calendar-header">
             <button type="button" class="calendar-nav" (click)="prevMonth($event)">&lt;</button>
@@ -184,6 +185,18 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormsModule } from '@angular/f
       }
     }
 
+    .calendar-backdrop {
+      display: none;
+
+      @media (max-width: 768px) {
+        display: block;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+      }
+    }
+
     .calendar-dropdown {
       position: absolute;
       top: calc(100% + 8px);
@@ -195,6 +208,18 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormsModule } from '@angular/f
       padding: 12px;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
       min-width: 280px;
+
+      @media (max-width: 768px) {
+        position: fixed;
+        left: 50% !important;
+        right: auto;
+        transform: translateX(-50%);
+        top: auto;
+        bottom: 20px;
+        min-width: auto;
+        width: calc(100vw - 32px);
+        max-width: 320px;
+      }
     }
 
     .calendar-header {
@@ -213,6 +238,11 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormsModule } from '@angular/f
       border-radius: var(--radius-sm, 4px);
       font-size: 1rem;
       transition: all 0.2s;
+      min-height: 44px;
+      min-width: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
 
       &:hover {
         background: var(--bg-tertiary, #222);
@@ -240,6 +270,16 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormsModule } from '@angular/f
       color: var(--text-muted, #666);
       padding: 4px;
       text-transform: uppercase;
+      min-height: 36px;
+      min-width: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      @media (max-width: 768px) {
+        min-height: 44px;
+        min-width: 44px;
+      }
     }
 
     .calendar-days {
@@ -260,6 +300,14 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormsModule } from '@angular/f
       border-radius: var(--radius-sm, 4px);
       cursor: pointer;
       transition: all 0.15s;
+      min-height: 36px;
+      min-width: 36px;
+
+      @media (max-width: 768px) {
+        min-height: 44px;
+        min-width: 44px;
+        font-size: 1rem;
+      }
 
       &:hover:not(:disabled) {
         background: var(--bg-tertiary, #222);

@@ -233,7 +233,7 @@
 
 .student-fields {
   min-height: 140px;
-  overflow: hidden; // Empêche le débordement des inputs
+  overflow: visible; // Permet au calendrier de déborder
 
   // Fix date input overflow on mobile
   input[type="date"] {

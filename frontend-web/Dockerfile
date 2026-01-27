@@ -5,9 +5,19 @@ RUN npm ci
 COPY . .
 RUN npm run build -- --configuration=production
 
-FROM nginx:alpine
-COPY --from=build /app/dist/frontend-web/browser /usr/share/nginx/html
-COPY src/maintenance.html /usr/share/nginx/html/maintenance.html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+FROM node:20-alpine
+WORKDIR /app
+
+# Copy the built application
+COPY --from=build /app/dist/frontend-web ./dist/frontend-web
+
+# Copy package.json for production dependencies
+COPY --from=build /app/package*.json ./
+
+# Install only production dependencies
+RUN npm ci --omit=dev
+
+EXPOSE 4000
+ENV PORT=4000
+
+CMD ["node", "dist/frontend-web/server/server.mjs"]

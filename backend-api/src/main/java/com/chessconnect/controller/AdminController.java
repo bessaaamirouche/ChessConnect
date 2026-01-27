@@ -80,8 +80,14 @@ public class AdminController {
      */
     @DeleteMapping("/users/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable Long id) {
-        adminService.deleteUser(id);
-        return ResponseEntity.ok(Map.of("message", "User deleted successfully"));
+        try {
+            adminService.deleteUser(id);
+            return ResponseEntity.ok(Map.of("message", "User deleted successfully"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("message", "Erreur lors de la suppression: " + e.getMessage()));
+        }
     }
 
     // ============= LESSONS =============

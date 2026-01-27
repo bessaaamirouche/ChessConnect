@@ -1,7 +1,9 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, inject } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { AdminService, AdminStatsResponse, AnalyticsResponse } from '../../../core/services/admin.service';
+import { AdminStateService } from '../../../core/services/admin-state.service';
 import { RegistrationsChartComponent } from './components/registrations-chart.component';
 import { SubscriptionsChartComponent } from './components/subscriptions-chart.component';
 import { VisitsChartComponent } from './components/visits-chart.component';
@@ -301,18 +303,37 @@ Chart.register(...registerables);
     }
   `]
 })
-export class AdminDashboardComponent implements OnInit {
+export class AdminDashboardComponent implements OnInit, OnDestroy {
   stats = signal<AdminStatsResponse | null>(null);
   analytics = signal<AnalyticsResponse | null>(null);
   loading = signal(true);
   analyticsLoading = signal(true);
   selectedPeriod = signal<'day' | 'week' | 'month'>('day');
 
+  private adminStateService = inject(AdminStateService);
+  private stateSubscription?: Subscription;
+
   constructor(private adminService: AdminService) {}
 
   ngOnInit(): void {
     this.loadStats();
     this.loadAnalytics();
+
+    // Subscribe to data changes from other admin components
+    this.stateSubscription = this.adminStateService.onDataChange$.subscribe((change) => {
+      // Refresh stats when users or other data changes
+      if (change.type === 'user' || change.type === 'all') {
+        this.loadStats();
+      }
+      // Refresh analytics when relevant data changes
+      if (change.type === 'subscription' || change.type === 'all') {
+        this.loadAnalytics();
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.stateSubscription?.unsubscribe();
   }
 
   loadStats(): void {

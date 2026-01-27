@@ -1,4 +1,5 @@
-import { Injectable, NgZone, OnDestroy, inject } from '@angular/core';
+import { Injectable, NgZone, OnDestroy, inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { AuthService } from './auth.service';
 import { DialogService } from './dialog.service';
 import { Router } from '@angular/router';
@@ -17,6 +18,7 @@ export class InactivityService implements OnDestroy {
   private isWatching = false;
   private boundResetTimer: () => void;
   private dialogService = inject(DialogService);
+  private platformId = inject(PLATFORM_ID);
 
   constructor(
     private authService: AuthService,
@@ -27,7 +29,7 @@ export class InactivityService implements OnDestroy {
   }
 
   startWatching(): void {
-    if (!this.authService.isAuthenticated()) {
+    if (!isPlatformBrowser(this.platformId) || !this.authService.isAuthenticated()) {
       return;
     }
 
@@ -61,7 +63,7 @@ export class InactivityService implements OnDestroy {
    * Returns true if user should be logged out
    */
   private checkStoredActivity(): boolean {
-    if (typeof window === 'undefined') return false;
+    if (!isPlatformBrowser(this.platformId)) return false;
 
     const lastActivity = localStorage.getItem(this.LAST_ACTIVITY_KEY);
     if (lastActivity) {
@@ -83,7 +85,7 @@ export class InactivityService implements OnDestroy {
    * Store the last activity timestamp
    */
   private storeLastActivity(): void {
-    if (typeof window !== 'undefined') {
+    if (isPlatformBrowser(this.platformId)) {
       localStorage.setItem(this.LAST_ACTIVITY_KEY, Date.now().toString());
     }
   }
@@ -92,7 +94,7 @@ export class InactivityService implements OnDestroy {
    * Clear stored activity timestamp
    */
   private clearStoredActivity(): void {
-    if (typeof window !== 'undefined') {
+    if (isPlatformBrowser(this.platformId)) {
       localStorage.removeItem(this.LAST_ACTIVITY_KEY);
     }
   }
@@ -100,10 +102,12 @@ export class InactivityService implements OnDestroy {
   stopWatching(): void {
     this.isWatching = false;
 
-    const events = ['mousedown', 'mousemove', 'keydown', 'scroll', 'touchstart', 'click'];
-    events.forEach(event => {
-      document.removeEventListener(event, this.boundResetTimer);
-    });
+    if (isPlatformBrowser(this.platformId)) {
+      const events = ['mousedown', 'mousemove', 'keydown', 'scroll', 'touchstart', 'click'];
+      events.forEach(event => {
+        document.removeEventListener(event, this.boundResetTimer);
+      });
+    }
 
     this.clearTimers();
   }

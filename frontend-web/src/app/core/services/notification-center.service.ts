@@ -1,23 +1,43 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import { interval, Subscription } from 'rxjs';
 
 export interface AppNotification {
   id: string;
-  type: 'info' | 'success' | 'warning' | 'error';
+  type: 'info' | 'success' | 'warning' | 'error' | 'refund';
   title: string;
   message: string;
   timestamp: Date;
   read: boolean;
   link?: string;
+  fromBackend?: boolean; // Track if notification came from backend
+}
+
+interface BackendNotification {
+  id: number;
+  type: string;
+  title: string;
+  message: string;
+  link: string | null;
+  isRead: boolean;
+  createdAt: string;
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class NotificationCenterService {
-  private readonly STORAGE_KEY = 'mychess_notifications';
+  private readonly STORAGE_KEY_PREFIX = 'mychess_notifications_';
   private readonly MAX_NOTIFICATIONS = 50;
+  private readonly POLL_INTERVAL_MS = 30000; // Poll every 30 seconds
 
+  private http = inject(HttpClient);
+  private platformId = inject(PLATFORM_ID);
   private notificationsSignal = signal<AppNotification[]>([]);
+  private currentUserId: number | null = null;
+  private pollingSubscription?: Subscription;
+  private knownBackendIds = new Set<number>();
 
   readonly notifications = this.notificationsSignal.asReadonly();
 
@@ -30,7 +50,118 @@ export class NotificationCenterService {
   );
 
   constructor() {
+    // Don't load from storage in constructor - wait for user initialization
+  }
+
+  /**
+   * Initialize notifications for a specific user
+   * Called when user logs in
+   */
+  initializeForUser(userId: number): void {
+    // Always clear current state when initializing for a user
+    // This handles both switching users and fresh logins after logout
+    if (this.currentUserId !== userId) {
+      this.notificationsSignal.set([]);
+      this.knownBackendIds.clear();
+    }
+
+    this.currentUserId = userId;
     this.loadFromStorage();
+    this.fetchBackendNotifications();
+    this.startPolling();
+  }
+
+  /**
+   * Clear notifications and reset state when user logs out
+   */
+  clearOnLogout(): void {
+    this.stopPolling();
+    this.notificationsSignal.set([]);
+    this.currentUserId = null;
+    this.knownBackendIds.clear();
+  }
+
+  /**
+   * Start polling for backend notifications
+   */
+  private startPolling(): void {
+    this.stopPolling();
+    this.pollingSubscription = interval(this.POLL_INTERVAL_MS).subscribe(() => {
+      this.fetchBackendNotifications();
+    });
+  }
+
+  /**
+   * Stop polling
+   */
+  private stopPolling(): void {
+    this.pollingSubscription?.unsubscribe();
+    this.pollingSubscription = undefined;
+  }
+
+  /**
+   * Fetch notifications from backend and merge with local ones
+   */
+  private fetchBackendNotifications(): void {
+    if (this.currentUserId === null) return;
+
+    this.http.get<BackendNotification[]>('/api/notifications/unread').subscribe({
+      next: (backendNotifications) => {
+        // Add new backend notifications that we haven't seen before
+        for (const bn of backendNotifications) {
+          if (!this.knownBackendIds.has(bn.id)) {
+            this.knownBackendIds.add(bn.id);
+
+            // Convert backend notification to app notification
+            const appNotification: AppNotification = {
+              id: `backend-${bn.id}`,
+              type: this.mapBackendType(bn.type),
+              title: bn.title,
+              message: bn.message,
+              timestamp: new Date(bn.createdAt),
+              read: bn.isRead,
+              link: bn.link || undefined,
+              fromBackend: true
+            };
+
+            // Add to the beginning of the list
+            this.notificationsSignal.update(notifications => {
+              const updated = [appNotification, ...notifications];
+              return updated.slice(0, this.MAX_NOTIFICATIONS);
+            });
+          }
+        }
+        this.saveToStorage();
+      },
+      error: (err) => {
+        // Silently fail - notifications are not critical
+        console.debug('Failed to fetch backend notifications:', err);
+      }
+    });
+  }
+
+  /**
+   * Map backend notification type to frontend type
+   */
+  private mapBackendType(backendType: string): AppNotification['type'] {
+    const typeMap: Record<string, AppNotification['type']> = {
+      'info': 'info',
+      'success': 'success',
+      'warning': 'warning',
+      'error': 'error',
+      'refund': 'success', // Show refunds as success
+      'lesson_confirmed': 'success',
+      'lesson_cancelled': 'warning',
+      'new_booking': 'info'
+    };
+    return typeMap[backendType.toLowerCase()] || 'info';
+  }
+
+  private getStorageKey(): string {
+    if (this.currentUserId === null) {
+      return this.STORAGE_KEY_PREFIX + 'anonymous';
+    }
+    return this.STORAGE_KEY_PREFIX + this.currentUserId;
   }
 
   /**
@@ -82,22 +213,35 @@ export class NotificationCenterService {
   }
 
   /**
-   * Mark a notification as read
+   * Mark a notification as read (deletes it immediately)
    */
   markAsRead(id: string): void {
+    // If it's a backend notification, mark as read on the server (which deletes it)
+    if (id.startsWith('backend-')) {
+      const backendId = id.replace('backend-', '');
+      this.http.patch(`/api/notifications/${backendId}/read`, {}).subscribe({
+        error: (err) => console.debug('Failed to mark notification as read on server:', err)
+      });
+    }
+
+    // Remove from local list immediately
     this.notificationsSignal.update(notifications =>
-      notifications.map(n => n.id === id ? { ...n, read: true } : n)
+      notifications.filter(n => n.id !== id)
     );
     this.saveToStorage();
   }
 
   /**
-   * Mark all notifications as read
+   * Mark all notifications as read (deletes them all)
    */
   markAllAsRead(): void {
-    this.notificationsSignal.update(notifications =>
-      notifications.map(n => ({ ...n, read: true }))
-    );
+    // Mark all as read on the server (which deletes them)
+    this.http.patch('/api/notifications/read-all', {}).subscribe({
+      error: (err) => console.debug('Failed to mark all notifications as read on server:', err)
+    });
+
+    // Clear all notifications locally
+    this.notificationsSignal.set([]);
     this.saveToStorage();
   }
 
@@ -160,22 +304,34 @@ export class NotificationCenterService {
   }
 
   private loadFromStorage(): void {
+    if (this.currentUserId === null || !isPlatformBrowser(this.platformId)) {
+      return; // Don't load if no user is set or on server
+    }
+
     try {
-      const stored = localStorage.getItem(this.STORAGE_KEY);
+      const stored = localStorage.getItem(this.getStorageKey());
       if (stored) {
         const notifications = JSON.parse(stored) as AppNotification[];
         // Convert date strings back to Date objects
         notifications.forEach(n => n.timestamp = new Date(n.timestamp));
         this.notificationsSignal.set(notifications);
+      } else {
+        // No stored notifications for this user - start fresh
+        this.notificationsSignal.set([]);
       }
     } catch (e) {
       console.error('Error loading notifications from storage:', e);
+      this.notificationsSignal.set([]);
     }
   }
 
   private saveToStorage(): void {
+    if (this.currentUserId === null || !isPlatformBrowser(this.platformId)) {
+      return; // Don't save if no user is set or on server
+    }
+
     try {
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.notificationsSignal()));
+      localStorage.setItem(this.getStorageKey(), JSON.stringify(this.notificationsSignal()));
     } catch (e) {
       console.error('Error saving notifications to storage:', e);
     }

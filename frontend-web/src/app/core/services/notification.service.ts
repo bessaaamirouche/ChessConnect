@@ -252,6 +252,7 @@ export class NotificationService implements OnDestroy {
     this.userRole = null;
     this.lastLessons.set(new Map());
     this.lastAvailabilities.set(new Map());
+    this.teachersCache = []; // Clear teachers cache to prevent stale data
   }
 
   private fetchAllAvailabilities() {

@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import org.springframework.data.jpa.repository.Modifying;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -39,7 +41,9 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     @Query("SELECT COALESCE(SUM(p.commissionCents), 0) FROM Payment p WHERE p.status = 'COMPLETED'")
     Integer getTotalPlatformCommissions();
 
+    @Modifying
     void deleteByPayerId(Long payerId);
 
+    @Modifying
     void deleteByTeacherId(Long teacherId);
 }

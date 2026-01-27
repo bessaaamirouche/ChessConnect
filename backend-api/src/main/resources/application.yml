@@ -110,6 +110,39 @@ logging:
     com.stripe: WARN
     org.hibernate.SQL: WARN
 
+# Actuator Configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+      show-components: when-authorized
+    prometheus:
+      enabled: true
+  health:
+    db:
+      enabled: true
+    diskspace:
+      enabled: true
+  info:
+    env:
+      enabled: true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+
+# Application info for /actuator/info
+info:
+  app:
+    name: ChessConnect API
+    version: 1.0.0
+    description: Chess tutoring platform backend
+
 ---
 # Docker Profile (PostgreSQL)
 spring:
@@ -140,10 +173,23 @@ spring:
     locations: classpath:db/migration
     validate-on-migrate: true
 
+# Production logging - JSON format for log aggregation
 logging:
   level:
+    root: WARN
     com.chessconnect: INFO
     org.springframework.security: WARN
+    org.springframework.web: WARN
     org.flywaydb: INFO
     com.stripe: WARN
     org.hibernate.SQL: WARN
+    org.springframework.boot.actuate: INFO
+  pattern:
+    console: '{"timestamp":"%d{yyyy-MM-dd HH:mm:ss.SSS}","level":"%p","logger":"%logger{36}","thread":"%t","message":"%m","exception":"%ex{full}"}%n'
+
+# Production actuator settings
+management:
+  endpoint:
+    health:
+      show-details: always
+      show-components: always

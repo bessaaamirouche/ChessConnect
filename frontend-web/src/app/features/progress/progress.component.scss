@@ -535,4 +535,17 @@
     text-align: center;
     padding: var(--space-md);
   }
+
+  .quiz-cta-card {
+    flex-direction: column;
+    text-align: center;
+    gap: var(--space-md);
+    padding: var(--space-md);
+
+    &__content {
+      h4, p {
+        text-align: center;
+      }
+    }
+  }
 }

@@ -1,4 +1,5 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
@@ -7,11 +8,14 @@ import { filter } from 'rxjs/operators';
 export class TrackingService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
+  private readonly platformId = inject(PLATFORM_ID);
   private readonly sessionId: string;
 
   constructor() {
     this.sessionId = this.getOrCreateSessionId();
-    this.initPageTracking();
+    if (isPlatformBrowser(this.platformId)) {
+      this.initPageTracking();
+    }
   }
 
   /**
@@ -44,6 +48,10 @@ export class TrackingService {
    * Get or create a session ID stored in localStorage.
    */
   private getOrCreateSessionId(): string {
+    if (!isPlatformBrowser(this.platformId)) {
+      return this.generateUUID(); // SSR: generate temporary ID
+    }
+
     const key = 'tracking_session_id';
     let sessionId = localStorage.getItem(key);
 

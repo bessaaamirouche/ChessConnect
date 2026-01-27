@@ -2,6 +2,7 @@ package com.chessconnect.repository;
 
 import com.chessconnect.model.Availability;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -37,7 +38,9 @@ public interface AvailabilityRepository extends JpaRepository<Availability, Long
             @Param("date") LocalDate date
     );
 
+    @Modifying
     void deleteByTeacherIdAndId(Long teacherId, Long id);
 
+    @Modifying
     void deleteByTeacherId(Long teacherId);
 }

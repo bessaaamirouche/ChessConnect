@@ -2,6 +2,7 @@ import { Component, OnInit, signal, inject, computed, ChangeDetectionStrategy } 
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminService, UserListResponse, Page } from '../../../core/services/admin.service';
+import { AdminStateService } from '../../../core/services/admin-state.service';
 import { DialogService } from '../../../core/services/dialog.service';
 
 @Component({
@@ -615,6 +616,7 @@ export class UserListComponent implements OnInit {
   userToDelete = signal<UserListResponse | null>(null);
 
   private dialogService = inject(DialogService);
+  private adminStateService = inject(AdminStateService);
 
   // Filtered users based on search query
   filteredUsers = computed(() => {
@@ -684,6 +686,7 @@ export class UserListComponent implements OnInit {
       next: () => {
         this.loadUsers(this.currentPage());
         this.actionLoading.set(false);
+        this.adminStateService.notifyUserChange('update', user.id);
       },
       error: () => {
         this.actionLoading.set(false);
@@ -698,6 +701,7 @@ export class UserListComponent implements OnInit {
       next: () => {
         this.loadUsers(this.currentPage());
         this.actionLoading.set(false);
+        this.adminStateService.notifyUserChange('update', user.id);
       },
       error: () => {
         this.actionLoading.set(false);
@@ -727,6 +731,8 @@ export class UserListComponent implements OnInit {
         this.userToDelete.set(null);
         this.loadUsers(this.currentPage());
         this.actionLoading.set(false);
+        // Notify other admin components to refresh their data
+        this.adminStateService.notifyUserChange('delete', user.id);
       },
       error: (err) => {
         this.actionLoading.set(false);

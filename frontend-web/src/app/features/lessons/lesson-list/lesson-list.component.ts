@@ -340,6 +340,19 @@ export class LessonListComponent implements OnInit, OnDestroy {
   }
 
   openVideoCall(lesson: Lesson): void {
+    // Refresh lesson data first to ensure we have the correct zoomLink
+    this.lessonService.refreshLesson(lesson.id).subscribe({
+      next: (refreshedLesson) => {
+        this.startVideoCall(refreshedLesson);
+      },
+      error: () => {
+        // Fallback to current lesson data if refresh fails
+        this.startVideoCall(lesson);
+      }
+    });
+  }
+
+  private startVideoCall(lesson: Lesson): void {
     const roomName = lesson.zoomLink?.split('/').pop() || `mychess-lesson-${lesson.id}`;
     const title = this.authService.isStudent()
       ? `Cours avec ${lesson.teacherName}`

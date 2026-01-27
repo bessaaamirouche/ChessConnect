@@ -248,7 +248,7 @@ public class LessonService {
         if (newStatus == LessonStatus.CONFIRMED && lesson.getZoomLink() == null) {
             // Use Jitsi Meet (free, no auth required) instead of Zoom
             String meetingId = "chessconnect-" + lesson.getId() + "-" + System.currentTimeMillis();
-            lesson.setZoomLink("https://meet.jit.si/" + meetingId);
+            lesson.setZoomLink("https://meet.mychess.fr/" + meetingId);
             log.info("Created Jitsi meeting for lesson {}: {}", lesson.getId(), lesson.getZoomLink());
 
             // Create Google Calendar events for student and teacher (if connected)

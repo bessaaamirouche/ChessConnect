@@ -4,20 +4,23 @@ services:
     image: postgres:16-alpine
     container_name: chessconnect-db
     environment:
-      POSTGRES_DB: chessconnect
-      POSTGRES_USER: chess
-      POSTGRES_PASSWORD: chess123
-    ports:
-      - "5433:5432"
+      POSTGRES_DB: ${POSTGRES_DB:-chessconnect}
+      POSTGRES_USER: ${POSTGRES_USER:-chess}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    # Port non exposé en prod - décommenter uniquement pour debug local
+    # ports:
+    #   - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./backups:/backups
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U chess -d chessconnect"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-chess} -d ${POSTGRES_DB:-chessconnect}"]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
       - chessconnect-network
+    restart: unless-stopped
 
   # Spring Boot Backend
   backend:
@@ -28,9 +31,10 @@ services:
     environment:
       TZ: Europe/Paris
       SPRING_PROFILES_ACTIVE: docker
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/chessconnect
-      SPRING_DATASOURCE_USERNAME: chess
-      SPRING_DATASOURCE_PASSWORD: chess123
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-chessconnect}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-chess}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:4200}
       # Stripe API Keys - Set via .env file or environment variables
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
@@ -49,7 +53,7 @@ services:
       ADMIN_EMAIL: ${ADMIN_EMAIL:-support@mychess.fr}
       # Jitsi Configuration
       JITSI_APP_ID: ${JITSI_APP_ID:-mychess}
-      JITSI_APP_SECRET: ${JITSI_APP_SECRET:-cb2431b0b8102427d94c0365abc301e8b9714d5d5eca6526e115de638f8ae77d}
+      JITSI_APP_SECRET: ${JITSI_APP_SECRET:?JITSI_APP_SECRET is required}
       JITSI_DOMAIN: ${JITSI_DOMAIN:-meet.mychess.fr}
     ports:
       - "8282:8282"

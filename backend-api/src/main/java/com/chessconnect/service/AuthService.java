@@ -123,25 +123,29 @@ public class AuthService {
         );
     }
 
-    // Identifiants admin codés en dur pour la connexion SSO
-    private static final String ADMIN_SSO_USERNAME = "503412850";
-    private static final String ADMIN_SSO_PASSWORD = "94D723044158a!";
-    private static final String ADMIN_EMAIL = "admin@chessconnect.com";
-
     public AuthResponse adminLogin(AdminLoginRequest request) {
-        // Vérifier les identifiants SSO
-        if (!ADMIN_SSO_USERNAME.equals(request.username()) || !ADMIN_SSO_PASSWORD.equals(request.password())) {
-            throw new IllegalArgumentException("Identifiants incorrects");
-        }
+        // Authenticate via standard auth manager (uses DB credentials)
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.username(), request.password())
+        );
 
-        // Récupérer le compte admin
-        User admin = userRepository.findByEmail(ADMIN_EMAIL)
-                .orElseThrow(() -> new IllegalArgumentException("Compte admin non trouvé"));
+        // Find the user by email (username is email for admin)
+        User admin = userRepository.findByEmail(request.username())
+                .orElseThrow(() -> new IllegalArgumentException("Identifiants incorrects"));
 
-        // Vérifier que c'est bien un admin
+        // Verify it's an admin account
         if (admin.getRole() != UserRole.ADMIN) {
-            throw new IllegalArgumentException("Accès non autorisé");
+            throw new IllegalArgumentException("Acces non autorise - compte admin requis");
         }
+
+        // Check if account is suspended
+        if (Boolean.TRUE.equals(admin.getIsSuspended())) {
+            throw new AccountSuspendedException("Ce compte admin a ete suspendu.");
+        }
+
+        // Update last login timestamp
+        admin.setLastLoginAt(java.time.LocalDateTime.now());
+        userRepository.save(admin);
 
         UserDetailsImpl userDetails = new UserDetailsImpl(admin);
         String token = jwtService.generateToken(userDetails);

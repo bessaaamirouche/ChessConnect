@@ -29,4 +29,8 @@ public interface RatingRepository extends JpaRepository<Rating, Long> {
     void deleteByTeacherId(Long teacherId);
 
     void deleteByStudentId(Long studentId);
+
+    // Batch queries for ratings - fixes N+1 in AdminService.getUsers()
+    @Query("SELECT r.teacher.id, AVG(r.stars), COUNT(r) FROM Rating r WHERE r.teacher.id IN :teacherIds GROUP BY r.teacher.id")
+    List<Object[]> getRatingsStatsByTeacherIds(@Param("teacherIds") List<Long> teacherIds);
 }

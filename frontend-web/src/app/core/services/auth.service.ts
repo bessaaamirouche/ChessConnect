@@ -49,8 +49,22 @@ export class AuthService {
   }
 
   logout(): void {
+    // Call server logout to clear HttpOnly cookie
+    this.http.post('/api/auth/logout', {}).subscribe({
+      complete: () => {
+        this.clearLocalAuth();
+      },
+      error: () => {
+        // Even if server call fails, clear local state
+        this.clearLocalAuth();
+      }
+    });
+  }
+
+  private clearLocalAuth(): void {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
+    localStorage.removeItem(LAST_ACTIVITY_KEY);
     this.currentUserSignal.set(null);
     this.tokenSignal.set(null);
     this.router.navigate(['/']);

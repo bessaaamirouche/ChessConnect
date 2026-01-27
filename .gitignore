@@ -47,3 +47,10 @@ logs/
 # =========================
 *.tmp
 *.temp
+
+# =========================
+# Backups (production)
+# =========================
+backups/*.sql.gz
+backups/*.sql
+!backups/.gitkeep

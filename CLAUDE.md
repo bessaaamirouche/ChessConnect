@@ -249,7 +249,11 @@ Le frontend demarre sur `http://localhost:4200`
 ├── docker-compose.yml
 ├── start.sh                  # Script de demarrage Docker
 ├── stop.sh                   # Script d'arret Docker
+├── backup.sh                 # Script de sauvegarde base de donnees
+├── restore.sh                # Script de restauration base de donnees
+├── cron-backup.sh            # Script pour sauvegardes automatiques (cron)
 ├── .env                      # Variables d'environnement (a creer)
+├── .env.example              # Exemple de configuration
 └── CLAUDE.md
 ```
 
@@ -438,13 +442,22 @@ Compte:
 
 ## Variables d'Environnement
 
-Creer un fichier `.env` a la racine du projet :
+Creer un fichier `.env` a la racine du projet (voir `.env.example`) :
 
 ```env
+# Base de donnees (obligatoire en production)
+POSTGRES_PASSWORD=votre_mot_de_passe_fort
+
+# JWT (obligatoire)
+JWT_SECRET=votre_secret_jwt_64_caracteres_minimum
+
 # Stripe (obligatoire pour les paiements)
 STRIPE_SECRET_KEY=sk_test_...
 STRIPE_PUBLISHABLE_KEY=pk_test_...
 STRIPE_WEBHOOK_SECRET=whsec_...
+
+# Jitsi (obligatoire pour les appels video)
+JITSI_APP_SECRET=votre_secret_jitsi
 ```
 
 Variables configurees dans `docker-compose.yml` :
@@ -453,7 +466,8 @@ Variables configurees dans `docker-compose.yml` :
 |-----------------------------|------------------------------|--------|
 | `POSTGRES_DB`               | Nom de la base               | chessconnect |
 | `POSTGRES_USER`             | Utilisateur PostgreSQL       | chess |
-| `POSTGRES_PASSWORD`         | Mot de passe PostgreSQL      | chess123 |
+| `POSTGRES_PASSWORD`         | Mot de passe PostgreSQL      | (requis via .env) |
+| `JWT_SECRET`                | Secret pour signer les JWT   | (requis via .env) |
 | `FRONTEND_URL`              | URL du frontend              | http://localhost:4200 |
 | `TZ`                        | Fuseau horaire               | Europe/Paris |
 
@@ -461,13 +475,51 @@ Variables configurees dans `docker-compose.yml` :
 
 | Composant | Technologies |
 |-----------|-------------|
-| Backend   | Spring Boot 3.2, Spring Security (JWT), Spring Data JPA |
+| Backend   | Spring Boot 3.2, Spring Security (JWT HttpOnly), Spring Data JPA, Caffeine Cache |
 | Frontend  | Angular 17, Signals, Standalone Components, RxJS, ng-icons, SCSS |
-| Database  | PostgreSQL 16 |
+| Database  | PostgreSQL 16, Flyway migrations, HikariCP |
 | DevOps    | Docker, Docker Compose, Nginx |
 | Paiements | Stripe (Embedded Checkout) |
 | Video     | Jitsi Meet (gratuit, sans compte) |
 | Images    | Sharp (generation logo/icones) |
+
+## Securite
+
+### Backend
+- **JWT HttpOnly Cookies** : Tokens stockes dans des cookies HttpOnly + Secure + SameSite=Strict (pas de localStorage)
+- **Rate Limiting** : 5 requetes/minute sur les endpoints d'authentification (`RateLimitingFilter.java`)
+- **Expiration JWT** : 1 heure (au lieu de 24h) avec refresh token de 7 jours
+- **Masquage IBAN** : Les IBAN sont masques dans les reponses API (`FR76XXXX...1234`)
+- **Logging securise** : Secrets Stripe et SQL non logues en production
+
+### Frontend
+- **CSP Headers** : Content-Security-Policy complete configuree dans nginx
+- **XSS Protection** : Sanitization whitelist dans `markdown.pipe.ts` (sans bypassSecurityTrustHtml)
+- **Security Headers** : X-Frame-Options, X-Content-Type-Options, X-XSS-Protection, Referrer-Policy, Permissions-Policy
+
+### Headers Nginx
+```
+X-Frame-Options: SAMEORIGIN
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 1; mode=block
+Referrer-Policy: strict-origin-when-cross-origin
+Permissions-Policy: geolocation=(), microphone=(self), camera=(self)
+Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://meet.jit.si; ...
+```
+
+## Performance
+
+### Backend
+- **Caffeine Cache** : Cache en memoire avec TTL de 5 minutes sur Articles et Ratings (`CacheConfig.java`)
+- **Batch Queries** : Requetes optimisees pour eviter le N+1 dans `AdminService.getUsers()`
+- **HikariCP** : Pool de connexions configure (5-20 connexions, timeout 20s)
+- **Indexes DB** : Index sur `payments` et `invoices` pour les requetes frequentes
+
+### Frontend
+- **OnPush Strategy** : Change Detection optimisee sur les composants principaux
+- **Angular Signals** : Utilisation de `effect()` au lieu du polling pour reagir aux changements d'etat
+- **Lazy Loading** : Images below-the-fold chargees en lazy (`loading="lazy"`)
+- **Gzip Compression** : Assets compresses via nginx
 
 ## Architecture Docker
 

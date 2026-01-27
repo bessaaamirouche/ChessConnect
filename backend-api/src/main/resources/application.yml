@@ -11,12 +11,19 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
-    show-sql: true
+      ddl-auto: validate
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 0
+    locations: classpath:db/migration
+    validate-on-migrate: true
 
   jackson:
     serialization:
@@ -36,8 +43,9 @@ spring.servlet.multipart:
 
 # JWT Configuration
 jwt:
-  secret: ${JWT_SECRET:ChessConnectDefaultSecretKeyForDevelopmentOnly2024!}
-  expiration: 86400000
+  secret: ${JWT_SECRET}
+  expiration: 3600000
+  refresh-expiration: 604800000
 
 # Zoom API Configuration (Server-to-Server OAuth)
 zoom:
@@ -82,14 +90,25 @@ google:
 # Jitsi Configuration
 jitsi:
   app-id: ${JITSI_APP_ID:mychess}
-  app-secret: ${JITSI_APP_SECRET:cb2431b0b8102427d94c0365abc301e8b9714d5d5eca6526e115de638f8ae77d}
+  app-secret: ${JITSI_APP_SECRET}
   domain: ${JITSI_DOMAIN:meet.mychess.fr}
+
+# HikariCP Connection Pool Configuration
+spring.datasource.hikari:
+  minimum-idle: 5
+  maximum-pool-size: 20
+  idle-timeout: 300000
+  max-lifetime: 1200000
+  connection-timeout: 20000
+  pool-name: ChessConnectHikariPool
 
 # Logging
 logging:
   level:
     com.chessconnect: DEBUG
     org.springframework.security: WARN
+    com.stripe: WARN
+    org.hibernate.SQL: WARN
 
 ---
 # Docker Profile (PostgreSQL)
@@ -110,11 +129,21 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     show-sql: false
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 0
+    locations: classpath:db/migration
+    validate-on-migrate: true
+
 logging:
   level:
-    com.chessconnect: DEBUG
-    org.springframework.security: DEBUG
+    com.chessconnect: INFO
+    org.springframework.security: WARN
+    org.flywaydb: INFO
+    com.stripe: WARN
+    org.hibernate.SQL: WARN

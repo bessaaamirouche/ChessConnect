@@ -26,6 +26,8 @@ import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 @Service
 public class AdminService {
@@ -88,6 +90,7 @@ public class AdminService {
     /**
      * Get all users with pagination and optional role filter
      * Note: ADMIN users are excluded from the list
+     * Optimized: Uses batch queries to avoid N+1 problem
      */
     @Transactional(readOnly = true)
     public Page<UserListResponse> getUsers(Pageable pageable, String roleFilter) {
@@ -104,14 +107,41 @@ public class AdminService {
             users = userRepository.findByRoleNot(UserRole.ADMIN, pageable);
         }
 
+        // Batch load lesson counts for all users on this page
+        List<Long> userIds = users.getContent().stream().map(User::getId).toList();
+        Map<Long, Long> lessonCountsMap = new HashMap<>();
+        if (!userIds.isEmpty()) {
+            lessonRepository.countLessonsByUserIds(userIds).forEach(row -> {
+                Long userId = (Long) row[0];
+                Long count = (Long) row[1];
+                lessonCountsMap.put(userId, count);
+            });
+        }
+
+        // Batch load ratings for teachers on this page
+        List<Long> teacherIds = users.getContent().stream()
+                .filter(u -> u.getRole() == UserRole.TEACHER)
+                .map(User::getId)
+                .toList();
+        Map<Long, Double> avgRatingsMap = new HashMap<>();
+        Map<Long, Long> reviewCountsMap = new HashMap<>();
+        if (!teacherIds.isEmpty()) {
+            ratingRepository.getRatingsStatsByTeacherIds(teacherIds).forEach(row -> {
+                Long teacherId = (Long) row[0];
+                Double avgRating = (Double) row[1];
+                Long reviewCount = (Long) row[2];
+                avgRatingsMap.put(teacherId, avgRating);
+                reviewCountsMap.put(teacherId, reviewCount);
+            });
+        }
+
         return users.map(user -> {
-            Long lessonsCount = lessonRepository.countByStudentIdOrTeacherId(user.getId());
+            Long lessonsCount = lessonCountsMap.getOrDefault(user.getId(), 0L);
             Double avgRating = null;
             Long reviewCount = null;
             if (user.getRole() == UserRole.TEACHER) {
-                avgRating = ratingRepository.getAverageRatingForTeacher(user.getId());
-                Integer count = ratingRepository.getReviewCountForTeacher(user.getId());
-                reviewCount = count != null ? count.longValue() : 0L;
+                avgRating = avgRatingsMap.get(user.getId());
+                reviewCount = reviewCountsMap.getOrDefault(user.getId(), 0L);
             }
             return UserListResponse.from(user, lessonsCount, avgRating, reviewCount);
         });
@@ -342,8 +372,8 @@ public class AdminService {
                     balance.getTotalEarnedCents(),
                     balance.getTotalWithdrawnCents(),
                     balance.getLessonsCompleted(),
-                    // Banking info
-                    teacher.getIban(),
+                    // Banking info (IBAN masked for security)
+                    TeacherBalanceListResponse.maskIban(teacher.getIban()),
                     teacher.getBic(),
                     teacher.getAccountHolderName(),
                     teacher.getSiret(),

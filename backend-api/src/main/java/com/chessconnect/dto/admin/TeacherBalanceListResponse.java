@@ -10,8 +10,8 @@ public record TeacherBalanceListResponse(
         Integer totalEarnedCents,
         Integer totalWithdrawnCents,
         Integer lessonsCompleted,
-        // Banking info
-        String iban,
+        // Banking info (masked for security)
+        String ibanMasked,
         String bic,
         String accountHolderName,
         String siret,
@@ -23,4 +23,18 @@ public record TeacherBalanceListResponse(
         // Stripe Connect status
         Boolean stripeConnectEnabled,
         Boolean stripeConnectReady
-) {}
+) {
+    /**
+     * Masks an IBAN showing only the last 4 digits
+     * Example: FR76XXXXXXXXXXXXXXXXXXXX1234
+     */
+    public static String maskIban(String iban) {
+        if (iban == null || iban.length() < 8) {
+            return iban;
+        }
+        String countryCode = iban.substring(0, 2);
+        String lastFour = iban.substring(iban.length() - 4);
+        int middleLength = iban.length() - 6;
+        return countryCode + "X".repeat(middleLength) + lastFour;
+    }
+}

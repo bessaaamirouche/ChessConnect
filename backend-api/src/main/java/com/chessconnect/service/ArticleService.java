@@ -4,6 +4,8 @@ import com.chessconnect.dto.ArticleDetailDTO;
 import com.chessconnect.dto.ArticleListDTO;
 import com.chessconnect.model.Article;
 import com.chessconnect.repository.ArticleRepository;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +28,7 @@ public class ArticleService {
         this.articleRepository = articleRepository;
     }
 
+    @Cacheable(value = "articles", key = "'published-' + #page + '-' + #size")
     public Page<ArticleListDTO> getPublishedArticles(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return articleRepository.findByPublishedTrueOrderByPublishedAtDesc(pageable)
@@ -44,6 +47,7 @@ public class ArticleService {
                 .map(ArticleListDTO::new);
     }
 
+    @Cacheable(value = "articles", key = "'latest'")
     public List<ArticleListDTO> getLatestArticles() {
         return articleRepository.findTop5ByPublishedTrueOrderByPublishedAtDesc()
                 .stream()
@@ -51,6 +55,7 @@ public class ArticleService {
                 .collect(Collectors.toList());
     }
 
+    @Cacheable(value = "articles", key = "'slug-' + #slug")
     public Optional<ArticleDetailDTO> getArticleBySlug(String slug) {
         return articleRepository.findBySlugAndPublishedTrue(slug)
                 .map(article -> {
@@ -79,6 +84,7 @@ public class ArticleService {
     }
 
     @Transactional
+    @CacheEvict(value = "articles", allEntries = true)
     public Article createArticle(Article article) {
         // Generate slug from title if not provided
         if (article.getSlug() == null || article.getSlug().isEmpty()) {
@@ -107,6 +113,7 @@ public class ArticleService {
     }
 
     @Transactional
+    @CacheEvict(value = "articles", allEntries = true)
     public Optional<Article> updateArticle(Long id, Article updatedArticle) {
         return articleRepository.findById(id)
                 .map(article -> {
@@ -133,6 +140,7 @@ public class ArticleService {
     }
 
     @Transactional
+    @CacheEvict(value = "articles", allEntries = true)
     public boolean deleteArticle(Long id) {
         if (articleRepository.existsById(id)) {
             articleRepository.deleteById(id);

@@ -11,6 +11,8 @@ import com.chessconnect.repository.RatingRepository;
 import com.chessconnect.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +38,7 @@ public class RatingService {
     }
 
     @Transactional
+    @CacheEvict(value = "ratings", allEntries = true)
     public RatingResponse createRating(Long studentId, CreateRatingRequest request) {
         User student = userRepository.findById(studentId)
                 .orElseThrow(() -> new IllegalArgumentException("Student not found"));
@@ -72,6 +75,7 @@ public class RatingService {
         return RatingResponse.from(savedRating);
     }
 
+    @Cacheable(value = "ratings", key = "'teacher-' + #teacherId")
     public List<RatingResponse> getRatingsForTeacher(Long teacherId) {
         return ratingRepository.findByTeacherIdOrderByCreatedAtDesc(teacherId)
                 .stream()
@@ -89,10 +93,12 @@ public class RatingService {
                 .orElse(null);
     }
 
+    @Cacheable(value = "ratings", key = "'avg-' + #teacherId")
     public Double getAverageRatingForTeacher(Long teacherId) {
         return ratingRepository.getAverageRatingForTeacher(teacherId);
     }
 
+    @Cacheable(value = "ratings", key = "'count-' + #teacherId")
     public Integer getReviewCountForTeacher(Long teacherId) {
         Integer count = ratingRepository.getReviewCountForTeacher(teacherId);
         return count != null ? count : 0;

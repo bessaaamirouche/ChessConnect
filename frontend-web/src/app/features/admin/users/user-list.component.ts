@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject, computed } from '@angular/core';
+import { Component, OnInit, signal, inject, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminService, UserListResponse, Page } from '../../../core/services/admin.service';
@@ -8,6 +8,7 @@ import { DialogService } from '../../../core/services/dialog.service';
   selector: 'app-user-list',
   standalone: true,
   imports: [CommonModule, FormsModule, DatePipe],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="user-list">
       <header class="page-header">

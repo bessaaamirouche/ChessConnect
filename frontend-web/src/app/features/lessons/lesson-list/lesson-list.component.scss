@@ -431,7 +431,7 @@
 
   &__actions {
     display: flex;
-    justify-content: space-between;
+    flex-wrap: wrap;
     align-items: center;
     gap: var(--space-xs);
     margin-top: var(--space-xs);
@@ -451,6 +451,7 @@
     color: var(--text-secondary);
     cursor: pointer;
     transition: all var(--transition-fast);
+    white-space: nowrap;
 
     &:hover {
       background: var(--bg-tertiary);

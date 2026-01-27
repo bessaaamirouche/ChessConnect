@@ -7,11 +7,11 @@
       <h1 class="heading-3">Connexion</h1>
     </div>
 
-    @if (error()) {
-      <div class="alert alert--error">
-        {{ error() }}
+    <div class="alert-inline-container">
+      <div class="alert-inline alert-inline--error" [class.alert-inline--visible]="error()">
+        <span>{{ error() }}</span>
       </div>
-    }
+    </div>
 
     @if (isSuspended() && !showContactForm()) {
       <div class="suspension-notice">
@@ -62,11 +62,11 @@
             Retour a la connexion
           </button>
         } @else {
-          @if (contactError()) {
-            <div class="alert alert--error">
-              {{ contactError() }}
+          <div class="alert-inline-container">
+            <div class="alert-inline alert-inline--error" [class.alert-inline--visible]="contactError()">
+              <span>{{ contactError() }}</span>
             </div>
-          }
+          </div>
 
           <form [formGroup]="contactForm" (ngSubmit)="submitContact()" class="auth-form">
             <div class="form-group">

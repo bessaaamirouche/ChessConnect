@@ -8,9 +8,11 @@
     <div class="modal__body">
       <p class="teacher-name">Cours avec <strong>{{ teacherName }}</strong></p>
 
-      @if (error()) {
-        <div class="alert alert--error">{{ error() }}</div>
-      }
+      <div class="alert-inline-container">
+        <div class="alert-inline alert-inline--error" [class.alert-inline--visible]="error()">
+          <span>{{ error() }}</span>
+        </div>
+      </div>
 
       <div class="stars-container">
         <p class="stars-label">Votre note :</p>

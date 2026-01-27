@@ -1,73 +1,30 @@
-export type UserRole = 'STUDENT' | 'TEACHER' | 'ADMIN';
+// Re-export types from shared contracts
+export {
+  UserRole,
+  ChessLevel,
+  User,
+  AuthResponse,
+  LoginRequest,
+  RegisterRequest,
+  UpdateUserRequest,
+  ChangePasswordRequest,
+  TeacherProfileResponse,
+  TeacherBalanceResponse,
+  ProgressResponse
+} from '@contracts';
 
-export type ChessLevel = 'PION' | 'CAVALIER' | 'FOU' | 'TOUR' | 'DAME' | 'ROI';
+// Alias for backward compatibility
+export { ProgressResponse as Progress } from '@contracts';
+export { TeacherBalanceResponse as TeacherBalance } from '@contracts';
 
-export interface User {
-  id: number;
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: UserRole;
-  // Teacher fields
-  hourlyRateCents?: number;
-  acceptsSubscription?: boolean;
-  acceptsFreeTrial?: boolean;
-  bio?: string;
-  avatarUrl?: string;
-  languages?: string[];
-  averageRating?: number;
-  reviewCount?: number;
-  lessonsCompleted?: number;
-  totalStudents?: number;
-  isOnline?: boolean;
-  // Teacher banking fields
-  iban?: string;
-  bic?: string;
-  accountHolderName?: string;
-  siret?: string;
-  companyName?: string;
-  // Student fields
-  birthDate?: string;
-  eloRating?: number;
-  // Settings
-  emailRemindersEnabled?: boolean;
-  googleCalendarEnabled?: boolean;
-  // Admin
-  isSuspended?: boolean;
-  createdAt?: string;
-}
-
-export interface AuthResponse {
-  token: string;
-  userId: number;
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: UserRole;
-}
-
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
-
-export interface RegisterRequest {
-  email: string;
-  password: string;
-  firstName: string;
-  lastName: string;
-  role: UserRole;
-  // Teacher fields
+// Frontend-specific interfaces (not in backend DTOs)
+export interface UpdateTeacherProfileRequest {
   hourlyRateCents?: number;
   acceptsFreeTrial?: boolean;
   bio?: string;
-  languages?: string[];
-  // Student fields
-  birthDate?: string;
-  eloRating?: number;
 }
 
-// Available languages for teachers
+// Frontend-specific constants
 export const AVAILABLE_LANGUAGES: { code: string; name: string }[] = [
   { code: 'FR', name: 'Francais' },
   { code: 'EN', name: 'English' },
@@ -80,36 +37,14 @@ export const AVAILABLE_LANGUAGES: { code: string; name: string }[] = [
   { code: 'AR', name: 'Al-Arabiya' }
 ];
 
-export interface UpdateTeacherProfileRequest {
-  hourlyRateCents?: number;
-  acceptsFreeTrial?: boolean;
-  bio?: string;
-}
+// Import ChessLevel to use in CHESS_LEVELS constant
+import { ChessLevel } from '@contracts';
 
-export interface TeacherBalance {
-  teacherId: number;
-  availableBalanceCents: number;
-  pendingBalanceCents: number;
-  totalEarnedCents: number;
-  totalWithdrawnCents: number;
-  lessonsCompleted: number;
-}
-
-export interface Progress {
-  id: number;
-  studentId: number;
-  currentLevel: ChessLevel;
-  totalLessonsCompleted: number;
-  lessonsAtCurrentLevel: number;
-  lessonsRequiredForNextLevel: number;
-  progressPercentage: number;
-}
-
-export const CHESS_LEVELS: Record<ChessLevel, { order: number; label: string; description: string }> = {
-  PION: { order: 1, label: 'Pion', description: 'Débutant' },
-  CAVALIER: { order: 2, label: 'Cavalier', description: 'Intermédiaire' },
-  FOU: { order: 3, label: 'Fou', description: 'Confirmé' },
-  TOUR: { order: 4, label: 'Tour', description: 'Avancé' },
-  DAME: { order: 5, label: 'Dame', description: 'Expert' },
-  ROI: { order: 6, label: 'Roi', description: 'Maître' }
+export const CHESS_LEVELS: Record<ChessLevel, { order: number; label: string; description: string; icon?: string }> = {
+  PION: { order: 1, label: 'Pion', description: 'Débutant', icon: '♟' },
+  CAVALIER: { order: 2, label: 'Cavalier', description: 'Intermédiaire', icon: '♞' },
+  FOU: { order: 3, label: 'Fou', description: 'Confirmé', icon: '♝' },
+  TOUR: { order: 4, label: 'Tour', description: 'Avancé', icon: '♜' },
+  DAME: { order: 5, label: 'Dame', description: 'Expert', icon: '♛' },
+  ROI: { order: 6, label: 'Roi', description: 'Maître', icon: '♚' }
 };

@@ -29,11 +29,11 @@
       <h1 class="heading-3">Créer un compte</h1>
     </div>
 
-    @if (error()) {
-      <div class="alert alert--error">
-        {{ error() }}
+    <div class="alert-inline-container">
+      <div class="alert-inline alert-inline--error" [class.alert-inline--visible]="error()">
+        <span>{{ error() }}</span>
       </div>
-    }
+    </div>
 
     <!-- Role Selection -->
     <div class="role-selector">
@@ -125,15 +125,11 @@
         <div class="student-fields">
           <div class="form-group">
             <label class="form-group__label" for="birthDate">Date de naissance</label>
-            <input
-              type="date"
-              id="birthDate"
+            <app-date-input
               formControlName="birthDate"
-              class="input"
-              min="1920-01-01"
+              [min]="'1920-01-01'"
               [max]="maxBirthDate"
-              (change)="validateBirthDate($event)"
-            >
+            ></app-date-input>
           </div>
 
           <div class="form-group">

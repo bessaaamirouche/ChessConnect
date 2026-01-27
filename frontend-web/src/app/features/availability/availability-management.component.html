@@ -9,12 +9,12 @@
       </button>
     </header>
 
-    @if (error()) {
-      <div class="alert alert--error">
+    <div class="alert-container">
+      <div class="alert alert--error alert--inline" [class.alert--visible]="error()">
         <span>{{ error() }}</span>
         <button class="alert__close" (click)="clearError()">×</button>
       </div>
-    }
+    </div>
 
     @if (loading()) {
       <div class="loading-state">
@@ -92,12 +92,12 @@
 
       <div class="modal__body">
         <!-- Error Display -->
-        @if (error()) {
-          <div class="alert alert--error alert--modal">
+        <div class="alert-inline-container">
+          <div class="alert-inline alert-inline--error" [class.alert-inline--visible]="error()">
             <span>{{ error() }}</span>
             <button class="alert__close" (click)="clearError()">×</button>
           </div>
-        }
+        </div>
 
         <!-- Type Selection -->
         <div class="form-group">
@@ -142,15 +142,11 @@
         @if (!isRecurring) {
           <div class="form-group">
             <label class="form-group__label" for="dateInput">Date</label>
-            <input
-              type="date"
-              id="dateInput"
-              class="input"
+            <app-date-input
               [(ngModel)]="selectedDate"
               [min]="getTodayDate()"
               [max]="getMaxDate()"
-              (change)="validateAvailabilityDate($event)"
-            />
+            ></app-date-input>
           </div>
         }
 

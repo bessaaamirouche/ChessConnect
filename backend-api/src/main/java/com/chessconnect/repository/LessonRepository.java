@@ -141,6 +141,14 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
     @Query("SELECT l FROM Lesson l WHERE l.teacher.id = :teacherId AND l.earningsCredited = true")
     List<Lesson> findByTeacherIdAndEarningsCreditedTrue(@Param("teacherId") Long teacherId);
 
+    // Admin: Get all past lessons (COMPLETED + CANCELLED) ordered by date desc
+    @Query("SELECT l FROM Lesson l WHERE l.status IN ('COMPLETED', 'CANCELLED') ORDER BY l.scheduledAt DESC")
+    List<Lesson> findAllPastLessons();
+
+    // Admin: Get all lessons (all statuses) ordered by date desc
+    @Query("SELECT l FROM Lesson l ORDER BY l.scheduledAt DESC")
+    List<Lesson> findAllOrderByScheduledAtDesc();
+
     // Batch query for lesson counts by user - fixes N+1 in AdminService.getUsers()
     @Query("SELECT u.id, COUNT(l) FROM User u LEFT JOIN Lesson l ON (l.student.id = u.id OR l.teacher.id = u.id) " +
            "WHERE u.id IN :userIds GROUP BY u.id")

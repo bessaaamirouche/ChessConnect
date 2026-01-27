@@ -102,6 +102,22 @@ public class AdminController {
         return ResponseEntity.ok(adminService.getCompletedLessons());
     }
 
+    /**
+     * Get all past lessons (COMPLETED + CANCELLED) - for admin history/investigation
+     */
+    @GetMapping("/lessons/history")
+    public ResponseEntity<List<LessonResponse>> getPastLessons() {
+        return ResponseEntity.ok(adminService.getPastLessons());
+    }
+
+    /**
+     * Get ALL lessons (all statuses) - complete admin overview
+     */
+    @GetMapping("/lessons/all")
+    public ResponseEntity<List<LessonResponse>> getAllLessons() {
+        return ResponseEntity.ok(adminService.getAllLessons());
+    }
+
     // ============= ACCOUNTING =============
 
     /**

@@ -71,11 +71,11 @@ type SortOrder = 'asc' | 'desc';
         <div class="date-filters">
           <div class="date-input">
             <label>Du</label>
-            <input type="date" [ngModel]="dateFrom()" (ngModelChange)="dateFrom.set($event)">
+            <input type="date" [value]="dateFrom()" (change)="dateFrom.set($any($event.target).value)">
           </div>
           <div class="date-input">
             <label>Au</label>
-            <input type="date" [ngModel]="dateTo()" (ngModelChange)="dateTo.set($event)">
+            <input type="date" [value]="dateTo()" (change)="dateTo.set($any($event.target).value)">
           </div>
           @if (dateFrom() || dateTo()) {
             <button class="clear-dates-btn" (click)="clearDates()">

@@ -6,11 +6,12 @@ import { SeoService } from '../../../core/services/seo.service';
 import { UserRole, AVAILABLE_LANGUAGES } from '../../../core/models/user.model';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { heroAcademicCap, heroUserGroup, heroPlayCircle, heroArrowRight } from '@ng-icons/heroicons/outline';
+import { DateInputComponent } from '../../../shared/components/date-input/date-input.component';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, NgIconComponent],
+  imports: [ReactiveFormsModule, RouterLink, NgIconComponent, DateInputComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({ heroAcademicCap, heroUserGroup, heroPlayCircle, heroArrowRight })],
   templateUrl: './register.component.html',

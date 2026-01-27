@@ -1,131 +1,40 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import {
+  UserListResponse,
+  AccountingResponse,
+  AdminStatsResponse,
+  TeacherBalanceListResponse,
+  MarkTeacherPaidResponse,
+  LessonResponse,
+  Page,
+  AnalyticsResponse,
+  DataPoint,
+  HourlyDataPoint,
+  AdminActionResponse,
+  PaymentResponse,
+  SubscriptionResponse,
+  RefundResponse
+} from '@contracts';
 
-export interface UserListResponse {
-  id: number;
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: string;
-  isSuspended: boolean;
-  createdAt: string;
-  lastLoginAt?: string;
-  hourlyRateCents?: number;
-  languages?: string;
-  averageRating?: number;
-  reviewCount?: number;
-  lessonsCount: number;
-}
+// Re-export for backward compatibility
+export {
+  UserListResponse,
+  AccountingResponse,
+  AdminStatsResponse,
+  MarkTeacherPaidResponse,
+  Page,
+  AnalyticsResponse,
+  DataPoint,
+  HourlyDataPoint,
+  PaymentResponse,
+  SubscriptionResponse
+} from '@contracts';
 
-export interface AccountingResponse {
-  totalRevenueCents: number;
-  totalCommissionsCents: number;
-  totalTeacherEarningsCents: number;
-  totalRefundedCents: number;
-  totalLessons: number;
-  completedLessons: number;
-  cancelledLessons: number;
-}
-
-export interface AdminStatsResponse {
-  totalUsers: number;
-  totalStudents: number;
-  totalTeachers: number;
-  activeSubscriptions: number;
-  totalLessons: number;
-  lessonsThisMonth: number;
-  totalRevenueCents: number;
-  revenueThisMonthCents: number;
-}
-
-export interface TeacherBalanceResponse {
-  teacherId: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-  availableBalanceCents: number;
-  pendingBalanceCents: number;
-  totalEarnedCents: number;
-  totalWithdrawnCents: number;
-  lessonsCompleted: number;
-  // Banking info
-  iban?: string;
-  bic?: string;
-  accountHolderName?: string;
-  siret?: string;
-  companyName?: string;
-  // Current month payout
-  currentMonthPaid: boolean;
-  currentMonthEarningsCents: number;
-  currentMonthLessonsCount: number;
-  // Stripe Connect status
-  stripeConnectEnabled?: boolean;
-  stripeConnectReady?: boolean;
-}
-
-export interface MarkTeacherPaidResponse {
-  success: boolean;
-  message: string;
-  amountCents?: number;
-  stripeTransferId?: string;
-  lessonsCount?: number;
-}
-
-export interface AdminLessonResponse {
-  id: number;
-  studentId: number;
-  studentName: string;
-  studentLevel?: string;
-  studentAge?: number;
-  studentElo?: number;
-  teacherId: number;
-  teacherName: string;
-  scheduledAt: string;
-  durationMinutes: number;
-  zoomLink?: string;
-  status: string;
-  priceCents?: number;
-  commissionCents?: number;
-  teacherEarningsCents?: number;
-  isFromSubscription?: boolean;
-  notes?: string;
-  cancellationReason?: string;
-  cancelledBy?: string;
-  refundPercentage?: number;
-  refundedAmountCents?: number;
-  teacherObservations?: string;
-  recordingUrl?: string;
-  createdAt: string;
-}
-
-export interface Page<T> {
-  content: T[];
-  totalElements: number;
-  totalPages: number;
-  size: number;
-  number: number;
-}
-
-export interface DataPoint {
-  date: string;
-  value: number;
-}
-
-export interface HourlyDataPoint {
-  hour: number;
-  value: number;
-}
-
-export interface AnalyticsResponse {
-  studentRegistrations: DataPoint[];
-  teacherRegistrations: DataPoint[];
-  newSubscriptions: DataPoint[];
-  renewals: DataPoint[];
-  cancellations: DataPoint[];
-  dailyVisits: DataPoint[];
-  hourlyVisits: HourlyDataPoint[];
-}
+// Alias for backward compatibility
+export type TeacherBalanceResponse = TeacherBalanceListResponse;
+export type AdminLessonResponse = LessonResponse;
 
 @Injectable({
   providedIn: 'root'
@@ -152,16 +61,16 @@ export class AdminService {
     return this.http.get<UserListResponse>(`${this.apiUrl}/users/${id}`);
   }
 
-  suspendUser(id: number, reason: string): Observable<any> {
-    return this.http.patch(`${this.apiUrl}/users/${id}/suspend`, { reason });
+  suspendUser(id: number, reason: string): Observable<AdminActionResponse> {
+    return this.http.patch<AdminActionResponse>(`${this.apiUrl}/users/${id}/suspend`, { reason });
   }
 
-  activateUser(id: number): Observable<any> {
-    return this.http.patch(`${this.apiUrl}/users/${id}/activate`, {});
+  activateUser(id: number): Observable<AdminActionResponse> {
+    return this.http.patch<AdminActionResponse>(`${this.apiUrl}/users/${id}/activate`, {});
   }
 
-  deleteUser(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/users/${id}`);
+  deleteUser(id: number): Observable<AdminActionResponse> {
+    return this.http.delete<AdminActionResponse>(`${this.apiUrl}/users/${id}`);
   }
 
   // Lessons
@@ -171,6 +80,16 @@ export class AdminService {
 
   getCompletedLessons(): Observable<AdminLessonResponse[]> {
     return this.http.get<AdminLessonResponse[]>(`${this.apiUrl}/lessons/completed`);
+  }
+
+  // Get all past lessons (COMPLETED + CANCELLED) for history/investigation
+  getPastLessons(): Observable<AdminLessonResponse[]> {
+    return this.http.get<AdminLessonResponse[]>(`${this.apiUrl}/lessons/history`);
+  }
+
+  // Get ALL lessons (all statuses) for complete overview
+  getAllLessons(): Observable<AdminLessonResponse[]> {
+    return this.http.get<AdminLessonResponse[]>(`${this.apiUrl}/lessons/all`);
   }
 
   // Accounting
@@ -191,30 +110,30 @@ export class AdminService {
     });
   }
 
-  getPayments(page = 0, size = 20): Observable<Page<any>> {
+  getPayments(page = 0, size = 20): Observable<Page<PaymentResponse>> {
     const params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
 
-    return this.http.get<Page<any>>(`${this.apiUrl}/accounting/payments`, { params });
+    return this.http.get<Page<PaymentResponse>>(`${this.apiUrl}/accounting/payments`, { params });
   }
 
   // Subscriptions
-  getSubscriptions(page = 0, size = 20): Observable<Page<any>> {
+  getSubscriptions(page = 0, size = 20): Observable<Page<SubscriptionResponse>> {
     const params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
 
-    return this.http.get<Page<any>>(`${this.apiUrl}/subscriptions`, { params });
+    return this.http.get<Page<SubscriptionResponse>>(`${this.apiUrl}/subscriptions`, { params });
   }
 
-  cancelSubscription(id: number, reason: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/subscriptions/${id}/cancel`, { reason });
+  cancelSubscription(id: number, reason: string): Observable<AdminActionResponse> {
+    return this.http.post<AdminActionResponse>(`${this.apiUrl}/subscriptions/${id}/cancel`, { reason });
   }
 
   // Refunds
-  refundPayment(paymentIntentId: string, percentage: number, reason: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/payments/${paymentIntentId}/refund`, {
+  refundPayment(paymentIntentId: string, percentage: number, reason: string): Observable<RefundResponse> {
+    return this.http.post<RefundResponse>(`${this.apiUrl}/payments/${paymentIntentId}/refund`, {
       percentage,
       reason
     });

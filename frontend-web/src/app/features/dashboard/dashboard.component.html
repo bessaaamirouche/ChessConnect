@@ -71,12 +71,11 @@
           <a routerLink="/settings" class="btn btn--ghost btn--sm">Configurer paiements</a>
         </div>
 
-        @if (withdrawSuccess()) {
-          <div class="alert alert--success">{{ withdrawSuccess() }}</div>
-        }
-        @if (withdrawError()) {
-          <div class="alert alert--error">{{ withdrawError() }}</div>
-        }
+        <div class="alert-inline-container">
+          <div class="alert-inline" [class.alert-inline--visible]="withdrawSuccess() || withdrawError()" [class.alert-inline--success]="withdrawSuccess()" [class.alert-inline--error]="withdrawError()">
+            <span>{{ withdrawSuccess() || withdrawError() }}</span>
+          </div>
+        </div>
         @if (!stripeConnectReady()) {
           <div class="alert alert--warning">
             <ng-icon name="heroExclamationTriangle" size="18"></ng-icon>
@@ -294,12 +293,11 @@
             <h2 class="profile-section__title">Informations personnelles</h2>
           </div>
 
-          @if (profileSuccess()) {
-            <div class="alert alert--success">Profil mis à jour avec succès !</div>
-          }
-          @if (profileError()) {
-            <div class="alert alert--error">{{ profileError() }}</div>
-          }
+          <div class="alert-inline-container">
+            <div class="alert-inline" [class.alert-inline--visible]="profileSuccess() || profileError()" [class.alert-inline--success]="profileSuccess()" [class.alert-inline--error]="profileError()">
+              <span>{{ profileSuccess() ? 'Profil mis à jour avec succès !' : profileError() }}</span>
+            </div>
+          </div>
 
           <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" class="profile-form">
             <div class="form-grid">
@@ -355,12 +353,11 @@
             <h2 class="profile-section__title">Sécurité</h2>
           </div>
 
-          @if (passwordSuccess()) {
-            <div class="alert alert--success">Mot de passe modifié avec succès !</div>
-          }
-          @if (passwordError()) {
-            <div class="alert alert--error">{{ passwordError() }}</div>
-          }
+          <div class="alert-inline-container">
+            <div class="alert-inline" [class.alert-inline--visible]="passwordSuccess() || passwordError()" [class.alert-inline--success]="passwordSuccess()" [class.alert-inline--error]="passwordError()">
+              <span>{{ passwordSuccess() ? 'Mot de passe modifié avec succès !' : passwordError() }}</span>
+            </div>
+          </div>
 
           <form [formGroup]="passwordForm" (ngSubmit)="changePassword()" class="profile-form">
             <div class="form-group">
@@ -405,12 +402,11 @@
         <section class="settings-section">
           <h3>Informations du coachil</h3>
 
-          @if (settingsSuccess()) {
-            <div class="alert alert--success">Profil mis a jour !</div>
-          }
-          @if (settingsError()) {
-            <div class="alert alert--error">{{ settingsError() }}</div>
-          }
+          <div class="alert-inline-container">
+            <div class="alert-inline" [class.alert-inline--visible]="settingsSuccess() || settingsError()" [class.alert-inline--success]="settingsSuccess()" [class.alert-inline--error]="settingsError()">
+              <span>{{ settingsSuccess() ? 'Profil mis a jour !' : settingsError() }}</span>
+            </div>
+          </div>
 
           <form [formGroup]="settingsForm" (ngSubmit)="saveSettings()">
             <div class="settings-form-row">
@@ -460,12 +456,11 @@
         <section class="settings-section">
           <h3>Changer le mot de passe</h3>
 
-          @if (passwordSuccess()) {
-            <div class="alert alert--success">Mot de passe modifie !</div>
-          }
-          @if (passwordError()) {
-            <div class="alert alert--error">{{ passwordError() }}</div>
-          }
+          <div class="alert-inline-container">
+            <div class="alert-inline" [class.alert-inline--visible]="passwordSuccess() || passwordError()" [class.alert-inline--success]="passwordSuccess()" [class.alert-inline--error]="passwordError()">
+              <span>{{ passwordSuccess() ? 'Mot de passe modifie !' : passwordError() }}</span>
+            </div>
+          </div>
 
           <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
             <div class="form-group">

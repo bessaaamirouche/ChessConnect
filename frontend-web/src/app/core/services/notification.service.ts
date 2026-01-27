@@ -5,6 +5,8 @@ import { AuthService } from './auth.service';
 import { NotificationCenterService } from './notification-center.service';
 import { interval, Subscription, forkJoin, of } from 'rxjs';
 import { switchMap, catchError, map } from 'rxjs/operators';
+import { Availability } from '../models/availability.model';
+import { Lesson } from '../models/lesson.model';
 
 interface AvailabilityInfo {
   id: number;
@@ -258,12 +260,12 @@ export class NotificationService implements OnDestroy {
     }
 
     const requests = this.teachersCache.map(teacher =>
-      this.http.get<any[]>(`/api/availabilities/teacher/${teacher.id}`).pipe(
+      this.http.get<Availability[]>(`/api/availabilities/teacher/${teacher.id}`).pipe(
         map(availabilities => ({
           teacher,
           availabilities
         })),
-        catchError(() => of({ teacher, availabilities: [] }))
+        catchError(() => of({ teacher, availabilities: [] as Availability[] }))
       )
     );
 
@@ -286,7 +288,7 @@ export class NotificationService implements OnDestroy {
   }
 
   private fetchMyLessons() {
-    return this.http.get<any[]>('/api/lessons/upcoming').pipe(
+    return this.http.get<Lesson[]>('/api/lessons/upcoming').pipe(
       map(lessons => {
         const lessonsMap = new Map<number, LessonInfo>();
         lessons.forEach(l => {

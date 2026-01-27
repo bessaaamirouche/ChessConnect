@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { WalletService } from '../../core/services/wallet.service';
-import { AppSidebarComponent, SidebarSection } from '../../shared/components/app-sidebar/app-sidebar.component';
+import { AppSidebarComponent, SidebarSection, SidebarItem } from '../../shared/components/app-sidebar/app-sidebar.component';
 
 @Component({
   selector: 'app-user-layout',
@@ -48,7 +48,7 @@ export class UserLayoutComponent implements OnInit {
 
     // Menu section for non-admin users
     if (!this.authService.isAdmin()) {
-      const menuItems: any[] = [
+      const menuItems: SidebarItem[] = [
         { label: 'Mon Espace', icon: 'heroChartBarSquare', route: '/dashboard' },
         { label: 'Mes Cours', icon: 'heroCalendarDays', route: '/lessons' }
       ];
@@ -66,7 +66,7 @@ export class UserLayoutComponent implements OnInit {
     }
 
     // Compte section
-    const compteItems: any[] = [
+    const compteItems: SidebarItem[] = [
       { label: 'Mon Profil', icon: 'heroUserCircle', route: '/settings' }
     ];
 

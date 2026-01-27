@@ -78,15 +78,15 @@ import { InvoiceService, Invoice } from '../../../core/services/invoice.service'
         <input
           type="date"
           class="filter-date"
-          [ngModel]="startDate()"
-          (ngModelChange)="startDate.set($event)"
+          [value]="startDate()"
+          (change)="startDate.set($any($event.target).value)"
           placeholder="Du"
         >
         <input
           type="date"
           class="filter-date"
-          [ngModel]="endDate()"
-          (ngModelChange)="endDate.set($event)"
+          [value]="endDate()"
+          (change)="endDate.set($any($event.target).value)"
           placeholder="Au"
         >
       </div>

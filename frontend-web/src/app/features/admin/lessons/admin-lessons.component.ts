@@ -40,7 +40,14 @@ import { AdminService, AdminLessonResponse } from '../../../core/services/admin.
               [class.tab--active]="activeTab() === 'completed'"
               (click)="setTab('completed')"
             >
-              Effectues ({{ completedLessons().length }})
+              Termines ({{ completedLessons().length }})
+            </button>
+            <button
+              class="tab"
+              [class.tab--active]="activeTab() === 'cancelled'"
+              (click)="setTab('cancelled')"
+            >
+              Annules ({{ cancelledLessons().length }})
             </button>
           </div>
         </div>
@@ -95,22 +102,29 @@ import { AdminService, AdminLessonResponse } from '../../../core/services/admin.
                     }
                   </td>
                   <td>
-                    @if (lesson.status === 'COMPLETED' && lesson.recordingUrl) {
-                      <button class="btn-recording" (click)="openRecording(lesson)" title="Voir l'enregistrement">
+                    <div class="actions-cell">
+                      <button class="btn-action btn-action--details" (click)="openDetails(lesson)" title="Voir les details">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                          <polygon points="23 7 16 12 23 17 23 7"></polygon>
-                          <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+                          <circle cx="12" cy="12" r="10"></circle>
+                          <path d="M12 16v-4"></path>
+                          <path d="M12 8h.01"></path>
                         </svg>
                       </button>
-                    } @else {
-                      -
-                    }
+                      @if (lesson.status === 'COMPLETED' && lesson.recordingUrl) {
+                        <button class="btn-action btn-action--recording" (click)="openRecording(lesson)" title="Voir l'enregistrement">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="23 7 16 12 23 17 23 7"></polygon>
+                            <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+                          </svg>
+                        </button>
+                      }
+                    </div>
                   </td>
                 </tr>
               } @empty {
                 <tr>
                   <td colspan="7" class="empty-state">
-                    Aucun cours {{ activeTab() === 'upcoming' ? 'a venir' : 'effectue' }}
+                    Aucun cours {{ activeTab() === 'upcoming' ? 'a venir' : (activeTab() === 'completed' ? 'termine' : 'annule') }}
                   </td>
                 </tr>
               }
@@ -154,8 +168,140 @@ import { AdminService, AdminLessonResponse } from '../../../core/services/admin.
                 autoplay
                 class="video-player"
               >
-                Votre navigateur ne supporte pas la lecture de vidéos.
+                Votre navigateur ne supporte pas la lecture de videos.
               </video>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Detail Modal -->
+      @if (showDetailModal() && selectedLesson()) {
+        <div class="detail-overlay" (click)="closeDetails()">
+          <div class="detail-modal" (click)="$event.stopPropagation()">
+            <div class="detail-header">
+              <h3>Details du cours #{{ selectedLesson()!.id }}</h3>
+              <button class="detail-close" (click)="closeDetails()">✕</button>
+            </div>
+            <div class="detail-content">
+              <div class="detail-section">
+                <h4>Informations generales</h4>
+                <div class="detail-grid">
+                  <div class="detail-item">
+                    <span class="detail-label">Date</span>
+                    <span class="detail-value">{{ selectedLesson()!.scheduledAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label">Duree</span>
+                    <span class="detail-value">{{ selectedLesson()!.durationMinutes }} min</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label">Statut</span>
+                    <span class="badge" [class]="getStatusClass(selectedLesson()!.status)">
+                      {{ getStatusLabel(selectedLesson()!.status) }}
+                    </span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label">Prix</span>
+                    <span class="detail-value">{{ selectedLesson()!.priceCents ? formatPrice(selectedLesson()!.priceCents!) : 'Gratuit' }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="detail-section">
+                <h4>Participants</h4>
+                <div class="detail-grid">
+                  <div class="detail-item">
+                    <span class="detail-label">Coach</span>
+                    <span class="detail-value">{{ selectedLesson()!.teacherName }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label">Joueur</span>
+                    <span class="detail-value">
+                      {{ selectedLesson()!.studentName }}
+                      @if (selectedLesson()!.studentLevel) {
+                        <span class="badge badge--level">{{ selectedLesson()!.studentLevel }}</span>
+                      }
+                    </span>
+                  </div>
+                  @if (selectedLesson()!.studentAge) {
+                    <div class="detail-item">
+                      <span class="detail-label">Age</span>
+                      <span class="detail-value">{{ selectedLesson()!.studentAge }} ans</span>
+                    </div>
+                  }
+                  @if (selectedLesson()!.studentElo) {
+                    <div class="detail-item">
+                      <span class="detail-label">ELO</span>
+                      <span class="detail-value">{{ selectedLesson()!.studentElo }}</span>
+                    </div>
+                  }
+                </div>
+              </div>
+
+              @if (selectedLesson()!.status === 'CANCELLED') {
+                <div class="detail-section detail-section--warning">
+                  <h4>Annulation</h4>
+                  <div class="detail-grid">
+                    <div class="detail-item">
+                      <span class="detail-label">Annule par</span>
+                      <span class="detail-value">{{ getCancelledByLabel(selectedLesson()!.cancelledBy) }}</span>
+                    </div>
+                    @if (selectedLesson()!.cancellationReason) {
+                      <div class="detail-item detail-item--full">
+                        <span class="detail-label">Raison</span>
+                        <span class="detail-value">{{ selectedLesson()!.cancellationReason }}</span>
+                      </div>
+                    }
+                    @if (selectedLesson()!.refundedAmountCents) {
+                      <div class="detail-item">
+                        <span class="detail-label">Remboursement</span>
+                        <span class="detail-value">{{ formatPrice(selectedLesson()!.refundedAmountCents!) }} ({{ selectedLesson()!.refundPercentage }}%)</span>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+
+              @if (selectedLesson()!.teacherObservations) {
+                <div class="detail-section">
+                  <h4>Observations du coach</h4>
+                  <p class="detail-text">{{ selectedLesson()!.teacherObservations }}</p>
+                </div>
+              }
+
+              @if (selectedLesson()!.zoomLink) {
+                <div class="detail-section">
+                  <h4>Lien visioconference</h4>
+                  <div class="detail-link-box">
+                    <code>{{ selectedLesson()!.zoomLink }}</code>
+                    <button class="btn-copy" (click)="copyToClipboard(selectedLesson()!.zoomLink!)" title="Copier">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
+                        <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              }
+
+              <div class="detail-section">
+                <h4>Finances</h4>
+                <div class="detail-grid">
+                  <div class="detail-item">
+                    <span class="detail-label">Prix total</span>
+                    <span class="detail-value">{{ selectedLesson()!.priceCents ? formatPrice(selectedLesson()!.priceCents!) : '-' }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label">Commission</span>
+                    <span class="detail-value">{{ selectedLesson()!.commissionCents ? formatPrice(selectedLesson()!.commissionCents!) : '-' }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label">Gain coach</span>
+                    <span class="detail-value">{{ selectedLesson()!.teacherEarningsCents ? formatPrice(selectedLesson()!.teacherEarningsCents!) : '-' }}</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -418,6 +564,41 @@ import { AdminService, AdminLessonResponse } from '../../../core/services/admin.
       color: var(--text-muted);
     }
 
+    .actions-cell {
+      display: flex;
+      gap: var(--space-xs);
+    }
+
+    .btn-action {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+
+      &--details {
+        background: rgba(59, 130, 246, 0.1);
+        color: #3b82f6;
+
+        &:hover {
+          background: rgba(59, 130, 246, 0.2);
+        }
+      }
+
+      &--recording {
+        background: rgba(34, 197, 94, 0.1);
+        color: #22c55e;
+
+        &:hover {
+          background: rgba(34, 197, 94, 0.2);
+        }
+      }
+    }
+
     .btn-recording {
       display: inline-flex;
       align-items: center;
@@ -518,6 +699,194 @@ import { AdminService, AdminLessonResponse } from '../../../core/services/admin.
       display: block;
     }
 
+    .detail-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 1100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+
+      @media (max-width: 767px) {
+        padding: 0.5rem;
+        align-items: flex-end;
+      }
+    }
+
+    .detail-modal {
+      width: 100%;
+      max-width: 600px;
+      max-height: 90vh;
+      background: var(--bg-secondary);
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--border-subtle);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+
+      @media (max-width: 767px) {
+        max-height: 85vh;
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      }
+    }
+
+    .detail-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 1.5rem;
+      background: var(--bg-tertiary);
+      border-bottom: 1px solid var(--border-subtle);
+
+      @media (max-width: 767px) {
+        padding: 0.75rem 1rem;
+      }
+
+      h3 {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--text-primary);
+
+        @media (max-width: 767px) {
+          font-size: 1rem;
+        }
+      }
+    }
+
+    .detail-close {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: none;
+      border-radius: var(--radius-md);
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 1.25rem;
+      transition: all var(--transition-fast);
+
+      &:hover {
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+      }
+    }
+
+    .detail-content {
+      padding: 1.5rem;
+      overflow-y: auto;
+
+      @media (max-width: 767px) {
+        padding: 1rem;
+      }
+    }
+
+    .detail-section {
+      margin-bottom: 1.5rem;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      h4 {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.75rem;
+      }
+
+      &--warning {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        border-radius: var(--radius-md);
+        padding: 1rem;
+
+        h4 {
+          color: var(--error);
+        }
+      }
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+
+      @media (max-width: 480px) {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .detail-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+
+      &--full {
+        grid-column: 1 / -1;
+      }
+    }
+
+    .detail-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .detail-value {
+      font-size: 0.9375rem;
+      color: var(--text-primary);
+    }
+
+    .detail-text {
+      font-size: 0.9375rem;
+      color: var(--text-primary);
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    .detail-link-box {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 0.75rem 1rem;
+
+      code {
+        flex: 1;
+        font-size: 0.8125rem;
+        color: var(--text-secondary);
+        word-break: break-all;
+      }
+    }
+
+    .btn-copy {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      background: transparent;
+      border: none;
+      border-radius: var(--radius-md);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+
+      &:hover {
+        background: var(--bg-secondary);
+        color: var(--gold-400);
+      }
+    }
+
     .summary-card {
       margin-top: var(--space-lg);
       background: var(--bg-secondary);
@@ -579,19 +948,37 @@ import { AdminService, AdminLessonResponse } from '../../../core/services/admin.
 export class AdminLessonsComponent implements OnInit {
   upcomingLessons = signal<AdminLessonResponse[]>([]);
   completedLessons = signal<AdminLessonResponse[]>([]);
+  cancelledLessons = signal<AdminLessonResponse[]>([]);
   loading = signal(true);
-  activeTab = signal<'upcoming' | 'completed'>('upcoming');
+  activeTab = signal<'upcoming' | 'completed' | 'cancelled'>('upcoming');
   searchQuery = '';
 
   // Video player
   showVideoPlayer = signal(false);
   videoPlayerUrl = signal('');
 
+  // Detail modal
+  showDetailModal = signal(false);
+  selectedLesson = signal<AdminLessonResponse | null>(null);
+
   // Filtered lessons based on search query and active tab
   filteredLessons = computed(() => {
-    const lessons = this.activeTab() === 'upcoming' ? this.upcomingLessons() : this.completedLessons();
-    const query = this.searchQuery.toLowerCase().trim();
+    let lessons: AdminLessonResponse[];
+    switch (this.activeTab()) {
+      case 'upcoming':
+        lessons = this.upcomingLessons();
+        break;
+      case 'completed':
+        lessons = this.completedLessons();
+        break;
+      case 'cancelled':
+        lessons = this.cancelledLessons();
+        break;
+      default:
+        lessons = [];
+    }
 
+    const query = this.searchQuery.toLowerCase().trim();
     if (!query) return lessons;
 
     return lessons.filter(lesson => {
@@ -610,30 +997,38 @@ export class AdminLessonsComponent implements OnInit {
   loadLessons(): void {
     this.loading.set(true);
 
-    // Load both upcoming and completed lessons
+    // Load upcoming lessons
     this.adminService.getUpcomingLessons().subscribe({
       next: (lessons) => this.upcomingLessons.set(lessons),
       error: () => this.upcomingLessons.set([])
     });
 
-    this.adminService.getCompletedLessons().subscribe({
+    // Load all past lessons and separate them
+    this.adminService.getPastLessons().subscribe({
       next: (lessons) => {
-        this.completedLessons.set(lessons);
+        this.completedLessons.set(lessons.filter(l => l.status === 'COMPLETED'));
+        this.cancelledLessons.set(lessons.filter(l => l.status === 'CANCELLED'));
         this.loading.set(false);
       },
       error: () => {
         this.completedLessons.set([]);
+        this.cancelledLessons.set([]);
         this.loading.set(false);
       }
     });
   }
 
-  setTab(tab: 'upcoming' | 'completed'): void {
+  setTab(tab: 'upcoming' | 'completed' | 'cancelled'): void {
     this.activeTab.set(tab);
   }
 
   currentLessons(): AdminLessonResponse[] {
-    return this.activeTab() === 'upcoming' ? this.upcomingLessons() : this.completedLessons();
+    switch (this.activeTab()) {
+      case 'upcoming': return this.upcomingLessons();
+      case 'completed': return this.completedLessons();
+      case 'cancelled': return this.cancelledLessons();
+      default: return [];
+    }
   }
 
   getStatusClass(status: string): string {
@@ -678,5 +1073,32 @@ export class AdminLessonsComponent implements OnInit {
   closeVideoPlayer(): void {
     this.showVideoPlayer.set(false);
     this.videoPlayerUrl.set('');
+  }
+
+  openDetails(lesson: AdminLessonResponse): void {
+    this.selectedLesson.set(lesson);
+    this.showDetailModal.set(true);
+  }
+
+  closeDetails(): void {
+    this.showDetailModal.set(false);
+    this.selectedLesson.set(null);
+  }
+
+  getCancelledByLabel(cancelledBy?: string): string {
+    if (!cancelledBy) return 'Inconnu';
+    const labels: Record<string, string> = {
+      STUDENT: 'Le joueur',
+      TEACHER: 'Le coach',
+      SYSTEM: 'Systeme (auto)',
+      ADMIN: 'Administrateur'
+    };
+    return labels[cancelledBy] || cancelledBy;
+  }
+
+  copyToClipboard(text: string): void {
+    navigator.clipboard.writeText(text).then(() => {
+      // Could add a toast notification here
+    });
   }
 }

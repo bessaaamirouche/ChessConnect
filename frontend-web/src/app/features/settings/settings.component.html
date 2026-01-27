@@ -6,12 +6,11 @@
       </div>
     </header>
 
-    @if (profileSuccess()) {
-      <div class="alert alert--success">Profil mis à jour avec succès !</div>
-    }
-    @if (profileError()) {
-      <div class="alert alert--error">{{ profileError() }}</div>
-    }
+    <div class="alert-inline-container">
+      <div class="alert-inline" [class.alert-inline--visible]="profileSuccess() || profileError()" [class.alert-inline--success]="profileSuccess()" [class.alert-inline--error]="profileError()">
+        <span>{{ profileSuccess() ? 'Profil mis à jour avec succès !' : profileError() }}</span>
+      </div>
+    </div>
 
     <div class="profile-grid">
       <!-- Profile Form -->
@@ -38,7 +37,7 @@
             <div class="form-grid">
               <div class="form-group">
                 <label class="form-group__label">Date de naissance</label>
-                <input type="date" formControlName="birthDate" class="input input--sm" min="1920-01-01" [max]="maxBirthDate" (change)="validateBirthDate($event)">
+                <app-date-input formControlName="birthDate" size="sm" [min]="'1920-01-01'" [max]="maxBirthDate"></app-date-input>
               </div>
               <div class="form-group">
                 <label class="form-group__label">Classement ELO</label>
@@ -181,12 +180,11 @@
       <div class="card">
         <h3 class="card__title">Preferences</h3>
 
-        @if (preferencesSuccess()) {
-          <div class="alert alert--success alert--sm">Preferences mises a jour !</div>
-        }
-        @if (preferencesError()) {
-          <div class="alert alert--error alert--sm">{{ preferencesError() }}</div>
-        }
+        <div class="alert-inline-container">
+          <div class="alert-inline" [class.alert-inline--visible]="preferencesSuccess() || preferencesError()" [class.alert-inline--success]="preferencesSuccess()" [class.alert-inline--error]="preferencesError()">
+            <span>{{ preferencesSuccess() ? 'Preferences mises a jour !' : preferencesError() }}</span>
+          </div>
+        </div>
 
         <div class="preference-item">
           <div class="preference-item__info">
@@ -211,12 +209,11 @@
           <h3 class="card__title">Recevoir mes paiements</h3>
           <p class="card__description">Configurez votre compte bancaire pour recevoir vos paiements directement.</p>
 
-          @if (stripeConnectSuccess()) {
-            <div class="alert alert--success alert--sm">{{ stripeConnectSuccess() }}</div>
-          }
-          @if (stripeConnectError()) {
-            <div class="alert alert--error alert--sm">{{ stripeConnectError() }}</div>
-          }
+          <div class="alert-inline-container">
+            <div class="alert-inline" [class.alert-inline--visible]="stripeConnectSuccess() || stripeConnectError()" [class.alert-inline--success]="stripeConnectSuccess()" [class.alert-inline--error]="stripeConnectError()">
+              <span>{{ stripeConnectSuccess() || stripeConnectError() }}</span>
+            </div>
+          </div>
 
           @if (stripeConnectStatus().isReady) {
             <!-- Account is ready -->

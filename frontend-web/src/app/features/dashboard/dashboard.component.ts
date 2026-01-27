@@ -12,7 +12,7 @@ import { StripeConnectService } from '../../core/services/stripe-connect.service
 import { DialogService } from '../../core/services/dialog.service';
 import { WalletService } from '../../core/services/wallet.service';
 import { LESSON_STATUS_LABELS, Lesson } from '../../core/models/lesson.model';
-import { CHESS_LEVELS } from '../../core/models/user.model';
+import { CHESS_LEVELS, User, UpdateUserRequest } from '../../core/models/user.model';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
@@ -205,7 +205,7 @@ export class DashboardComponent implements OnInit {
     this.profileError.set(null);
 
     const formValue = this.profileForm.value;
-    const payload: any = {
+    const payload: UpdateUserRequest = {
       firstName: formValue.firstName,
       lastName: formValue.lastName,
       hourlyRateCents: formValue.hourlyRate * 100,
@@ -213,7 +213,7 @@ export class DashboardComponent implements OnInit {
       bio: formValue.bio
     };
 
-    this.http.patch<any>('/api/users/me', payload).subscribe({
+    this.http.patch<User>('/api/users/me', payload).subscribe({
       next: (updatedUser) => {
         this.authService.updateCurrentUser(updatedUser);
         this.savingProfile.set(false);
@@ -285,7 +285,7 @@ export class DashboardComponent implements OnInit {
     this.settingsError.set(null);
 
     const formValue = this.settingsForm.value;
-    const payload: any = {
+    const payload: UpdateUserRequest = {
       firstName: formValue.firstName,
       lastName: formValue.lastName
     };
@@ -296,7 +296,7 @@ export class DashboardComponent implements OnInit {
       payload.bio = formValue.bio;
     }
 
-    this.http.patch<any>('/api/users/me', payload).subscribe({
+    this.http.patch<User>('/api/users/me', payload).subscribe({
       next: (updatedUser) => {
         this.authService.updateCurrentUser(updatedUser);
         this.savingSettings.set(false);

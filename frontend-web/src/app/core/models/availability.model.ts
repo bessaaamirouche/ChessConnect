@@ -1,36 +1,19 @@
-export type DayOfWeek = 'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY' | 'FRIDAY' | 'SATURDAY' | 'SUNDAY';
+// Re-export types from shared contracts
+export {
+  DayOfWeek,
+  AvailabilityResponse,
+  AvailabilityRequest,
+  TimeSlotResponse
+} from '@contracts';
 
-export interface Availability {
-  id: number;
-  teacherId: number;
-  teacherName: string;
-  dayOfWeek: DayOfWeek;
-  dayOfWeekLabel: string;
-  startTime: string;
-  endTime: string;
-  isRecurring: boolean;
-  specificDate?: string;
-  isActive: boolean;
-  durationMinutes: number;
-}
+// Alias for backward compatibility
+export { AvailabilityResponse as Availability } from '@contracts';
+export { TimeSlotResponse as TimeSlot } from '@contracts';
 
-export interface AvailabilityRequest {
-  dayOfWeek?: DayOfWeek;
-  startTime: string;
-  endTime: string;
-  isRecurring: boolean;
-  specificDate?: string;
-}
+// Import DayOfWeek to use in constants
+import { DayOfWeek } from '@contracts';
 
-export interface TimeSlot {
-  date: string;
-  startTime: string;
-  endTime: string;
-  dateTime: string;
-  isAvailable: boolean;
-  dayOfWeekLabel: string;
-}
-
+// Frontend-specific constants
 export const DAYS_OF_WEEK: { value: DayOfWeek; label: string }[] = [
   { value: 'MONDAY', label: 'Lundi' },
   { value: 'TUESDAY', label: 'Mardi' },

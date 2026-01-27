@@ -89,11 +89,11 @@
           }
 
           <!-- Error -->
-          @if (lessonService.error() || paymentService.error() || walletService.error()) {
-            <div class="alert alert--error">
-              {{ lessonService.error() || paymentService.error() || walletService.error() }}
+          <div class="alert-inline-container">
+            <div class="alert-inline alert-inline--error" [class.alert-inline--visible]="lessonService.error() || paymentService.error() || walletService.error()">
+              <span>{{ lessonService.error() || paymentService.error() || walletService.error() }}</span>
             </div>
-          }
+          </div>
 
           <!-- Course Selection -->
           <div class="course-section">

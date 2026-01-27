@@ -305,6 +305,27 @@ public class AdminService {
     }
 
     /**
+     * Get all past lessons (COMPLETED + CANCELLED) - for admin history view
+     * Includes cancelled lessons for abuse/complaint investigation
+     */
+    @Transactional(readOnly = true)
+    public List<LessonResponse> getPastLessons() {
+        return lessonRepository.findAllPastLessons().stream()
+                .map(LessonResponse::from)
+                .toList();
+    }
+
+    /**
+     * Get ALL lessons (all statuses) - for complete admin overview
+     */
+    @Transactional(readOnly = true)
+    public List<LessonResponse> getAllLessons() {
+        return lessonRepository.findAllOrderByScheduledAtDesc().stream()
+                .map(LessonResponse::from)
+                .toList();
+    }
+
+    /**
      * Get accounting/revenue overview
      * Optimized: Uses aggregate queries instead of loading all lessons into memory
      */

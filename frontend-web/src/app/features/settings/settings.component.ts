@@ -7,7 +7,8 @@ import { SeoService } from '../../core/services/seo.service';
 import { DialogService } from '../../core/services/dialog.service';
 import { HttpClient } from '@angular/common/http';
 import { StripeConnectService, StripeConnectStatus } from '../../core/services/stripe-connect.service';
-import { AVAILABLE_LANGUAGES } from '../../core/models/user.model';
+import { AVAILABLE_LANGUAGES, User, UpdateUserRequest } from '../../core/models/user.model';
+import { DateInputComponent } from '../../shared/components/date-input/date-input.component';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   heroChartBarSquare,
@@ -23,7 +24,7 @@ import {
 @Component({
   selector: 'app-settings',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, NgIconComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, NgIconComponent, DateInputComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({
     heroChartBarSquare,
@@ -282,7 +283,7 @@ export class SettingsComponent implements OnInit {
     this.profileError.set(null);
 
     const formValue = this.profileForm.value;
-    const payload: any = {
+    const payload: UpdateUserRequest = {
       firstName: formValue.firstName,
       lastName: formValue.lastName
     };
@@ -306,7 +307,7 @@ export class SettingsComponent implements OnInit {
       }
     }
 
-    this.http.patch<any>('/api/users/me', payload).subscribe({
+    this.http.patch<User>('/api/users/me', payload).subscribe({
       next: (updatedUser) => {
         this.authService.updateCurrentUser(updatedUser);
         this.savingProfile.set(false);
@@ -331,7 +332,7 @@ export class SettingsComponent implements OnInit {
     this.preferencesSuccess.set(false);
     this.preferencesError.set(null);
 
-    this.http.patch<any>('/api/users/me', { emailRemindersEnabled: newValue }).subscribe({
+    this.http.patch<User>('/api/users/me', { emailRemindersEnabled: newValue } as UpdateUserRequest).subscribe({
       next: (updatedUser) => {
         this.emailRemindersEnabled.set(newValue);
         this.authService.updateCurrentUser(updatedUser);

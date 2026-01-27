@@ -194,12 +194,12 @@
     }
 
     <!-- Error Message -->
-    @if (paymentService.error()) {
-      <div class="alert alert--error">
-        {{ paymentService.error() }}
+    <div class="alert-inline-container">
+      <div class="alert-inline alert-inline--error" [class.alert-inline--visible]="paymentService.error()">
+        <span>{{ paymentService.error() }}</span>
         <button class="alert__close" (click)="paymentService.clearError()">×</button>
       </div>
-    }
+    </div>
 
   <!-- Embedded Checkout -->
   @if (showCheckout() && checkoutClientSecret()) {

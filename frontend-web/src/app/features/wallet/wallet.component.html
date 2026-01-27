@@ -87,12 +87,12 @@
   </section>
 
   <!-- Error Message -->
-  @if (walletService.error()) {
-    <div class="alert alert--error">
-      {{ walletService.error() }}
+  <div class="alert-inline-container">
+    <div class="alert-inline alert-inline--error" [class.alert-inline--visible]="walletService.error()">
+      <span>{{ walletService.error() }}</span>
       <button class="alert__close" (click)="walletService.clearError()">×</button>
     </div>
-  }
+  </div>
 
   <!-- Top Up Modal -->
   @if (showTopUpModal()) {

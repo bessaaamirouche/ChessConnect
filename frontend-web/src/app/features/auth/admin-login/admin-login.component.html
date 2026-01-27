@@ -7,11 +7,11 @@
       <h1 class="heading-3">Administration</h1>
     </div>
 
-    @if (error()) {
-      <div class="alert alert--error">
-        {{ error() }}
+    <div class="alert-inline-container">
+      <div class="alert-inline alert-inline--error" [class.alert-inline--visible]="error()">
+        <span>{{ error() }}</span>
       </div>
-    }
+    </div>
 
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
       <div class="form-group">

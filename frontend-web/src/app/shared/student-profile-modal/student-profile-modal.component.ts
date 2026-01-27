@@ -3,7 +3,7 @@ import { DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LearningPathService } from '../../core/services/learning-path.service';
 import { Course } from '../../core/models/learning-path.model';
-import { ChessLevel, CHESS_LEVELS } from '../../core/models/user.model';
+import { ChessLevel } from '../../core/models/user.model';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   heroXMark,
@@ -43,11 +43,14 @@ export class StudentProfileModalComponent implements OnInit {
   selectedLevel = signal<ChessLevel>('PION');
   settingLevel = signal<boolean>(false);
 
-  readonly chessLevels = Object.entries(CHESS_LEVELS).map(([key, value]) => ({
-    value: key as ChessLevel,
-    label: value.label,
-    icon: value.icon
-  }));
+  readonly chessLevels: { value: ChessLevel; label: string; icon: string }[] = [
+    { value: 'PION', label: 'Pion', icon: '♟' },
+    { value: 'CAVALIER', label: 'Cavalier', icon: '♞' },
+    { value: 'FOU', label: 'Fou', icon: '♝' },
+    { value: 'TOUR', label: 'Tour', icon: '♜' },
+    { value: 'DAME', label: 'Dame', icon: '♛' },
+    { value: 'ROI', label: 'Roi', icon: '♚' }
+  ];
 
   constructor(public learningPathService: LearningPathService) {}
 

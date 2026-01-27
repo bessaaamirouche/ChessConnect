@@ -29,7 +29,7 @@ public record RegisterRequest(
 
         // Teacher fields
         Integer hourlyRateCents,
-        Boolean acceptsSubscription,
+        Boolean acceptsFreeTrial,
         String bio,
         List<String> languages,  // Languages spoken by teacher (e.g., ["FR", "EN"])
 

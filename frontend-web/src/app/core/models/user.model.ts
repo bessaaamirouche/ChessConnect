@@ -59,7 +59,7 @@ export interface RegisterRequest {
   role: UserRole;
   // Teacher fields
   hourlyRateCents?: number;
-  acceptsSubscription?: boolean;
+  acceptsFreeTrial?: boolean;
   bio?: string;
   languages?: string[];
   // Student fields
@@ -82,7 +82,7 @@ export const AVAILABLE_LANGUAGES: { code: string; name: string }[] = [
 
 export interface UpdateTeacherProfileRequest {
   hourlyRateCents?: number;
-  acceptsSubscription?: boolean;
+  acceptsFreeTrial?: boolean;
   bio?: string;
 }
 

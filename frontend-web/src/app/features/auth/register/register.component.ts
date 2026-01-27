@@ -44,7 +44,7 @@ export class RegisterComponent {
       role: ['STUDENT', Validators.required],
       // Teacher fields
       hourlyRate: [50],
-      acceptsSubscription: [true],
+      acceptsFreeTrial: [true],
       bio: [''],
       // Student fields
       birthDate: [''],
@@ -98,7 +98,7 @@ export class RegisterComponent {
     const formValue = { ...this.registerForm.value };
     if (formValue.role === 'STUDENT') {
       delete formValue.hourlyRate;
-      delete formValue.acceptsSubscription;
+      delete formValue.acceptsFreeTrial;
       delete formValue.bio;
       // Handle ELO - only include if user knows it
       if (!formValue.knowsElo || !formValue.eloRating) {

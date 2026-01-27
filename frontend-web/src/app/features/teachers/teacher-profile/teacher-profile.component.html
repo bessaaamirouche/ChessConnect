@@ -65,16 +65,10 @@
               <span class="info-row__label">Tarif horaire</span>
               <span class="info-row__value info-row__value--gold">{{ formatPrice(teacher.hourlyRateCents) }}</span>
             </div>
-            @if (teacher.acceptsSubscription) {
-              <div class="info-row">
-                <span class="info-row__label">Abonnements</span>
-                <span class="info-row__value info-row__value--badge">Acceptes</span>
-              </div>
-            }
             @if (teacher.acceptsFreeTrial) {
               <div class="info-row">
-                <span class="info-row__label">Premier cours</span>
-                <span class="info-row__value info-row__value--success">Offert</span>
+                <span class="info-row__label">Cours d'initiation</span>
+                <span class="info-row__value info-row__value--success">Gratuit (15 min)</span>
               </div>
             }
           </div>

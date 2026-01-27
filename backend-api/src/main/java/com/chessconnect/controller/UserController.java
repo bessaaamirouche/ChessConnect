@@ -143,8 +143,8 @@ public class UserController {
         if (request.getHourlyRateCents() != null) {
             user.setHourlyRateCents(request.getHourlyRateCents());
         }
-        if (request.getAcceptsSubscription() != null) {
-            user.setAcceptsSubscription(request.getAcceptsSubscription());
+        if (request.getAcceptsFreeTrial() != null) {
+            user.setAcceptsFreeTrial(request.getAcceptsFreeTrial());
         }
         if (request.getBio() != null) {
             user.setBio(request.getBio());

@@ -57,7 +57,7 @@ public class AuthService {
 
         if (request.role() == UserRole.TEACHER) {
             user.setHourlyRateCents(request.hourlyRateCents() != null ? request.hourlyRateCents() : 5000);
-            user.setAcceptsSubscription(request.acceptsSubscription() != null ? request.acceptsSubscription() : true);
+            user.setAcceptsFreeTrial(request.acceptsFreeTrial() != null ? request.acceptsFreeTrial() : true);
             user.setBio(request.bio());
             // Save languages for teachers
             if (request.languages() != null && !request.languages().isEmpty()) {

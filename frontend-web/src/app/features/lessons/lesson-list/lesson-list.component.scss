@@ -405,6 +405,25 @@
     text-overflow: ellipsis;
   }
 
+  &__student-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    background: transparent;
+    border: none;
+    padding: 0;
+    font-size: inherit;
+    font-weight: inherit;
+    color: var(--gold-400);
+    cursor: pointer;
+    transition: color var(--transition-fast);
+
+    &:hover {
+      color: var(--gold-300);
+      text-decoration: underline;
+    }
+  }
+
   &__time {
     font-size: 0.6875rem;
     color: var(--text-muted);

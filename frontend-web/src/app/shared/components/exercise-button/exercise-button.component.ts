@@ -33,6 +33,10 @@ import { PaymentService } from '../../../core/services/payment.service';
     }
   `,
   styles: [`
+    :host {
+      margin-left: auto;
+    }
+
     .exercise-btn {
       display: inline-flex;
       align-items: center;

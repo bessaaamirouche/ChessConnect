@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, ViewChild, ChangeDetectionStrategy, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, ViewChild, ChangeDetectionStrategy, computed } from '@angular/core';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -9,6 +9,7 @@ import { SeoService } from '../../../core/services/seo.service';
 import { JitsiService } from '../../../core/services/jitsi.service';
 import { LearningPathService } from '../../../core/services/learning-path.service';
 import { WalletService } from '../../../core/services/wallet.service';
+import { PaymentService } from '../../../core/services/payment.service';
 import { NextCourse } from '../../../core/models/learning-path.model';
 import { LESSON_STATUS_LABELS, Lesson } from '../../../core/models/lesson.model';
 import { ConfirmDialogComponent } from '../../../shared/confirm-dialog/confirm-dialog.component';
@@ -80,7 +81,7 @@ import { CHESS_LEVELS } from '../../../core/models/user.model';
   templateUrl: './lesson-list.component.html',
   styleUrl: './lesson-list.component.scss'
 })
-export class LessonListComponent implements OnInit {
+export class LessonListComponent implements OnInit, OnDestroy {
   @ViewChild('confirmDialog') confirmDialog!: ConfirmDialogComponent;
 
   statusLabels = LESSON_STATUS_LABELS;
@@ -171,6 +172,9 @@ export class LessonListComponent implements OnInit {
   // Next course cache by student ID
   nextCourseByStudent = signal<Map<number, NextCourse | null>>(new Map());
 
+  // Polling for lesson status check (when in video call)
+  private lessonStatusCheckInterval: any = null;
+
   constructor(
     public lessonService: LessonService,
     public authService: AuthService,
@@ -179,6 +183,7 @@ export class LessonListComponent implements OnInit {
     private jitsiService: JitsiService,
     private learningPathService: LearningPathService,
     private walletService: WalletService,
+    private paymentService: PaymentService,
     private route: ActivatedRoute,
     private router: Router
   ) {
@@ -217,7 +222,14 @@ export class LessonListComponent implements OnInit {
           this.ratedLessons.set(new Set(ids));
         }
       });
+
+      // Load active subscription to check Premium status for exercise button
+      this.paymentService.loadActiveSubscription().subscribe();
     }
+  }
+
+  ngOnDestroy(): void {
+    this.stopLessonStatusCheck();
   }
 
   // Load next course for all students with pending lessons
@@ -355,6 +367,11 @@ export class LessonListComponent implements OnInit {
         this.videoCallDurationMinutes.set(durationMinutes);
         this.videoCallLessonId.set(lesson.id);
         this.showVideoCall.set(true);
+
+        // Start polling for lesson status (students only) to auto-hang up when coach ends
+        if (this.authService.isStudent()) {
+          this.startLessonStatusCheck(lesson.id);
+        }
       },
       error: (err) => {
         console.error('Erreur lors de la generation du token Jitsi:', err);
@@ -366,6 +383,11 @@ export class LessonListComponent implements OnInit {
         this.videoCallDurationMinutes.set(durationMinutes);
         this.videoCallLessonId.set(lesson.id);
         this.showVideoCall.set(true);
+
+        // Start polling for lesson status (students only) to auto-hang up when coach ends
+        if (this.authService.isStudent()) {
+          this.startLessonStatusCheck(lesson.id);
+        }
       }
     });
   }
@@ -382,6 +404,7 @@ export class LessonListComponent implements OnInit {
   }
 
   closeVideoCall(): void {
+    this.stopLessonStatusCheck();
     this.showVideoCall.set(false);
     this.videoCallRoomName.set('');
     this.videoCallToken.set('');
@@ -389,6 +412,33 @@ export class LessonListComponent implements OnInit {
     this.videoCallIsFreeTrial.set(false);
     this.videoCallDurationMinutes.set(60);
     this.videoCallLessonId.set(null);
+  }
+
+  // Start polling to check if lesson was completed (for students to auto-hang up)
+  private startLessonStatusCheck(lessonId: number): void {
+    if (this.lessonStatusCheckInterval) return;
+
+    this.lessonStatusCheckInterval = setInterval(() => {
+      this.lessonService.refreshLesson(lessonId).subscribe({
+        next: (lesson) => {
+          if (lesson.status === 'COMPLETED') {
+            // Coach has ended the lesson, close the video call
+            this.stopLessonStatusCheck();
+            this.closeVideoCall();
+            // Reload lessons to update UI
+            this.lessonService.loadUpcomingLessons().subscribe();
+            this.lessonService.loadLessonHistory().subscribe();
+          }
+        }
+      });
+    }, 5000); // Check every 5 seconds
+  }
+
+  private stopLessonStatusCheck(): void {
+    if (this.lessonStatusCheckInterval) {
+      clearInterval(this.lessonStatusCheckInterval);
+      this.lessonStatusCheckInterval = null;
+    }
   }
 
   endLessonFromCall(): void {

@@ -1,7 +1,8 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, signal, PLATFORM_ID, Inject, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, signal, PLATFORM_ID, Inject, ElementRef, ViewChild, AfterViewInit, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { heroXMark, heroVideoCamera, heroClock, heroCheckCircle } from '@ng-icons/heroicons/outline';
+import { ToastService } from '../../core/services/toast.service';
 
 declare var JitsiMeetExternalAPI: any;
 
@@ -231,6 +232,7 @@ export class VideoCallComponent implements OnInit, OnDestroy, AfterViewInit {
   private recordingStarted = false;
   private timerInterval: any = null;
   private timerStartTime: number = 0;
+  private toastService = inject(ToastService);
 
   constructor(
     @Inject(PLATFORM_ID) platformId: Object
@@ -287,7 +289,10 @@ export class VideoCallComponent implements OnInit, OnDestroy, AfterViewInit {
         defaultLanguage: 'fr',
         fileRecordingsEnabled: true,
         localRecording: { enabled: false },
-        recordingService: { enabled: true, sharingEnabled: false }
+        recordingService: { enabled: true, sharingEnabled: false },
+        // Disable Jitsi notifications to use our own
+        notifications: [],
+        disableModeratorIndicator: true
       },
       interfaceConfigOverwrite: {
         SHOW_JITSI_WATERMARK: false,
@@ -332,6 +337,7 @@ export class VideoCallComponent implements OnInit, OnDestroy, AfterViewInit {
 
       if (status.on) {
         this.recordingStarted = true;
+        this.toastService.show('L\'enregistrement de votre cours a demarré', 'info');
       }
     });
 

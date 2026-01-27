@@ -6,6 +6,7 @@ import { AuthResponse, LoginRequest, RegisterRequest, UpdateTeacherProfileReques
 
 const TOKEN_KEY = 'chess_token';
 const USER_KEY = 'chess_user';
+const LAST_ACTIVITY_KEY = 'chess_last_activity';
 
 @Injectable({
   providedIn: 'root'
@@ -66,6 +67,8 @@ export class AuthService {
 
     localStorage.setItem(TOKEN_KEY, response.token);
     localStorage.setItem(USER_KEY, JSON.stringify(user));
+    // Reset last activity timestamp on login to prevent false inactivity logout
+    localStorage.setItem(LAST_ACTIVITY_KEY, Date.now().toString());
 
     this.tokenSignal.set(response.token);
     this.currentUserSignal.set(user);

@@ -67,7 +67,7 @@
     "url": "https://mychess.fr",
     "logo": "https://mychess.fr/assets/logo.png",
     "description": "Plateforme de cours d'échecs en ligne avec des coachs certifiés",
-    "sameAs": [],
+    "sameAs": ["https://www.instagram.com/mychess_learning"],
     "contactPoint": {
       "@type": "ContactPoint",
       "contactType": "customer service",
@@ -88,6 +88,88 @@
       "target": "https://mychess.fr/teachers?search={search_term_string}",
       "query-input": "required name=search_term_string"
     }
+  }
+  </script>
+
+  <!-- Structured Data - Service -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": "Cours d'échecs en ligne",
+    "description": "Cours particuliers d'échecs en visioconférence avec des coachs qualifiés. Progression du niveau Pion au niveau Dame.",
+    "provider": {
+      "@type": "Organization",
+      "name": "mychess",
+      "url": "https://mychess.fr"
+    },
+    "serviceType": "Cours particuliers",
+    "areaServed": "FR",
+    "hasOfferCatalog": {
+      "@type": "OfferCatalog",
+      "name": "Cours d'échecs",
+      "itemListElement": [
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Premier cours gratuit"
+          },
+          "price": "0",
+          "priceCurrency": "EUR"
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Cours particulier 1h"
+          },
+          "priceRange": "30€ - 80€"
+        }
+      ]
+    }
+  }
+  </script>
+
+  <!-- Structured Data - FAQ -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Comment fonctionne mychess ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Inscrivez-vous gratuitement, passez le quiz d'évaluation pour déterminer votre niveau, puis réservez votre premier cours gratuit avec un de nos coachs qualifiés. Les cours se déroulent en visioconférence."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Le premier cours est-il vraiment gratuit ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Oui, votre premier cours d'une heure est entièrement gratuit et sans engagement. C'est l'occasion de découvrir notre plateforme et de rencontrer votre coach."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Quels sont les niveaux disponibles ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Nous proposons 5 niveaux de progression : Pion (débutant), Cavalier (intermédiaire), Fou (confirmé), Tour (avancé) et Dame (expert). Un quiz initial permet de déterminer votre niveau."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Combien coûte un cours d'échecs ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Les tarifs varient selon les coachs, généralement entre 30€ et 80€ de l'heure. Chaque coach fixe son propre tarif en fonction de son expérience et ses qualifications."
+        }
+      }
+    ]
   }
   </script>
 </head>

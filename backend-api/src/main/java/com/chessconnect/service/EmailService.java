@@ -119,4 +119,14 @@ public class EmailService {
         );
         sendEmail(adminEmail, "[Mychess] " + subject, "contact-admin", variables);
     }
+
+    @Async
+    public void sendEmailVerificationEmail(String to, String firstName, String verificationLink) {
+        Map<String, Object> variables = Map.of(
+                "firstName", firstName,
+                "verificationLink", verificationLink
+        );
+        sendEmail(to, "Confirmez votre adresse email - Mychess",
+                "email-verification", variables);
+    }
 }

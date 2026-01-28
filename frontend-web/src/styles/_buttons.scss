@@ -116,6 +116,29 @@
     padding: var(--space-sm);
     aspect-ratio: 1;
   }
+
+  // === Loading state ===
+  &--loading {
+    position: relative;
+    pointer-events: none;
+
+    .spinner {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    // Hide text when loading with spinner only
+    &.btn--spinner-only > *:not(.spinner) {
+      visibility: hidden;
+    }
+  }
+
+  // Inline spinner with text (default behavior)
+  .spinner {
+    flex-shrink: 0;
+  }
 }
 
 // === Button Group ===

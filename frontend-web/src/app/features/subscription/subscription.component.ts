@@ -1,9 +1,10 @@
-import { Component, OnInit, signal, ChangeDetectionStrategy, computed } from '@angular/core';
+import { Component, OnInit, signal, ChangeDetectionStrategy, computed, inject } from '@angular/core';
 import { RouterLink, Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { PaymentService, SubscriptionPlanResponseDto } from '../../core/services/payment.service';
 import { AuthService } from '../../core/services/auth.service';
 import { SeoService } from '../../core/services/seo.service';
+import { UrlValidatorService } from '../../core/services/url-validator.service';
 import { SubscriptionPlan } from '../../core/models/subscription.model';
 import { EmbeddedCheckoutComponent } from '../../shared/embedded-checkout/embedded-checkout.component';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
@@ -65,6 +66,8 @@ export class SubscriptionComponent implements OnInit {
   checkoutSessionId = signal<string | null>(null);
   selectedPlanName = signal<string>('');
 
+  private urlValidator = inject(UrlValidatorService);
+
   constructor(
     public paymentService: PaymentService,
     public authService: AuthService,
@@ -95,8 +98,13 @@ export class SubscriptionComponent implements OnInit {
           this.showCheckout.set(true);
           this.processingPlan.set(null);
         } else if (response.url) {
-          // Fallback to redirect
-          window.location.href = response.url;
+          // Fallback to redirect - validate URL before redirecting
+          if (this.urlValidator.isValidStripeUrl(response.url)) {
+            window.location.href = response.url;
+          } else {
+            console.error('Invalid checkout URL received');
+            this.processingPlan.set(null);
+          }
         }
       },
       error: () => {

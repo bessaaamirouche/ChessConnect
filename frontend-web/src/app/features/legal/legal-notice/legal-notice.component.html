@@ -1,0 +1,244 @@
+<div class="legal-page">
+  <!-- Navbar -->
+  <nav class="nav">
+    <div class="nav__container">
+      <a routerLink="/" class="nav__logo">
+        <img src="assets/logo.png" alt="myChess" class="nav__logo-img">
+      </a>
+
+      <!-- Mobile hamburger -->
+      <button class="nav__hamburger" [class.active]="mobileMenuOpen()" (click)="toggleMobileMenu()">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <!-- Mobile menu overlay -->
+      <div class="nav__mobile-overlay" [class.active]="mobileMenuOpen()" (click)="closeMobileMenu()"></div>
+
+      <!-- Desktop Pill Tabs Navigation -->
+      <div class="nav__pills">
+        <a routerLink="/" class="nav__pill">Accueil</a>
+        <a routerLink="/teachers" class="nav__pill">Nos coachs</a>
+        <a routerLink="/blog" class="nav__pill">Blog</a>
+        @if (authService.isAuthenticated()) {
+          <a routerLink="/dashboard" class="nav__pill">Mon Espace</a>
+        } @else {
+          <a routerLink="/login" class="nav__pill">S'identifier</a>
+          <a routerLink="/register" class="nav__pill">S'inscrire</a>
+        }
+      </div>
+
+      <!-- Mobile Drawer Menu -->
+      <div class="nav__links" [class.active]="mobileMenuOpen()">
+        <a routerLink="/" (click)="closeMobileMenu()">Accueil</a>
+        <a routerLink="/teachers" (click)="closeMobileMenu()">Nos coachs</a>
+        <a routerLink="/blog" (click)="closeMobileMenu()">Blog</a>
+
+        <div class="nav__mobile-actions">
+          @if (authService.isAuthenticated()) {
+            <a routerLink="/dashboard" class="nav__btn nav__btn--primary" (click)="closeMobileMenu()">Mon Espace</a>
+          } @else {
+            <a routerLink="/login" class="nav__btn nav__btn--ghost" (click)="closeMobileMenu()">S'identifier</a>
+            <a routerLink="/register" class="nav__btn nav__btn--primary" (click)="closeMobileMenu()">S'inscrire</a>
+          }
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Header -->
+  <header class="legal-header">
+    <div class="legal-header__content">
+      <h1 class="legal-header__title">Mentions Legales</h1>
+      <p class="legal-header__date">Derniere mise a jour : {{ lastUpdate }}</p>
+    </div>
+  </header>
+
+  <!-- Content -->
+  <main class="legal-content">
+    <div class="legal-content__container">
+      <article class="prose">
+
+        <section>
+          <h2>1. Editeur du site</h2>
+          <p>Le site <strong>mychess.fr</strong> est edite par :</p>
+          <ul>
+            <li><strong>Denomination sociale :</strong> CANDLE</li>
+            <li><strong>Forme juridique :</strong> Micro-entreprise (Entreprise Individuelle)</li>
+            <li><strong>Siege social :</strong> [Adresse a completer], France</li>
+            <li><strong>Numero SIRET :</strong> [A completer]</li>
+            <li><strong>Numero SIREN :</strong> [A completer]</li>
+            <li><strong>Code APE/NAF :</strong> [A completer]</li>
+            <li><strong>Email :</strong> contact&#64;mychess.fr</li>
+            <li><strong>Telephone :</strong> [A completer]</li>
+          </ul>
+
+          <h3>TVA</h3>
+          <p>TVA non applicable, article 293 B du Code General des Impots.</p>
+        </section>
+
+        <section>
+          <h2>2. Directeur de la publication</h2>
+          <p>Le directeur de la publication du site est :</p>
+          <ul>
+            <li><strong>Nom :</strong> [Nom du responsable a completer]</li>
+            <li><strong>Qualite :</strong> Gerant de CANDLE</li>
+            <li><strong>Email :</strong> contact&#64;mychess.fr</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>3. Hebergement</h2>
+          <p>Le site mychess.fr est heberge par :</p>
+          <ul>
+            <li><strong>Raison sociale :</strong> OVH SAS</li>
+            <li><strong>Adresse :</strong> 2 rue Kellermann, 59100 Roubaix, France</li>
+            <li><strong>Telephone :</strong> +33 9 72 10 10 07</li>
+            <li><strong>Site web :</strong> <a href="https://www.ovhcloud.com" target="_blank" rel="noopener">www.ovhcloud.com</a></li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>4. Propriete intellectuelle</h2>
+          <p>L'ensemble du contenu du site mychess.fr (textes, graphismes, logos, icones, images, clips audio et video, logiciels, bases de donnees) est la propriete exclusive de CANDLE ou de ses partenaires et est protege par les lois francaises et internationales relatives a la propriete intellectuelle.</p>
+          <p>Toute reproduction, representation, modification, publication, transmission, denaturation, totale ou partielle du site ou de son contenu, par quelque procede que ce soit, et sur quelque support que ce soit est interdite sans l'autorisation ecrite prealable de CANDLE.</p>
+          <p>Toute exploitation non autorisee du site ou de son contenu, des informations qui y sont divulguees engagerait la responsabilite de l'utilisateur et constituerait une contrefacon sanctionnee par les articles L.335-2 et suivants du Code de la Propriete Intellectuelle.</p>
+
+          <h3>Marques et logos</h3>
+          <p>Le nom "mychess" et le logo representant un cavalier d'echecs sont des marques deposees. Toute utilisation non autorisee de ces elements est interdite.</p>
+        </section>
+
+        <section>
+          <h2>5. Liens hypertextes</h2>
+
+          <h3>Liens sortants</h3>
+          <p>Le site mychess.fr peut contenir des liens hypertextes vers d'autres sites internet. CANDLE n'exerce aucun controle sur ces sites et decline toute responsabilite quant a leur contenu ou aux services qu'ils proposent.</p>
+
+          <h3>Liens entrants</h3>
+          <p>Tout lien vers le site mychess.fr doit faire l'objet d'une autorisation prealable. Toutefois, les liens de reference (liens simples, sans deep linking ni framing) sont autorises sans accord prealable, sous reserve qu'ils ne portent pas atteinte a l'image du site.</p>
+        </section>
+
+        <section>
+          <h2>6. Donnees personnelles</h2>
+          <p>Conformement au Reglement General sur la Protection des Donnees (RGPD) et a la loi Informatique et Libertes, vous disposez de droits sur vos donnees personnelles.</p>
+          <p>Pour en savoir plus sur la collecte et le traitement de vos donnees personnelles, veuillez consulter notre <a routerLink="/privacy">Politique de Confidentialite</a>.</p>
+
+          <h3>Responsable du traitement</h3>
+          <ul>
+            <li><strong>CANDLE</strong></li>
+            <li>Email : contact&#64;mychess.fr</li>
+          </ul>
+
+          <h3>Autorite de controle</h3>
+          <p>En cas de reclamation, vous pouvez contacter la <strong>CNIL</strong> (Commission Nationale de l'Informatique et des Libertes) :</p>
+          <ul>
+            <li><strong>Site :</strong> <a href="https://www.cnil.fr" target="_blank" rel="noopener">www.cnil.fr</a></li>
+            <li><strong>Adresse :</strong> 3 Place de Fontenoy, TSA 80715, 75334 Paris Cedex 07</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>7. Cookies</h2>
+          <p>Le site mychess.fr utilise des cookies pour ameliorer l'experience utilisateur et a des fins statistiques.</p>
+
+          <h3>Cookies essentiels</h3>
+          <p>Ces cookies sont necessaires au fonctionnement du site :</p>
+          <ul>
+            <li><strong>Authentification :</strong> Cookie JWT HttpOnly pour la connexion securisee</li>
+            <li><strong>Preferences :</strong> Stockage de vos choix de cookies</li>
+          </ul>
+
+          <h3>Cookies analytiques</h3>
+          <p>Avec votre consentement, nous utilisons Google Analytics (GA4) pour :</p>
+          <ul>
+            <li>Analyser la frequentation du site</li>
+            <li>Ameliorer nos services</li>
+            <li>Comprendre les parcours utilisateurs</li>
+          </ul>
+          <p>Vous pouvez accepter ou refuser ces cookies via le bandeau de consentement affiche lors de votre premiere visite.</p>
+          <p>Pour plus d'informations, consultez la <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">politique de confidentialite de Google</a>.</p>
+        </section>
+
+        <section>
+          <h2>8. Limitation de responsabilite</h2>
+
+          <h3>Informations</h3>
+          <p>CANDLE s'efforce d'assurer l'exactitude des informations diffusees sur le site. Toutefois, CANDLE ne peut garantir l'exactitude, la precision ou l'exhaustivite des informations mises a disposition sur le site.</p>
+          <p>En consequence, CANDLE decline toute responsabilite :</p>
+          <ul>
+            <li>Pour toute imprecision, inexactitude ou omission portant sur des informations disponibles sur le site</li>
+            <li>Pour tous dommages resultant d'une intrusion frauduleuse d'un tiers ayant entraine une modification des informations mises a disposition sur le site</li>
+            <li>Pour tous dommages, directs ou indirects, quelles qu'en soient les causes, origines, natures ou consequences</li>
+          </ul>
+
+          <h3>Disponibilite</h3>
+          <p>CANDLE ne garantit pas que le site sera exempt d'anomalies, d'erreurs ou de bugs, ni que ceux-ci pourront etre corriges, ni que le site fonctionnera sans interruption ou pannes.</p>
+        </section>
+
+        <section>
+          <h2>9. Mediation et reglement des litiges</h2>
+          <p>Conformement aux articles L.616-1 et R.616-1 du Code de la consommation, en cas de litige, le consommateur peut recourir gratuitement au service de mediation.</p>
+
+          <h3>Mediateur de la consommation</h3>
+          <p>Le mediateur competent est :</p>
+          <ul>
+            <li><strong>Nom :</strong> [Nom du mediateur a completer]</li>
+            <li><strong>Site :</strong> [Site du mediateur a completer]</li>
+          </ul>
+          <p>Le consommateur peut egalement utiliser la plateforme europeenne de reglement des litiges en ligne :</p>
+          <ul>
+            <li><a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noopener">https://ec.europa.eu/consumers/odr</a></li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>10. Droit applicable</h2>
+          <p>Les presentes mentions legales sont soumises au droit francais.</p>
+          <p>En cas de litige et apres echec de toute tentative de recherche d'une solution amiable, les tribunaux francais seront seuls competents.</p>
+        </section>
+
+        <section>
+          <h2>11. Credits</h2>
+
+          <h3>Conception et developpement</h3>
+          <p>Le site mychess.fr a ete concu et developpe par l'equipe CANDLE.</p>
+
+          <h3>Technologies utilisees</h3>
+          <ul>
+            <li><strong>Frontend :</strong> Angular 17</li>
+            <li><strong>Backend :</strong> Spring Boot 3.2</li>
+            <li><strong>Base de donnees :</strong> PostgreSQL</li>
+            <li><strong>Paiements :</strong> Stripe</li>
+            <li><strong>Visioconference :</strong> Jitsi Meet</li>
+          </ul>
+
+          <h3>Iconographie</h3>
+          <p>Les icones utilisees sur le site proviennent de la bibliotheque ng-icons et sont sous licence MIT.</p>
+        </section>
+
+        <section>
+          <h2>12. Contact</h2>
+          <p>Pour toute question relative aux presentes mentions legales, vous pouvez nous contacter :</p>
+          <ul>
+            <li><strong>Email :</strong> contact&#64;mychess.fr</li>
+          </ul>
+        </section>
+
+      </article>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="legal-footer">
+    <div class="legal-footer__container">
+      <p>&copy; 2026 mychess. Tous droits reserves.</p>
+      <div class="legal-footer__links">
+        <a routerLink="/">Accueil</a>
+        <a routerLink="/privacy">Confidentialite</a>
+        <a routerLink="/terms">CGU</a>
+        <a routerLink="/legal-notice" class="active">Mentions legales</a>
+      </div>
+    </div>
+  </footer>
+</div>

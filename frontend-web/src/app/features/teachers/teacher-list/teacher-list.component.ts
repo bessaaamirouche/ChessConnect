@@ -61,7 +61,7 @@ export class TeacherListComponent implements OnInit {
     }
 
     if (this.authService.isStudent()) {
-      menuItems.push({ label: 'Ma Progression', icon: 'heroTrophy', route: '/progress' });
+      menuItems.push({ label: 'Ma Progression', icon: 'heroBookOpen', route: '/programme' });
       menuItems.push({ label: 'Trouver un Coach', icon: 'heroAcademicCap', route: '/teachers', active: true });
     }
 

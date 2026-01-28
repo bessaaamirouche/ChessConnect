@@ -1,6 +1,7 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
+import { UrlValidatorService } from './url-validator.service';
 
 export interface StripeConnectStatus {
   connected: boolean;
@@ -24,6 +25,7 @@ export interface StripeConnectOnboardingResponse {
 })
 export class StripeConnectService {
   private readonly apiUrl = '/api/stripe-connect';
+  private urlValidator = inject(UrlValidatorService);
 
   status = signal<StripeConnectStatus>({
     connected: false,
@@ -54,8 +56,12 @@ export class StripeConnectService {
         next: (response) => {
           this.loading.set(false);
           if (response.success && response.onboardingUrl) {
-            // Redirect to Stripe onboarding
-            window.location.href = response.onboardingUrl;
+            // Validate and redirect to Stripe onboarding
+            if (this.urlValidator.isValidStripeUrl(response.onboardingUrl)) {
+              window.location.href = response.onboardingUrl;
+            } else {
+              console.error('Invalid Stripe onboarding URL');
+            }
           }
         },
         error: () => this.loading.set(false)
@@ -73,7 +79,12 @@ export class StripeConnectService {
         next: (response) => {
           this.loading.set(false);
           if (response.success && response.onboardingUrl) {
-            window.location.href = response.onboardingUrl;
+            // Validate and redirect to Stripe onboarding
+            if (this.urlValidator.isValidStripeUrl(response.onboardingUrl)) {
+              window.location.href = response.onboardingUrl;
+            } else {
+              console.error('Invalid Stripe onboarding URL');
+            }
           }
         },
         error: () => this.loading.set(false)

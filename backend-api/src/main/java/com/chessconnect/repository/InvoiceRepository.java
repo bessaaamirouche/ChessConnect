@@ -55,6 +55,15 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
     @Modifying
     void deleteByIssuerId(Long issuerId);
 
+    // Nullify lesson references before deleting lessons (preserves invoices for accounting)
+    @Modifying
+    @Query("UPDATE Invoice i SET i.lesson = null WHERE i.lesson.student.id = :studentId")
+    void nullifyLessonByStudentId(@Param("studentId") Long studentId);
+
+    @Modifying
+    @Query("UPDATE Invoice i SET i.lesson = null WHERE i.lesson.teacher.id = :teacherId")
+    void nullifyLessonByTeacherId(@Param("teacherId") Long teacherId);
+
     // Find all invoices (admin)
     List<Invoice> findAllByOrderByCreatedAtDesc();
 }

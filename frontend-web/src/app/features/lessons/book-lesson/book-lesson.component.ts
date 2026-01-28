@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
@@ -9,6 +9,8 @@ import { PaymentService } from '../../../core/services/payment.service';
 import { WalletService } from '../../../core/services/wallet.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { LearningPathService } from '../../../core/services/learning-path.service';
+import { ProgrammeService, ProgrammeCourse } from '../../../core/services/programme.service';
+import { UrlValidatorService } from '../../../core/services/url-validator.service';
 import { TimeSlot } from '../../../core/models/availability.model';
 import { Course, GradeWithCourses } from '../../../core/models/learning-path.model';
 import { ChessLevel, CHESS_LEVELS } from '../../../core/models/user.model';
@@ -69,7 +71,7 @@ export class BookLessonComponent implements OnInit {
     const menuItems: any[] = [
       { label: 'Mon Espace', icon: 'heroChartBarSquare', route: '/dashboard' },
       { label: 'Mes Cours', icon: 'heroCalendarDays', route: '/lessons' },
-      { label: 'Ma Progression', icon: 'heroTrophy', route: '/progress' },
+      { label: 'Ma Progression', icon: 'heroBookOpen', route: '/programme' },
       { label: 'Trouver un Coach', icon: 'heroAcademicCap', route: '/teachers', active: true }
     ];
 
@@ -168,6 +170,8 @@ export class BookLessonComponent implements OnInit {
     return true;
   });
 
+  private urlValidator = inject(UrlValidatorService);
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -178,7 +182,8 @@ export class BookLessonComponent implements OnInit {
     public paymentService: PaymentService,
     public walletService: WalletService,
     public authService: AuthService,
-    public learningPathService: LearningPathService
+    public learningPathService: LearningPathService,
+    public programmeService: ProgrammeService
   ) {
     this.bookingForm = this.fb.group({
       notes: ['']
@@ -206,16 +211,11 @@ export class BookLessonComponent implements OnInit {
     // Load subscription status (for premium priority banner)
     this.paymentService.loadActiveSubscription().subscribe();
 
-    // Load learning path for course selection
+    // Load current course from programme
     this.learningPathLoading.set(true);
-    this.learningPathService.loadLearningPath().subscribe({
+    this.programmeService.loadCourses().subscribe({
       next: () => {
         this.learningPathLoading.set(false);
-        // Auto-select first unlocked level
-        const unlocked = this.unlockedGrades();
-        if (unlocked.length > 0) {
-          this.selectedLevel.set(unlocked[0].grade as ChessLevel);
-        }
       },
       error: () => this.learningPathLoading.set(false)
     });
@@ -319,13 +319,13 @@ export class BookLessonComponent implements OnInit {
 
   onSubmit(): void {
     const slot = this.selectedSlot();
-    const course = this.selectedCourse();
-    if (!slot || !course || !this.teacherService.selectedTeacher()) return;
+    const currentCourse = this.programmeService.currentCourse();
+    if (!slot || !currentCourse || !this.teacherService.selectedTeacher()) return;
 
     const teacher = this.teacherService.selectedTeacher()!;
     const scheduledAt = slot.dateTime;
     const { notes } = this.bookingForm.value;
-    const courseId = course.id;
+    const courseId = currentCourse.id;
 
     this.loading.set(true);
 
@@ -395,8 +395,13 @@ export class BookLessonComponent implements OnInit {
           this.showCheckout.set(true);
           this.loading.set(false);
         } else if (response.url) {
-          // Fallback to redirect
-          window.location.href = response.url;
+          // Fallback to redirect - validate URL before redirecting
+          if (this.urlValidator.isValidStripeUrl(response.url)) {
+            window.location.href = response.url;
+          } else {
+            console.error('Invalid checkout URL received');
+            this.loading.set(false);
+          }
         }
       },
       error: () => {

@@ -12,7 +12,12 @@
       </a>
 
       <!-- Mobile hamburger -->
-      <button class="nav__hamburger" [class.active]="mobileMenuOpen()" (click)="toggleMobileMenu()">
+      <button
+        class="nav__hamburger"
+        [class.active]="mobileMenuOpen()"
+        (click)="toggleMobileMenu()"
+        aria-label="Menu de navigation"
+        [attr.aria-expanded]="mobileMenuOpen()">
         <span></span>
         <span></span>
         <span></span>
@@ -330,9 +335,9 @@
       <div class="footer__bottom">
         <p class="footer__copyright">&copy; 2026 mychess. Tous droits reserves.</p>
         <div class="footer__legal">
-          <a href="#">Confidentialite</a>
-          <a href="#">CGU</a>
-          <a href="#">Mentions legales</a>
+          <a routerLink="/privacy">Confidentialite</a>
+          <a routerLink="/terms">CGU</a>
+          <a routerLink="/legal-notice">Mentions legales</a>
         </div>
       </div>
     </div>

@@ -1,6 +1,7 @@
-import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { FocusTrapDirective } from '../directives/focus-trap.directive';
 
 export interface ConfirmDialogConfig {
   title: string;
@@ -17,12 +18,18 @@ export interface ConfirmDialogConfig {
 @Component({
   selector: 'app-confirm-dialog',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, FocusTrapDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (isOpen()) {
-      <div class="dialog-backdrop" (click)="cancel()" [@fadeIn]>
-        <div class="dialog" (click)="$event.stopPropagation()" [@scaleIn]>
+      <div class="dialog-backdrop" (click)="cancel()">
+        <div
+          class="dialog"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="dialog-title"
+          appFocusTrap
+          (click)="$event.stopPropagation()">
           <!-- Icon -->
           <div class="dialog__icon" [class]="'dialog__icon--' + config().type">
             @switch (config().icon || 'question') {
@@ -51,7 +58,7 @@ export interface ConfirmDialogConfig {
 
           <!-- Content -->
           <div class="dialog__content">
-            <h3 class="dialog__title">{{ config().title }}</h3>
+            <h3 id="dialog-title" class="dialog__title">{{ config().title }}</h3>
             <p class="dialog__message">{{ config().message }}</p>
 
             @if (config().showInput) {
@@ -295,6 +302,13 @@ export class ConfirmDialogComponent {
   inputValue = '';
 
   private resolvePromise: ((value: boolean | string | null) => void) | null = null;
+
+  @HostListener('document:keydown.escape')
+  onEscapeKey(): void {
+    if (this.isOpen()) {
+      this.cancel();
+    }
+  }
 
   open(config: ConfirmDialogConfig): Promise<boolean | string | null> {
     this.config.set({ ...config, type: config.type || 'info' });

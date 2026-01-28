@@ -4,6 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { SeoService } from '../../../core/services/seo.service';
 import { NotificationCenterService } from '../../../core/services/notification-center.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { UserRole, AVAILABLE_LANGUAGES } from '../../../core/models/user.model';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { heroAcademicCap, heroUserGroup, heroPlayCircle, heroArrowRight } from '@ng-icons/heroicons/outline';
@@ -21,17 +22,26 @@ import { DateInputComponent } from '../../../shared/components/date-input/date-i
 export class RegisterComponent {
   private seoService = inject(SeoService);
   private notificationCenter = inject(NotificationCenterService);
+  private toastService = inject(ToastService);
 
   registerForm: FormGroup;
   loading = signal(false);
   error = signal<string | null>(null);
   selectedRole = signal<UserRole>('STUDENT');
   success = signal(false);
+  registeredEmail = signal<string | null>(null);
+  resendLoading = signal(false);
+  resendSuccess = signal(false);
   availableLanguages = AVAILABLE_LANGUAGES;
   selectedLanguages = signal<string[]>(['FR']);
   maxBirthDate = new Date().toISOString().split('T')[0]; // Today's date in YYYY-MM-DD format
   minBirthYear = 1920;
   maxBirthYear = new Date().getFullYear();
+  showPassword = signal(false);
+
+  togglePassword(): void {
+    this.showPassword.update(v => !v);
+  }
 
   constructor(
     private fb: FormBuilder,
@@ -124,23 +134,11 @@ export class RegisterComponent {
     }
 
     this.authService.register(formValue).subscribe({
-      next: () => {
-        // Send welcome notification
-        const roleName = this.selectedRole() === 'STUDENT' ? 'joueur' : 'coach';
-        this.notificationCenter.success(
-          'Bienvenue sur mychess !',
-          `Votre compte ${roleName} a ete cree avec succes. Bonne partie !`,
-          '/dashboard'
-        );
-
-        // For students, show success screen with quiz option
-        if (this.selectedRole() === 'STUDENT') {
-          this.success.set(true);
-          this.loading.set(false);
-        } else {
-          // Teachers go directly to dashboard
-          this.router.navigate([this.authService.getRedirectRoute()]);
-        }
+      next: (response) => {
+        this.loading.set(false);
+        this.success.set(true);
+        this.registeredEmail.set(response.email);
+        // User needs to verify email before logging in
       },
       error: (err) => {
         this.error.set(err.error?.error || err.error?.message || 'Une erreur est survenue');
@@ -155,5 +153,24 @@ export class RegisterComponent {
 
   skipQuiz(): void {
     this.router.navigate(['/dashboard']);
+  }
+
+  resendVerificationEmail(): void {
+    const email = this.registeredEmail();
+    if (!email || this.resendLoading()) return;
+
+    this.resendLoading.set(true);
+    this.authService.resendVerificationEmail(email).subscribe({
+      next: () => {
+        this.resendLoading.set(false);
+        this.resendSuccess.set(true);
+        this.toastService.success('Email de verification renvoye !');
+      },
+      error: (err) => {
+        this.resendLoading.set(false);
+        const errorMsg = err.error?.error || 'Erreur lors de l\'envoi';
+        this.toastService.error(errorMsg);
+      }
+    });
   }
 }

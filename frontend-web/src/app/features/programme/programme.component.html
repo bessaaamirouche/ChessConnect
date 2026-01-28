@@ -1,0 +1,151 @@
+<div class="programme-page">
+  <header class="page-header">
+    <div>
+      <h1 class="page-header__title">Programme Pedagogique</h1>
+      <p class="page-header__subtitle">Curriculum complet d'enseignement des echecs - {{ getTotalCourses() }} cours, {{ getTotalSubLessons() }} lecons</p>
+    </div>
+    @if (isStudent() && currentCourseId() > 1) {
+      <button class="btn btn--ghost" (click)="goBackToPreviousCourse()">
+        <ng-icon name="heroArrowLeft" size="16"></ng-icon> Revenir au cours precedent
+      </button>
+    }
+  </header>
+
+  <!-- Current course banner for students -->
+  @if (isStudent()) {
+    <div class="current-course-banner">
+      <div class="current-course-banner__icon">
+        <ng-icon name="heroPlay" size="24"></ng-icon>
+      </div>
+      <div class="current-course-banner__content">
+        <span class="current-course-banner__label">Votre prochain cours</span>
+        <span class="current-course-banner__title">{{ getCurrentCourseTitle() }}</span>
+        <span class="current-course-banner__level">Niveau {{ getCurrentLevelCode() }}</span>
+      </div>
+      <div class="current-course-banner__progress">
+        <span class="current-course-banner__progress-text">{{ currentCourseId() }}/{{ getTotalCourses() }}</span>
+      </div>
+    </div>
+  }
+
+  <div class="stats-bar">
+    <div class="stat-item">
+      <span class="stat-value">4</span>
+      <span class="stat-label">Niveaux</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value">{{ getTotalCourses() }}</span>
+      <span class="stat-label">Cours</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value">{{ getTotalSubLessons() }}</span>
+      <span class="stat-label">Lecons</span>
+    </div>
+    @if (isStudent()) {
+      <div class="stat-item stat-item--highlight">
+        <span class="stat-value">{{ currentCourseId() - 1 }}</span>
+        <span class="stat-label">Completes</span>
+      </div>
+    }
+  </div>
+
+  @if (isStudent()) {
+    <div class="info-banner">
+      <ng-icon name="heroBookOpen" size="20"></ng-icon>
+      <span>Cliquez sur un cours pour voir son contenu. Vous pouvez choisir de commencer a partir d'un cours different en cliquant sur "Demarrer ici".</span>
+    </div>
+  }
+
+  <div class="levels-container">
+    @for (level of levels; track level.code) {
+      <div class="level-section" [attr.data-level]="level.code">
+        <button
+          class="level-header"
+          [class.level-header--expanded]="isLevelExpanded(level.code)"
+          [style.--level-color]="level.color"
+          (click)="toggleLevel(level.code)"
+        >
+          <div class="level-header__left">
+            <div class="level-badge" [style.background]="level.color">
+              {{ level.code }}
+            </div>
+            <div class="level-info">
+              <h2 class="level-name">{{ level.name }}</h2>
+              <p class="level-desc">{{ level.description }}</p>
+            </div>
+          </div>
+          <div class="level-header__right">
+            <span class="level-count">{{ level.courses.length }} cours</span>
+            <ng-icon
+              [name]="isLevelExpanded(level.code) ? 'heroChevronDown' : 'heroChevronRight'"
+              size="24"
+            ></ng-icon>
+          </div>
+        </button>
+
+        @if (isLevelExpanded(level.code)) {
+          <div class="level-content">
+            @for (course of level.courses; track course.id; let i = $index) {
+              <div
+                class="course-card"
+                [class.course-card--current]="isStudent() && isCurrent(course.id)"
+                [class.course-card--completed]="isStudent() && isCompleted(course.id)"
+              >
+                <button
+                  class="course-header"
+                  [class.course-header--expanded]="isCourseExpanded(course.id)"
+                  (click)="toggleCourse(course.id)"
+                >
+                  <div class="course-header__left">
+                    @if (isStudent() && isCompleted(course.id)) {
+                      <span class="course-check">
+                        <ng-icon name="heroCheckCircle" size="20"></ng-icon>
+                      </span>
+                    } @else if (isStudent() && isCurrent(course.id)) {
+                      <span class="course-current">
+                        <ng-icon name="heroPlay" size="16"></ng-icon>
+                      </span>
+                    } @else {
+                      <span class="course-number">{{ i + 1 }}</span>
+                    }
+                    <span class="course-title">{{ course.title }}</span>
+                    @if (isStudent() && isCurrent(course.id)) {
+                      <span class="course-badge course-badge--current">En cours</span>
+                    }
+                  </div>
+                  <div class="course-header__right">
+                    <span class="sublesson-count">{{ course.subLessons.length }} lecons</span>
+                    @if (isStudent() && !isCurrent(course.id)) {
+                      <button
+                        class="btn-start"
+                        (click)="$event.stopPropagation(); selectStartingCourse(course.id)"
+                        title="Demarrer a partir de ce cours"
+                      >
+                        Demarrer ici
+                      </button>
+                    }
+                    <ng-icon
+                      [name]="isCourseExpanded(course.id) ? 'heroChevronDown' : 'heroChevronRight'"
+                      size="18"
+                    ></ng-icon>
+                  </div>
+                </button>
+
+                @if (isCourseExpanded(course.id)) {
+                  <ul class="sublesson-list">
+                    @for (subLesson of course.subLessons; track subLesson.title) {
+                      <li class="sublesson-item">
+                        <ng-icon name="heroCheckCircle" size="16" class="sublesson-icon"></ng-icon>
+                        <span class="sublesson-title">{{ subLesson.title }}</span>
+                      </li>
+                    }
+                  </ul>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

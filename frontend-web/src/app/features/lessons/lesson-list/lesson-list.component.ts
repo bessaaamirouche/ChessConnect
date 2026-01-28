@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, signal, ViewChild, ChangeDetectionStrateg
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 import { LessonService } from '../../../core/services/lesson.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { RatingService } from '../../../core/services/rating.service';
@@ -43,9 +44,10 @@ import {
   heroFunnel,
   heroMagnifyingGlass,
   heroDocumentText,
-  heroStar
+  heroStar,
+  heroBellAlert
 } from '@ng-icons/heroicons/outline';
-import { CHESS_LEVELS } from '../../../core/models/user.model';
+import { CHESS_LEVELS, User } from '../../../core/models/user.model';
 
 @Component({
   selector: 'app-lesson-list',
@@ -76,7 +78,8 @@ import { CHESS_LEVELS } from '../../../core/models/user.model';
     heroPlayCircle,
     heroFunnel,
     heroMagnifyingGlass,
-    heroStar
+    heroStar,
+    heroBellAlert
   })],
   templateUrl: './lesson-list.component.html',
   styleUrl: './lesson-list.component.scss'
@@ -117,6 +120,10 @@ export class LessonListComponent implements OnInit, OnDestroy {
   historyFilterPerson = signal<string>('');
   historyFilterMonth = signal<string>('');
   historyFilterHasRecording = signal<boolean>(false);
+
+  // Email reminders preference
+  emailRemindersEnabled = signal(true);
+  savingEmailReminders = signal(false);
 
   // Computed filtered history
   filteredHistory = computed(() => {
@@ -184,10 +191,16 @@ export class LessonListComponent implements OnInit, OnDestroy {
     private learningPathService: LearningPathService,
     private walletService: WalletService,
     private paymentService: PaymentService,
+    private http: HttpClient,
     private route: ActivatedRoute,
     private router: Router
   ) {
     this.seoService.setLessonsPage();
+    // Initialize email reminders from current user
+    const user = this.authService.currentUser();
+    if (user) {
+      this.emailRemindersEnabled.set(user.emailRemindersEnabled !== false);
+    }
   }
 
   ngOnInit(): void {
@@ -630,6 +643,24 @@ export class LessonListComponent implements OnInit, OnDestroy {
           rated.add(lessonId);
           this.ratedLessons.set(rated);
         }
+      }
+    });
+  }
+
+  toggleEmailReminders(): void {
+    if (this.savingEmailReminders()) return;
+
+    const newValue = !this.emailRemindersEnabled();
+    this.savingEmailReminders.set(true);
+
+    this.http.patch<User>('/api/users/me', { emailRemindersEnabled: newValue }).subscribe({
+      next: (updatedUser) => {
+        this.emailRemindersEnabled.set(newValue);
+        this.authService.updateCurrentUser(updatedUser);
+        this.savingEmailReminders.set(false);
+      },
+      error: () => {
+        this.savingEmailReminders.set(false);
       }
     });
   }

@@ -32,6 +32,10 @@ export const routes: Routes = [
     canActivate: [guestGuard],
     loadComponent: () => import('./features/auth/reset-password/reset-password.component').then(m => m.ResetPasswordComponent)
   },
+  {
+    path: 'verify-email',
+    loadComponent: () => import('./features/auth/verify-email/verify-email.component').then(m => m.VerifyEmailComponent)
+  },
   // User routes with sidebar layout (must be before public teacher routes)
   {
     path: '',
@@ -48,8 +52,8 @@ export const routes: Routes = [
       },
       {
         path: 'progress',
-        canActivate: [studentGuard],
-        loadComponent: () => import('./features/progress/progress.component').then(m => m.ProgressComponent)
+        redirectTo: 'programme',
+        pathMatch: 'full'
       },
       {
         path: 'quiz',
@@ -65,6 +69,10 @@ export const routes: Routes = [
         path: 'availability',
         canActivate: [teacherGuard],
         loadComponent: () => import('./features/availability/availability-management.component').then(m => m.AvailabilityManagementComponent)
+      },
+      {
+        path: 'programme',
+        loadComponent: () => import('./features/programme/programme.component').then(m => m.ProgrammeComponent)
       },
       {
         path: 'settings',
@@ -126,6 +134,19 @@ export const routes: Routes = [
     path: 'blog/:slug',
     loadComponent: () => import('./features/blog/blog-article/blog-article.component').then(m => m.BlogArticleComponent)
   },
+  // Legal pages
+  {
+    path: 'terms',
+    loadComponent: () => import('./features/legal/terms/terms.component').then(m => m.TermsComponent)
+  },
+  {
+    path: 'privacy',
+    loadComponent: () => import('./features/legal/privacy/privacy.component').then(m => m.PrivacyComponent)
+  },
+  {
+    path: 'legal-notice',
+    loadComponent: () => import('./features/legal/legal-notice/legal-notice.component').then(m => m.LegalNoticeComponent)
+  },
   // Public teacher routes (for non-authenticated users, must be after auth routes)
   {
     path: 'teachers',
@@ -137,6 +158,6 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    redirectTo: ''
+    loadComponent: () => import('./features/not-found/not-found.component').then(m => m.NotFoundComponent)
   }
 ];

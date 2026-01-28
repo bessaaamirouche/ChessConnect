@@ -55,10 +55,11 @@ export class UserLayoutComponent implements OnInit {
 
       if (this.authService.isTeacher()) {
         menuItems.push({ label: 'Mes Disponibilites', icon: 'heroClipboardDocumentList', route: '/availability' });
+        menuItems.push({ label: 'Programme', icon: 'heroBookOpen', route: '/programme' });
       }
 
       if (this.authService.isStudent()) {
-        menuItems.push({ label: 'Ma Progression', icon: 'heroTrophy', route: '/progress' });
+        menuItems.push({ label: 'Ma Progression', icon: 'heroBookOpen', route: '/programme' });
         menuItems.push({ label: 'Trouver un Coach', icon: 'heroAcademicCap', route: '/teachers' });
       }
 

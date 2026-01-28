@@ -36,7 +36,7 @@ import {
                 <label class="dialog__label">{{ dialogService.config()?.inputLabel }}</label>
               }
               <input
-                type="text"
+                [type]="dialogService.config()?.inputType || 'text'"
                 class="dialog__input"
                 [(ngModel)]="inputValue"
                 [placeholder]="dialogService.config()?.inputPlaceholder || ''"

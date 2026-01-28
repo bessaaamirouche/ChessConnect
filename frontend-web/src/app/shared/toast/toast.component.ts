@@ -30,12 +30,14 @@ import {
           class="toast toast--{{ toast.type }}"
           [class.toast--clickable]="toast.link"
           (click)="onToastClick(toast)"
+          role="alert"
+          [attr.aria-live]="toast.type === 'error' ? 'assertive' : 'polite'"
         >
-          <div class="toast__icon-wrapper">
+          <div class="toast__icon-wrapper" aria-hidden="true">
             <ng-icon [name]="getIcon(toast.type)" class="toast__icon" size="22"></ng-icon>
           </div>
           <span class="toast__message">{{ toast.message }}</span>
-          <button class="toast__close" (click)="toastService.dismiss(toast.id); $event.stopPropagation()">
+          <button class="toast__close" (click)="toastService.dismiss(toast.id); $event.stopPropagation()" aria-label="Fermer">
             <ng-icon name="heroXMark" size="18"></ng-icon>
           </button>
         </div>

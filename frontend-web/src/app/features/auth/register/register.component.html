@@ -4,24 +4,59 @@
   </a>
   <div class="auth-card card">
     @if (success()) {
-      <!-- Success Screen for Students -->
+      <!-- Email Verification Required Screen -->
       <div class="register-success">
-        <div class="register-success__icon">&#10004;</div>
-        <h1 class="heading-3">Bienvenue sur mychess !</h1>
-        <p class="text-secondary">Votre compte a ete cree avec succes.</p>
+        <div class="register-success__icon register-success__icon--email">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="20" height="16" x="2" y="4" rx="2"/>
+            <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+          </svg>
+        </div>
+        <h1 class="heading-3">Verifiez votre email</h1>
+        <p class="text-secondary">
+          Un email de verification a ete envoye a<br>
+          <strong class="text-gold">{{ registeredEmail() }}</strong>
+        </p>
 
-        <div class="register-success__quiz-prompt">
-          <h3>Evaluez votre niveau</h3>
-          <p>Vous connaissez deja les echecs ? Passez notre quiz pour determiner votre niveau et commencer avec des cours adaptes.</p>
+        <div class="register-success__info">
+          <p>Cliquez sur le lien dans l'email pour activer votre compte et acceder a la plateforme.</p>
+          <p class="text-warning-subtle">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-right: 4px;">
+              <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+              <path d="M12 9v4"/>
+              <path d="M12 17h.01"/>
+            </svg>
+            Pensez a verifier vos spams si vous ne recevez pas l'email.
+          </p>
+          <small class="text-muted">Le lien expire dans 24 heures.</small>
+        </div>
 
-          <button class="btn btn--primary btn--lg btn--block" (click)="goToQuiz()">
-            <ng-icon name="heroPlayCircle"></ng-icon>
-            Evaluer mon niveau
+        <div class="register-success__actions">
+          @if (resendSuccess()) {
+            <div class="alert alert--success">
+              Email renvoye ! Verifiez votre boite de reception.
+            </div>
+          }
+          <button
+            type="button"
+            class="btn btn--outline btn--block"
+            [disabled]="resendLoading()"
+            (click)="resendVerificationEmail()"
+          >
+            @if (resendLoading()) {
+              <span class="spinner spinner--sm"></span>
+              Envoi en cours...
+            } @else {
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+              </svg>
+              Renvoyer l'email de verification
+            }
           </button>
-
-          <button class="btn btn--ghost btn--block" (click)="skipQuiz()">
-            Commencer au niveau Pion
-          </button>
+          <a routerLink="/login" class="btn btn--primary btn--block">
+            <ng-icon name="heroArrowRight"></ng-icon>
+            Aller a la page de connexion
+          </a>
         </div>
       </div>
     } @else {
@@ -36,24 +71,28 @@
     </div>
 
     <!-- Role Selection -->
-    <div class="role-selector">
+    <div class="role-selector" role="radiogroup" aria-label="Type de compte">
       <button
         type="button"
         class="role-btn"
+        role="radio"
         [class.role-btn--active]="selectedRole() === 'STUDENT'"
+        [attr.aria-checked]="selectedRole() === 'STUDENT'"
         (click)="selectRole('STUDENT')"
       >
-        <span class="role-btn__icon"><ng-icon name="heroUserGroup" size="28"></ng-icon></span>
+        <span class="role-btn__icon" aria-hidden="true"><ng-icon name="heroUserGroup" size="28"></ng-icon></span>
         <span class="role-btn__label">Joueur</span>
         <span class="role-btn__desc">Je veux apprendre</span>
       </button>
       <button
         type="button"
         class="role-btn"
+        role="radio"
         [class.role-btn--active]="selectedRole() === 'TEACHER'"
+        [attr.aria-checked]="selectedRole() === 'TEACHER'"
         (click)="selectRole('TEACHER')"
       >
-        <span class="role-btn__icon"><ng-icon name="heroAcademicCap" size="28"></ng-icon></span>
+        <span class="role-btn__icon" aria-hidden="true"><ng-icon name="heroAcademicCap" size="28"></ng-icon></span>
         <span class="role-btn__label">Coach</span>
         <span class="role-btn__desc">Je veux enseigner</span>
       </button>
@@ -108,14 +147,35 @@
 
       <div class="form-group">
         <label class="form-group__label" for="password">Mot de passe</label>
-        <input
-          type="password"
-          id="password"
-          formControlName="password"
-          class="input"
-          [class.input--error]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched"
-          placeholder="8 caractères minimum"
-        >
+        <div class="input-password-wrapper">
+          <input
+            [type]="showPassword() ? 'text' : 'password'"
+            id="password"
+            formControlName="password"
+            class="input"
+            [class.input--error]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched"
+            placeholder="8 caractères minimum"
+          >
+          <button
+            type="button"
+            class="password-toggle"
+            (click)="togglePassword()"
+            [attr.aria-label]="showPassword() ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
+            [attr.aria-pressed]="showPassword()"
+          >
+            @if (showPassword()) {
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                <line x1="1" y1="1" x2="23" y2="23"></line>
+              </svg>
+            } @else {
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            }
+          </button>
+        </div>
         @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
           <span class="form-group__error">Minimum 8 caractères</span>
         }
@@ -193,13 +253,14 @@
           </div>
 
           <div class="form-group">
-            <label class="form-group__label">Langues parlees</label>
-            <div class="language-selector">
+            <label class="form-group__label" id="languages-label">Langues parlees</label>
+            <div class="language-selector" role="group" aria-labelledby="languages-label">
               @for (lang of availableLanguages; track lang.code) {
                 <button
                   type="button"
                   class="language-btn"
                   [class.language-btn--active]="isLanguageSelected(lang.code)"
+                  [attr.aria-pressed]="isLanguageSelected(lang.code)"
                   (click)="toggleLanguage(lang.code)"
                 >
                   {{ lang.name }}

@@ -26,6 +26,18 @@ export class LoginComponent {
   contactLoading = signal(false);
   contactSuccess = signal(false);
   contactError = signal<string | null>(null);
+  showPassword = signal(false);
+
+  // Email verification
+  emailNotVerified = signal(false);
+  unverifiedEmail = signal<string | null>(null);
+  resendingEmail = signal(false);
+  resendSuccess = signal(false);
+  resendError = signal<string | null>(null);
+
+  togglePassword(): void {
+    this.showPassword.update(v => !v);
+  }
 
   constructor(
     private fb: FormBuilder,
@@ -51,6 +63,9 @@ export class LoginComponent {
     this.loading.set(true);
     this.error.set(null);
     this.isSuspended.set(false);
+    this.emailNotVerified.set(false);
+    this.resendSuccess.set(false);
+    this.resendError.set(null);
 
     this.authService.login(this.loginForm.value).subscribe({
       next: () => {
@@ -69,10 +84,38 @@ export class LoginComponent {
           this.error.set(null);
           // Pre-fill the email in the contact form
           this.contactForm.patchValue({ email: this.loginForm.value.email });
+        } else if (err.error?.code === 'EMAIL_NOT_VERIFIED') {
+          this.emailNotVerified.set(true);
+          this.unverifiedEmail.set(err.error?.email || this.loginForm.value.email);
+          this.error.set(null);
         } else {
           this.error.set(err.error?.error || err.error?.message || 'Email ou mot de passe incorrect');
         }
         this.loading.set(false);
+      }
+    });
+  }
+
+  resendVerificationEmail(): void {
+    const email = this.unverifiedEmail();
+    if (!email) return;
+
+    this.resendingEmail.set(true);
+    this.resendSuccess.set(false);
+    this.resendError.set(null);
+
+    this.authService.resendVerificationEmail(email).subscribe({
+      next: (response) => {
+        this.resendingEmail.set(false);
+        if (response.success) {
+          this.resendSuccess.set(true);
+        } else {
+          this.resendError.set(response.message);
+        }
+      },
+      error: (err) => {
+        this.resendingEmail.set(false);
+        this.resendError.set(err.error?.message || 'Erreur lors de l\'envoi. Veuillez reessayer.');
       }
     });
   }

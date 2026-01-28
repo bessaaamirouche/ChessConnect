@@ -3,7 +3,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
-import { AuthResponse, LoginRequest, RegisterRequest, UpdateTeacherProfileRequest, User, UserRole } from '../models/user.model';
+import { AuthResponse, LoginRequest, RegisterRequest, RegisterResponse, UpdateTeacherProfileRequest, User, UserRole } from '../models/user.model';
 import { NotificationCenterService } from './notification-center.service';
 
 const TOKEN_KEY = 'chess_token';
@@ -57,10 +57,19 @@ export class AuthService {
     );
   }
 
-  register(request: RegisterRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/register`, request).pipe(
-      tap(response => this.handleAuthResponse(response))
-    );
+  register(request: RegisterRequest): Observable<RegisterResponse> {
+    // Registration now returns a message to verify email, not a token
+    return this.http.post<RegisterResponse>(`${this.apiUrl}/register`, request);
+  }
+
+  verifyEmail(token: string): Observable<{ success: boolean; message: string }> {
+    return this.http.get<{ success: boolean; message: string }>(`${this.apiUrl}/verify-email`, {
+      params: { token }
+    });
+  }
+
+  resendVerificationEmail(email: string): Observable<{ success: boolean; message: string }> {
+    return this.http.post<{ success: boolean; message: string }>(`${this.apiUrl}/resend-verification`, { email });
   }
 
   logout(): void {

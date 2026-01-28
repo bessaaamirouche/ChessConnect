@@ -314,6 +314,16 @@
     font-size: 4rem;
     color: var(--success);
     margin-bottom: var(--space-md);
+
+    &--email {
+      color: var(--gold-400);
+      font-size: inherit;
+
+      svg {
+        width: 64px;
+        height: 64px;
+      }
+    }
   }
 
   h1 {
@@ -321,7 +331,65 @@
   }
 
   > p {
-    margin-bottom: var(--space-xl);
+    margin-bottom: var(--space-md);
+    line-height: 1.6;
+  }
+
+  &__info {
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    margin: var(--space-lg) 0;
+
+    p {
+      font-size: 0.9375rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin: 0 0 var(--space-sm);
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      &.text-warning-subtle {
+        color: var(--warning, #f59e0b);
+        font-size: 0.875rem;
+        background: rgba(245, 158, 11, 0.1);
+        padding: var(--space-xs) var(--space-sm);
+        border-radius: var(--radius-sm);
+        margin-top: var(--space-sm);
+      }
+    }
+
+    small {
+      font-size: 0.8125rem;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-sm);
+    }
+
+    .btn--outline {
+      margin-bottom: var(--space-xs);
+    }
+
+    .alert {
+      margin-bottom: var(--space-sm);
+    }
+
+    p {
+      font-size: 0.8125rem;
+      margin: 0;
+    }
   }
 
   &__quiz-prompt {
@@ -356,5 +424,47 @@
         margin-bottom: 0;
       }
     }
+  }
+}
+
+// Password visibility toggle
+.input-password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  .input {
+    padding-right: 3rem;
+  }
+}
+
+.password-toggle {
+  position: absolute;
+  right: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color var(--transition-fast), background var(--transition-fast);
+
+  &:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--gold-400);
+    outline-offset: 2px;
+  }
+
+  svg {
+    flex-shrink: 0;
   }
 }

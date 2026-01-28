@@ -172,16 +172,77 @@ public class RateLimitingFilter extends OncePerRequestFilter {
                path.endsWith(".ico");
     }
 
+    /**
+     * Get client IP address with protection against header spoofing.
+     * Only trusts X-Forwarded-For from known proxies (localhost, Docker network).
+     * For direct connections, uses remoteAddr.
+     */
     private String getClientIp(HttpServletRequest request) {
-        String xForwardedFor = request.getHeader("X-Forwarded-For");
-        if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
-            return xForwardedFor.split(",")[0].trim();
+        String remoteAddr = request.getRemoteAddr();
+
+        // Only trust proxy headers if request comes from trusted proxy (localhost, Docker network)
+        if (isTrustedProxy(remoteAddr)) {
+            String xForwardedFor = request.getHeader("X-Forwarded-For");
+            if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
+                // Take the rightmost IP that's not a trusted proxy (closest to client)
+                String[] ips = xForwardedFor.split(",");
+                for (int i = ips.length - 1; i >= 0; i--) {
+                    String ip = ips[i].trim();
+                    if (!isTrustedProxy(ip) && isValidIpAddress(ip)) {
+                        return ip;
+                    }
+                }
+                // If all are trusted proxies, take the first one
+                String firstIp = ips[0].trim();
+                if (isValidIpAddress(firstIp)) {
+                    return firstIp;
+                }
+            }
+            String xRealIp = request.getHeader("X-Real-IP");
+            if (xRealIp != null && !xRealIp.isEmpty() && isValidIpAddress(xRealIp)) {
+                return xRealIp;
+            }
         }
-        String xRealIp = request.getHeader("X-Real-IP");
-        if (xRealIp != null && !xRealIp.isEmpty()) {
-            return xRealIp;
-        }
-        return request.getRemoteAddr();
+
+        return remoteAddr;
+    }
+
+    /**
+     * Check if IP is from a trusted proxy (localhost, Docker networks, private networks).
+     */
+    private boolean isTrustedProxy(String ip) {
+        if (ip == null) return false;
+        return ip.equals("127.0.0.1") ||
+               ip.equals("::1") ||
+               ip.startsWith("10.") ||           // Docker default bridge
+               ip.startsWith("172.16.") ||       // Docker custom networks
+               ip.startsWith("172.17.") ||       // Docker default network
+               ip.startsWith("172.18.") ||
+               ip.startsWith("172.19.") ||
+               ip.startsWith("172.20.") ||
+               ip.startsWith("172.21.") ||
+               ip.startsWith("172.22.") ||
+               ip.startsWith("172.23.") ||
+               ip.startsWith("172.24.") ||
+               ip.startsWith("172.25.") ||
+               ip.startsWith("172.26.") ||
+               ip.startsWith("172.27.") ||
+               ip.startsWith("172.28.") ||
+               ip.startsWith("172.29.") ||
+               ip.startsWith("172.30.") ||
+               ip.startsWith("172.31.") ||
+               ip.startsWith("192.168.");        // Local network
+    }
+
+    /**
+     * Basic IP address validation to prevent malicious input.
+     */
+    private boolean isValidIpAddress(String ip) {
+        if (ip == null || ip.isEmpty() || ip.length() > 45) return false;
+        // Basic regex for IPv4 and IPv6
+        return ip.matches("^[0-9a-fA-F.:]+$") &&
+               !ip.contains("..") &&
+               !ip.contains(":::");
     }
 
     private static class RateLimitEntry {

@@ -1,0 +1,300 @@
+<div class="legal-page">
+  <!-- Navbar -->
+  <nav class="nav">
+    <div class="nav__container">
+      <a routerLink="/" class="nav__logo">
+        <img src="assets/logo.png" alt="myChess" class="nav__logo-img">
+      </a>
+
+      <!-- Mobile hamburger -->
+      <button class="nav__hamburger" [class.active]="mobileMenuOpen()" (click)="toggleMobileMenu()">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <!-- Mobile menu overlay -->
+      <div class="nav__mobile-overlay" [class.active]="mobileMenuOpen()" (click)="closeMobileMenu()"></div>
+
+      <!-- Desktop Pill Tabs Navigation -->
+      <div class="nav__pills">
+        <a routerLink="/" class="nav__pill">Accueil</a>
+        <a routerLink="/teachers" class="nav__pill">Nos coachs</a>
+        <a routerLink="/blog" class="nav__pill">Blog</a>
+        @if (authService.isAuthenticated()) {
+          <a routerLink="/dashboard" class="nav__pill">Mon Espace</a>
+        } @else {
+          <a routerLink="/login" class="nav__pill">S'identifier</a>
+          <a routerLink="/register" class="nav__pill">S'inscrire</a>
+        }
+      </div>
+
+      <!-- Mobile Drawer Menu -->
+      <div class="nav__links" [class.active]="mobileMenuOpen()">
+        <a routerLink="/" (click)="closeMobileMenu()">Accueil</a>
+        <a routerLink="/teachers" (click)="closeMobileMenu()">Nos coachs</a>
+        <a routerLink="/blog" (click)="closeMobileMenu()">Blog</a>
+
+        <div class="nav__mobile-actions">
+          @if (authService.isAuthenticated()) {
+            <a routerLink="/dashboard" class="nav__btn nav__btn--primary" (click)="closeMobileMenu()">Mon Espace</a>
+          } @else {
+            <a routerLink="/login" class="nav__btn nav__btn--ghost" (click)="closeMobileMenu()">S'identifier</a>
+            <a routerLink="/register" class="nav__btn nav__btn--primary" (click)="closeMobileMenu()">S'inscrire</a>
+          }
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Header -->
+  <header class="legal-header">
+    <div class="legal-header__content">
+      <h1 class="legal-header__title">Conditions Generales d'Utilisation</h1>
+      <p class="legal-header__date">Derniere mise a jour : {{ lastUpdate }}</p>
+    </div>
+  </header>
+
+  <!-- Content -->
+  <main class="legal-content">
+    <div class="legal-content__container">
+      <article class="prose">
+
+        <section>
+          <h2>Article 1 - Mentions legales</h2>
+          <p>Le site <strong>mychess.fr</strong> est edite par :</p>
+          <ul>
+            <li><strong>Raison sociale :</strong> CANDLE</li>
+            <li><strong>Forme juridique :</strong> Micro-entreprise</li>
+            <li><strong>Siege social :</strong> France</li>
+            <li><strong>Email :</strong> contact&#64;mychess.fr</li>
+            <li><strong>TVA :</strong> Non applicable (article 293 B du CGI)</li>
+          </ul>
+          <p>Le site est heberge par OVH SAS, 2 rue Kellermann, 59100 Roubaix, France.</p>
+        </section>
+
+        <section>
+          <h2>Article 2 - Objet</h2>
+          <p>Les presentes Conditions Generales d'Utilisation (ci-apres "CGU") ont pour objet de definir les modalites et conditions d'utilisation du site mychess.fr (ci-apres "le Site") ainsi que les droits et obligations des parties dans ce cadre.</p>
+          <p>mychess est une plateforme de mise en relation entre des joueurs d'echecs souhaitant progresser (ci-apres "les Joueurs") et des coachs qualifies proposant des cours particuliers en visioconference (ci-apres "les Coachs").</p>
+        </section>
+
+        <section>
+          <h2>Article 3 - Acces au Site</h2>
+          <p>L'acces au Site est gratuit. Les frais d'acces et d'utilisation du reseau de telecommunication sont a la charge de l'Utilisateur, selon les modalites fixees par son fournisseur d'acces Internet.</p>
+          <p>L'inscription est obligatoire pour acceder aux fonctionnalites de reservation de cours. L'Utilisateur doit creer un compte en fournissant des informations exactes et a jour.</p>
+        </section>
+
+        <section>
+          <h2>Article 4 - Inscription et compte utilisateur</h2>
+
+          <h3>4.1 Creation de compte</h3>
+          <p>Pour s'inscrire, l'Utilisateur doit :</p>
+          <ul>
+            <li>Etre age d'au moins 16 ans (ou disposer de l'autorisation parentale)</li>
+            <li>Fournir une adresse email valide</li>
+            <li>Choisir un mot de passe securise</li>
+            <li>Choisir son role : Joueur ou Coach</li>
+          </ul>
+
+          <h3>4.2 Responsabilite du compte</h3>
+          <p>L'Utilisateur est seul responsable de la confidentialite de ses identifiants de connexion. Toute utilisation du compte est presumee etre le fait de l'Utilisateur titulaire.</p>
+          <p>En cas de compromission suspectee, l'Utilisateur doit immediatement modifier son mot de passe et contacter le support.</p>
+
+          <h3>4.3 Quiz d'evaluation</h3>
+          <p>Les Joueurs peuvent passer un quiz d'evaluation pour determiner leur niveau (Pion, Cavalier, Fou, Tour, Dame). Ce niveau permet aux Coachs d'adapter leur enseignement.</p>
+        </section>
+
+        <section>
+          <h2>Article 5 - Services proposes</h2>
+
+          <h3>5.1 Reservation de cours</h3>
+          <p>Les Joueurs peuvent reserver des creneaux de cours aupres des Coachs disponibles. Chaque cours dure 1 heure et se deroule en visioconference via Jitsi Meet.</p>
+
+          <h3>5.2 Premier cours offert</h3>
+          <p>Tout nouveau Joueur beneficie d'un premier cours gratuit, sans engagement. Cette offre est limitee a un seul cours par Joueur.</p>
+
+          <h3>5.3 Abonnement Premium</h3>
+          <p>Les Joueurs peuvent souscrire a l'abonnement Premium au tarif de <strong>4,99 euros par mois</strong>. Cet abonnement inclut :</p>
+          <ul>
+            <li>Acces aux enregistrements video des cours</li>
+            <li>Notifications prioritaires des disponibilites des coachs favoris</li>
+            <li>Badge Premium visible sur le profil</li>
+            <li>Entrainement contre myChessBot</li>
+          </ul>
+          <p>L'abonnement est sans engagement et peut etre resilie a tout moment. La resiliation prend effet a la fin de la periode en cours.</p>
+
+          <h3>5.4 Portefeuille (Wallet)</h3>
+          <p>Les Joueurs disposent d'un portefeuille interne permettant de :</p>
+          <ul>
+            <li>Crediter leur solde par paiement Stripe (minimum 10 euros)</li>
+            <li>Payer les cours avec leur solde</li>
+            <li>Recevoir les remboursements en cas d'annulation</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Article 6 - Tarification et paiement</h2>
+
+          <h3>6.1 Prix des cours</h3>
+          <p>Chaque Coach fixe librement son tarif horaire, generalement compris entre <strong>30 et 80 euros de l'heure</strong>. Le prix est affiche de maniere claire avant toute reservation.</p>
+
+          <h3>6.2 Commission</h3>
+          <p>mychess preleve une commission de <strong>15%</strong> sur chaque cours (12,5% pour la plateforme + 2,5% de frais Stripe). Cette commission est deduite du montant reverse au Coach.</p>
+
+          <h3>6.3 Modes de paiement</h3>
+          <p>Les paiements sont securises par Stripe. Les moyens de paiement acceptes sont : carte bancaire (Visa, Mastercard, American Express).</p>
+
+          <h3>6.4 Facturation</h3>
+          <p>Une facture PDF est automatiquement generee pour chaque paiement (cours ou credit de portefeuille). Les factures sont accessibles depuis l'espace personnel.</p>
+        </section>
+
+        <section>
+          <h2>Article 7 - Annulation et remboursement</h2>
+          <p>La politique d'annulation est la suivante :</p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Situation</th>
+                <th>Remboursement</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Le Coach ne confirme pas sous 24h</td>
+                <td>100% (annulation automatique)</td>
+              </tr>
+              <tr>
+                <td>Le Coach annule</td>
+                <td>100%</td>
+              </tr>
+              <tr>
+                <td>Le Joueur annule plus de 24h avant</td>
+                <td>100%</td>
+              </tr>
+              <tr>
+                <td>Le Joueur annule entre 2h et 24h avant</td>
+                <td>50%</td>
+              </tr>
+              <tr>
+                <td>Le Joueur annule moins de 2h avant</td>
+                <td>0%</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p>Les remboursements sont credites sur le portefeuille de l'Utilisateur et peuvent etre utilises pour de futures reservations.</p>
+        </section>
+
+        <section>
+          <h2>Article 8 - Obligations des Utilisateurs</h2>
+
+          <h3>8.1 Obligations des Joueurs</h3>
+          <ul>
+            <li>Respecter les horaires des cours reserves</li>
+            <li>Se presenter de maniere ponctuelle a la visioconference</li>
+            <li>Adopter un comportement respectueux envers les Coachs</li>
+            <li>Ne pas tenter de contourner la plateforme pour des transactions directes</li>
+          </ul>
+
+          <h3>8.2 Obligations des Coachs</h3>
+          <ul>
+            <li>Fournir des informations exactes sur leurs qualifications</li>
+            <li>Confirmer ou refuser les reservations sous 24h</li>
+            <li>Assurer les cours reserves aux horaires convenus</li>
+            <li>Dispenser un enseignement de qualite adapte au niveau du Joueur</li>
+            <li>Configurer leur compte Stripe Connect pour recevoir leurs paiements</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Article 9 - Propriete intellectuelle</h2>
+          <p>L'ensemble des elements du Site (textes, graphismes, logo, images, videos, logiciels) sont proteges par le droit de la propriete intellectuelle et appartiennent a mychess ou a ses partenaires.</p>
+          <p>Toute reproduction, representation, modification ou exploitation non autorisee est strictement interdite.</p>
+          <p>Le nom "mychess" et le logo sont des marques deposees.</p>
+        </section>
+
+        <section>
+          <h2>Article 10 - Donnees personnelles</h2>
+          <p>Le traitement des donnees personnelles est regi par notre <a routerLink="/privacy">Politique de Confidentialite</a>, conforme au Reglement General sur la Protection des Donnees (RGPD).</p>
+          <p>L'Utilisateur dispose d'un droit d'acces, de rectification, de suppression et de portabilite de ses donnees personnelles.</p>
+        </section>
+
+        <section>
+          <h2>Article 11 - Responsabilite</h2>
+
+          <h3>11.1 Role d'intermediaire</h3>
+          <p>mychess agit en qualite de simple intermediaire technique mettant en relation les Joueurs et les Coachs. mychess n'est pas partie aux contrats conclus entre les Utilisateurs.</p>
+
+          <h3>11.2 Limitation de responsabilite</h3>
+          <p>mychess ne peut etre tenu responsable :</p>
+          <ul>
+            <li>De la qualite des cours dispenses par les Coachs</li>
+            <li>Des dommages resultant de l'utilisation ou de l'impossibilite d'utiliser le Site</li>
+            <li>Des problemes techniques lies a l'outil de visioconference</li>
+            <li>Des litiges entre Utilisateurs</li>
+          </ul>
+
+          <h3>11.3 Force majeure</h3>
+          <p>mychess ne pourra etre tenu responsable en cas de force majeure telle que definie par l'article 1218 du Code civil.</p>
+        </section>
+
+        <section>
+          <h2>Article 12 - Evaluation et avis</h2>
+          <p>Apres chaque cours termine, les Joueurs peuvent evaluer leur Coach sur une echelle de 1 a 5 etoiles et laisser un commentaire.</p>
+          <p>Les avis doivent etre sinceres et respectueux. mychess se reserve le droit de supprimer tout avis contraire aux bonnes moeurs ou manifestement abusif.</p>
+        </section>
+
+        <section>
+          <h2>Article 13 - Suspension et resiliation</h2>
+          <p>mychess se reserve le droit de suspendre ou supprimer le compte d'un Utilisateur en cas de :</p>
+          <ul>
+            <li>Violation des presentes CGU</li>
+            <li>Comportement inapproprie ou frauduleux</li>
+            <li>Non-paiement des sommes dues</li>
+            <li>Fourniture d'informations fausses</li>
+          </ul>
+          <p>L'Utilisateur peut supprimer son compte a tout moment depuis son espace personnel ou en contactant le support.</p>
+        </section>
+
+        <section>
+          <h2>Article 14 - Droit applicable et litiges</h2>
+          <p>Les presentes CGU sont soumises au droit francais.</p>
+          <p>En cas de litige, les parties s'engagent a rechercher une solution amiable avant toute action judiciaire.</p>
+          <p>Conformement a l'article L.612-1 du Code de la consommation, l'Utilisateur peut recourir gratuitement a un mediateur de la consommation en vue de la resolution amiable du litige.</p>
+          <p>A defaut d'accord amiable, les tribunaux francais seront seuls competents.</p>
+        </section>
+
+        <section>
+          <h2>Article 15 - Modification des CGU</h2>
+          <p>mychess se reserve le droit de modifier les presentes CGU a tout moment. Les Utilisateurs seront informes des modifications par email ou notification sur le Site.</p>
+          <p>La poursuite de l'utilisation du Site apres modification vaut acceptation des nouvelles CGU.</p>
+        </section>
+
+        <section>
+          <h2>Article 16 - Contact</h2>
+          <p>Pour toute question relative aux presentes CGU, vous pouvez nous contacter :</p>
+          <ul>
+            <li><strong>Email :</strong> contact&#64;mychess.fr</li>
+            <li><strong>Formulaire :</strong> Accessible depuis la page Contact du Site</li>
+          </ul>
+        </section>
+
+      </article>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="legal-footer">
+    <div class="legal-footer__container">
+      <p>&copy; 2026 mychess. Tous droits reserves.</p>
+      <div class="legal-footer__links">
+        <a routerLink="/">Accueil</a>
+        <a routerLink="/privacy">Confidentialite</a>
+        <a routerLink="/terms" class="active">CGU</a>
+        <a routerLink="/legal-notice">Mentions legales</a>
+      </div>
+    </div>
+  </footer>
+</div>

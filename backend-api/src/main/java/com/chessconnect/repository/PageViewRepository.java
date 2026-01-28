@@ -41,4 +41,11 @@ public interface PageViewRepository extends JpaRepository<PageView, Long> {
     @Modifying
     @Query("DELETE FROM PageView p WHERE p.visitedAt < :cutoff")
     void deleteByVisitedAtBefore(@Param("cutoff") LocalDateTime cutoff);
+
+    /**
+     * Delete all page views for a specific user (for account deletion).
+     */
+    @Modifying
+    @Query("DELETE FROM PageView p WHERE p.user.id = :userId")
+    void deleteByUserId(@Param("userId") Long userId);
 }

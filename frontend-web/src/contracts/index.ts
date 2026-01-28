@@ -63,6 +63,12 @@ export interface AuthResponse {
   role: UserRole;
 }
 
+export interface RegisterResponse {
+  email: string;
+  firstName: string;
+  message: string;
+}
+
 export interface ForgotPasswordRequest {
   email: string;
 }
@@ -105,7 +111,6 @@ export interface User {
   eloRating?: number;
   // Settings
   emailRemindersEnabled?: boolean;
-  googleCalendarEnabled?: boolean;
   // Admin
   isSuspended?: boolean;
   createdAt?: string;

@@ -14,114 +14,213 @@ import { DialogService } from '../../../core/services/dialog.service';
     <div class="user-list">
       <header class="page-header">
         <h1>Utilisateurs</h1>
-        <div class="filters">
-          <div class="search-box">
-            <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="11" cy="11" r="8"></circle>
-              <path d="m21 21-4.3-4.3"></path>
-            </svg>
-            <input
-              type="text"
-              [(ngModel)]="searchQuery"
-              (input)="onSearchChange()"
-              placeholder="Rechercher par nom, prenom, email..."
-              class="search-input"
-            >
-            @if (searchQuery) {
-              <button class="search-clear" (click)="clearSearch()">×</button>
-            }
-          </div>
-          <select [(ngModel)]="roleFilter" (change)="loadUsers(0)" class="input input--sm">
-            <option value="">Tous les roles</option>
-            <option value="STUDENT">Joueurs</option>
-            <option value="TEACHER">Coachs</option>
-          </select>
-        </div>
       </header>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button
+          class="tab"
+          [class.active]="activeTab() === 'users'"
+          (click)="switchTab('users')"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+          Utilisateurs
+          @if (activeUsersCount() > 0) {
+            <span class="tab-count">{{ activeUsersCount() }}</span>
+          }
+        </button>
+        <button
+          class="tab tab--blacklist"
+          [class.active]="activeTab() === 'blacklist'"
+          (click)="switchTab('blacklist')"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+          </svg>
+          Blacklist
+          @if (blacklistCount() > 0) {
+            <span class="tab-count tab-count--danger">{{ blacklistCount() }}</span>
+          }
+        </button>
+      </div>
+
+      <!-- Filters -->
+      <div class="filters">
+        <div class="search-box">
+          <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.3-4.3"></path>
+          </svg>
+          <input
+            type="text"
+            [(ngModel)]="searchQuery"
+            (input)="onSearchChange()"
+            placeholder="Rechercher par nom, prenom, email..."
+            class="search-input"
+          >
+          @if (searchQuery) {
+            <button class="search-clear" (click)="clearSearch()">×</button>
+          }
+        </div>
+        <select [(ngModel)]="roleFilter" (change)="loadUsers(0)" class="input input--sm">
+          <option value="">Tous les roles</option>
+          <option value="STUDENT">Joueurs</option>
+          <option value="TEACHER">Coachs</option>
+        </select>
+      </div>
 
       @if (loading()) {
         <div class="loading">Chargement...</div>
       } @else {
-        <div class="table-container">
-          <div class="table-header">
-            <span class="results-count">{{ filteredUsers().length }} resultat(s)</span>
-          </div>
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Utilisateur</th>
-                <th>Role</th>
-                <th>Cours</th>
-                <th>Inscription</th>
-                <th>Derniere connexion</th>
-                <th>Statut</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (user of filteredUsers(); track user.id) {
-                <tr>
-                  <td>
-                    <div class="user-info">
-                      <strong>{{ user.firstName }} {{ user.lastName }}</strong>
-                      <span class="text-muted">{{ user.email }}</span>
-                    </div>
-                  </td>
-                  <td>
-                    <span class="badge" [class]="'badge--' + user.role.toLowerCase()">
-                      {{ getRoleLabel(user.role) }}
-                    </span>
-                  </td>
-                  <td>{{ user.lessonsCount }}</td>
-                  <td>{{ user.createdAt | date:'dd/MM/yyyy' }}</td>
-                  <td>
-                    @if (user.lastLoginAt) {
-                      {{ user.lastLoginAt | date:'dd/MM/yyyy HH:mm' }}
-                    } @else {
-                      <span class="text-muted">Jamais</span>
-                    }
-                  </td>
-                  <td>
-                    @if (user.isSuspended) {
-                      <span class="badge badge--suspended">Suspendu</span>
-                    } @else {
-                      <span class="badge badge--active">Actif</span>
-                    }
-                  </td>
-                  <td>
-                    <div class="actions-cell">
-                      @if (user.isSuspended) {
-                        <button
-                          class="action-btn action-btn--activate"
-                          (click)="activateUser(user)"
-                          [disabled]="actionLoading()"
-                        >
-                          Reactiver
-                        </button>
-                      } @else {
+        <!-- Active Users Tab -->
+        @if (activeTab() === 'users') {
+          <div class="table-container">
+            <div class="table-header">
+              <span class="results-count">{{ filteredActiveUsers().length }} utilisateur(s) actif(s)</span>
+            </div>
+            @if (filteredActiveUsers().length === 0) {
+              <div class="empty-state">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+                <p>Aucun utilisateur actif trouve</p>
+              </div>
+            } @else {
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Utilisateur</th>
+                    <th>Role</th>
+                    <th>Cours</th>
+                    <th>Inscription</th>
+                    <th>Derniere connexion</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (user of filteredActiveUsers(); track user.id) {
+                    <tr>
+                      <td>
+                        <div class="user-info">
+                          <strong>{{ user.firstName }} {{ user.lastName }}</strong>
+                          <span class="text-muted">{{ user.email }}</span>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="badge" [class]="'badge--' + user.role.toLowerCase()">
+                          {{ getRoleLabel(user.role) }}
+                        </span>
+                      </td>
+                      <td>{{ user.lessonsCount }}</td>
+                      <td>{{ user.createdAt | date:'dd/MM/yyyy' }}</td>
+                      <td>
+                        @if (user.lastLoginAt) {
+                          {{ user.lastLoginAt | date:'dd/MM/yyyy HH:mm' }}
+                        } @else {
+                          <span class="text-muted">Jamais</span>
+                        }
+                      </td>
+                      <td>
                         <button
                           class="action-btn action-btn--suspend"
                           (click)="suspendUser(user)"
                           [disabled]="actionLoading()"
+                          title="Ajouter a la blacklist"
                         >
-                          Suspendre
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+                          </svg>
+                          Blacklister
                         </button>
-                      }
-                      <button
-                        class="action-btn action-btn--delete"
-                        (click)="confirmDeleteUser(user)"
-                        [disabled]="actionLoading()"
-                        title="Supprimer definitivement"
-                      >
-                        Supprimer
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            }
+          </div>
+        }
+
+        <!-- Blacklist Tab -->
+        @if (activeTab() === 'blacklist') {
+          <div class="table-container table-container--blacklist">
+            <div class="table-header table-header--blacklist">
+              <span class="results-count">{{ filteredBlacklistedUsers().length }} utilisateur(s) blackliste(s)</span>
+            </div>
+            @if (filteredBlacklistedUsers().length === 0) {
+              <div class="empty-state">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+                <p>Aucun utilisateur blackliste</p>
+              </div>
+            } @else {
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Utilisateur</th>
+                    <th>Role</th>
+                    <th>Cours</th>
+                    <th>Inscription</th>
+                    <th>Derniere connexion</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (user of filteredBlacklistedUsers(); track user.id) {
+                    <tr>
+                      <td>
+                        <div class="user-info">
+                          <strong>{{ user.firstName }} {{ user.lastName }}</strong>
+                          <span class="text-muted">{{ user.email }}</span>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="badge" [class]="'badge--' + user.role.toLowerCase()">
+                          {{ getRoleLabel(user.role) }}
+                        </span>
+                      </td>
+                      <td>{{ user.lessonsCount }}</td>
+                      <td>{{ user.createdAt | date:'dd/MM/yyyy' }}</td>
+                      <td>
+                        @if (user.lastLoginAt) {
+                          {{ user.lastLoginAt | date:'dd/MM/yyyy HH:mm' }}
+                        } @else {
+                          <span class="text-muted">Jamais</span>
+                        }
+                      </td>
+                      <td>
+                        <button
+                          class="action-btn action-btn--activate"
+                          (click)="activateUser(user)"
+                          [disabled]="actionLoading()"
+                          title="Retirer de la blacklist"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                          </svg>
+                          Reactiver
+                        </button>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            }
+          </div>
+        }
 
         @if (users() && users()!.totalPages > 1) {
           <div class="pagination">
@@ -143,26 +242,6 @@ import { DialogService } from '../../../core/services/dialog.service';
           </div>
         }
       }
-
-      @if (showDeleteModal()) {
-        <div class="modal-overlay" (click)="cancelDelete()">
-          <div class="modal" (click)="$event.stopPropagation()">
-            <h3>Confirmer la suppression</h3>
-            <p>Voulez-vous vraiment supprimer le compte de <strong>{{ userToDelete()?.firstName }} {{ userToDelete()?.lastName }}</strong> ?</p>
-            <p class="warning">Cette action est irreversible.</p>
-            <div class="modal-actions">
-              <button class="btn btn--ghost" (click)="cancelDelete()">Non, annuler</button>
-              <button class="btn btn--danger" (click)="deleteUser()" [disabled]="actionLoading()">
-                @if (actionLoading()) {
-                  Suppression...
-                } @else {
-                  Oui, supprimer
-                }
-              </button>
-            </div>
-          </div>
-        </div>
-      }
     </div>
   `,
   styles: [`
@@ -170,7 +249,7 @@ import { DialogService } from '../../../core/services/dialog.service';
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: var(--space-lg);
+      margin-bottom: var(--space-md);
       flex-wrap: wrap;
       gap: var(--space-md);
 
@@ -188,11 +267,70 @@ import { DialogService } from '../../../core/services/dialog.service';
           font-size: 1.25rem;
         }
       }
+    }
 
-      @media (max-width: 26rem) {
-        h1 {
-          font-size: 1.125rem;
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: var(--space-lg);
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 0;
+    }
+
+    .tab {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-bottom: -1px;
+
+      svg {
+        opacity: 0.7;
+      }
+
+      &:hover {
+        color: var(--text-primary);
+        background: rgba(128, 128, 128, 0.05);
+      }
+
+      &.active {
+        color: var(--gold-500);
+        border-bottom-color: var(--gold-500);
+
+        svg {
+          opacity: 1;
         }
+      }
+
+      &--blacklist.active {
+        color: #ef4444;
+        border-bottom-color: #ef4444;
+      }
+    }
+
+    .tab-count {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 1.25rem;
+      height: 1.25rem;
+      padding: 0 0.375rem;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      background: rgba(128, 128, 128, 0.15);
+      border-radius: 0.625rem;
+
+      &--danger {
+        background: rgba(239, 68, 68, 0.15);
+        color: #ef4444;
       }
     }
 
@@ -201,6 +339,7 @@ import { DialogService } from '../../../core/services/dialog.service';
       gap: var(--space-md);
       flex-wrap: wrap;
       width: 100%;
+      margin-bottom: var(--space-lg);
 
       @media (max-width: 48rem) {
         flex-direction: column;
@@ -215,12 +354,30 @@ import { DialogService } from '../../../core/services/dialog.service';
       box-shadow: 0 0.0625rem 0.1875rem rgba(0, 0, 0, 0.1), 0 0.0625rem 0.125rem rgba(0, 0, 0, 0.06);
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
+
+      &--blacklist {
+        border: 1px solid rgba(239, 68, 68, 0.2);
+      }
+    }
+
+    .table-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      background: var(--bg-tertiary);
+      border-bottom: 0.0625rem solid var(--border-subtle);
+
+      &--blacklist {
+        background: rgba(239, 68, 68, 0.05);
+        border-bottom-color: rgba(239, 68, 68, 0.15);
+      }
     }
 
     .table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 53rem;
+      min-width: 45rem;
 
       th, td {
         padding: 0.875rem 1rem;
@@ -301,25 +458,12 @@ import { DialogService } from '../../../core/services/dialog.service';
         background: rgba(212, 168, 75, 0.1);
         color: var(--gold-500);
       }
-
-      &--active {
-        background: rgba(34, 197, 94, 0.1);
-        color: #22c55e;
-      }
-
-      &--suspended {
-        background: rgba(239, 68, 68, 0.1);
-        color: #ef4444;
-      }
-    }
-
-    .actions-cell {
-      display: flex;
-      gap: 0.5rem;
-      align-items: center;
     }
 
     .action-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
       padding: 0.375rem 0.75rem;
       font-size: 0.75rem;
       font-weight: 500;
@@ -344,138 +488,30 @@ import { DialogService } from '../../../core/services/dialog.service';
       }
 
       &--suspend {
-        background: rgba(128, 128, 128, 0.1);
-        color: var(--text-secondary);
+        background: rgba(239, 68, 68, 0.08);
+        color: #ef4444;
 
         &:hover:not(:disabled) {
-          background: rgba(128, 128, 128, 0.2);
-        }
-      }
-
-      &--delete {
-        background: rgba(128, 128, 128, 0.08);
-        color: var(--text-muted);
-
-        &:hover:not(:disabled) {
-          background: rgba(239, 68, 68, 0.1);
-          color: #ef4444;
+          background: rgba(239, 68, 68, 0.15);
         }
       }
     }
 
-    .modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.5);
-      backdrop-filter: blur(0.25rem);
+    .empty-state {
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      z-index: 1000;
-      padding: 1rem;
-    }
+      padding: 3rem 1rem;
+      color: var(--text-muted);
 
-    .modal {
-      background: var(--bg-secondary);
-      border-radius: 1rem;
-      padding: var(--space-xl);
-      max-width: 25rem;
-      width: 100%;
-      box-shadow: 0 1.25rem 1.5625rem -0.3125rem rgba(0, 0, 0, 0.1), 0 0.625rem 0.625rem -0.3125rem rgba(0, 0, 0, 0.04);
-
-      @media (max-width: 26rem) {
-        padding: 1rem;
-        border-radius: 0.75rem;
-      }
-
-      h3 {
-        margin-bottom: var(--space-md);
-        color: var(--text-primary);
-        font-weight: 600;
-        font-size: 1.125rem;
-
-        @media (max-width: 26rem) {
-          font-size: 1rem;
-        }
+      svg {
+        margin-bottom: 1rem;
+        opacity: 0.5;
       }
 
       p {
-        color: var(--text-secondary);
-        margin-bottom: var(--space-sm);
         font-size: 0.9375rem;
-        line-height: 1.5;
-
-        @media (max-width: 26rem) {
-          font-size: 0.875rem;
-        }
-      }
-
-      .warning {
-        color: #ef4444;
-        font-weight: 500;
-        font-size: 0.875rem;
-      }
-    }
-
-    .modal-actions {
-      display: flex;
-      gap: var(--space-md);
-      justify-content: flex-end;
-      margin-top: var(--space-lg);
-
-      @media (max-width: 26rem) {
-        flex-direction: column-reverse;
-        gap: 0.5rem;
-      }
-    }
-
-    .btn--ghost {
-      background: transparent;
-      color: var(--text-secondary);
-      border: 0.0625rem solid var(--border-subtle);
-      padding: 0.5rem 1rem;
-      font-size: 0.875rem;
-      font-weight: 500;
-      border-radius: 0.5rem;
-      cursor: pointer;
-      transition: all 0.15s ease;
-
-      @media (max-width: 26rem) {
-        width: 100%;
-        padding: 0.75rem 1rem;
-      }
-
-      &:hover {
-        background: var(--bg-tertiary);
-      }
-    }
-
-    .btn--danger {
-      background: #ef4444;
-      color: white;
-      border: none;
-      padding: 0.5rem 1rem;
-      font-size: 0.875rem;
-      font-weight: 500;
-      border-radius: 0.5rem;
-      cursor: pointer;
-      transition: all 0.15s ease;
-
-      @media (max-width: 26rem) {
-        width: 100%;
-        padding: 0.75rem 1rem;
-      }
-
-      &:hover:not(:disabled) {
-        background: #dc2626;
-      }
-
-      &:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
       }
     }
 
@@ -590,18 +626,30 @@ import { DialogService } from '../../../core/services/dialog.service';
       }
     }
 
-    .table-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.75rem 1rem;
-      background: var(--bg-tertiary);
-      border-bottom: 0.0625rem solid var(--border-subtle);
-    }
-
     .results-count {
       font-size: 0.75rem;
       color: var(--text-muted);
+    }
+
+    .btn--ghost {
+      background: transparent;
+      color: var(--text-secondary);
+      border: 0.0625rem solid var(--border-subtle);
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+
+      &:hover:not(:disabled) {
+        background: var(--bg-tertiary);
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
     }
   `]
 })
@@ -610,22 +658,50 @@ export class UserListComponent implements OnInit {
   loading = signal(true);
   actionLoading = signal(false);
   currentPage = signal(0);
+  activeTab = signal<'users' | 'blacklist'>('users');
   roleFilter = '';
   searchQuery = '';
-  showDeleteModal = signal(false);
-  userToDelete = signal<UserListResponse | null>(null);
 
   private dialogService = inject(DialogService);
   private adminStateService = inject(AdminStateService);
 
-  // Filtered users based on search query
-  filteredUsers = computed(() => {
+  // Count of active users
+  activeUsersCount = computed(() => {
     const allUsers = this.users()?.content || [];
+    return allUsers.filter(u => !u.isSuspended).length;
+  });
+
+  // Count of blacklisted users
+  blacklistCount = computed(() => {
+    const allUsers = this.users()?.content || [];
+    return allUsers.filter(u => u.isSuspended).length;
+  });
+
+  // Filtered active users based on search query
+  filteredActiveUsers = computed(() => {
+    const allUsers = this.users()?.content || [];
+    const activeUsers = allUsers.filter(u => !u.isSuspended);
+    return this.filterBySearch(activeUsers);
+  });
+
+  // Filtered blacklisted users based on search query
+  filteredBlacklistedUsers = computed(() => {
+    const allUsers = this.users()?.content || [];
+    const blacklistedUsers = allUsers.filter(u => u.isSuspended);
+    return this.filterBySearch(blacklistedUsers);
+  });
+
+  constructor(private adminService: AdminService) {}
+
+  ngOnInit(): void {
+    this.loadUsers(0);
+  }
+
+  private filterBySearch(users: UserListResponse[]): UserListResponse[] {
     const query = this.searchQuery.toLowerCase().trim();
+    if (!query) return users;
 
-    if (!query) return allUsers;
-
-    return allUsers.filter(user => {
+    return users.filter(user => {
       const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
       const email = user.email.toLowerCase();
       return fullName.includes(query) ||
@@ -633,12 +709,10 @@ export class UserListComponent implements OnInit {
              user.lastName.toLowerCase().includes(query) ||
              email.includes(query);
     });
-  });
+  }
 
-  constructor(private adminService: AdminService) {}
-
-  ngOnInit(): void {
-    this.loadUsers(0);
+  switchTab(tab: 'users' | 'blacklist'): void {
+    this.activeTab.set(tab);
   }
 
   onSearchChange(): void {
@@ -653,7 +727,7 @@ export class UserListComponent implements OnInit {
     this.loading.set(true);
     this.currentPage.set(page);
 
-    this.adminService.getUsers(page, 20, this.roleFilter || undefined).subscribe({
+    this.adminService.getUsers(page, 100, this.roleFilter || undefined).subscribe({
       next: (users) => {
         this.users.set(users);
         this.loading.set(false);
@@ -675,9 +749,9 @@ export class UserListComponent implements OnInit {
 
   async suspendUser(user: UserListResponse): Promise<void> {
     const reason = await this.dialogService.prompt(
-      `Pourquoi suspendre ${user.firstName} ${user.lastName} ?`,
-      'Suspension utilisateur',
-      { inputLabel: 'Motif de suspension', inputPlaceholder: 'Ex: Comportement inapproprie...', variant: 'warning' }
+      `Pourquoi blacklister ${user.firstName} ${user.lastName} ?`,
+      'Ajouter a la blacklist',
+      { inputLabel: 'Motif', inputPlaceholder: 'Ex: Comportement inapproprie...', variant: 'warning' }
     );
     if (!reason) return;
 
@@ -706,37 +780,6 @@ export class UserListComponent implements OnInit {
       error: () => {
         this.actionLoading.set(false);
         this.dialogService.alert('Erreur lors de la reactivation', 'Erreur', { variant: 'danger' });
-      }
-    });
-  }
-
-  confirmDeleteUser(user: UserListResponse): void {
-    this.userToDelete.set(user);
-    this.showDeleteModal.set(true);
-  }
-
-  cancelDelete(): void {
-    this.showDeleteModal.set(false);
-    this.userToDelete.set(null);
-  }
-
-  deleteUser(): void {
-    const user = this.userToDelete();
-    if (!user) return;
-
-    this.actionLoading.set(true);
-    this.adminService.deleteUser(user.id).subscribe({
-      next: () => {
-        this.showDeleteModal.set(false);
-        this.userToDelete.set(null);
-        this.loadUsers(this.currentPage());
-        this.actionLoading.set(false);
-        // Notify other admin components to refresh their data
-        this.adminStateService.notifyUserChange('delete', user.id);
-      },
-      error: (err) => {
-        this.actionLoading.set(false);
-        this.dialogService.alert(err.error?.message || 'Erreur lors de la suppression', 'Erreur', { variant: 'danger' });
       }
     });
   }

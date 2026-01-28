@@ -4,6 +4,7 @@ export {
   ChessLevel,
   User,
   AuthResponse,
+  RegisterResponse,
   LoginRequest,
   RegisterRequest,
   UpdateUserRequest,

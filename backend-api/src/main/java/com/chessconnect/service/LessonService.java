@@ -55,9 +55,9 @@ public class LessonService {
     private final CreditTransactionRepository creditTransactionRepository;
     private final CourseRepository courseRepository;
     private final TeacherBalanceService teacherBalanceService;
-    private final GoogleCalendarService googleCalendarService;
     private final InvoiceService invoiceService;
     private final WalletService walletService;
+    private final ProgrammeService programmeService;
 
     public LessonService(
             LessonRepository lessonRepository,
@@ -69,9 +69,9 @@ public class LessonService {
             CreditTransactionRepository creditTransactionRepository,
             CourseRepository courseRepository,
             TeacherBalanceService teacherBalanceService,
-            GoogleCalendarService googleCalendarService,
             InvoiceService invoiceService,
-            WalletService walletService
+            WalletService walletService,
+            ProgrammeService programmeService
     ) {
         this.lessonRepository = lessonRepository;
         this.userRepository = userRepository;
@@ -82,9 +82,9 @@ public class LessonService {
         this.creditTransactionRepository = creditTransactionRepository;
         this.courseRepository = courseRepository;
         this.teacherBalanceService = teacherBalanceService;
-        this.googleCalendarService = googleCalendarService;
         this.invoiceService = invoiceService;
         this.walletService = walletService;
+        this.programmeService = programmeService;
     }
 
     @Transactional
@@ -244,15 +244,12 @@ public class LessonService {
 
         validateStatusTransition(currentStatus, newStatus, isTeacher);
 
-        // Handle CONFIRMED - Create video meeting link and calendar events
+        // Handle CONFIRMED - Create video meeting link
         if (newStatus == LessonStatus.CONFIRMED && lesson.getZoomLink() == null) {
             // Use Jitsi Meet (free, no auth required) instead of Zoom
             String meetingId = "chessconnect-" + lesson.getId() + "-" + System.currentTimeMillis();
             lesson.setZoomLink("https://meet.mychess.fr/" + meetingId);
             log.info("Created Jitsi meeting for lesson {}: {}", lesson.getId(), lesson.getZoomLink());
-
-            // Create Google Calendar events for student and teacher (if connected)
-            createCalendarEvents(lesson);
         }
 
         // Handle CANCELLED
@@ -284,29 +281,20 @@ public class LessonService {
                 progress.recordCompletedLesson();
                 progressRepository.save(progress);
             }
+
+            // Advance student to next course in the programme
+            try {
+                programmeService.advanceToNextCourse(lesson.getStudent().getId());
+                log.info("Advanced student {} to next course after completing lesson {}",
+                        lesson.getStudent().getId(), lesson.getId());
+            } catch (Exception e) {
+                log.warn("Could not advance student to next course: {}", e.getMessage());
+            }
         }
 
         lesson.setStatus(newStatus);
         Lesson updatedLesson = lessonRepository.save(lesson);
         return LessonResponse.from(updatedLesson);
-    }
-
-    /**
-     * Create Google Calendar events for both student and teacher if they have calendar connected.
-     */
-    private void createCalendarEvents(Lesson lesson) {
-        User student = lesson.getStudent();
-        User teacher = lesson.getTeacher();
-
-        // Create event for student if connected
-        if (googleCalendarService.isConnected(student)) {
-            googleCalendarService.createLessonEvent(lesson, student);
-        }
-
-        // Create event for teacher if connected
-        if (googleCalendarService.isConnected(teacher)) {
-            googleCalendarService.createLessonEvent(lesson, teacher);
-        }
     }
 
     public List<LessonResponse> getUpcomingLessonsForStudent(Long studentId) {

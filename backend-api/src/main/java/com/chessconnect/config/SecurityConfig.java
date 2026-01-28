@@ -69,6 +69,7 @@ public class SecurityConfig {
                         .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers("/error").permitAll()
                         .requestMatchers("/tracking/**").permitAll()
+                        .requestMatchers("/programme/public/**").permitAll()
                         // Actuator endpoints
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers("/actuator/health/**").permitAll()

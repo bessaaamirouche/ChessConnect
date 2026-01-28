@@ -26,7 +26,8 @@ import {
   heroInformationCircle,
   heroExclamationTriangle,
   heroWallet,
-  heroStar
+  heroStar,
+  heroBookOpen
 } from '@ng-icons/heroicons/outline';
 import { heroStarSolid } from '@ng-icons/heroicons/solid';
 import { AuthService } from '../../../core/services/auth.service';
@@ -77,7 +78,8 @@ export interface SidebarSection {
       heroExclamationTriangle,
       heroWallet,
       heroStar,
-      heroStarSolid
+      heroStarSolid,
+      heroBookOpen
     })
   ],
   template: `
@@ -86,7 +88,12 @@ export interface SidebarSection {
       <a routerLink="/" class="mobile-header__logo">
         <img src="assets/logo.png" alt="myChess" class="mobile-header__logo-img">
       </a>
-      <button class="mobile-header__hamburger" [class.active]="mobileOpen()" (click)="toggleMobile()">
+      <button
+        class="mobile-header__hamburger"
+        [class.active]="mobileOpen()"
+        (click)="toggleMobile()"
+        aria-label="Menu"
+        [attr.aria-expanded]="mobileOpen()">
         <span></span>
         <span></span>
         <span></span>
@@ -112,7 +119,7 @@ export interface SidebarSection {
             <ng-icon name="heroChevronLeft" size="18"></ng-icon>
           }
         </button>
-        <button class="sidebar__close-btn" (click)="closeMobile()">
+        <button class="sidebar__close-btn" (click)="closeMobile()" aria-label="Fermer le menu">
           <ng-icon name="heroXMark" size="20"></ng-icon>
         </button>
       </div>

@@ -105,7 +105,6 @@ export interface User {
   eloRating?: number;
   // Settings
   emailRemindersEnabled?: boolean;
-  googleCalendarEnabled?: boolean;
   // Admin
   isSuspended?: boolean;
   createdAt?: string;

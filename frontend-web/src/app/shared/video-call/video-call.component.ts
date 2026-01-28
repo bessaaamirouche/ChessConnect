@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, signal, PLATFORM_ID, Inject, ElementRef, ViewChild, AfterViewInit, inject } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, signal, PLATFORM_ID, Inject, ElementRef, ViewChild, AfterViewInit, inject, HostListener } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { heroXMark, heroVideoCamera, heroClock, heroCheckCircle } from '@ng-icons/heroicons/outline';
@@ -13,39 +13,39 @@ declare var JitsiMeetExternalAPI: any;
   viewProviders: [provideIcons({ heroXMark, heroVideoCamera, heroClock, heroCheckCircle })],
   template: `
     <div class="video-call-overlay" (click)="onClose()">
-      <div class="video-call-container" (click)="$event.stopPropagation()">
+      <div class="video-call-container" role="dialog" aria-modal="true" aria-labelledby="video-call-title" (click)="$event.stopPropagation()">
         <div class="video-call-header">
           <div class="video-call-header__info">
-            <ng-icon name="heroVideoCamera" size="20"></ng-icon>
+            <ng-icon name="heroVideoCamera" size="20" aria-hidden="true"></ng-icon>
             @if (isFreeTrial) {
-              <span class="discovery-badge">
-                <ng-icon name="heroClock" size="14"></ng-icon>
+              <span id="video-call-title" class="discovery-badge">
+                <ng-icon name="heroClock" size="14" aria-hidden="true"></ng-icon>
                 Cours découverte - 15 min
               </span>
             } @else {
-              <span>{{ title }}</span>
+              <span id="video-call-title">{{ title }}</span>
             }
             @if (isFreeTrial && timerDisplay()) {
-              <span class="timer-badge" [class.timer-badge--warning]="timerMinutes() <= 5" [class.timer-badge--danger]="timerMinutes() <= 2">
+              <span class="timer-badge" [class.timer-badge--warning]="timerMinutes() <= 5" [class.timer-badge--danger]="timerMinutes() <= 2" aria-live="polite" [attr.aria-label]="'Temps restant: ' + timerDisplay()">
                 {{ timerDisplay() }}
               </span>
             }
             @if (isRecording()) {
-              <span class="recording-badge">
-                <span class="recording-dot"></span>
+              <span class="recording-badge" aria-live="polite">
+                <span class="recording-dot" aria-hidden="true"></span>
                 Enregistrement
               </span>
             }
           </div>
           <div class="video-call-header__actions">
             @if (isTeacher) {
-              <button class="video-call-header__end-btn" (click)="onEndLesson()">
-                <ng-icon name="heroCheckCircle" size="18"></ng-icon>
+              <button class="video-call-header__end-btn" (click)="onEndLesson()" aria-label="Terminer le cours">
+                <ng-icon name="heroCheckCircle" size="18" aria-hidden="true"></ng-icon>
                 Terminer
               </button>
             }
-            <button class="video-call-header__close" (click)="onClose()">
-              <ng-icon name="heroXMark" size="24"></ng-icon>
+            <button class="video-call-header__close" (click)="onClose()" aria-label="Fermer la visioconference">
+              <ng-icon name="heroXMark" size="24" aria-hidden="true"></ng-icon>
             </button>
           </div>
         </div>
@@ -233,6 +233,11 @@ export class VideoCallComponent implements OnInit, OnDestroy, AfterViewInit {
   private timerInterval: any = null;
   private timerStartTime: number = 0;
   private toastService = inject(ToastService);
+
+  @HostListener('document:keydown.escape')
+  onEscapeKey(): void {
+    this.onClose();
+  }
 
   constructor(
     @Inject(PLATFORM_ID) platformId: Object

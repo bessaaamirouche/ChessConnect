@@ -2,6 +2,7 @@ import { Component, inject, OnInit, OnDestroy, ChangeDetectionStrategy, effect }
 import { RouterOutlet } from '@angular/router';
 import { ToastComponent } from './shared/toast/toast.component';
 import { GlobalDialogComponent } from './shared/global-dialog/global-dialog.component';
+import { CookieConsentComponent } from './shared/cookie-consent/cookie-consent.component';
 import { AuthService } from './core/services/auth.service';
 import { NotificationService } from './core/services/notification.service';
 import { InactivityService } from './core/services/inactivity.service';
@@ -11,12 +12,15 @@ import { TrackingService } from './core/services/tracking.service';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, ToastComponent, GlobalDialogComponent],
+  imports: [RouterOutlet, ToastComponent, GlobalDialogComponent, CookieConsentComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <router-outlet></router-outlet>
+    <main id="main-content">
+      <router-outlet></router-outlet>
+    </main>
     <app-toast></app-toast>
     <app-global-dialog></app-global-dialog>
+    <app-cookie-consent></app-cookie-consent>
   `,
   styles: []
 })

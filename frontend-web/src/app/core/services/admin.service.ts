@@ -69,10 +69,6 @@ export class AdminService {
     return this.http.patch<AdminActionResponse>(`${this.apiUrl}/users/${id}/activate`, {});
   }
 
-  deleteUser(id: number): Observable<AdminActionResponse> {
-    return this.http.delete<AdminActionResponse>(`${this.apiUrl}/users/${id}`);
-  }
-
   // Lessons
   getUpcomingLessons(): Observable<AdminLessonResponse[]> {
     return this.http.get<AdminLessonResponse[]>(`${this.apiUrl}/lessons/upcoming`);

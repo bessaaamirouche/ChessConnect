@@ -11,4 +11,12 @@ public interface CreditTransactionRepository extends JpaRepository<CreditTransac
     List<CreditTransaction> findByUserIdOrderByCreatedAtDesc(Long userId);
 
     List<CreditTransaction> findByLessonId(Long lessonId);
+
+    void deleteByUserId(Long userId);
+
+    void deleteByLessonId(Long lessonId);
+
+    void deleteByLessonStudentId(Long studentId);
+
+    void deleteByLessonTeacherId(Long teacherId);
 }

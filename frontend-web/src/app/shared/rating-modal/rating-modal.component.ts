@@ -1,11 +1,12 @@
-import { Component, EventEmitter, Input, Output, signal } from '@angular/core';
+import { Component, EventEmitter, Input, Output, signal, HostListener } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RatingService, CreateRatingRequest } from '../../core/services/rating.service';
+import { FocusTrapDirective } from '../directives/focus-trap.directive';
 
 @Component({
   selector: 'app-rating-modal',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, FocusTrapDirective],
   templateUrl: './rating-modal.component.html',
   styleUrl: './rating-modal.component.scss'
 })
@@ -22,6 +23,11 @@ export class RatingModalComponent {
   error = signal<string | null>(null);
 
   constructor(private ratingService: RatingService) {}
+
+  @HostListener('document:keydown.escape')
+  onEscapeKey(): void {
+    this.onClose();
+  }
 
   setHoveredStars(stars: number): void {
     this.hoveredStars.set(stars);

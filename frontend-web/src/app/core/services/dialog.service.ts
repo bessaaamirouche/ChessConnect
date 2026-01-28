@@ -9,6 +9,7 @@ export interface DialogConfig {
   inputLabel?: string;
   inputPlaceholder?: string;
   inputValue?: string;
+  inputType?: 'text' | 'password';
   variant?: 'danger' | 'warning' | 'info' | 'success';
 }
 
@@ -86,6 +87,7 @@ export class DialogService {
           inputLabel: options?.inputLabel,
           inputPlaceholder: options?.inputPlaceholder || '',
           inputValue: options?.inputValue || '',
+          inputType: options?.inputType || 'text',
           variant: options?.variant || 'info'
         },
         resolve: (value) => resolve(value as string | null)

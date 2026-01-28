@@ -62,19 +62,13 @@ public class User {
     @Column(name = "email_reminders_enabled")
     private Boolean emailRemindersEnabled = true;
 
-    // Google Calendar integration
-    @Column(name = "google_calendar_token", columnDefinition = "TEXT")
-    private String googleCalendarToken;
-
-    @Column(name = "google_calendar_refresh_token", columnDefinition = "TEXT")
-    private String googleCalendarRefreshToken;
-
-    @Column(name = "google_calendar_enabled")
-    private Boolean googleCalendarEnabled = false;
-
     // Admin suspension
     @Column(name = "is_suspended")
     private Boolean isSuspended = false;
+
+    // Email verification
+    @Column(name = "email_verified")
+    private Boolean emailVerified = false;
 
     // Teacher banking information
     @Column(name = "iban")
@@ -106,6 +100,10 @@ public class User {
     // First free trial lesson tracking
     @Column(name = "has_used_free_trial")
     private Boolean hasUsedFreeTrial = false;
+
+    // Current course tracking for students (programme pedagogique)
+    @Column(name = "current_course_id")
+    private Integer currentCourseId = 1;
 
     @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;
@@ -216,17 +214,11 @@ public class User {
     public Boolean getEmailRemindersEnabled() { return emailRemindersEnabled; }
     public void setEmailRemindersEnabled(Boolean emailRemindersEnabled) { this.emailRemindersEnabled = emailRemindersEnabled; }
 
-    public String getGoogleCalendarToken() { return googleCalendarToken; }
-    public void setGoogleCalendarToken(String googleCalendarToken) { this.googleCalendarToken = googleCalendarToken; }
-
-    public String getGoogleCalendarRefreshToken() { return googleCalendarRefreshToken; }
-    public void setGoogleCalendarRefreshToken(String googleCalendarRefreshToken) { this.googleCalendarRefreshToken = googleCalendarRefreshToken; }
-
-    public Boolean getGoogleCalendarEnabled() { return googleCalendarEnabled; }
-    public void setGoogleCalendarEnabled(Boolean googleCalendarEnabled) { this.googleCalendarEnabled = googleCalendarEnabled; }
-
     public Boolean getIsSuspended() { return isSuspended; }
     public void setIsSuspended(Boolean isSuspended) { this.isSuspended = isSuspended; }
+
+    public Boolean getEmailVerified() { return emailVerified; }
+    public void setEmailVerified(Boolean emailVerified) { this.emailVerified = emailVerified; }
 
     public String getIban() { return iban; }
     public void setIban(String iban) { this.iban = iban; }
@@ -254,6 +246,9 @@ public class User {
 
     public Boolean getAcceptsFreeTrial() { return acceptsFreeTrial; }
     public void setAcceptsFreeTrial(Boolean acceptsFreeTrial) { this.acceptsFreeTrial = acceptsFreeTrial; }
+
+    public Integer getCurrentCourseId() { return currentCourseId; }
+    public void setCurrentCourseId(Integer currentCourseId) { this.currentCourseId = currentCourseId; }
 
     public LocalDateTime getLastLoginAt() { return lastLoginAt; }
     public void setLastLoginAt(LocalDateTime lastLoginAt) { this.lastLoginAt = lastLoginAt; }

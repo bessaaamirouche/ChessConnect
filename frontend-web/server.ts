@@ -3,6 +3,7 @@ import { CommonEngine } from '@angular/ssr';
 import express from 'express';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
+import http from 'node:http';
 import bootstrap from './src/main.server';
 
 // The Express app is exported so that it can be used by serverless Functions.
@@ -16,6 +17,32 @@ export function app(): express.Express {
 
   server.set('view engine', 'html');
   server.set('views', browserDistFolder);
+
+  // Proxy API requests to backend using native http
+  const backendHost = process.env['API_URL']?.replace(/^https?:\/\//, '').replace(/\/api$/, '') || 'backend:8282';
+  console.log(`Proxying /api requests to http://${backendHost}`);
+
+  server.use('/api', (req, res) => {
+    const options = {
+      hostname: backendHost.split(':')[0],
+      port: parseInt(backendHost.split(':')[1]) || 8282,
+      path: req.originalUrl,
+      method: req.method,
+      headers: { ...req.headers, host: backendHost }
+    };
+
+    const proxyReq = http.request(options, (proxyRes) => {
+      res.writeHead(proxyRes.statusCode || 500, proxyRes.headers);
+      proxyRes.pipe(res);
+    });
+
+    proxyReq.on('error', (e) => {
+      console.error('Proxy error:', e);
+      res.status(502).send('Bad Gateway');
+    });
+
+    req.pipe(proxyReq);
+  });
 
   // Serve static files from /browser
   server.get('*.*', express.static(browserDistFolder, {

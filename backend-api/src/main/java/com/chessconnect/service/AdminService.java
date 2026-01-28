@@ -14,6 +14,7 @@ import com.chessconnect.model.enums.PaymentStatus;
 import com.chessconnect.model.enums.UserRole;
 import com.chessconnect.model.TeacherPayout;
 import com.chessconnect.repository.*;
+import com.chessconnect.repository.EmailVerificationTokenRepository;
 import com.stripe.model.Transfer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,6 +55,9 @@ public class AdminService {
     private final WalletService walletService;
     private final UserNotificationService userNotificationService;
     private final UserNotificationRepository userNotificationRepository;
+    private final CreditTransactionRepository creditTransactionRepository;
+    private final EmailVerificationTokenRepository emailVerificationTokenRepository;
+    private final PageViewRepository pageViewRepository;
 
     public AdminService(
             UserRepository userRepository,
@@ -74,7 +78,10 @@ public class AdminService {
             InvoiceService invoiceService,
             WalletService walletService,
             UserNotificationService userNotificationService,
-            UserNotificationRepository userNotificationRepository
+            UserNotificationRepository userNotificationRepository,
+            CreditTransactionRepository creditTransactionRepository,
+            EmailVerificationTokenRepository emailVerificationTokenRepository,
+            PageViewRepository pageViewRepository
     ) {
         this.userRepository = userRepository;
         this.lessonRepository = lessonRepository;
@@ -95,6 +102,9 @@ public class AdminService {
         this.walletService = walletService;
         this.userNotificationService = userNotificationService;
         this.userNotificationRepository = userNotificationRepository;
+        this.creditTransactionRepository = creditTransactionRepository;
+        this.emailVerificationTokenRepository = emailVerificationTokenRepository;
+        this.pageViewRepository = pageViewRepository;
     }
 
     /**
@@ -230,9 +240,10 @@ public class AdminService {
         }
 
         // Delete all related data in correct order (FK dependencies)
-        // 1. Password reset tokens
+        // 1. Password reset tokens and email verification tokens
         passwordResetTokenRepository.deleteByUserId(userId);
-        log.debug("Deleted password reset tokens for user {}", userId);
+        emailVerificationTokenRepository.deleteByUserId(userId);
+        log.debug("Deleted password reset and email verification tokens for user {}", userId);
 
         // 2. Ratings - delete ratings that reference lessons belonging to this user first (FK constraint)
         ratingRepository.deleteByLessonUserId(userId);
@@ -278,24 +289,39 @@ public class AdminService {
         invoiceRepository.deleteByIssuerId(userId);
         log.debug("Deleted invoices for user {}", userId);
 
-        // 9. Lessons (as student or teacher) - must be after ratings/payments that reference lessons
+        // 9. Credit transactions (references lessons, must be before lesson deletion)
+        creditTransactionRepository.deleteByUserId(userId);
+        creditTransactionRepository.deleteByLessonStudentId(userId);
+        creditTransactionRepository.deleteByLessonTeacherId(userId);
+        log.debug("Deleted credit transactions for user {}", userId);
+
+        // 10. Nullify lesson references in invoices (preserves invoices for accounting)
+        invoiceRepository.nullifyLessonByStudentId(userId);
+        invoiceRepository.nullifyLessonByTeacherId(userId);
+        log.debug("Nullified lesson references in invoices for user {}", userId);
+
+        // 11. Lessons (as student or teacher) - must be after all FK references are removed
         lessonRepository.deleteByStudentId(userId);
         lessonRepository.deleteByTeacherId(userId);
         log.debug("Deleted lessons for user {}", userId);
 
-        // 9. Subscriptions
+        // 12. Subscriptions
         subscriptionRepository.deleteByStudentId(userId);
         log.debug("Deleted subscriptions for user {}", userId);
 
-        // 10. Progress
+        // 13. Progress
         progressRepository.deleteByStudentId(userId);
         log.debug("Deleted progress for user {}", userId);
 
-        // 11. User notifications
+        // 14. User notifications
         userNotificationRepository.deleteByUserId(userId);
         log.debug("Deleted notifications for user {}", userId);
 
-        // 12. Finally delete the user
+        // 15. Page views (analytics)
+        pageViewRepository.deleteByUserId(userId);
+        log.debug("Deleted page views for user {}", userId);
+
+        // 16. Finally delete the user
         userRepository.delete(user);
         log.info("User {} deleted successfully", userId);
     }
@@ -534,11 +560,11 @@ public class AdminService {
                     balance.getTotalEarnedCents(),
                     balance.getTotalWithdrawnCents(),
                     balance.getLessonsCompleted(),
-                    // Banking info (IBAN masked for security)
+                    // Banking info masked for security
                     TeacherBalanceListResponse.maskIban(teacher.getIban()),
-                    teacher.getBic(),
+                    maskBic(teacher.getBic()),
                     teacher.getAccountHolderName(),
-                    teacher.getSiret(),
+                    maskSiret(teacher.getSiret()),
                     teacher.getCompanyName(),
                     // Current month payout status
                     payout != null && payout.getIsPaid(),
@@ -697,5 +723,23 @@ public class AdminService {
                 totalRevenue,
                 revenueThisMonth
         );
+    }
+
+    /**
+     * Mask BIC code for security (show only first 4 and last 2 characters).
+     * Example: BNPAFRPP -> BNPA**PP
+     */
+    private String maskBic(String bic) {
+        if (bic == null || bic.length() < 6) return bic;
+        return bic.substring(0, 4) + "**" + bic.substring(bic.length() - 2);
+    }
+
+    /**
+     * Mask SIRET number for security (show only last 5 digits).
+     * Example: 12345678901234 -> *********01234
+     */
+    private String maskSiret(String siret) {
+        if (siret == null || siret.length() < 5) return siret;
+        return "*".repeat(siret.length() - 5) + siret.substring(siret.length() - 5);
     }
 }

@@ -134,6 +134,48 @@
   }
 }
 
+// Password visibility toggle
+.input-password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  .input {
+    padding-right: 3rem;
+  }
+}
+
+.password-toggle {
+  position: absolute;
+  right: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color var(--transition-fast), background var(--transition-fast);
+
+  &:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--gold-400);
+    outline-offset: 2px;
+  }
+
+  svg {
+    flex-shrink: 0;
+  }
+}
+
 .alert {
   padding: var(--space-sm);
   border-radius: var(--radius-md);
@@ -150,6 +192,55 @@
     background: var(--success-muted);
     color: var(--success);
     border: 1px solid rgba(74, 222, 128, 0.3);
+  }
+}
+
+// Email verification notice styles
+.verification-notice {
+  text-align: center;
+  padding: var(--space-sm) 0;
+
+  &__icon {
+    color: var(--gold-400);
+    margin-bottom: var(--space-sm);
+
+    svg {
+      width: 48px;
+      height: 48px;
+    }
+  }
+
+  &__title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--space-xs);
+  }
+
+  &__message {
+    color: var(--text-secondary);
+    font-size: 0.9375rem;
+    margin-bottom: var(--space-xs);
+  }
+
+  &__email {
+    font-size: 0.9375rem;
+    margin-bottom: var(--space-md);
+  }
+
+  &__help {
+    color: var(--text-secondary);
+    font-size: 0.8125rem;
+    margin-bottom: var(--space-md);
+    line-height: 1.5;
+  }
+
+  .btn {
+    margin-top: var(--space-xs);
+  }
+
+  .alert--success {
+    margin-bottom: var(--space-md);
   }
 }
 

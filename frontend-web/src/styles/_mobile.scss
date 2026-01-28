@@ -3,6 +3,29 @@
 // Touch-friendly, accessible, SEO-optimized
 // ================================================
 
+// === Skip to Content Link (Accessibility) ===
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10001;
+  padding: 1rem 2rem;
+  background: var(--gold-500, #d4a84b);
+  color: var(--bg-primary, #0d0d0f);
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-decoration: none;
+  border-radius: 0 0 0.5rem 0.5rem;
+  transition: top 0.2s ease;
+
+  &:focus {
+    top: 0;
+    outline: 2px solid var(--gold-400);
+    outline-offset: 2px;
+  }
+}
+
 // === Touch Target Minimum Size (44x44px per WCAG) ===
 // Only apply min-height, not min-width to avoid oversized buttons
 @mixin touch-target {

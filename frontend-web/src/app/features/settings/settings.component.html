@@ -176,33 +176,6 @@
         </form>
       </div>
 
-      <!-- Preferences -->
-      <div class="card">
-        <h3 class="card__title">Preferences</h3>
-
-        <div class="alert-inline-container">
-          <div class="alert-inline" [class.alert-inline--visible]="preferencesSuccess() || preferencesError()" [class.alert-inline--success]="preferencesSuccess()" [class.alert-inline--error]="preferencesError()">
-            <span>{{ preferencesSuccess() ? 'Preferences mises a jour !' : preferencesError() }}</span>
-          </div>
-        </div>
-
-        <div class="preference-item">
-          <div class="preference-item__info">
-            <span class="preference-item__label">Rappels par email</span>
-            <span class="preference-item__description">Recevoir un email de rappel 1h avant chaque cours</span>
-          </div>
-          <label class="toggle" [class.toggle--loading]="savingPreferences()">
-            <input
-              type="checkbox"
-              [checked]="emailRemindersEnabled()"
-              (change)="toggleEmailReminders()"
-              [disabled]="savingPreferences()"
-            >
-            <span class="toggle__slider"></span>
-          </label>
-        </div>
-      </div>
-
       <!-- Paiements (teachers only) -->
       @if (isTeacher()) {
         <div class="card">
@@ -321,5 +294,52 @@
           </div>
         }
       }
+
+      <!-- Danger Zone (Account Deletion) -->
+      <div class="card card--danger">
+        <h3 class="card__title card__title--danger">
+          <ng-icon name="heroExclamationTriangle" size="20"></ng-icon>
+          Zone de danger
+        </h3>
+
+        <div class="alert-inline-container">
+          <div class="alert-inline alert-inline--error" [class.alert-inline--visible]="deleteAccountError()">
+            <span>{{ deleteAccountError() }}</span>
+          </div>
+        </div>
+
+        <div class="danger-section">
+          <div class="danger-section__info">
+            <h4 class="danger-section__title">Supprimer mon compte</h4>
+            <p class="danger-section__description">
+              Cette action est irreversible. Toutes vos donnees seront definitivement supprimees,
+              y compris votre historique de cours, vos evaluations et vos informations personnelles.
+            </p>
+            @if (isTeacher()) {
+              <p class="danger-section__warning">
+                En tant que coach, vos disponibilites seront supprimees et les cours en attente seront annules avec remboursement.
+              </p>
+            }
+            @if (isStudent()) {
+              <p class="danger-section__warning">
+                Vos cours en attente seront annules et rembourses selon les conditions habituelles.
+              </p>
+            }
+          </div>
+          <button
+            class="btn btn--danger"
+            (click)="deleteAccount()"
+            [disabled]="deletingAccount()"
+          >
+            @if (deletingAccount()) {
+              <span class="spinner spinner--sm"></span>
+              Suppression...
+            } @else {
+              <ng-icon name="heroTrash" size="18"></ng-icon>
+              Supprimer mon compte
+            }
+          </button>
+        </div>
+      </div>
     </div>
 </div>

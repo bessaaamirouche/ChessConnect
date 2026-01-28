@@ -7,6 +7,7 @@ import com.chessconnect.model.Subscription;
 import com.chessconnect.service.AdminService;
 import com.chessconnect.service.AnalyticsService;
 import com.chessconnect.service.StripeService;
+import com.chessconnect.service.WalletService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -25,11 +26,13 @@ public class AdminController {
     private final AdminService adminService;
     private final StripeService stripeService;
     private final AnalyticsService analyticsService;
+    private final WalletService walletService;
 
-    public AdminController(AdminService adminService, StripeService stripeService, AnalyticsService analyticsService) {
+    public AdminController(AdminService adminService, StripeService stripeService, AnalyticsService analyticsService, WalletService walletService) {
         this.adminService = adminService;
         this.stripeService = stripeService;
         this.analyticsService = analyticsService;
+        this.walletService = walletService;
     }
 
     // ============= USER MANAGEMENT =============
@@ -76,18 +79,41 @@ public class AdminController {
     }
 
     /**
-     * Delete a user permanently
+     * Refund user's wallet balance (for manual bank transfer before account deletion).
+     * Clears the wallet balance and records the transaction.
      */
-    @DeleteMapping("/users/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
-        try {
-            adminService.deleteUser(id);
-            return ResponseEntity.ok(Map.of("message", "User deleted successfully"));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body(Map.of("message", "Erreur lors de la suppression: " + e.getMessage()));
+    @PostMapping("/users/{id}/refund-wallet")
+    public ResponseEntity<?> refundUserWallet(
+            @PathVariable Long id,
+            @RequestBody(required = false) Map<String, String> request
+    ) {
+        String reason = request != null ? request.getOrDefault("reason", "") : "";
+        int refundedAmount = walletService.adminRefundWallet(id, reason);
+
+        if (refundedAmount == 0) {
+            return ResponseEntity.ok(Map.of(
+                "message", "Aucun solde a rembourser",
+                "refundedAmountCents", 0
+            ));
         }
+
+        String formattedAmount = String.format("%.2f", refundedAmount / 100.0);
+        return ResponseEntity.ok(Map.of(
+            "message", "Portefeuille vide. " + formattedAmount + " EUR a rembourser manuellement.",
+            "refundedAmountCents", refundedAmount
+        ));
+    }
+
+    /**
+     * Get user's wallet balance (for admin to check before refund).
+     */
+    @GetMapping("/users/{id}/wallet")
+    public ResponseEntity<?> getUserWallet(@PathVariable Long id) {
+        int balance = walletService.getBalance(id);
+        return ResponseEntity.ok(Map.of(
+            "balanceCents", balance,
+            "balanceFormatted", String.format("%.2f EUR", balance / 100.0)
+        ));
     }
 
     // ============= LESSONS =============

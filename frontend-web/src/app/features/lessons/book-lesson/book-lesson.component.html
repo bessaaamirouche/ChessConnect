@@ -95,64 +95,38 @@
             </div>
           </div>
 
-          <!-- Course Selection -->
+          <!-- Current Course Display -->
           <div class="course-section">
             <h4 class="course-section__title">
               <ng-icon name="heroBookOpen" size="18"></ng-icon>
-              Choisissez votre cours
+              Cours de cette seance
             </h4>
 
             @if (learningPathLoading()) {
               <div class="course-section__loading">
                 <span class="spinner spinner--sm"></span>
-                <span>Chargement des cours...</span>
+                <span>Chargement du cours...</span>
               </div>
-            } @else if (unlockedGrades().length === 0) {
-              <div class="course-section__empty">
-                <p>Aucun cours disponible. Completez le quiz pour debloquer votre parcours.</p>
+            } @else if (programmeService.currentCourse()) {
+              <div class="current-course-card">
+                <div class="current-course-card__badge" [style.background]="programmeService.getLevelColor(programmeService.currentCourse()!.levelCode)">
+                  Niveau {{ programmeService.currentCourse()!.levelCode }}
+                </div>
+                <div class="current-course-card__content">
+                  <span class="current-course-card__order">Cours {{ programmeService.currentCourse()!.id }}</span>
+                  <h3 class="current-course-card__title">{{ programmeService.currentCourse()!.title }}</h3>
+                </div>
+                <a routerLink="/programme" class="current-course-card__link">
+                  Voir le programme
+                </a>
               </div>
+              <p class="course-section__info">
+                <ng-icon name="heroCheckCircle" size="16"></ng-icon>
+                Ce cours sera automatiquement incremente apres cette seance
+              </p>
             } @else {
-              <div class="course-selectors">
-                <!-- Level Dropdown -->
-                <div class="course-selector">
-                  <label class="course-selector__label">Niveau</label>
-                  <div class="select-wrapper">
-                    <select
-                      class="select"
-                      [value]="selectedLevel() || ''"
-                      (change)="selectLevel($any($event.target).value || null)"
-                    >
-                      <option value="" disabled>Choisir un niveau</option>
-                      @for (grade of unlockedGrades(); track grade.grade) {
-                        <option [value]="grade.grade">
-                          {{ getGradeIcon(grade.grade) }} {{ getLevelDisplayName($any(grade.grade)) }}
-                        </option>
-                      }
-                    </select>
-                  </div>
-                </div>
-
-                <!-- Course Dropdown -->
-                <div class="course-selector">
-                  <label class="course-selector__label">Cours</label>
-                  <div class="select-wrapper">
-                    <select
-                      class="select"
-                      [value]="selectedCourse()?.id || ''"
-                      (change)="selectCourse(coursesForSelectedLevel()[$any($event.target).selectedIndex - 1])"
-                      [disabled]="!selectedLevel()"
-                    >
-                      <option value="" disabled>Choisir un cours</option>
-                      @for (course of coursesForSelectedLevel(); track course.id) {
-                        <option [value]="course.id">
-                          @if (course.status === 'COMPLETED') { ✓ }
-                          {{ course.title }}
-                          @if (course.status === 'IN_PROGRESS') { (En cours) }
-                        </option>
-                      }
-                    </select>
-                  </div>
-                </div>
+              <div class="course-section__empty">
+                <p>Aucun cours defini. <a routerLink="/programme">Consultez le programme</a> pour choisir votre point de depart.</p>
               </div>
             }
           </div>
@@ -258,7 +232,7 @@
               [class.btn--primary]="!canUseFreeTrial() || !useFreeTrialSignal()"
               [class.btn--free-trial]="canUseFreeTrial() && useFreeTrialSignal()"
               [class.btn--credit]="payWithCreditSignal() && canPayWithCredit()"
-              [disabled]="!selectedSlot() || !selectedCourse() || loading()"
+              [disabled]="!selectedSlot() || !programmeService.currentCourse() || loading()"
             >
               @if (loading()) {
                 <span class="spinner spinner--sm"></span>

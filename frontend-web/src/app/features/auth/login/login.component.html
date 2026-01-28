@@ -13,7 +13,62 @@
       </div>
     </div>
 
-    @if (isSuspended() && !showContactForm()) {
+    @if (emailNotVerified()) {
+      <div class="verification-notice">
+        <div class="verification-notice__icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="20" height="16" x="2" y="4" rx="2"/>
+            <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+          </svg>
+        </div>
+        <h2 class="verification-notice__title">Verifiez votre email</h2>
+        <p class="verification-notice__message">
+          Votre adresse email n'a pas encore ete verifiee.
+        </p>
+        <p class="verification-notice__email">
+          <strong class="text-gold">{{ unverifiedEmail() }}</strong>
+        </p>
+
+        @if (resendSuccess()) {
+          <div class="alert alert--success">
+            <p>Un nouvel email de verification a ete envoye !</p>
+            <p class="text-muted text-sm">Verifiez votre boite de reception et vos spams.</p>
+          </div>
+        } @else {
+          <div class="alert-inline-container">
+            <div class="alert-inline alert-inline--error" [class.alert-inline--visible]="resendError()">
+              <span>{{ resendError() }}</span>
+            </div>
+          </div>
+
+          <p class="verification-notice__help">
+            Cliquez sur le lien dans l'email que vous avez recu pour activer votre compte.
+          </p>
+
+          <button
+            type="button"
+            class="btn btn--primary btn--block"
+            (click)="resendVerificationEmail()"
+            [disabled]="resendingEmail()"
+          >
+            @if (resendingEmail()) {
+              <span class="spinner spinner--sm"></span>
+              Envoi en cours...
+            } @else {
+              Renvoyer l'email de verification
+            }
+          </button>
+        }
+
+        <button
+          type="button"
+          class="btn btn--ghost btn--block"
+          (click)="emailNotVerified.set(false)"
+        >
+          Retour a la connexion
+        </button>
+      </div>
+    } @else if (isSuspended() && !showContactForm()) {
       <div class="suspension-notice">
         <div class="suspension-notice__icon">
           <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -171,14 +226,35 @@
 
         <div class="form-group">
           <label class="form-group__label" for="password">Mot de passe</label>
-          <input
-            type="password"
-            id="password"
-            formControlName="password"
-            class="input"
-            [class.input--error]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
-            placeholder="••••••••"
-          >
+          <div class="input-password-wrapper">
+            <input
+              [type]="showPassword() ? 'text' : 'password'"
+              id="password"
+              formControlName="password"
+              class="input"
+              [class.input--error]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+              placeholder="••••••••"
+            >
+            <button
+              type="button"
+              class="password-toggle"
+              (click)="togglePassword()"
+              [attr.aria-label]="showPassword() ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
+              [attr.aria-pressed]="showPassword()"
+            >
+              @if (showPassword()) {
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                  <line x1="1" y1="1" x2="23" y2="23"></line>
+                </svg>
+              } @else {
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              }
+            </button>
+          </div>
           @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
             <span class="form-group__error">8 caracteres minimum</span>
           }

@@ -1,27 +1,30 @@
 <div class="modal-backdrop" (click)="onBackdropClick($event)">
-  <div class="modal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="rating-modal-title" appFocusTrap>
     <div class="modal__header">
-      <h2>Evaluer votre cours</h2>
-      <button type="button" class="modal__close" (click)="onClose()">&times;</button>
+      <h2 id="rating-modal-title">Evaluer votre cours</h2>
+      <button type="button" class="modal__close" (click)="onClose()" aria-label="Fermer">&times;</button>
     </div>
 
     <div class="modal__body">
       <p class="teacher-name">Cours avec <strong>{{ teacherName }}</strong></p>
 
-      <div class="alert-inline-container">
-        <div class="alert-inline alert-inline--error" [class.alert-inline--visible]="error()">
+      <div class="alert-inline-container" aria-live="polite">
+        <div class="alert-inline alert-inline--error" [class.alert-inline--visible]="error()" role="alert">
           <span>{{ error() }}</span>
         </div>
       </div>
 
       <div class="stars-container">
-        <p class="stars-label">Votre note :</p>
-        <div class="stars" (mouseleave)="clearHoveredStars()">
+        <p class="stars-label" id="stars-label">Votre note :</p>
+        <div class="stars" role="radiogroup" aria-labelledby="stars-label" (mouseleave)="clearHoveredStars()">
           @for (star of [1, 2, 3, 4, 5]; track star) {
             <button
               type="button"
               class="star-btn"
+              role="radio"
               [class.star-btn--filled]="star <= getDisplayStars()"
+              [attr.aria-checked]="selectedStars() === star"
+              [attr.aria-label]="star + ' etoile' + (star > 1 ? 's' : '')"
               (mouseenter)="setHoveredStars(star)"
               (click)="selectStars(star)"
             >
@@ -29,7 +32,7 @@
             </button>
           }
         </div>
-        <p class="stars-text">
+        <p class="stars-text" aria-live="polite">
           @switch (getDisplayStars()) {
             @case (1) { Mauvais }
             @case (2) { Passable }
@@ -62,7 +65,7 @@
         (click)="onSubmit()"
       >
         @if (loading()) {
-          <span class="spinner spinner--sm"></span>
+          <span class="spinner spinner--sm" aria-hidden="true"></span>
           Envoi...
         } @else {
           Envoyer mon avis

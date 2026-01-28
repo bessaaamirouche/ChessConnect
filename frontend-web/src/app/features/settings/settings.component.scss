@@ -749,3 +749,79 @@ input[type="date"] {
   border: 1px solid rgba(251, 191, 36, 0.3);
   border-radius: var(--radius-md);
 }
+
+// Danger Zone (Account Deletion)
+.card--danger {
+  border-color: rgba(248, 113, 113, 0.3);
+  background: rgba(248, 113, 113, 0.03);
+}
+
+.card__title--danger {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  color: var(--error);
+  border-bottom-color: rgba(248, 113, 113, 0.2);
+}
+
+.danger-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+
+  @media (min-width: 600px) {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    flex: 1;
+  }
+
+  &__title {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+  }
+
+  &__description {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  &__warning {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-style: italic;
+    margin: 0;
+    padding-left: var(--space-sm);
+    border-left: 2px solid rgba(248, 113, 113, 0.3);
+  }
+
+  .btn--danger {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+    background: transparent;
+    color: var(--error);
+    border: 1px solid var(--error);
+
+    &:hover:not(:disabled) {
+      background: var(--error);
+      color: white;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+}

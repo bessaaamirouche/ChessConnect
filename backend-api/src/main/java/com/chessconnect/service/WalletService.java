@@ -240,4 +240,39 @@ public class WalletService {
         log.info("Credit refunded for user {} for lesson {}: {} cents ({}%). New balance: {} cents",
                 userId, lesson.getId(), refundAmount, refundPercentage, wallet.getBalanceCents());
     }
+
+    /**
+     * Admin refund - clears user wallet balance for manual refund (e.g., before account deletion).
+     * The admin must manually transfer the money to the user via bank transfer.
+     * @return the amount that was refunded (in cents)
+     */
+    @Transactional
+    public int adminRefundWallet(Long userId, String reason) {
+        StudentWallet wallet = walletRepository.findByUserId(userId).orElse(null);
+
+        if (wallet == null || wallet.getBalanceCents() <= 0) {
+            return 0;
+        }
+
+        int refundAmount = wallet.getBalanceCents();
+
+        // Record transaction before clearing
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        CreditTransaction transaction = new CreditTransaction();
+        transaction.setUser(user);
+        transaction.setTransactionType(CreditTransactionType.ADMIN_REFUND);
+        transaction.setAmountCents(refundAmount);
+        transaction.setDescription("Remboursement admin" + (reason != null && !reason.isBlank() ? ": " + reason : ""));
+        transactionRepository.save(transaction);
+
+        // Clear wallet balance
+        wallet.setBalanceCents(0);
+        walletRepository.save(wallet);
+
+        log.info("Admin refund for user {}: {} cents cleared. Reason: {}", userId, refundAmount, reason);
+
+        return refundAmount;
+    }
 }

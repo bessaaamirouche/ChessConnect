@@ -82,11 +82,6 @@ spring.mail:
         starttls:
           enable: true
 
-# Google Calendar Configuration
-google:
-  client-id: ${GOOGLE_CLIENT_ID:}
-  client-secret: ${GOOGLE_CLIENT_SECRET:}
-
 # Jitsi Configuration
 jitsi:
   app-id: ${JITSI_APP_ID:mychess}

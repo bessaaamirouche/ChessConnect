@@ -1,10 +1,11 @@
 import { Component, OnInit, signal, ChangeDetectionStrategy, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { SeoService } from '../../core/services/seo.service';
 import { DialogService } from '../../core/services/dialog.service';
+import { ToastService } from '../../core/services/toast.service';
 import { HttpClient } from '@angular/common/http';
 import { StripeConnectService, StripeConnectStatus } from '../../core/services/stripe-connect.service';
 import { AVAILABLE_LANGUAGES, User, UpdateUserRequest } from '../../core/models/user.model';
@@ -18,7 +19,9 @@ import {
   heroCreditCard,
   heroAcademicCap,
   heroUserCircle,
-  heroArrowRightOnRectangle
+  heroArrowRightOnRectangle,
+  heroTrash,
+  heroExclamationTriangle
 } from '@ng-icons/heroicons/outline';
 
 @Component({
@@ -34,7 +37,9 @@ import {
     heroCreditCard,
     heroAcademicCap,
     heroUserCircle,
-    heroArrowRightOnRectangle
+    heroArrowRightOnRectangle,
+    heroTrash,
+    heroExclamationTriangle
   })],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.scss'
@@ -86,7 +91,13 @@ export class SettingsComponent implements OnInit {
   withdrawAmount = signal(100); // Default 100€ minimum
   recalculatingBalance = signal(false);
 
+  // Account deletion
+  deletingAccount = signal(false);
+  deleteAccountError = signal<string | null>(null);
+
   private dialogService = inject(DialogService);
+  private toastService = inject(ToastService);
+  private router = inject(Router);
 
   constructor(
     private fb: FormBuilder,
@@ -502,6 +513,43 @@ export class SettingsComponent implements OnInit {
       error: (err) => {
         this.recalculatingBalance.set(false);
         this.stripeConnectError.set(err.error?.message || 'Erreur lors du recalcul');
+      }
+    });
+  }
+
+  // Account deletion (RGPD compliance)
+  async deleteAccount(): Promise<void> {
+    // First confirmation
+    const firstConfirm = await this.dialogService.confirm(
+      'Cette action est irreversible. Toutes vos donnees seront supprimees definitivement.',
+      'Supprimer mon compte',
+      { confirmText: 'Continuer', cancelText: 'Annuler', variant: 'danger' }
+    );
+    if (!firstConfirm) return;
+
+    // Ask for password
+    const password = await this.dialogService.prompt(
+      'Entrez votre mot de passe pour confirmer',
+      'Confirmation requise',
+      { confirmText: 'Supprimer definitivement', cancelText: 'Annuler', inputLabel: 'Mot de passe', inputType: 'password', variant: 'danger' }
+    );
+    if (!password) return;
+
+    this.deletingAccount.set(true);
+    this.deleteAccountError.set(null);
+
+    this.http.delete<{ message: string }>('/api/users/me', {
+      body: { password }
+    }).subscribe({
+      next: () => {
+        this.deletingAccount.set(false);
+        this.toastService.success('Votre compte a ete supprime avec succes');
+        this.authService.logout();
+        this.router.navigate(['/']);
+      },
+      error: (err) => {
+        this.deletingAccount.set(false);
+        this.deleteAccountError.set(err.error?.message || 'Erreur lors de la suppression du compte');
       }
     });
   }

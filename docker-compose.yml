@@ -46,9 +46,6 @@ services:
       SPRING_MAIL_USERNAME: ${MAIL_USERNAME:-}
       SPRING_MAIL_PASSWORD: ${MAIL_PASSWORD:-}
       SPRING_MAIL_ENABLED: ${MAIL_ENABLED:-false}
-      # Google Calendar Configuration
-      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
-      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
       # Admin Configuration
       ADMIN_EMAIL: ${ADMIN_EMAIL:-support@mychess.fr}
       # Jitsi Configuration

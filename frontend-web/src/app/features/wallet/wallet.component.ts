@@ -1,9 +1,10 @@
-import { Component, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, signal, ChangeDetectionStrategy, inject } from '@angular/core';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { WalletService, CreditTransaction } from '../../core/services/wallet.service';
 import { AuthService } from '../../core/services/auth.service';
 import { PaymentService } from '../../core/services/payment.service';
+import { UrlValidatorService } from '../../core/services/url-validator.service';
 import { EmbeddedCheckoutComponent } from '../../shared/embedded-checkout/embedded-checkout.component';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
@@ -59,6 +60,8 @@ export class WalletComponent implements OnInit {
     { amountCents: 10000, label: '100 €', popular: true },
     { amountCents: 20000, label: '200 €' }
   ];
+
+  private urlValidator = inject(UrlValidatorService);
 
   constructor(
     public walletService: WalletService,
@@ -130,7 +133,12 @@ export class WalletComponent implements OnInit {
           this.checkoutSessionId.set(response.sessionId);
           this.showCheckout.set(true);
         } else if (response.url) {
-          window.location.href = response.url;
+          // Validate URL before redirecting
+          if (this.urlValidator.isValidStripeUrl(response.url)) {
+            window.location.href = response.url;
+          } else {
+            console.error('Invalid checkout URL received');
+          }
         }
         this.processing.set(false);
       },

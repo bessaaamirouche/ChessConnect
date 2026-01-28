@@ -10,4 +10,4 @@ Disallow: /availability
 Disallow: /settings
 Disallow: /admin
 
-Sitemap: https://mychess.fr/sitemap.xml
+Sitemap: https://mychess.fr/api/sitemap.xml

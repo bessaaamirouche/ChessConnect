@@ -43,8 +43,8 @@ public class InvoiceService {
     private static final String PLATFORM_RCS = "R.C.S. Paris";
     private static final String PLATFORM_EMAIL = "support@mychess.fr";
 
-    // Commission rates (12.5% platform + 2.5% Stripe = 15% total)
-    private static final double STANDARD_COMMISSION_RATE = 12.5; // 12.5% platform
+    // Commission rates (10% platform + 2.5% Stripe = 12.5% total)
+    private static final double STANDARD_COMMISSION_RATE = 10.0; // 10% platform
     private static final double PROMO_COMMISSION_RATE = 2.5;     // 2.5% with CHESS2026
 
     @Value("${app.invoices.storage-path:/app/uploads/invoices}")

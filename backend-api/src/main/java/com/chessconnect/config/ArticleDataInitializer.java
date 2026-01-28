@@ -533,9 +533,9 @@ public class ArticleDataInitializer implements CommandLineRunner {
             - Lorsqu'un joueur reserve un cours, il paie en ligne
             - Apres le cours, les fonds sont credites sur votre compte Stripe
             - Vous pouvez demander un virement a tout moment
-            - Commission mychess : 15% (12.5% plateforme + 2.5% frais bancaires)
+            - Commission mychess : 12.5% (10% plateforme + 2.5% frais bancaires)
 
-            **Exemple** : Pour un cours a 50€, vous recevez 42.50€
+            **Exemple** : Pour un cours a 50€, vous recevez 43.75€
 
             ## Etape 5 : Recevoir et gerer vos reservations
 

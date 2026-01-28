@@ -270,7 +270,7 @@ Le frontend demarre sur `http://localhost:4200`
 - **Disponibilites:** Le coach cree des creneaux d'au moins 1h pour permettre une reservation
 - **Abonnement Premium:** 4,99€/mois pour fonctionnalités exclusives (pas de quota de cours)
 - **Paiement des cours:** Directement au tarif du coach (30€-80€/h)
-- **Commission:** 15% prélevés (12.5% plateforme + 2.5% Stripe)
+- **Commission:** 12.5% prélevés (10% plateforme + 2.5% Stripe)
 - **Premier Cours Offert:** Un cours gratuit pour les nouveaux joueurs
 
 ### Gestion des cours (Lessons)

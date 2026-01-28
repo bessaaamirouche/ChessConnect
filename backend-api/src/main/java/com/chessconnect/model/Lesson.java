@@ -15,7 +15,10 @@ import java.time.LocalDateTime;
 })
 public class Lesson {
 
-    public static final int COMMISSION_RATE = 15; // 15% (12.5% platform + 2.5% Stripe)
+    // Commission: 12.5% total (10% platform + 2.5% Stripe)
+    // Using 125/1000 for precise calculation
+    public static final int COMMISSION_RATE_NUMERATOR = 125;
+    public static final int COMMISSION_RATE_DENOMINATOR = 1000;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -124,7 +127,8 @@ public class Lesson {
 
     private void calculateCommission() {
         if (priceCents != null) {
-            this.commissionCents = (priceCents * COMMISSION_RATE) / 100;
+            // 12.5% commission = (price * 125) / 1000
+            this.commissionCents = (priceCents * COMMISSION_RATE_NUMERATOR) / COMMISSION_RATE_DENOMINATOR;
             this.teacherEarningsCents = priceCents - commissionCents;
         }
     }

@@ -61,14 +61,14 @@ public class TeacherBalanceService {
             if (teacherEarnings != null && teacherEarnings > 0) {
                 earningsCents = teacherEarnings;
             } else if (lesson.getPriceCents() != null && lesson.getPriceCents() > 0) {
-                // Fallback: calculer les gains à partir du prix (85% pour le coach, 15% commission)
-                earningsCents = (lesson.getPriceCents() * 85) / 100;
+                // Fallback: calculer les gains à partir du prix (87.5% pour le coach, 12.5% commission)
+                earningsCents = (lesson.getPriceCents() * 875) / 1000;
                 log.warn("TeacherEarningsCents was null for lesson {}, calculated from price: {}€",
                         lesson.getId(), earningsCents / 100.0);
             } else {
                 // Dernier recours: utiliser le tarif horaire du coach
                 earningsCents = lesson.getTeacher().getHourlyRateCents() != null
-                        ? (lesson.getTeacher().getHourlyRateCents() * 85) / 100
+                        ? (lesson.getTeacher().getHourlyRateCents() * 875) / 1000
                         : 0;
                 log.warn("Using teacher hourly rate as fallback for lesson {}: {}€",
                         lesson.getId(), earningsCents / 100.0);

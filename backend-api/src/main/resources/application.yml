@@ -1,6 +1,6 @@
 spring:
   application:
-    name: chessconnect-api
+    name: mychess-api
 
   # PostgreSQL Database
   datasource:

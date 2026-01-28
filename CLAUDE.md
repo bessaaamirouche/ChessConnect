@@ -600,7 +600,7 @@ Le logo mychess :
 
 ### Le backend ne demarre pas
 ```bash
-docker logs chessconnect-backend --tail 50
+docker logs mychess-backend --tail 50
 ```
 
 ### Les conteneurs ne demarrent pas
@@ -633,7 +633,7 @@ ports:
 ### Probleme de fuseau horaire
 Verifier que le conteneur est en heure Paris :
 ```bash
-docker exec chessconnect-backend date
+docker exec mychess-backend date
 ```
 
 ### Les paiements ne fonctionnent pas

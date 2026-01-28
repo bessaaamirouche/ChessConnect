@@ -7,7 +7,7 @@
 set -e
 
 # Configuration
-CONTAINER_NAME="chessconnect-db"
+CONTAINER_NAME="mychess-db"
 
 # Charger les variables d'environnement
 if [ -f .env ]; then
@@ -58,7 +58,7 @@ fi
 
 # Arrêter le backend pour éviter les connexions
 echo "Arrêt du backend..."
-docker stop chessconnect-backend 2>/dev/null || true
+docker stop mychess-backend 2>/dev/null || true
 
 # Recréer la base de données
 echo "Recréation de la base de données..."
@@ -71,7 +71,7 @@ gunzip -c "$BACKUP_FILE" | docker exec -i "$CONTAINER_NAME" psql -U "$DB_USER" -
 
 # Redémarrer le backend
 echo "Redémarrage du backend..."
-docker start chessconnect-backend
+docker start mychess-backend
 
 echo ""
 echo "========================================"

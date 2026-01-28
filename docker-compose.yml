@@ -2,7 +2,7 @@ services:
   # PostgreSQL Database
   postgres:
     image: postgres:16-alpine
-    container_name: chessconnect-db
+    container_name: mychess-db
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-chessconnect}
       POSTGRES_USER: ${POSTGRES_USER:-chess}
@@ -19,7 +19,7 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - chessconnect-network
+      - mychess-network
     restart: unless-stopped
 
   # Spring Boot Backend
@@ -27,7 +27,7 @@ services:
     build:
       context: ./backend-api
       dockerfile: Dockerfile
-    container_name: chessconnect-backend
+    container_name: mychess-backend
     environment:
       TZ: Europe/Paris
       SPRING_PROFILES_ACTIVE: docker
@@ -63,7 +63,7 @@ services:
       postgres:
         condition: service_healthy
     networks:
-      - chessconnect-network
+      - mychess-network
     restart: unless-stopped
 
   # Angular Frontend (SSR with Node.js)
@@ -71,7 +71,7 @@ services:
     build:
       context: ./frontend-web
       dockerfile: Dockerfile
-    container_name: chessconnect-frontend
+    container_name: mychess-frontend
     environment:
       PORT: 4000
       API_URL: http://backend:8282/api
@@ -80,11 +80,11 @@ services:
     depends_on:
       - backend
     networks:
-      - chessconnect-network
+      - mychess-network
     restart: unless-stopped
 
 networks:
-  chessconnect-network:
+  mychess-network:
     driver: bridge
 
 volumes:

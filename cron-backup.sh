@@ -17,7 +17,7 @@ fi
 chmod +x "$BACKUP_SCRIPT"
 
 # Créer le fichier cron
-CRON_FILE="/etc/cron.d/chessconnect-backup"
+CRON_FILE="/etc/cron.d/mychess-backup"
 
 cat > "$CRON_FILE" << EOF
 # ChessConnect - Backup automatique PostgreSQL
@@ -25,27 +25,27 @@ SHELL=/bin/bash
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 
 # Backup quotidien à 3h du matin (retention: 7 jours)
-0 3 * * * root cd $SCRIPT_DIR && ./backup.sh daily >> /var/log/chessconnect-backup.log 2>&1
+0 3 * * * root cd $SCRIPT_DIR && ./backup.sh daily >> /var/log/mychess-backup.log 2>&1
 
 # Backup hebdomadaire le dimanche à 4h du matin (retention: 30 jours)
-0 4 * * 0 root cd $SCRIPT_DIR && ./backup.sh weekly >> /var/log/chessconnect-backup.log 2>&1
+0 4 * * 0 root cd $SCRIPT_DIR && ./backup.sh weekly >> /var/log/mychess-backup.log 2>&1
 
 # Backup mensuel le 1er du mois à 5h du matin (retention: 365 jours)
-0 5 1 * * root cd $SCRIPT_DIR && ./backup.sh monthly >> /var/log/chessconnect-backup.log 2>&1
+0 5 1 * * root cd $SCRIPT_DIR && ./backup.sh monthly >> /var/log/mychess-backup.log 2>&1
 
 # VACUUM ANALYZE hebdomadaire le dimanche à 2h du matin
-0 2 * * 0 root docker exec chessconnect-db psql -U chess -d chessconnect -c "VACUUM ANALYZE;" >> /var/log/chessconnect-vacuum.log 2>&1
+0 2 * * 0 root docker exec mychess-db psql -U chess -d mychess -c "VACUUM ANALYZE;" >> /var/log/mychess-vacuum.log 2>&1
 
 # Nettoyage des logs de plus de 30 jours
-0 6 * * 0 root find /var/log -name "chessconnect-*.log" -mtime +30 -delete 2>/dev/null
+0 6 * * 0 root find /var/log -name "mychess-*.log" -mtime +30 -delete 2>/dev/null
 EOF
 
 chmod 644 "$CRON_FILE"
 
 # Créer le fichier de rotation des logs
-LOGROTATE_FILE="/etc/logrotate.d/chessconnect"
+LOGROTATE_FILE="/etc/logrotate.d/mychess"
 cat > "$LOGROTATE_FILE" << EOF
-/var/log/chessconnect-*.log {
+/var/log/mychess-*.log {
     weekly
     rotate 4
     compress
@@ -75,10 +75,10 @@ echo "Maintenance DB:"
 echo "  - VACUUM ANALYZE: dimanche à 2h00"
 echo ""
 echo "Logs:"
-echo "  - Backup: /var/log/chessconnect-backup.log"
-echo "  - Vacuum: /var/log/chessconnect-vacuum.log"
+echo "  - Backup: /var/log/mychess-backup.log"
+echo "  - Vacuum: /var/log/mychess-vacuum.log"
 echo ""
 echo "Commandes utiles:"
-echo "  - Voir les crons: cat /etc/cron.d/chessconnect-backup"
+echo "  - Voir les crons: cat /etc/cron.d/mychess-backup"
 echo "  - Backup manuel:  ./backup.sh manual"
-echo "  - Voir les logs:  tail -f /var/log/chessconnect-backup.log"
+echo "  - Voir les logs:  tail -f /var/log/mychess-backup.log"

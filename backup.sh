@@ -9,7 +9,7 @@ set -e
 # Configuration
 BACKUP_DIR="./backups"
 LOG_DIR="./backups/logs"
-CONTAINER_NAME="chessconnect-db"
+CONTAINER_NAME="mychess-db"
 DATE=$(date +%Y%m%d_%H%M%S)
 DATE_HUMAN=$(date '+%Y-%m-%d %H:%M:%S')
 

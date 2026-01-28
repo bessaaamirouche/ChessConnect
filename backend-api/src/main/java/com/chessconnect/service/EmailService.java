@@ -58,7 +58,7 @@ public class EmailService {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-            helper.setFrom(fromEmail);
+            helper.setFrom(fromEmail, appName);
             helper.setTo(to);
             helper.setSubject(subject);
             helper.setText(htmlContent, true);
@@ -66,7 +66,7 @@ public class EmailService {
             mailSender.send(message);
             log.info("Email sent successfully to {} with subject '{}'", to, subject);
 
-        } catch (MessagingException e) {
+        } catch (MessagingException | java.io.UnsupportedEncodingException e) {
             log.error("Failed to send email to {}: {}", to, e.getMessage());
         }
     }

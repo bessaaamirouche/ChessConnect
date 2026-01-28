@@ -118,6 +118,11 @@ sudo ufw allow 8282
 - **Indicateur de presence** : Pastille verte quand un coach est en ligne
 - **Blog SEO** : Articles optimises pour le referencement avec support Markdown
 - **Design Apple-like** : Animations scroll, sections immersives, effets parallax
+- **Evaluation des Coachs** : Systeme de notation 5 etoiles apres chaque cours avec commentaires
+- **Coachs Favoris** : Ajoutez vos coachs preferes en favoris avec notifications de nouveaux creneaux
+- **Google Calendar** : Synchronisation automatique des cours avec votre agenda Google
+- **Rappels Email** : Notification automatique 1 heure avant chaque cours
+- **Enregistrement Video** : Les cours sont enregistres via Jibri pour revisionnage (Premium)
 
 ### Systeme d'annulation et remboursement
 
@@ -440,6 +445,38 @@ Compte:
 | GET     | `/{id}`               | Detail d'un exercice            | PREMIUM |
 | GET     | `/`                   | Liste des exercices             | PREMIUM |
 
+### Evaluations (`/api/ratings`)
+| Methode | Endpoint                    | Description                     | Auth    |
+|---------|-----------------------------|---------------------------------|---------|
+| POST    | `/`                         | Creer une evaluation            | STUDENT |
+| GET     | `/teacher/{teacherId}`      | Evaluations d'un coach          | Non     |
+| GET     | `/teacher/{teacherId}/summary` | Moyenne et nombre d'avis     | Non     |
+| GET     | `/lesson/{lessonId}`        | Evaluation d'un cours           | JWT     |
+| GET     | `/my-rated-lessons`         | Mes cours deja evalues          | STUDENT |
+
+### Favoris (`/api/favorites`)
+| Methode | Endpoint                 | Description                        | Auth    |
+|---------|--------------------------|------------------------------------|---------|
+| POST    | `/{teacherId}`           | Ajouter un coach en favori         | STUDENT |
+| DELETE  | `/{teacherId}`           | Retirer un coach des favoris       | STUDENT |
+| GET     | `/`                      | Liste de mes coachs favoris        | STUDENT |
+| GET     | `/{teacherId}/status`    | Verifier si coach est en favori    | STUDENT |
+| PATCH   | `/{teacherId}/notify`    | Activer/desactiver notifications   | STUDENT |
+
+### Google Calendar (`/api/calendar`)
+| Methode | Endpoint                 | Description                        | Auth    |
+|---------|--------------------------|------------------------------------|---------|
+| GET     | `/google/auth-url`       | URL d'autorisation OAuth           | JWT     |
+| POST    | `/google/callback`       | Callback OAuth (echange de code)   | JWT     |
+| DELETE  | `/google/disconnect`     | Deconnecter Google Calendar        | JWT     |
+| GET     | `/google/status`         | Statut de connexion                | JWT     |
+
+### Enregistrements (`/api/recordings`)
+| Methode | Endpoint                 | Description                        | Auth    |
+|---------|--------------------------|------------------------------------|---------|
+| POST    | `/webhook`               | Webhook Jibri (fin d'enregistrement) | Non   |
+| GET     | `/video/{lessonId}`      | Recuperer la video d'un cours      | JWT     |
+
 ## Variables d'Environnement
 
 Creer un fichier `.env` a la racine du projet (voir `.env.example`) :
@@ -458,6 +495,16 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 
 # Jitsi (obligatoire pour les appels video)
 JITSI_APP_SECRET=votre_secret_jitsi
+
+# Google Calendar (optionnel)
+GOOGLE_CLIENT_ID=votre_client_id_google
+GOOGLE_CLIENT_SECRET=votre_client_secret_google
+
+# Email SMTP (pour les rappels)
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=votre_email@gmail.com
+MAIL_PASSWORD=votre_mot_de_passe_app
 ```
 
 Variables configurees dans `docker-compose.yml` :
@@ -601,10 +648,11 @@ Verifier que `FRONTEND_URL` dans `docker-compose.yml` correspond a l'URL utilise
 ## Problemes Connus
 
 ### Enregistrement video Jitsi
-- **Statut** : Non fonctionnel
-- L'enregistrement automatique des cours via Jitsi Meet ne fonctionne pas encore
-- La commande `startRecording` est appelee mais Jitsi necessite une configuration serveur specifique (Jibri) pour l'enregistrement
-- A investiguer : configuration Jibri sur le serveur meet.mychess.fr ou solution alternative
+- **Statut** : Implemente (necessite configuration serveur)
+- L'integration Jibri est implementee avec webhook pour recevoir les enregistrements
+- Le backend stocke l'URL de la video dans `lessons.recording_url`
+- **Pre-requis** : Serveur Jibri configure et operationnel
+- Endpoint webhook : `POST /api/recordings/webhook`
 
 ### Paiement des coachs via Stripe Connect
 - **Statut** : Implemente
@@ -613,25 +661,40 @@ Verifier que `FRONTEND_URL` dans `docker-compose.yml` correspond a l'URL utilise
 - Le transfert Stripe est enregistre avec l'ID de transaction
 - Pre-requis pour recevoir des paiements : compte Stripe Connect configure et verifie
 
-## Fonctionnalites a Implementer
+## Fonctionnalites Implementees (anciennement a faire)
 
-### 1. Evaluation des Coachs
-- Apres la fin d'un cours, le joueur peut evaluer le coach sur 5 etoiles
-- La note moyenne est affichee sur le coachil du coach
+Toutes les fonctionnalites initialement prevues ont ete implementees :
 
-### 2. Coachs Favoris et Abonnement
-- Le joueur peut mettre un coach en favori pour le voir en haut de la liste lors de la reservation
-- Bouton "S'abonner" pour recevoir un email quand le coach publie de nouveaux creneaux
+### 1. Evaluation des Coachs ✅
+- Systeme de notation 5 etoiles apres chaque cours termine
+- Commentaires optionnels
+- Note moyenne affichee sur le profil du coach
+- Cache Caffeine pour les performances
+- Fichiers : `RatingController.java`, `RatingService.java`, `Rating.java`, `rating.service.ts`, `rating-modal.component.ts`
 
-### 3. Integration Google Calendar
-- Ajouter automatiquement les creneaux reserves dans l'agenda Google de le joueur et du coach
+### 2. Coachs Favoris et Abonnement ✅
+- Ajout/suppression de coachs favoris
+- Option de notification quand un coach favori publie de nouveaux creneaux
+- Liste des favoris accessible dans le profil joueur
+- Fichiers : `FavoriteController.java`, `FavoriteTeacherService.java`, `FavoriteTeacher.java`, `favorite.service.ts`
 
-### 4. Rappel par Email
-- Envoyer un email de rappel 1 heure avant le cours
-- Option configurable dans les preferences utilisateur
+### 3. Integration Google Calendar ✅
+- Authentification OAuth 2.0 complete
+- Creation automatique d'evenements lors de la reservation d'un cours
+- Suppression automatique lors de l'annulation
+- Lien Jitsi inclus dans l'evenement
+- Fichiers : `CalendarController.java`, `GoogleCalendarService.java`, `GoogleCalendarConfig.java`
 
-### 5. Enregistrement des appels video
-Lorsqu'un appel video est lance, la session doit etre :
-- Enregistree automatiquement
-- Stockee sur le serveur
-- Accessible ulterieurement pour consultation par l'admin en cas d'infraction du coach (signale par l'etudiant) et accessible dans l'historique des cours de chaque joueur pour revisionner le cours
+### 4. Rappel par Email ✅
+- Scheduler automatique toutes les 15 minutes
+- Email envoye 1 heure avant le cours (fenetre 45-75 min)
+- Preference utilisateur `emailRemindersEnabled` (activee par defaut)
+- Templates Thymeleaf pour les emails
+- Fichiers : `LessonReminderService.java`, `EmailService.java`
+
+### 5. Enregistrement des appels video ✅
+- Integration Jibri via webhook
+- Stockage URL dans `lessons.recording_url`
+- Endpoint de recuperation des videos
+- Nettoyage automatique des fichiers lors de la suppression d'un cours
+- Fichiers : `RecordingController.java`, `LessonService.java`

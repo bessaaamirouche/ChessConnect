@@ -173,6 +173,7 @@ export interface LessonResponse {
   teacherEarningsCents?: number;
   isFromSubscription?: boolean;
   isFreeTrial?: boolean;
+  freeTrialStartedAt?: string;
   notes?: string;
   cancellationReason?: string;
   cancelledBy?: string;

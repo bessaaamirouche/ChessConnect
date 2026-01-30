@@ -103,6 +103,9 @@ public class Lesson {
     @Column(name = "is_free_trial")
     private Boolean isFreeTrial = false;
 
+    @Column(name = "free_trial_started_at")
+    private LocalDateTime freeTrialStartedAt;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id")
     private Course course;
@@ -211,6 +214,9 @@ public class Lesson {
 
     public Boolean getIsFreeTrial() { return isFreeTrial; }
     public void setIsFreeTrial(Boolean isFreeTrial) { this.isFreeTrial = isFreeTrial; }
+
+    public LocalDateTime getFreeTrialStartedAt() { return freeTrialStartedAt; }
+    public void setFreeTrialStartedAt(LocalDateTime freeTrialStartedAt) { this.freeTrialStartedAt = freeTrialStartedAt; }
 
     public Course getCourse() { return course; }
     public void setCourse(Course course) { this.course = course; }

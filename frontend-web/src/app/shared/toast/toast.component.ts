@@ -49,7 +49,7 @@ import {
       position: fixed;
       top: 1.5rem;
       right: 1.5rem;
-      z-index: var(--z-toast, 400);
+      z-index: var(--z-toast, 9000);
       display: flex;
       flex-direction: column;
       gap: 0.75rem;

@@ -115,6 +115,7 @@ export class LessonListComponent implements OnInit, OnDestroy {
   videoCallIsFreeTrial = signal(false);
   videoCallDurationMinutes = signal(60);
   videoCallLessonId = signal<number | null>(null);
+  videoCallFreeTrialStartedAt = signal<string | null>(null);
 
   // History filters
   historyFilterPerson = signal<string>('');
@@ -378,7 +379,13 @@ export class LessonListComponent implements OnInit, OnDestroy {
     // Si c'est un prof, marquer qu'il a rejoint l'appel
     if (this.authService.isTeacher()) {
       this.lessonService.markTeacherJoined(lesson.id).subscribe({
-        next: () => console.log('Teacher marked as joined'),
+        next: (updatedLesson) => {
+          console.log('Teacher marked as joined');
+          // Mettre à jour freeTrialStartedAt si c'est un cours découverte
+          if (updatedLesson.freeTrialStartedAt) {
+            this.videoCallFreeTrialStartedAt.set(updatedLesson.freeTrialStartedAt);
+          }
+        },
         error: (err) => console.warn('Could not mark teacher as joined:', err)
       });
     }
@@ -392,6 +399,7 @@ export class LessonListComponent implements OnInit, OnDestroy {
         this.videoCallIsFreeTrial.set(isFreeTrial);
         this.videoCallDurationMinutes.set(durationMinutes);
         this.videoCallLessonId.set(lesson.id);
+        this.videoCallFreeTrialStartedAt.set(lesson.freeTrialStartedAt || null);
         this.showVideoCall.set(true);
 
         // Start polling for lesson status (students only) to auto-hang up when coach ends
@@ -408,6 +416,7 @@ export class LessonListComponent implements OnInit, OnDestroy {
         this.videoCallIsFreeTrial.set(isFreeTrial);
         this.videoCallDurationMinutes.set(durationMinutes);
         this.videoCallLessonId.set(lesson.id);
+        this.videoCallFreeTrialStartedAt.set(lesson.freeTrialStartedAt || null);
         this.showVideoCall.set(true);
 
         // Start polling for lesson status (students only) to auto-hang up when coach ends
@@ -438,6 +447,7 @@ export class LessonListComponent implements OnInit, OnDestroy {
     this.videoCallIsFreeTrial.set(false);
     this.videoCallDurationMinutes.set(60);
     this.videoCallLessonId.set(null);
+    this.videoCallFreeTrialStartedAt.set(null);
   }
 
   // Start polling to check if lesson was completed (for students to auto-hang up)
@@ -464,32 +474,6 @@ export class LessonListComponent implements OnInit, OnDestroy {
     if (this.lessonStatusCheckInterval) {
       clearInterval(this.lessonStatusCheckInterval);
       this.lessonStatusCheckInterval = null;
-    }
-  }
-
-  endLessonFromCall(): void {
-    const lessonId = this.videoCallLessonId();
-    if (lessonId) {
-      // Find the lesson to get studentId before completing
-      const lesson = this.lessonService.upcomingLessons().find(l => l.id === lessonId);
-      const studentId = lesson?.studentId;
-
-      this.lessonService.completeLesson(lessonId).subscribe({
-        next: () => {
-          console.log('Lesson completed successfully');
-          this.closeVideoCall();
-          // Open student profile modal for course validation (teachers only)
-          if (this.authService.isTeacher() && studentId) {
-            this.openStudentProfile(studentId);
-          }
-        },
-        error: (err) => {
-          console.error('Error completing lesson:', err);
-          this.closeVideoCall();
-        }
-      });
-    } else {
-      this.closeVideoCall();
     }
   }
 

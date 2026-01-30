@@ -454,7 +454,15 @@ public class LessonService {
             throw new IllegalArgumentException("Can only join confirmed lessons");
         }
 
-        lesson.setTeacherJoinedAt(LocalDateTime.now());
+        LocalDateTime now = LocalDateTime.now();
+        lesson.setTeacherJoinedAt(now);
+
+        // Pour les cours découverte, enregistrer le moment du premier accès
+        // pour que le chrono soit persistant même si on quitte/revient
+        if (Boolean.TRUE.equals(lesson.getIsFreeTrial()) && lesson.getFreeTrialStartedAt() == null) {
+            lesson.setFreeTrialStartedAt(now);
+        }
+
         lessonRepository.save(lesson);
 
         return LessonResponse.from(lesson);

@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, signal, PLATFORM_ID, Inject, ElementRef, ViewChild, AfterViewInit, inject, HostListener } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
-import { heroXMark, heroVideoCamera, heroClock, heroCheckCircle } from '@ng-icons/heroicons/outline';
+import { heroXMark, heroVideoCamera, heroClock } from '@ng-icons/heroicons/outline';
 import { ToastService } from '../../core/services/toast.service';
 
 declare var JitsiMeetExternalAPI: any;
@@ -10,7 +10,7 @@ declare var JitsiMeetExternalAPI: any;
   selector: 'app-video-call',
   standalone: true,
   imports: [NgIconComponent],
-  viewProviders: [provideIcons({ heroXMark, heroVideoCamera, heroClock, heroCheckCircle })],
+  viewProviders: [provideIcons({ heroXMark, heroVideoCamera, heroClock })],
   template: `
     <div class="video-call-overlay" (click)="onClose()">
       <div class="video-call-container" role="dialog" aria-modal="true" aria-labelledby="video-call-title" (click)="$event.stopPropagation()">
@@ -38,13 +38,7 @@ declare var JitsiMeetExternalAPI: any;
             }
           </div>
           <div class="video-call-header__actions">
-            @if (isTeacher) {
-              <button class="video-call-header__end-btn" (click)="onEndLesson()" aria-label="Terminer le cours">
-                <ng-icon name="heroCheckCircle" size="18" aria-hidden="true"></ng-icon>
-                Terminer
-              </button>
-            }
-            <button class="video-call-header__close" (click)="onClose()" aria-label="Fermer la visioconference">
+            <button class="video-call-header__close" (click)="onClose()" title="Quitter la réunion" aria-label="Fermer la visioconference">
               <ng-icon name="heroXMark" size="24" aria-hidden="true"></ng-icon>
             </button>
           </div>
@@ -100,26 +94,6 @@ declare var JitsiMeetExternalAPI: any;
         display: flex;
         align-items: center;
         gap: 0.75rem;
-      }
-
-      &__end-btn {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        background: rgba(34, 197, 94, 0.15);
-        border: 1px solid rgba(34, 197, 94, 0.3);
-        color: #22c55e;
-        cursor: pointer;
-        padding: 0.5rem 1rem;
-        border-radius: var(--radius-md);
-        font-size: 0.875rem;
-        font-weight: 500;
-        transition: all var(--transition-fast);
-
-        &:hover {
-          background: rgba(34, 197, 94, 0.25);
-          border-color: rgba(34, 197, 94, 0.5);
-        }
       }
 
       &__close {
@@ -221,8 +195,8 @@ export class VideoCallComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() jwtToken?: string;
   @Input() isFreeTrial = false;
   @Input() durationMinutes = 60;
+  @Input() freeTrialStartedAt?: string | null; // ISO date string from backend
   @Output() closed = new EventEmitter<void>();
-  @Output() lessonEnded = new EventEmitter<void>();
 
   isRecording = signal(false);
   timerDisplay = signal('');
@@ -359,7 +333,15 @@ export class VideoCallComponent implements OnInit, OnDestroy, AfterViewInit {
   private startTimer(): void {
     // For free trial, duration is 15 minutes
     const duration = 15 * 60 * 1000; // 15 minutes in ms
-    this.timerStartTime = Date.now();
+
+    // Utiliser freeTrialStartedAt du backend si disponible (persistance du timer)
+    // Sinon utiliser l'heure actuelle (premier accès)
+    if (this.freeTrialStartedAt) {
+      this.timerStartTime = new Date(this.freeTrialStartedAt).getTime();
+    } else {
+      this.timerStartTime = Date.now();
+    }
+
     const endTime = this.timerStartTime + duration;
 
     this.updateTimerDisplay(endTime);
@@ -406,32 +388,11 @@ export class VideoCallComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  onEndLesson(): void {
-    if (this.api) {
-      // Stop recording before ending
-      if (this.isRecording()) {
-        try {
-          this.api.executeCommand('stopRecording', 'file');
-        } catch (err) {
-          console.warn('[Jitsi] Could not stop recording:', err);
-        }
-      }
-      this.api.dispose();
-      this.api = null;
-    }
-    this.lessonEnded.emit();
-  }
-
   onClose(): void {
+    // Ne pas arrêter l'enregistrement quand on quitte temporairement
+    // L'enregistrement continuera tant qu'il y a des participants dans la room
+    // Il sera arrêté automatiquement par Jibri quand la room sera vide
     if (this.api) {
-      // Stop recording before closing if it's running
-      if (this.isRecording()) {
-        try {
-          this.api.executeCommand('stopRecording', 'file');
-        } catch (err) {
-          console.warn('[Jitsi] Could not stop recording:', err);
-        }
-      }
       this.api.dispose();
       this.api = null;
     }

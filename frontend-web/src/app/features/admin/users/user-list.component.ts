@@ -92,7 +92,7 @@ import { DialogService } from '../../../core/services/dialog.service';
                   <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
                   <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                 </svg>
-                <p>Aucun utilisateur actif trouve</p>
+                <p>Aucun utilisateur actif trouvé</p>
               </div>
             } @else {
               <table class="table">
@@ -102,7 +102,7 @@ import { DialogService } from '../../../core/services/dialog.service';
                     <th>Role</th>
                     <th>Cours</th>
                     <th>Inscription</th>
-                    <th>Derniere connexion</th>
+                    <th>Dernière connexion</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -147,7 +147,7 @@ import { DialogService } from '../../../core/services/dialog.service';
                             class="action-btn action-btn--delete"
                             (click)="deleteUser(user)"
                             [disabled]="actionLoading()"
-                            title="Supprimer definitivement"
+                            title="Supprimer définitivement"
                           >
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                               <polyline points="3 6 5 6 21 6"></polyline>
@@ -171,7 +171,7 @@ import { DialogService } from '../../../core/services/dialog.service';
         @if (activeTab() === 'blacklist') {
           <div class="table-container table-container--blacklist">
             <div class="table-header table-header--blacklist">
-              <span class="results-count">{{ filteredBlacklistedUsers().length }} utilisateur(s) blackliste(s)</span>
+              <span class="results-count">{{ filteredBlacklistedUsers().length }} utilisateur(s) blacklisté(s)</span>
             </div>
             @if (filteredBlacklistedUsers().length === 0) {
               <div class="empty-state">
@@ -179,7 +179,7 @@ import { DialogService } from '../../../core/services/dialog.service';
                   <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                   <polyline points="22 4 12 14.01 9 11.01"></polyline>
                 </svg>
-                <p>Aucun utilisateur blackliste</p>
+                <p>Aucun utilisateur blacklisté</p>
               </div>
             } @else {
               <table class="table">
@@ -189,7 +189,7 @@ import { DialogService } from '../../../core/services/dialog.service';
                     <th>Role</th>
                     <th>Cours</th>
                     <th>Inscription</th>
-                    <th>Derniere connexion</th>
+                    <th>Dernière connexion</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -228,13 +228,13 @@ import { DialogService } from '../../../core/services/dialog.service';
                               <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                               <polyline points="22 4 12 14.01 9 11.01"></polyline>
                             </svg>
-                            Reactiver
+                            Réactiver
                           </button>
                           <button
                             class="action-btn action-btn--delete"
                             (click)="deleteUser(user)"
                             [disabled]="actionLoading()"
-                            title="Supprimer definitivement"
+                            title="Supprimer définitivement"
                           >
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                               <polyline points="3 6 5 6 21 6"></polyline>
@@ -261,7 +261,7 @@ import { DialogService } from '../../../core/services/dialog.service';
               [disabled]="currentPage() === 0"
               (click)="loadUsers(currentPage() - 1)"
             >
-              Precedent
+              Précédent
             </button>
             <span>Page {{ currentPage() + 1 }} / {{ users()!.totalPages }}</span>
             <button
@@ -797,8 +797,8 @@ export class UserListComponent implements OnInit {
   async suspendUser(user: UserListResponse): Promise<void> {
     const reason = await this.dialogService.prompt(
       `Pourquoi blacklister ${user.firstName} ${user.lastName} ?`,
-      'Ajouter a la blacklist',
-      { inputLabel: 'Motif', inputPlaceholder: 'Ex: Comportement inapproprie...', variant: 'warning' }
+      'Ajouter à la blacklist',
+      { inputLabel: 'Motif', inputPlaceholder: 'Ex: Comportement inapproprié...', variant: 'warning' }
     );
     if (!reason) return;
 
@@ -826,7 +826,7 @@ export class UserListComponent implements OnInit {
       },
       error: () => {
         this.actionLoading.set(false);
-        this.dialogService.alert('Erreur lors de la reactivation', 'Erreur', { variant: 'danger' });
+        this.dialogService.alert('Erreur lors de la réactivation', 'Erreur', { variant: 'danger' });
       }
     });
   }
@@ -861,9 +861,9 @@ export class UserListComponent implements OnInit {
 
   private async confirmAndDelete(user: UserListResponse): Promise<void> {
     const confirmed = await this.dialogService.confirm(
-      `Etes-vous sur de vouloir supprimer definitivement ${user.firstName} ${user.lastName} ?\n\nCette action est irreversible et supprimera toutes les donnees associees.`,
+      `Êtes-vous sûr de vouloir supprimer définitivement ${user.firstName} ${user.lastName} ?\n\nCette action est irréversible et supprimera toutes les données associées.`,
       'Supprimer l\'utilisateur',
-      { confirmText: 'Supprimer definitivement', cancelText: 'Annuler', variant: 'danger' }
+      { confirmText: 'Supprimer définitivement', cancelText: 'Annuler', variant: 'danger' }
     );
     if (confirmed) {
       this.performDelete(user);
@@ -881,12 +881,12 @@ export class UserListComponent implements OnInit {
         if (response.requiresManualRefund) {
           const amount = (response.refundedAmountCents / 100).toFixed(2);
           this.dialogService.alert(
-            `Utilisateur supprime.\n\n${amount} EUR a rembourser manuellement par virement bancaire.`,
+            `Utilisateur supprimé.\n\n${amount} EUR à rembourser manuellement par virement bancaire.`,
             'Remboursement requis',
             { variant: 'warning' }
           );
         } else {
-          this.dialogService.alert('Utilisateur supprime avec succes.', 'Succes', { variant: 'success' });
+          this.dialogService.alert('Utilisateur supprimé avec succès.', 'Succès', { variant: 'success' });
         }
       },
       error: (err) => {

@@ -6,7 +6,7 @@ import { Observable, tap } from 'rxjs';
 import { AuthResponse, LoginRequest, RegisterRequest, RegisterResponse, UpdateTeacherProfileRequest, User, UserRole } from '../models/user.model';
 import { NotificationCenterService } from './notification-center.service';
 
-const TOKEN_KEY = 'chess_token';
+// Only store non-sensitive user info, not the token
 const USER_KEY = 'chess_user';
 const LAST_ACTIVITY_KEY = 'chess_last_activity';
 
@@ -18,13 +18,12 @@ export class AuthService {
   private readonly platformId = inject(PLATFORM_ID);
 
   private currentUserSignal = signal<User | null>(null);
-  private tokenSignal = signal<string | null>(null);
   private notificationCenterService = inject(NotificationCenterService);
 
   readonly currentUser = this.currentUserSignal.asReadonly();
-  readonly token = this.tokenSignal.asReadonly();
 
-  readonly isAuthenticated = computed(() => !!this.tokenSignal());
+  // Authentication is now managed via HttpOnly cookies, not localStorage tokens
+  readonly isAuthenticated = computed(() => !!this.currentUserSignal());
   readonly isStudent = computed(() => this.currentUserSignal()?.role === 'STUDENT');
   readonly isTeacher = computed(() => this.currentUserSignal()?.role === 'TEACHER');
   readonly isAdmin = computed(() => this.currentUserSignal()?.role === 'ADMIN');
@@ -36,7 +35,6 @@ export class AuthService {
     // Initialize from storage only in browser
     if (isPlatformBrowser(this.platformId)) {
       this.currentUserSignal.set(this.loadUserFromStorage());
-      this.tokenSignal.set(this.loadTokenFromStorage());
 
       // Initialize notifications for current user if already logged in
       // Use setTimeout to defer to avoid circular dependency during construction
@@ -89,18 +87,17 @@ export class AuthService {
 
   private clearLocalAuth(): void {
     if (isPlatformBrowser(this.platformId)) {
-      localStorage.removeItem(TOKEN_KEY);
       localStorage.removeItem(USER_KEY);
       localStorage.removeItem(LAST_ACTIVITY_KEY);
     }
     this.currentUserSignal.set(null);
-    this.tokenSignal.set(null);
     // Clear notifications when logging out
     this.notificationCenterService.clearOnLogout();
     this.router.navigate(['/']);
   }
 
   private handleAuthResponse(response: AuthResponse): void {
+    // Store only non-sensitive user info (not the token)
     const user: User = {
       id: response.userId,
       email: response.email,
@@ -110,22 +107,16 @@ export class AuthService {
     };
 
     if (isPlatformBrowser(this.platformId)) {
-      localStorage.setItem(TOKEN_KEY, response.token);
+      // Don't store the token - it's managed via HttpOnly cookies
       localStorage.setItem(USER_KEY, JSON.stringify(user));
       // Reset last activity timestamp on login to prevent false inactivity logout
       localStorage.setItem(LAST_ACTIVITY_KEY, Date.now().toString());
     }
 
-    this.tokenSignal.set(response.token);
     this.currentUserSignal.set(user);
 
     // Initialize notifications for this user (loads their own notifications, not previous user's)
     this.notificationCenterService.initializeForUser(response.userId);
-  }
-
-  private loadTokenFromStorage(): string | null {
-    if (typeof window === 'undefined') return null;
-    return localStorage.getItem(TOKEN_KEY);
   }
 
   private loadUserFromStorage(): User | null {

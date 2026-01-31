@@ -37,9 +37,9 @@
         <div class="pending-validation-banner__content">
           <strong>{{ pendingValidations().length }}</strong>
           @if (pendingValidations().length === 1) {
-            cours a valider
+            cours à valider
           } @else {
-            cours a valider
+            cours à valider
           }
         </div>
         <button class="btn btn--secondary btn--sm" (click)="openFirstPendingValidation()">
@@ -75,22 +75,13 @@
                   @if (authService.isStudent()) {
                     Cours avec {{ lesson.teacherName }}
                   } @else {
-                    <span class="lesson-card__student">
-                      Cours avec {{ lesson.studentName }}
-                      <button
-                        class="btn-link"
-                        (click)="openStudentProfile(lesson.studentId)"
-                        title="Voir le coachil"
-                      >
-                        <ng-icon name="heroUserCircle" size="18"></ng-icon>
-                      </button>
-                    </span>
+                    Cours avec {{ lesson.studentName }}
                   }
                 </h4>
                 @if (authService.isTeacher()) {
                   <div class="lesson-card__student-info">
                     @if (lesson.studentLevel) {
-                      <span class="student-info-badge">
+                      <span class="student-info-badge student-info-badge--level">
                         <ng-icon name="heroTrophy" size="14"></ng-icon>
                         {{ getLevelLabel(lesson.studentLevel) }}
                       </span>
@@ -107,14 +98,28 @@
                         ELO {{ lesson.studentElo }}
                       </span>
                     }
-                    @if (lesson.courseTitle) {
-                      <span class="next-course-label">Cours : {{ lesson.courseTitle }}</span>
-                    } @else if (lesson.status === 'PENDING') {
-                      @if (getNextCourse(lesson.studentId); as nextCourse) {
-                        <span class="next-course-label">Prochain cours : {{ nextCourse.title }}</span>
-                      }
-                    }
+                    <button
+                      class="student-profile-btn"
+                      (click)="openStudentProfile(lesson.studentId)"
+                      title="Voir le profil complet et la progression"
+                    >
+                      <ng-icon name="heroUserCircle" size="14"></ng-icon>
+                      Voir le profil
+                    </button>
                   </div>
+                  @if (lesson.courseTitle) {
+                    <div class="lesson-card__course">
+                      <ng-icon name="heroBookOpen" size="14"></ng-icon>
+                      {{ lesson.courseTitle }}
+                    </div>
+                  } @else if (lesson.status === 'PENDING') {
+                    @if (getNextCourse(lesson.studentId); as nextCourse) {
+                      <div class="lesson-card__course">
+                        <ng-icon name="heroBookOpen" size="14"></ng-icon>
+                        {{ nextCourse.title }}
+                      </div>
+                    }
+                  }
                 }
                 <div class="lesson-card__meta">
                   <span class="badge" [class]="statusLabels[lesson.status].cssClass">
@@ -124,7 +129,7 @@
                     <span class="badge badge--gold">Abo</span>
                   }
                   @if (lesson.isFreeTrial) {
-                    <span class="badge badge--info" title="Cours decouverte gratuit - 15 min (non remunere)">Decouverte</span>
+                    <span class="badge badge--info" title="Cours découverte gratuit - 15 min (non rémunéré)">Découverte</span>
                   }
                 </div>
               </div>
@@ -251,7 +256,7 @@
       @if (lessonService.lessonHistory().length === 0) {
         <div class="empty-state">
           <div class="empty-state__icon"><ng-icon name="heroBookOpen" size="48"></ng-icon></div>
-          <p class="empty-state__description">Aucun cours passe</p>
+          <p class="empty-state__description">Aucun cours passé</p>
         </div>
       } @else if (filteredHistory().length === 0) {
         <div class="empty-state">
@@ -263,15 +268,6 @@
         <div class="history-grid">
           @for (lesson of filteredHistory(); track lesson.id) {
             <div class="history-card" [class.history-card--has-recording]="lesson.recordingUrl">
-              <!-- Delete button top right -->
-              <button
-                class="history-card__delete-btn"
-                (click)="deleteLesson(lesson.id)"
-                title="Supprimer"
-              >
-                <ng-icon name="heroTrash" size="14"></ng-icon>
-              </button>
-
               <div class="history-card__header">
                 <div class="history-card__date-block">
                   <span class="history-card__day">{{ lesson.scheduledAt | date:'d' }}</span>
@@ -297,45 +293,77 @@
               </div>
 
               <div class="history-card__actions">
-                @if (canRateLesson(lesson)) {
+                <span class="badge badge--sm" [class]="statusLabels[lesson.status].cssClass">
+                  {{ getStatusLabel(lesson) }}
+                </span>
+                <div class="history-card__dropdown">
                   <button
-                    class="history-card__action-btn"
-                    (click)="openRatingModal(lesson)"
-                    title="Noter le cours"
+                    class="history-card__dropdown-trigger"
+                    (click)="toggleDropdown(lesson.id, $event)"
+                    title="Actions"
                   >
-                    <ng-icon name="heroStar" size="14"></ng-icon> Noter le cours
+                    <ng-icon name="heroEllipsisVertical" size="18"></ng-icon>
                   </button>
-                }
-                @if (lesson.status === 'CANCELLED' && lesson.cancellationReason) {
-                  <button
-                    class="history-card__action-btn history-card__action-btn--info"
-                    (click)="toggleReason(lesson.id)"
-                    title="Voir la raison"
-                  >
-                    <ng-icon name="heroInformationCircle" size="14"></ng-icon>
-                  </button>
-                }
-                @if (lesson.status === 'COMPLETED' && lesson.teacherObservations && authService.isStudent()) {
-                  <button
-                    class="history-card__action-btn"
-                    (click)="toggleObservations(lesson.id)"
-                    title="Voir les observations"
-                  >
-                    <ng-icon name="heroBookOpen" size="14"></ng-icon> Notes
-                  </button>
-                }
-                @if (lesson.status === 'COMPLETED' && lesson.recordingUrl) {
-                  <button
-                    class="history-card__action-btn"
-                    (click)="openRecording(lesson)"
-                    title="Revisionner le cours"
-                  >
-                    <ng-icon name="heroPlayCircle" size="14"></ng-icon> Revisionner
-                  </button>
-                }
-                @if (lesson.status === 'COMPLETED' && authService.isStudent()) {
-                  <app-exercise-button [lessonId]="lesson.id"></app-exercise-button>
-                }
+                  @if (openDropdownId() === lesson.id) {
+                    <div class="history-card__dropdown-backdrop" (click)="closeDropdown()"></div>
+                    <div class="history-card__dropdown-menu">
+                      @if (lesson.status === 'CANCELLED' && lesson.cancellationReason) {
+                        <button class="history-card__dropdown-item" (click)="toggleReason(lesson.id)">
+                          <ng-icon name="heroInformationCircle" size="16"></ng-icon>
+                          Raison de l'annulation
+                        </button>
+                      }
+                      @if (lesson.status === 'COMPLETED' && lesson.teacherObservations && authService.isStudent()) {
+                        <button class="history-card__dropdown-item" (click)="toggleObservations(lesson.id)">
+                          <ng-icon name="heroBookOpen" size="16"></ng-icon>
+                          Notes du coach
+                        </button>
+                      }
+                      @if (lesson.status === 'COMPLETED' && authService.isTeacher()) {
+                        <button class="history-card__dropdown-item" (click)="openCommentModal(lesson)">
+                          <ng-icon name="heroChatBubbleLeftRight" size="16"></ng-icon>
+                          {{ lesson.teacherComment ? 'Modifier commentaire' : 'Ajouter commentaire' }}
+                        </button>
+                      }
+                      @if (lesson.status === 'COMPLETED' && lesson.teacherComment && authService.isStudent()) {
+                        <button class="history-card__dropdown-item" (click)="openViewCommentModal(lesson)">
+                          <ng-icon name="heroChatBubbleLeftRight" size="16"></ng-icon>
+                          Message du coach
+                        </button>
+                      }
+                      @if (lesson.status === 'COMPLETED' && lesson.recordingUrl) {
+                        <button class="history-card__dropdown-item" (click)="openRecording(lesson)">
+                          <ng-icon name="heroPlayCircle" size="16"></ng-icon>
+                          Révisionner
+                        </button>
+                      }
+                      @if (lesson.status === 'COMPLETED' && authService.isStudent()) {
+                        @if (paymentService.hasActiveSubscription()) {
+                          <a [routerLink]="['/exercise', lesson.id]" class="history-card__dropdown-item">
+                            <ng-icon name="heroCpuChip" size="16"></ng-icon>
+                            M'exercer
+                          </a>
+                        } @else {
+                          <a routerLink="/subscription" [queryParams]="{ required: 'exercise' }" class="history-card__dropdown-item history-card__dropdown-item--locked">
+                            <ng-icon name="heroLockClosed" size="16"></ng-icon>
+                            M'exercer (Premium)
+                          </a>
+                        }
+                      }
+                      @if (canRateLesson(lesson)) {
+                        <button class="history-card__dropdown-item history-card__dropdown-item--highlight" (click)="openRatingModal(lesson)">
+                          <ng-icon name="heroStar" size="16"></ng-icon>
+                          Noter le cours
+                        </button>
+                      }
+                      <div class="history-card__dropdown-divider"></div>
+                      <button class="history-card__dropdown-item history-card__dropdown-item--danger" (click)="deleteLesson(lesson.id)">
+                        <ng-icon name="heroTrash" size="16"></ng-icon>
+                        Supprimer
+                      </button>
+                    </div>
+                  }
+                </div>
               </div>
 
               @if (visibleReasonId() === lesson.id) {
@@ -461,5 +489,71 @@
       [freeTrialStartedAt]="videoCallFreeTrialStartedAt()"
       (closed)="closeVideoCall()"
     ></app-video-call>
+  }
+
+  <!-- Teacher Comment Modal -->
+  @if (showCommentModal()) {
+    <div class="modal-overlay" (click)="closeCommentModal()"></div>
+    <div class="comment-modal">
+      <div class="comment-modal__header">
+        <h3>{{ commentLessonId() && getCommentForLesson(commentLessonId()!) ? 'Modifier le commentaire' : 'Ajouter un commentaire' }}</h3>
+        <button class="comment-modal__close" (click)="closeCommentModal()">
+          <ng-icon name="heroXMark" size="20"></ng-icon>
+        </button>
+      </div>
+      <div class="comment-modal__content">
+        <p class="comment-modal__info">
+          <ng-icon name="heroInformationCircle" size="16"></ng-icon>
+          Ce message sera visible par l'élève dans son historique de cours.
+        </p>
+        <label class="comment-modal__label" for="teacherComment">
+          Votre message pour {{ commentStudentName() }}
+        </label>
+        <textarea
+          id="teacherComment"
+          class="comment-modal__textarea"
+          [ngModel]="commentText()"
+          (ngModelChange)="commentText.set($event)"
+          placeholder="Ex: Bravo pour ta progression ! N'oublie pas de réviser les finales de tours pour notre prochain cours..."
+          rows="5"
+        ></textarea>
+      </div>
+      <div class="comment-modal__actions">
+        <button class="btn btn--ghost" (click)="closeCommentModal()">Annuler</button>
+        <button
+          class="btn btn--primary"
+          (click)="submitComment()"
+          [disabled]="savingComment()"
+        >
+          @if (savingComment()) {
+            <span class="spinner spinner--sm"></span>
+          } @else {
+            Enregistrer
+          }
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- View Comment Modal (Student reading coach message) -->
+  @if (showViewCommentModal()) {
+    <div class="modal-overlay" (click)="closeViewCommentModal()"></div>
+    <div class="view-comment-modal">
+      <div class="view-comment-modal__header">
+        <h3>Message de {{ viewCommentTeacherName() }}</h3>
+        <button class="view-comment-modal__close" (click)="closeViewCommentModal()">
+          <ng-icon name="heroXMark" size="20"></ng-icon>
+        </button>
+      </div>
+      <div class="view-comment-modal__content">
+        <p class="view-comment-modal__text">{{ viewCommentText() }}</p>
+        @if (viewCommentDate()) {
+          <p class="view-comment-modal__date">{{ viewCommentDate() | date:'d MMMM yyyy à HH:mm' }}</p>
+        }
+      </div>
+      <div class="view-comment-modal__actions">
+        <button class="btn btn--primary" (click)="closeViewCommentModal()">Fermer</button>
+      </div>
+    </div>
   }
 </div>

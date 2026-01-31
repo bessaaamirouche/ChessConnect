@@ -100,9 +100,9 @@ export class ProgrammeComponent implements OnInit {
     this.programmeService.setCurrentCourse(courseId).subscribe({
       next: (course) => {
         this.currentCourseId.set(course.id);
-        this.toastService.success(`Cours de depart defini : ${course.title}`);
+        this.toastService.success(`Cours de départ défini : ${course.title}`);
       },
-      error: () => this.toastService.error('Erreur lors de la selection du cours')
+      error: () => this.toastService.error('Erreur lors de la sélection du cours')
     });
   }
 
@@ -114,7 +114,7 @@ export class ProgrammeComponent implements OnInit {
         this.currentCourseId.set(course.id);
         this.toastService.success(`Retour au cours : ${course.title}`);
       },
-      error: () => this.toastService.error('Erreur lors du retour au cours precedent')
+      error: () => this.toastService.error('Erreur lors du retour au cours précédent')
     });
   }
 
@@ -135,38 +135,44 @@ export class ProgrammeComponent implements OnInit {
     return '';
   }
 
-  getCurrentLevelCode(): string {
+  getCurrentLevelName(): string {
     const currentId = this.currentCourseId();
+    const levelNames: Record<string, string> = {
+      'A': 'Débutant',
+      'B': 'Intermédiaire',
+      'C': 'Avancé',
+      'D': 'Expert'
+    };
     for (const level of this.levels) {
       if (level.courses.some(c => c.id === currentId)) {
-        return level.code;
+        return levelNames[level.code] || level.code;
       }
     }
-    return 'A';
+    return 'Débutant';
   }
 
   levels: Level[] = [
     {
       code: 'A',
-      name: 'Pion - Debutant',
-      description: 'Les fondamentaux des echecs pour bien commencer',
+      name: 'Pion - Débutant',
+      description: 'Les fondamentaux des échecs pour bien commencer',
       color: '#4CAF50',
-      icon: 'heroBookOpen',
+      icon: '♙',
       courses: [
         {
           id: 1,
-          title: 'L\'echiquier et les pieces',
+          title: 'L\'échiquier et les pièces',
           subLessons: [
-            { title: 'Presentation de l\'echiquier (colonnes, rangees, diagonales)' },
+            { title: 'Présentation de l\'échiquier (colonnes, rangées, diagonales)' },
             { title: 'Les cases blanches et noires' },
-            { title: 'La notation algebrique' },
-            { title: 'Placement initial des pieces' },
-            { title: 'Valeur relative des pieces' }
+            { title: 'La notation algébrique' },
+            { title: 'Placement initial des pièces' },
+            { title: 'Valeur relative des pièces' }
           ]
         },
         {
           id: 2,
-          title: 'Le deplacement du Pion',
+          title: 'Le déplacement du Pion',
           subLessons: [
             { title: 'Avance d\'une case' },
             { title: 'Avance de deux cases (premier coup)' },
@@ -178,7 +184,7 @@ export class ProgrammeComponent implements OnInit {
         },
         {
           id: 3,
-          title: 'Le deplacement de la Tour',
+          title: 'Le déplacement de la Tour',
           subLessons: [
             { title: 'Mouvement horizontal' },
             { title: 'Mouvement vertical' },
@@ -188,7 +194,7 @@ export class ProgrammeComponent implements OnInit {
         },
         {
           id: 4,
-          title: 'Le deplacement du Fou',
+          title: 'Le déplacement du Fou',
           subLessons: [
             { title: 'Mouvement en diagonale' },
             { title: 'Fou de cases blanches vs cases noires' },
@@ -199,20 +205,20 @@ export class ProgrammeComponent implements OnInit {
         },
         {
           id: 5,
-          title: 'Le deplacement de la Dame',
+          title: 'Le déplacement de la Dame',
           subLessons: [
             { title: 'Combinaison Tour + Fou' },
             { title: 'Puissance de la Dame' },
-            { title: 'Dangers de la Dame exposee' },
+            { title: 'Dangers de la Dame exposée' },
             { title: 'La Dame en attaque' }
           ]
         },
         {
           id: 6,
-          title: 'Le deplacement du Cavalier',
+          title: 'Le déplacement du Cavalier',
           subLessons: [
             { title: 'Le mouvement en L' },
-            { title: 'Le saut par-dessus les pieces' },
+            { title: 'Le saut par-dessus les pièces' },
             { title: 'Les cases accessibles' },
             { title: 'Le Cavalier au centre vs au bord' },
             { title: 'La fourche du Cavalier' },
@@ -221,21 +227,21 @@ export class ProgrammeComponent implements OnInit {
         },
         {
           id: 7,
-          title: 'Le deplacement du Roi',
+          title: 'Le déplacement du Roi',
           subLessons: [
             { title: 'Mouvement d\'une case' },
-            { title: 'Le Roi ne peut pas se mettre en echec' },
-            { title: 'L\'importance de proteger le Roi' },
+            { title: 'Le Roi ne peut pas se mettre en échec' },
+            { title: 'L\'importance de protéger le Roi' },
             { title: 'Le Roi actif en finale' }
           ]
         },
         {
           id: 8,
-          title: 'L\'echec et l\'echec et mat',
+          title: 'L\'échec et l\'échec et mat',
           subLessons: [
-            { title: 'Definition de l\'echec' },
-            { title: 'Les trois facons de parer un echec' },
-            { title: 'L\'echec et mat : fin de partie' },
+            { title: 'Définition de l\'échec' },
+            { title: 'Les trois façons de parer un échec' },
+            { title: 'L\'échec et mat : fin de partie' },
             { title: 'Mats simples avec Dame' },
             { title: 'Mats simples avec Tour' }
           ]
@@ -244,8 +250,8 @@ export class ProgrammeComponent implements OnInit {
           id: 9,
           title: 'Le Roque',
           subLessons: [
-            { title: 'Le petit roque (cote Roi)' },
-            { title: 'Le grand roque (cote Dame)' },
+            { title: 'Le petit roque (côté Roi)' },
+            { title: 'Le grand roque (côté Dame)' },
             { title: 'Conditions du roque' },
             { title: 'Quand roquer ?' },
             { title: 'Erreurs courantes' }
@@ -255,20 +261,20 @@ export class ProgrammeComponent implements OnInit {
           id: 10,
           title: 'Le Pat et les nulles',
           subLessons: [
-            { title: 'Definition du Pat' },
+            { title: 'Définition du Pat' },
             { title: 'Nulle par accord mutuel' },
-            { title: 'Nulle par repetition de coups' },
-            { title: 'Regle des 50 coups' },
-            { title: 'Materiel insuffisant' }
+            { title: 'Nulle par répétition de coups' },
+            { title: 'Règle des 50 coups' },
+            { title: 'Matériel insuffisant' }
           ]
         },
         {
           id: 11,
           title: 'Principes d\'ouverture (1)',
           subLessons: [
-            { title: 'Controler le centre' },
-            { title: 'Developper les pieces mineures' },
-            { title: 'Ne pas sortir la Dame trop tot' },
+            { title: 'Contrôler le centre' },
+            { title: 'Développer les pièces mineures' },
+            { title: 'Ne pas sortir la Dame trop tôt' },
             { title: 'Roquer rapidement' }
           ]
         },
@@ -276,20 +282,20 @@ export class ProgrammeComponent implements OnInit {
           id: 12,
           title: 'Principes d\'ouverture (2)',
           subLessons: [
-            { title: 'Ne pas jouer la meme piece deux fois' },
+            { title: 'Ne pas jouer la même pièce deux fois' },
             { title: 'Connecter les Tours' },
-            { title: 'Eviter les pions faibles' },
-            { title: 'L\'importance du developpement' },
+            { title: 'Éviter les pions faibles' },
+            { title: 'L\'importance du développement' },
             { title: 'Exemples pratiques' }
           ]
         },
         {
           id: 13,
-          title: 'Les mats elementaires',
+          title: 'Les mats élémentaires',
           subLessons: [
             { title: 'Mat du couloir' },
             { title: 'Mat du baiser' },
-            { title: 'Mat a l\'etouffee' },
+            { title: 'Mat à l\'étouffée' },
             { title: 'Mat de l\'escalier' },
             { title: 'Mat avec deux Tours' },
             { title: 'Exercices de mat en 1 coup' }
@@ -302,7 +308,7 @@ export class ProgrammeComponent implements OnInit {
             { title: 'Qu\'est-ce qu\'une tactique ?' },
             { title: 'La menace' },
             { title: 'L\'attaque double' },
-            { title: 'Reperer les opportunites' }
+            { title: 'Repérer les opportunités' }
           ]
         },
         {
@@ -312,7 +318,7 @@ export class ProgrammeComponent implements OnInit {
             { title: 'Fourchette de Cavalier' },
             { title: 'Fourchette de Pion' },
             { title: 'Fourchette de Dame' },
-            { title: 'Reconnaitre les positions de fourchette' },
+            { title: 'Reconnaître les positions de fourchette' },
             { title: 'Exercices pratiques' }
           ]
         },
@@ -323,14 +329,14 @@ export class ProgrammeComponent implements OnInit {
             { title: 'Clouage absolu (sur le Roi)' },
             { title: 'Clouage relatif' },
             { title: 'Exploiter un clouage' },
-            { title: 'Se liberer d\'un clouage' }
+            { title: 'Se libérer d\'un clouage' }
           ]
         },
         {
           id: 17,
           title: 'L\'enfilade',
           subLessons: [
-            { title: 'Definition et mecanisme' },
+            { title: 'Définition et mécanisme' },
             { title: 'Enfilade avec la Tour' },
             { title: 'Enfilade avec le Fou' },
             { title: 'Enfilade avec la Dame' },
@@ -343,25 +349,25 @@ export class ProgrammeComponent implements OnInit {
           subLessons: [
             { title: 'Technique de base' },
             { title: 'Pousser le Roi adverse au bord' },
-            { title: 'Eviter le Pat' },
-            { title: 'Methode systematique' }
+            { title: 'Éviter le Pat' },
+            { title: 'Méthode systématique' }
           ]
         },
         {
           id: 19,
           title: 'Finale Roi + Tour vs Roi',
           subLessons: [
-            { title: 'La methode de l\'escalier' },
+            { title: 'La méthode de l\'escalier' },
             { title: 'L\'opposition' },
             { title: 'Forcer le mat' },
-            { title: 'Exercices chronometres' }
+            { title: 'Exercices chronométrés' }
           ]
         },
         {
           id: 20,
-          title: 'Revision et evaluation Pion',
+          title: 'Révision et évaluation Pion',
           subLessons: [
-            { title: 'Quiz sur les regles' },
+            { title: 'Quiz sur les règles' },
             { title: 'Exercices de mat en 1' },
             { title: 'Tactiques de base' },
             { title: 'Analyse de parties simples' },
@@ -370,19 +376,19 @@ export class ProgrammeComponent implements OnInit {
         },
         {
           id: 81,
-          title: 'Les pieges d\'ouverture classiques',
+          title: 'Les pièges d\'ouverture classiques',
           subLessons: [
-            { title: 'Le piege du berger' },
+            { title: 'Le piège du berger' },
             { title: 'Le mat du lion' },
-            { title: 'Pieges dans la partie italienne' },
-            { title: 'Comment les eviter' }
+            { title: 'Pièges dans la partie italienne' },
+            { title: 'Comment les éviter' }
           ]
         },
         {
           id: 82,
           title: 'L\'attaque double',
           subLessons: [
-            { title: 'Definition et mecanisme' },
+            { title: 'Définition et mécanisme' },
             { title: 'Attaque double du Cavalier' },
             { title: 'Attaque double de la Dame' },
             { title: 'Exercices pratiques' }
@@ -390,21 +396,21 @@ export class ProgrammeComponent implements OnInit {
         },
         {
           id: 83,
-          title: 'La defense des pieces',
+          title: 'La défense des pièces',
           subLessons: [
-            { title: 'Proteger ses pieces' },
-            { title: 'La defense mutuelle' },
-            { title: 'Pieces en prise' },
+            { title: 'Protéger ses pièces' },
+            { title: 'La défense mutuelle' },
+            { title: 'Pièces en prise' },
             { title: 'Vigilance tactique' }
           ]
         },
         {
           id: 84,
-          title: 'Les echanges de pieces',
+          title: 'Les échanges de pièces',
           subLessons: [
-            { title: 'Quand echanger' },
-            { title: 'Echange favorable' },
-            { title: 'Eviter les mauvais echanges' },
+            { title: 'Quand échanger' },
+            { title: 'Échange favorable' },
+            { title: 'Éviter les mauvais échanges' },
             { title: 'Simplification' }
           ]
         },
@@ -414,17 +420,17 @@ export class ProgrammeComponent implements OnInit {
           subLessons: [
             { title: 'Importance du centre' },
             { title: 'Pions centraux' },
-            { title: 'Pieces au centre' },
-            { title: 'Controle du centre' }
+            { title: 'Pièces au centre' },
+            { title: 'Contrôle du centre' }
           ]
         },
         {
           id: 86,
-          title: 'La securite du Roi',
+          title: 'La sécurité du Roi',
           subLessons: [
-            { title: 'Garder le Roi protege' },
+            { title: 'Garder le Roi protégé' },
             { title: 'Structure de pions devant le Roi' },
-            { title: 'Dangers du Roi expose' },
+            { title: 'Dangers du Roi exposé' },
             { title: 'Quand ne pas roquer' }
           ]
         },
@@ -434,16 +440,16 @@ export class ProgrammeComponent implements OnInit {
           subLessons: [
             { title: 'Roi et pion vs Roi' },
             { title: 'Opposition simple' },
-            { title: 'Pion sur la 7eme rangee' },
+            { title: 'Pion sur la 7ème rangée' },
             { title: 'Exercices de finales simples' }
           ]
         },
         {
           id: 88,
-          title: 'La coordination des pieces',
+          title: 'La coordination des pièces',
           subLessons: [
-            { title: 'Faire travailler ses pieces ensemble' },
-            { title: 'Pieces qui se soutiennent' },
+            { title: 'Faire travailler ses pièces ensemble' },
+            { title: 'Pièces qui se soutiennent' },
             { title: 'Harmonie dans le jeu' },
             { title: 'Exemples pratiques' }
           ]
@@ -452,39 +458,39 @@ export class ProgrammeComponent implements OnInit {
           id: 89,
           title: 'Les erreurs courantes',
           subLessons: [
-            { title: 'Pieces en prise oubliees' },
-            { title: 'Negliger le developpement' },
+            { title: 'Pièces en prise oubliées' },
+            { title: 'Négliger le développement' },
             { title: 'Coups de pions inutiles' },
-            { title: 'Comment les eviter' }
+            { title: 'Comment les éviter' }
           ]
         },
         {
           id: 90,
           title: 'Exercices de consolidation Pion',
           subLessons: [
-            { title: 'Revision des regles' },
+            { title: 'Révision des règles' },
             { title: 'Exercices tactiques de base' },
-            { title: 'Problemes de mat' },
-            { title: 'Auto-evaluation' }
+            { title: 'Problèmes de mat' },
+            { title: 'Auto-évaluation' }
           ]
         }
       ]
     },
     {
       code: 'B',
-      name: 'Cavalier - Intermediaire',
-      description: 'Approfondissement tactique et strategique',
+      name: 'Cavalier - Intermédiaire',
+      description: 'Approfondissement tactique et stratégique',
       color: '#2196F3',
-      icon: 'heroAcademicCap',
+      icon: '♘',
       courses: [
         {
           id: 21,
-          title: 'Tactique : L\'attaque a la decouverte',
+          title: 'Tactique : L\'attaque à la découverte',
           subLessons: [
-            { title: 'Mecanisme de la decouverte' },
-            { title: 'Echec a la decouverte' },
-            { title: 'Double echec' },
-            { title: 'Preparation de l\'attaque' },
+            { title: 'Mécanisme de la découverte' },
+            { title: 'Échec à la découverte' },
+            { title: 'Double échec' },
+            { title: 'Préparation de l\'attaque' },
             { title: 'Exercices pratiques' }
           ]
         },
@@ -493,7 +499,7 @@ export class ProgrammeComponent implements OnInit {
           title: 'Tactique : Le sacrifice',
           subLessons: [
             { title: 'Sacrifice pour le mat' },
-            { title: 'Sacrifice pour gain materiel' },
+            { title: 'Sacrifice pour gain matériel' },
             { title: 'Sacrifice positionnel' },
             { title: 'Quand sacrifier ?' },
             { title: 'Exercices de sacrifice' }
@@ -501,12 +507,12 @@ export class ProgrammeComponent implements OnInit {
         },
         {
           id: 23,
-          title: 'Tactique : La deviation',
+          title: 'Tactique : La déviation',
           subLessons: [
-            { title: 'Devier une piece defenseur' },
-            { title: 'Deviation du Roi' },
-            { title: 'Deviation de la Dame' },
-            { title: 'Combinaisons avec deviation' }
+            { title: 'Dévier une pièce défenseur' },
+            { title: 'Déviation du Roi' },
+            { title: 'Déviation de la Dame' },
+            { title: 'Combinaisons avec déviation' }
           ]
         },
         {
@@ -514,40 +520,40 @@ export class ProgrammeComponent implements OnInit {
           title: 'Tactique : L\'attraction',
           subLessons: [
             { title: 'Attirer le Roi' },
-            { title: 'Attirer une piece sur une case' },
+            { title: 'Attirer une pièce sur une case' },
             { title: 'Combinaisons d\'attraction' },
             { title: 'Exercices pratiques' }
           ]
         },
         {
           id: 25,
-          title: 'Tactique : L\'elimination du defenseur',
+          title: 'Tactique : L\'élimination du défenseur',
           subLessons: [
-            { title: 'Identifier le defenseur cle' },
-            { title: 'Methodes d\'elimination' },
-            { title: 'Surcharge des pieces' },
-            { title: 'Exercices d\'elimination' },
+            { title: 'Identifier le défenseur clé' },
+            { title: 'Méthodes d\'élimination' },
+            { title: 'Surcharge des pièces' },
+            { title: 'Exercices d\'élimination' },
             { title: 'Combinaisons complexes' }
           ]
         },
         {
           id: 26,
-          title: 'Tactique : L\'interference',
+          title: 'Tactique : L\'interférence',
           subLessons: [
             { title: 'Couper la communication' },
             { title: 'Bloquer une ligne' },
-            { title: 'Interference sur diagonale' },
-            { title: 'Exercices d\'interference' }
+            { title: 'Interférence sur diagonale' },
+            { title: 'Exercices d\'interférence' }
           ]
         },
         {
           id: 27,
           title: 'Combinaisons tactiques',
           subLessons: [
-            { title: 'Enchainer les themes tactiques' },
+            { title: 'Enchaîner les thèmes tactiques' },
             { title: 'Calcul des variantes' },
-            { title: 'Verification des coups candidats' },
-            { title: 'Exercices combines' },
+            { title: 'Vérification des coups candidats' },
+            { title: 'Exercices combinés' },
             { title: 'Analyse de parties' }
           ]
         },
@@ -557,9 +563,9 @@ export class ProgrammeComponent implements OnInit {
           subLessons: [
             { title: 'La Partie Italienne' },
             { title: 'Le Gambit du Roi' },
-            { title: 'La Partie Ecossaise' },
-            { title: 'La Defense Petrov' },
-            { title: 'Pieges d\'ouverture' }
+            { title: 'La Partie Écossaise' },
+            { title: 'La Défense Petrov' },
+            { title: 'Pièges d\'ouverture' }
           ]
         },
         {
@@ -567,70 +573,70 @@ export class ProgrammeComponent implements OnInit {
           title: 'Les ouvertures : 1.d4 d5',
           subLessons: [
             { title: 'Le Gambit Dame' },
-            { title: 'La Defense Slave' },
-            { title: 'La Defense Tarrasch' },
+            { title: 'La Défense Slave' },
+            { title: 'La Défense Tarrasch' },
             { title: 'Plans typiques' }
           ]
         },
         {
           id: 30,
-          title: 'Les ouvertures : Defense Sicilienne',
+          title: 'Les ouvertures : Défense Sicilienne',
           subLessons: [
-            { title: 'Introduction a la Sicilienne' },
+            { title: 'Introduction à la Sicilienne' },
             { title: 'Variante Najdorf' },
             { title: 'Variante Dragon' },
             { title: 'Variante Classique' },
-            { title: 'Plans strategiques' },
-            { title: 'Pieges courants' }
+            { title: 'Plans stratégiques' },
+            { title: 'Pièges courants' }
           ]
         },
         {
           id: 31,
-          title: 'Les ouvertures : Defense Francaise',
+          title: 'Les ouvertures : Défense Française',
           subLessons: [
             { title: 'Structure de pions' },
             { title: 'Variante d\'avance' },
-            { title: 'Variante d\'echange' },
+            { title: 'Variante d\'échange' },
             { title: 'Variante Winawer' },
             { title: 'Plans pour les deux camps' }
           ]
         },
         {
           id: 32,
-          title: 'Les ouvertures : Defense Caro-Kann',
+          title: 'Les ouvertures : Défense Caro-Kann',
           subLessons: [
-            { title: 'Idees principales' },
+            { title: 'Idées principales' },
             { title: 'Variante classique' },
             { title: 'Variante d\'avance' },
-            { title: 'Plans strategiques' }
+            { title: 'Plans stratégiques' }
           ]
         },
         {
           id: 33,
-          title: 'Strategie : Les structures de pions',
+          title: 'Stratégie : Les structures de pions',
           subLessons: [
-            { title: 'Pions isoles' },
-            { title: 'Pions doubles' },
-            { title: 'Pions arrieres' },
-            { title: 'Chaine de pions' },
-            { title: 'Majorite de pions' },
+            { title: 'Pions isolés' },
+            { title: 'Pions doublés' },
+            { title: 'Pions arriérés' },
+            { title: 'Chaîne de pions' },
+            { title: 'Majorité de pions' },
             { title: 'Plans selon la structure' }
           ]
         },
         {
           id: 34,
-          title: 'Strategie : Les colonnes ouvertes',
+          title: 'Stratégie : Les colonnes ouvertes',
           subLessons: [
-            { title: 'Controle d\'une colonne' },
-            { title: 'Penetration en 7eme rangee' },
+            { title: 'Contrôle d\'une colonne' },
+            { title: 'Pénétration en 7ème rangée' },
             { title: 'Doubler les Tours' },
             { title: 'La colonne c ouverte' },
-            { title: 'Exercices strategiques' }
+            { title: 'Exercices stratégiques' }
           ]
         },
         {
           id: 35,
-          title: 'Strategie : Les cases faibles',
+          title: 'Stratégie : Les cases faibles',
           subLessons: [
             { title: 'Identifier les cases faibles' },
             { title: 'Occuper un avant-poste' },
@@ -640,13 +646,13 @@ export class ProgrammeComponent implements OnInit {
         },
         {
           id: 36,
-          title: 'Strategie : Le centre',
+          title: 'Stratégie : Le centre',
           subLessons: [
             { title: 'Centre de pions classique' },
-            { title: 'Centre ferme' },
+            { title: 'Centre fermé' },
             { title: 'Centre ouvert' },
             { title: 'Attaque du centre' },
-            { title: 'Controle a distance' }
+            { title: 'Contrôle à distance' }
           ]
         },
         {
@@ -654,9 +660,9 @@ export class ProgrammeComponent implements OnInit {
           title: 'Finales de pions (1)',
           subLessons: [
             { title: 'L\'opposition' },
-            { title: 'La regle du carre' },
+            { title: 'La règle du carré' },
             { title: 'Le Roi actif' },
-            { title: 'Pion passe' },
+            { title: 'Pion passé' },
             { title: 'Finales Roi + Pion vs Roi' }
           ]
         },
@@ -666,7 +672,7 @@ export class ProgrammeComponent implements OnInit {
           subLessons: [
             { title: 'Le zugzwang' },
             { title: 'Triangulation' },
-            { title: 'Percee de pions' },
+            { title: 'Percée de pions' },
             { title: 'Finales avec plusieurs pions' },
             { title: 'Exercices de finales' }
           ]
@@ -683,13 +689,13 @@ export class ProgrammeComponent implements OnInit {
         },
         {
           id: 40,
-          title: 'Revision et evaluation Cavalier',
+          title: 'Révision et évaluation Cavalier',
           subLessons: [
-            { title: 'Test tactique avance' },
+            { title: 'Test tactique avancé' },
             { title: 'Quiz sur les ouvertures' },
-            { title: 'Exercices de strategie' },
+            { title: 'Exercices de stratégie' },
             { title: 'Finales essentielles' },
-            { title: 'Analyse de parties modeles' },
+            { title: 'Analyse de parties modèles' },
             { title: 'Bilan et conseils' }
           ]
         },
@@ -697,7 +703,7 @@ export class ProgrammeComponent implements OnInit {
           id: 91,
           title: 'Tactique : Le rayon X',
           subLessons: [
-            { title: 'Definition et mecanisme' },
+            { title: 'Définition et mécanisme' },
             { title: 'Rayon X avec la Tour' },
             { title: 'Rayon X avec la Dame' },
             { title: 'Exercices pratiques' }
@@ -707,49 +713,49 @@ export class ProgrammeComponent implements OnInit {
           id: 92,
           title: 'Tactique : Le moulin',
           subLessons: [
-            { title: 'Le mecanisme du moulin' },
-            { title: 'Echec a la decouverte repete' },
-            { title: 'Exemples celebres' },
+            { title: 'Le mécanisme du moulin' },
+            { title: 'Échec à la découverte répété' },
+            { title: 'Exemples célèbres' },
             { title: 'Exercices de moulin' }
           ]
         },
         {
           id: 93,
-          title: 'Les ouvertures : Defenses indiennes',
+          title: 'Les ouvertures : Défenses indiennes',
           subLessons: [
-            { title: 'Introduction aux defenses indiennes' },
-            { title: 'Nimzo-Indienne : idees principales' },
-            { title: 'Est-Indienne : plans strategiques' },
-            { title: 'Exercices de comprehension' }
+            { title: 'Introduction aux défenses indiennes' },
+            { title: 'Nimzo-Indienne : idées principales' },
+            { title: 'Est-Indienne : plans stratégiques' },
+            { title: 'Exercices de compréhension' }
           ]
         },
         {
           id: 94,
-          title: 'Les ouvertures : Systemes de Londres',
+          title: 'Les ouvertures : Systèmes de Londres',
           subLessons: [
-            { title: 'Structure du systeme de Londres' },
+            { title: 'Structure du système de Londres' },
             { title: 'Plans pour les blancs' },
             { title: 'Comment contrer en tant que noirs' },
-            { title: 'Parties modeles' }
+            { title: 'Parties modèles' }
           ]
         },
         {
           id: 95,
-          title: 'Strategie : Le pion passe',
+          title: 'Stratégie : Le pion passé',
           subLessons: [
-            { title: 'Creation d\'un pion passe' },
-            { title: 'Le pion passe protege' },
-            { title: 'Avancer le pion passe' },
-            { title: 'Bloquer le pion passe adverse' }
+            { title: 'Création d\'un pion passé' },
+            { title: 'Le pion passé protégé' },
+            { title: 'Avancer le pion passé' },
+            { title: 'Bloquer le pion passé adverse' }
           ]
         },
         {
           id: 96,
-          title: 'Strategie : La majorite sur l\'aile',
+          title: 'Stratégie : La majorité sur l\'aile',
           subLessons: [
-            { title: 'Majorite de pions sur l\'aile dame' },
-            { title: 'Majorite sur l\'aile roi' },
-            { title: 'Exploiter la majorite' },
+            { title: 'Majorité de pions sur l\'aile dame' },
+            { title: 'Majorité sur l\'aile roi' },
+            { title: 'Exploiter la majorité' },
             { title: 'Exemples pratiques' }
           ]
         },
@@ -758,9 +764,9 @@ export class ProgrammeComponent implements OnInit {
           title: 'Finales de Tours (2)',
           subLessons: [
             { title: 'Tour et 2 pions vs Tour et pion' },
-            { title: 'Defense active' },
+            { title: 'Défense active' },
             { title: 'Technique de gain' },
-            { title: 'Exercices chronometres' }
+            { title: 'Exercices chronométrés' }
           ]
         },
         {
@@ -769,7 +775,7 @@ export class ProgrammeComponent implements OnInit {
           subLessons: [
             { title: 'Quand le Fou est meilleur' },
             { title: 'Quand le Cavalier est meilleur' },
-            { title: 'Positions ouvertes vs fermees' },
+            { title: 'Positions ouvertes vs fermées' },
             { title: 'Exercices de jugement' }
           ]
         },
@@ -778,50 +784,50 @@ export class ProgrammeComponent implements OnInit {
           title: 'Analyse de parties classiques',
           subLessons: [
             { title: 'Parties immortelles' },
-            { title: 'Parties celebres commentees' },
-            { title: 'Lecons a tirer' },
-            { title: 'Methode d\'analyse' }
+            { title: 'Parties célèbres commentées' },
+            { title: 'Leçons à tirer' },
+            { title: 'Méthode d\'analyse' }
           ]
         },
         {
           id: 100,
           title: 'Exercices de consolidation Cavalier',
           subLessons: [
-            { title: 'Test tactique intermediaire' },
-            { title: 'Quiz strategique' },
-            { title: 'Finales a resoudre' },
-            { title: 'Auto-evaluation niveau B' }
+            { title: 'Test tactique intermédiaire' },
+            { title: 'Quiz stratégique' },
+            { title: 'Finales à résoudre' },
+            { title: 'Auto-évaluation niveau B' }
           ]
         }
       ]
     },
     {
       code: 'C',
-      name: 'Reine - Avance',
-      description: 'Maitrise strategique et preparation approfondie',
+      name: 'Reine - Avancé',
+      description: 'Maîtrise stratégique et préparation approfondie',
       color: '#9C27B0',
-      icon: 'heroTrophy',
+      icon: '♕',
       courses: [
         {
           id: 41,
-          title: 'Tactique avancee : Calcul profond',
+          title: 'Tactique avancée : Calcul profond',
           subLessons: [
             { title: 'Calcul de variantes longues' },
             { title: 'Visualisation mentale' },
-            { title: 'Methode des coups candidats' },
-            { title: 'Verification et prophylaxie' },
-            { title: 'Exercices chronometres' }
+            { title: 'Méthode des coups candidats' },
+            { title: 'Vérification et prophylaxie' },
+            { title: 'Exercices chronométrés' }
           ]
         },
         {
           id: 42,
-          title: 'Tactique avancee : Combinaisons complexes',
+          title: 'Tactique avancée : Combinaisons complexes',
           subLessons: [
-            { title: 'Combinaisons multi-themes' },
-            { title: 'Sacrifices positionels' },
-            { title: 'Attaques sur le Roi roque' },
-            { title: 'Combinaisons defensives' },
-            { title: 'Etudes tactiques celebres' }
+            { title: 'Combinaisons multi-thèmes' },
+            { title: 'Sacrifices positionnels' },
+            { title: 'Attaques sur le Roi roqué' },
+            { title: 'Combinaisons défensives' },
+            { title: 'Études tactiques célèbres' }
           ]
         },
         {
@@ -832,38 +838,38 @@ export class ProgrammeComponent implements OnInit {
             { title: 'Sacrifice sur h7/h2' },
             { title: 'Sacrifice sur g7/g2' },
             { title: 'Double sacrifice des Fous' },
-            { title: 'Attaque avec pieces lourdes' },
-            { title: 'Parties modeles' }
+            { title: 'Attaque avec pièces lourdes' },
+            { title: 'Parties modèles' }
           ]
         },
         {
           id: 44,
-          title: 'La defense active',
+          title: 'La défense active',
           subLessons: [
-            { title: 'Defense par contre-attaque' },
-            { title: 'Ressources defensives' },
-            { title: 'Echec perpetuel' },
+            { title: 'Défense par contre-attaque' },
+            { title: 'Ressources défensives' },
+            { title: 'Échec perpétuel' },
             { title: 'Forteresses' },
             { title: 'Sens du danger' }
           ]
         },
         {
           id: 45,
-          title: 'Repertoire d\'ouvertures blancs (1)',
+          title: 'Répertoire d\'ouvertures blancs (1)',
           subLessons: [
-            { title: 'Choisir son repertoire' },
-            { title: '1.e4 : systeme complet' },
+            { title: 'Choisir son répertoire' },
+            { title: '1.e4 : système complet' },
             { title: 'Contre la Sicilienne' },
-            { title: 'Contre la Francaise' },
+            { title: 'Contre la Française' },
             { title: 'Contre la Caro-Kann' },
             { title: 'Lignes critiques' }
           ]
         },
         {
           id: 46,
-          title: 'Repertoire d\'ouvertures blancs (2)',
+          title: 'Répertoire d\'ouvertures blancs (2)',
           subLessons: [
-            { title: '1.d4 : systeme complet' },
+            { title: '1.d4 : système complet' },
             { title: 'Contre la Slave' },
             { title: 'Contre la Nimzo-Indienne' },
             { title: 'Contre l\'Est-Indienne' },
@@ -872,68 +878,68 @@ export class ProgrammeComponent implements OnInit {
         },
         {
           id: 47,
-          title: 'Repertoire d\'ouvertures noirs (1)',
+          title: 'Répertoire d\'ouvertures noirs (1)',
           subLessons: [
-            { title: 'Reponse a 1.e4' },
+            { title: 'Réponse à 1.e4' },
             { title: 'La Sicilienne en profondeur' },
             { title: 'Variantes principales' },
-            { title: 'Preparation theorique' },
-            { title: 'Nouveautes theoriques' }
+            { title: 'Préparation théorique' },
+            { title: 'Nouveautés théoriques' }
           ]
         },
         {
           id: 48,
-          title: 'Repertoire d\'ouvertures noirs (2)',
+          title: 'Répertoire d\'ouvertures noirs (2)',
           subLessons: [
-            { title: 'Reponse a 1.d4' },
-            { title: 'Defense Nimzo-Indienne' },
-            { title: 'Defense Est-Indienne' },
+            { title: 'Réponse à 1.d4' },
+            { title: 'Défense Nimzo-Indienne' },
+            { title: 'Défense Est-Indienne' },
             { title: 'Plans typiques' },
-            { title: 'Finales theoriques' }
+            { title: 'Finales théoriques' }
           ]
         },
         {
           id: 49,
-          title: 'Strategie : La prophylaxie',
+          title: 'Stratégie : La prophylaxie',
           subLessons: [
             { title: 'Penser aux plans adverses' },
             { title: 'Coups prophylactiques' },
-            { title: 'Restriction des pieces adverses' },
-            { title: 'Methode de Nimzowitsch' }
+            { title: 'Restriction des pièces adverses' },
+            { title: 'Méthode de Nimzowitsch' }
           ]
         },
         {
           id: 50,
-          title: 'Strategie : L\'echange des pieces',
+          title: 'Stratégie : L\'échange des pièces',
           subLessons: [
-            { title: 'Quand echanger' },
+            { title: 'Quand échanger' },
             { title: 'Bons Fous vs mauvais Fous' },
             { title: 'Cavalier vs Fou' },
-            { title: 'La qualite' },
+            { title: 'La qualité' },
             { title: 'Simplification vers les finales' }
           ]
         },
         {
           id: 51,
-          title: 'Strategie : Le jeu positionnel',
+          title: 'Stratégie : Le jeu positionnel',
           subLessons: [
-            { title: 'Amelioration des pieces' },
-            { title: 'Creation de faiblesses' },
-            { title: 'Le plan a long terme' },
-            { title: 'Maneuvres typiques' },
-            { title: 'Etude de parties classiques' },
+            { title: 'Amélioration des pièces' },
+            { title: 'Création de faiblesses' },
+            { title: 'Le plan à long terme' },
+            { title: 'Manœuvres typiques' },
+            { title: 'Étude de parties classiques' },
             { title: 'Karpov et le jeu positionnel' }
           ]
         },
         {
           id: 52,
-          title: 'Strategie : Les positions fermees',
+          title: 'Stratégie : Les positions fermées',
           subLessons: [
-            { title: 'Caracteristiques' },
-            { title: 'Maneuvres de Cavaliers' },
-            { title: 'Percees de pions' },
+            { title: 'Caractéristiques' },
+            { title: 'Manœuvres de Cavaliers' },
+            { title: 'Percées de pions' },
             { title: 'Jeu sur les deux ailes' },
-            { title: 'Patience strategique' }
+            { title: 'Patience stratégique' }
           ]
         },
         {
@@ -941,8 +947,8 @@ export class ProgrammeComponent implements OnInit {
           title: 'Finales de Tours (2)',
           subLessons: [
             { title: 'Tour et pions vs Tour et pions' },
-            { title: 'Technique de defense' },
-            { title: 'Finales de Tour theoriques' },
+            { title: 'Technique de défense' },
+            { title: 'Finales de Tour théoriques' },
             { title: 'Position de Vancura' },
             { title: 'Exercices pratiques' }
           ]
@@ -952,8 +958,8 @@ export class ProgrammeComponent implements OnInit {
           title: 'Finales de Fous',
           subLessons: [
             { title: 'Fou et pion vs Roi' },
-            { title: 'Fous de meme couleur' },
-            { title: 'Fous de couleurs opposees' },
+            { title: 'Fous de même couleur' },
+            { title: 'Fous de couleurs opposées' },
             { title: 'Fou vs Cavalier en finale' }
           ]
         },
@@ -964,7 +970,7 @@ export class ProgrammeComponent implements OnInit {
             { title: 'Cavalier et pion vs Roi' },
             { title: 'Finales de Cavaliers' },
             { title: 'Cavalier vs pions' },
-            { title: 'Techniques avancees' }
+            { title: 'Techniques avancées' }
           ]
         },
         {
@@ -972,50 +978,50 @@ export class ProgrammeComponent implements OnInit {
           title: 'Finales de Dames',
           subLessons: [
             { title: 'Dame et pion vs Dame' },
-            { title: 'Echecs perpetuels' },
+            { title: 'Échecs perpétuels' },
             { title: 'Technique de gain' },
-            { title: 'Positions theoriques' },
+            { title: 'Positions théoriques' },
             { title: 'Exercices pratiques' }
           ]
         },
         {
           id: 57,
-          title: 'Analyse de parties de Grands Maitres',
+          title: 'Analyse de parties de Grands Maîtres',
           subLessons: [
-            { title: 'Methode d\'analyse' },
+            { title: 'Méthode d\'analyse' },
             { title: 'Parties de Kasparov' },
             { title: 'Parties de Carlsen' },
             { title: 'Commentaire approfondi' },
-            { title: 'Lecons a tirer' }
+            { title: 'Leçons à tirer' }
           ]
         },
         {
           id: 58,
-          title: 'Preparation psychologique',
+          title: 'Préparation psychologique',
           subLessons: [
             { title: 'Gestion du temps' },
             { title: 'Concentration' },
             { title: 'Gestion du stress' },
-            { title: 'Attitude face a l\'adversaire' }
+            { title: 'Attitude face à l\'adversaire' }
           ]
         },
         {
           id: 59,
-          title: 'Preparation aux tournois',
+          title: 'Préparation aux tournois',
           subLessons: [
-            { title: 'Preparer ses adversaires' },
-            { title: 'Bases de donnees' },
-            { title: 'Gestion de l\'energie' },
-            { title: 'Routine pre-partie' },
+            { title: 'Préparer ses adversaires' },
+            { title: 'Bases de données' },
+            { title: 'Gestion de l\'énergie' },
+            { title: 'Routine pré-partie' },
             { title: 'Analyse post-partie' }
           ]
         },
         {
           id: 60,
-          title: 'Revision et evaluation Reine',
+          title: 'Révision et évaluation Reine',
           subLessons: [
-            { title: 'Test tactique avance' },
-            { title: 'Evaluation strategique' },
+            { title: 'Test tactique avancé' },
+            { title: 'Évaluation stratégique' },
             { title: 'Quiz d\'ouvertures' },
             { title: 'Finales complexes' },
             { title: 'Analyse de position' },
@@ -1036,27 +1042,27 @@ export class ProgrammeComponent implements OnInit {
           id: 102,
           title: 'Tactique : L\'attaque grecque',
           subLessons: [
-            { title: 'Mecanisme de l\'attaque grecque' },
+            { title: 'Mécanisme de l\'attaque grecque' },
             { title: 'Sacrifice du Fou en h7' },
             { title: 'Suite avec Cg5+' },
-            { title: 'Parties modeles' }
+            { title: 'Parties modèles' }
           ]
         },
         {
           id: 103,
-          title: 'Repertoire d\'ouvertures : Lignes secondaires',
+          title: 'Répertoire d\'ouvertures : Lignes secondaires',
           subLessons: [
             { title: 'Variantes surprises' },
-            { title: 'Lignes peu jouees mais solides' },
+            { title: 'Lignes peu jouées mais solides' },
             { title: 'Avantages psychologiques' },
-            { title: 'Preparation specifique' }
+            { title: 'Préparation spécifique' }
           ]
         },
         {
           id: 104,
-          title: 'Strategie : La restriction',
+          title: 'Stratégie : La restriction',
           subLessons: [
-            { title: 'Limiter les pieces adverses' },
+            { title: 'Limiter les pièces adverses' },
             { title: 'Restriction du Cavalier' },
             { title: 'Restriction du Fou' },
             { title: 'Jeu prophylactique' }
@@ -1064,22 +1070,22 @@ export class ProgrammeComponent implements OnInit {
         },
         {
           id: 105,
-          title: 'Strategie : Les faiblesses chroniques',
+          title: 'Stratégie : Les faiblesses chroniques',
           subLessons: [
             { title: 'Identifier les faiblesses permanentes' },
             { title: 'Pions faibles' },
             { title: 'Cases faibles' },
-            { title: 'Exploitation a long terme' }
+            { title: 'Exploitation à long terme' }
           ]
         },
         {
           id: 106,
-          title: 'Finales theoriques avancees',
+          title: 'Finales théoriques avancées',
           subLessons: [
             { title: 'Finales de pions complexes' },
-            { title: 'Finales avec pieces mineures' },
+            { title: 'Finales avec pièces mineures' },
             { title: 'Positions critiques' },
-            { title: 'Etude approfondie' }
+            { title: 'Étude approfondie' }
           ]
         },
         {
@@ -1087,39 +1093,39 @@ export class ProgrammeComponent implements OnInit {
           title: 'Analyse de parties de Karpov',
           subLessons: [
             { title: 'Le style positionnel de Karpov' },
-            { title: 'La technique d\'etouffement' },
-            { title: 'Parties commentees' },
-            { title: 'Lecons strategiques' }
+            { title: 'La technique d\'étouffement' },
+            { title: 'Parties commentées' },
+            { title: 'Leçons stratégiques' }
           ]
         },
         {
           id: 108,
           title: 'Analyse de parties de Fischer',
           subLessons: [
-            { title: 'La precision de Fischer' },
+            { title: 'La précision de Fischer' },
             { title: 'Ouvertures de Fischer' },
             { title: 'Parties immortelles' },
-            { title: 'Lecons tactiques et strategiques' }
+            { title: 'Leçons tactiques et stratégiques' }
           ]
         },
         {
           id: 109,
           title: 'Gestion du temps en partie',
           subLessons: [
-            { title: 'Repartition du temps' },
+            { title: 'Répartition du temps' },
             { title: 'Moments critiques' },
-            { title: 'Eviter le zeitnot' },
-            { title: 'Prise de decision rapide' }
+            { title: 'Éviter le zeitnot' },
+            { title: 'Prise de décision rapide' }
           ]
         },
         {
           id: 110,
           title: 'Exercices de consolidation Reine',
           subLessons: [
-            { title: 'Test tactique avance' },
-            { title: 'Evaluation strategique' },
-            { title: 'Finales a resoudre' },
-            { title: 'Auto-evaluation niveau C' }
+            { title: 'Test tactique avancé' },
+            { title: 'Évaluation stratégique' },
+            { title: 'Finales à résoudre' },
+            { title: 'Auto-évaluation niveau C' }
           ]
         }
       ]
@@ -1127,30 +1133,30 @@ export class ProgrammeComponent implements OnInit {
     {
       code: 'D',
       name: 'Roi - Expert',
-      description: 'Perfectionnement et preparation professionnelle',
+      description: 'Perfectionnement et préparation professionnelle',
       color: '#FF9800',
-      icon: 'heroStar',
+      icon: '♔',
       courses: [
         {
           id: 61,
           title: 'Calcul expert et visualisation',
           subLessons: [
-            { title: 'Calcul a l\'aveugle' },
-            { title: 'Variantes forcees longues' },
+            { title: 'Calcul à l\'aveugle' },
+            { title: 'Variantes forcées longues' },
             { title: 'Intuition vs calcul' },
-            { title: 'Methode de verification' },
+            { title: 'Méthode de vérification' },
             { title: 'Exercices de haut niveau' }
           ]
         },
         {
           id: 62,
-          title: 'Tactique : Etudes artistiques',
+          title: 'Tactique : Études artistiques',
           subLessons: [
             { title: 'Les grands compositeurs' },
-            { title: 'Etudes de mat' },
-            { title: 'Etudes de nulle' },
-            { title: 'Etudes complexes' },
-            { title: 'Creativite tactique' }
+            { title: 'Études de mat' },
+            { title: 'Études de nulle' },
+            { title: 'Études complexes' },
+            { title: 'Créativité tactique' }
           ]
         },
         {
@@ -1165,32 +1171,32 @@ export class ProgrammeComponent implements OnInit {
         },
         {
           id: 64,
-          title: 'Les desequilibres',
+          title: 'Les déséquilibres',
           subLessons: [
-            { title: 'Structure de pions vs developpement' },
-            { title: 'Materiel vs initiative' },
-            { title: 'Espace vs pieces actives' },
-            { title: 'Evaluation dynamique' },
-            { title: 'Prise de decision' }
+            { title: 'Structure de pions vs développement' },
+            { title: 'Matériel vs initiative' },
+            { title: 'Espace vs pièces actives' },
+            { title: 'Évaluation dynamique' },
+            { title: 'Prise de décision' }
           ]
         },
         {
           id: 65,
-          title: 'Theorie d\'ouvertures : Lignes critiques',
+          title: 'Théorie d\'ouvertures : Lignes critiques',
           subLessons: [
             { title: 'Analyse des lignes principales' },
-            { title: 'Nouveautes theoriques' },
-            { title: 'Preparation contre un adversaire' },
-            { title: 'Memorisation efficace' },
+            { title: 'Nouveautés théoriques' },
+            { title: 'Préparation contre un adversaire' },
+            { title: 'Mémorisation efficace' },
             { title: 'Utilisation des engines' }
           ]
         },
         {
           id: 66,
-          title: 'Theorie d\'ouvertures : Systemes anti-mainline',
+          title: 'Théorie d\'ouvertures : Systèmes anti-mainline',
           subLessons: [
             { title: 'Surprise opening' },
-            { title: 'Repertoire secondaire' },
+            { title: 'Répertoire secondaire' },
             { title: 'Gambits dangereux' },
             { title: 'Lignes de surprise' }
           ]
@@ -1200,31 +1206,31 @@ export class ProgrammeComponent implements OnInit {
           title: 'Le milieu de jeu complexe',
           subLessons: [
             { title: 'Positions critiques' },
-            { title: 'Evaluation des positions complexes' },
+            { title: 'Évaluation des positions complexes' },
             { title: 'Plans dans des positions inconnues' },
             { title: 'Gestion de l\'incertitude' },
-            { title: 'Parties decisives' }
+            { title: 'Parties décisives' }
           ]
         },
         {
           id: 68,
           title: 'Technique de conversion',
           subLessons: [
-            { title: 'Convertir un avantage materiel' },
+            { title: 'Convertir un avantage matériel' },
             { title: 'Convertir un avantage positionnel' },
             { title: 'Simplification technique' },
-            { title: 'Eviter les pieges' }
+            { title: 'Éviter les pièges' }
           ]
         },
         {
           id: 69,
-          title: 'Defense dans les positions difficiles',
+          title: 'Défense dans les positions difficiles',
           subLessons: [
-            { title: 'Ressources cachees' },
-            { title: 'Defense active' },
+            { title: 'Ressources cachées' },
+            { title: 'Défense active' },
             { title: 'Contre-jeu pratique' },
-            { title: 'Psychologie defensive' },
-            { title: 'Exemples celebres' }
+            { title: 'Psychologie défensive' },
+            { title: 'Exemples célèbres' }
           ]
         },
         {
@@ -1234,18 +1240,18 @@ export class ProgrammeComponent implements OnInit {
             { title: 'Tour et Fou vs Tour' },
             { title: 'Tour et Cavalier vs Tour' },
             { title: 'Deux Tours vs Dame' },
-            { title: 'Finales theoriques avancees' }
+            { title: 'Finales théoriques avancées' }
           ]
         },
         {
           id: 71,
           title: 'Finales complexes (2)',
           subLessons: [
-            { title: 'Dame vs deux pieces' },
-            { title: 'Trois pieces vs Dame' },
-            { title: 'Finales de pieces lourdes' },
+            { title: 'Dame vs deux pièces' },
+            { title: 'Trois pièces vs Dame' },
+            { title: 'Finales de pièces lourdes' },
             { title: 'Positions exceptionnelles' },
-            { title: 'Etude approfondie' }
+            { title: 'Étude approfondie' }
           ]
         },
         {
@@ -1253,41 +1259,41 @@ export class ProgrammeComponent implements OnInit {
           title: 'Analyse avec moteur',
           subLessons: [
             { title: 'Utilisation efficace de Stockfish' },
-            { title: 'Interpretation des evaluations' },
+            { title: 'Interprétation des évaluations' },
             { title: 'Quand faire confiance au moteur' },
             { title: 'Analyse critique' },
-            { title: 'Ameliorer son jeu avec les engines' }
+            { title: 'Améliorer son jeu avec les engines' }
           ]
         },
         {
           id: 73,
-          title: 'Preparation specifique aux adversaires',
+          title: 'Préparation spécifique aux adversaires',
           subLessons: [
-            { title: 'Etude du repertoire adverse' },
+            { title: 'Étude du répertoire adverse' },
             { title: 'Identifier les faiblesses' },
-            { title: 'Preparer des surprises' },
+            { title: 'Préparer des surprises' },
             { title: 'Adaptation du style' }
           ]
         },
         {
           id: 74,
-          title: 'Gestion du temps en competition',
+          title: 'Gestion du temps en compétition',
           subLessons: [
             { title: 'Cadences rapides' },
-            { title: 'Zeitnot et prise de decision' },
+            { title: 'Zeitnot et prise de décision' },
             { title: 'Increment et gestion' },
-            { title: 'Exercices en temps reel' }
+            { title: 'Exercices en temps réel' }
           ]
         },
         {
           id: 75,
-          title: 'Psychologie avancee',
+          title: 'Psychologie avancée',
           subLessons: [
             { title: 'Lecture de l\'adversaire' },
-            { title: 'Gerer la pression' },
-            { title: 'Resilience mentale' },
+            { title: 'Gérer la pression' },
+            { title: 'Résilience mentale' },
             { title: 'Pic de performance' },
-            { title: 'Recuperation entre parties' }
+            { title: 'Récupération entre parties' }
           ]
         },
         {
@@ -1302,56 +1308,56 @@ export class ProgrammeComponent implements OnInit {
         },
         {
           id: 77,
-          title: 'Etude des champions du monde',
+          title: 'Étude des champions du monde',
           subLessons: [
             { title: 'Steinitz et les principes modernes' },
             { title: 'Alekhine et l\'attaque' },
             { title: 'Capablanca et la technique' },
-            { title: 'Fischer et la precision' },
+            { title: 'Fischer et la précision' },
             { title: 'Kasparov et la dynamique' },
-            { title: 'Carlsen et l\'universalite' }
+            { title: 'Carlsen et l\'universalité' }
           ]
         },
         {
           id: 78,
-          title: 'Entrainement intensif',
+          title: 'Entraînement intensif',
           subLessons: [
-            { title: 'Programme d\'entrainement' },
+            { title: 'Programme d\'entraînement' },
             { title: 'Exercices quotidiens' },
-            { title: 'Analyse reguliere' },
+            { title: 'Analyse régulière' },
             { title: 'Objectifs mesurables' },
-            { title: 'Suivi des progres' }
+            { title: 'Suivi des progrès' }
           ]
         },
         {
           id: 79,
-          title: 'Preparation aux normes de titre',
+          title: 'Préparation aux normes de titre',
           subLessons: [
-            { title: 'Comprendre le systeme Elo' },
+            { title: 'Comprendre le système Elo' },
             { title: 'Normes FM, IM, GM' },
-            { title: 'Selection des tournois' },
-            { title: 'Strategie de performance' }
+            { title: 'Sélection des tournois' },
+            { title: 'Stratégie de performance' }
           ]
         },
         {
           id: 80,
-          title: 'Revision et evaluation Roi',
+          title: 'Révision et évaluation Roi',
           subLessons: [
             { title: 'Test tactique expert' },
-            { title: 'Evaluation strategique avancee' },
-            { title: 'Finales theoriques' },
-            { title: 'Analyse complete de partie' },
-            { title: 'Plan de progression personnalise' },
+            { title: 'Évaluation stratégique avancée' },
+            { title: 'Finales théoriques' },
+            { title: 'Analyse complète de partie' },
+            { title: 'Plan de progression personnalisé' },
             { title: 'Certification du niveau' }
           ]
         },
         {
           id: 111,
-          title: 'Calcul a longue portee',
+          title: 'Calcul à longue portée',
           subLessons: [
             { title: 'Calcul de 10+ coups' },
-            { title: 'Visualisation avancee' },
-            { title: 'Verification systematique' },
+            { title: 'Visualisation avancée' },
+            { title: 'Vérification systématique' },
             { title: 'Exercices de haut niveau' }
           ]
         },
@@ -1359,20 +1365,20 @@ export class ProgrammeComponent implements OnInit {
           id: 112,
           title: 'Intuition et jugement positionnel',
           subLessons: [
-            { title: 'Developper son intuition' },
+            { title: 'Développer son intuition' },
             { title: 'Jugement sans calcul' },
             { title: 'Sens positionnel' },
-            { title: 'Exercices d\'evaluation' }
+            { title: 'Exercices d\'évaluation' }
           ]
         },
         {
           id: 113,
-          title: 'Preparation d\'ouverture specifique',
+          title: 'Préparation d\'ouverture spécifique',
           subLessons: [
-            { title: 'Etude approfondie d\'une ligne' },
-            { title: 'Memorisation efficace' },
-            { title: 'Nouveautes a preparer' },
-            { title: 'Fichiers de preparation' }
+            { title: 'Étude approfondie d\'une ligne' },
+            { title: 'Mémorisation efficace' },
+            { title: 'Nouveautés à préparer' },
+            { title: 'Fichiers de préparation' }
           ]
         },
         {
@@ -1381,17 +1387,17 @@ export class ProgrammeComponent implements OnInit {
           subLessons: [
             { title: 'Changer la structure' },
             { title: 'Ouverture vs fermeture du centre' },
-            { title: 'Percees de pions' },
+            { title: 'Percées de pions' },
             { title: 'Timing des transformations' }
           ]
         },
         {
           id: 115,
-          title: 'Finales de pieces lourdes',
+          title: 'Finales de pièces lourdes',
           subLessons: [
             { title: 'Dame et Tour vs Dame et Tour' },
             { title: 'Technique de conversion' },
-            { title: 'Positions theoriques' },
+            { title: 'Positions théoriques' },
             { title: 'Exercices pratiques' }
           ]
         },
@@ -1401,33 +1407,33 @@ export class ProgrammeComponent implements OnInit {
           subLessons: [
             { title: 'Le style universel de Carlsen' },
             { title: 'Technique en finale' },
-            { title: 'Parties commentees' },
-            { title: 'Lecons a retenir' }
+            { title: 'Parties commentées' },
+            { title: 'Leçons à retenir' }
           ]
         },
         {
           id: 117,
-          title: 'L\'art de la defense',
+          title: 'L\'art de la défense',
           subLessons: [
-            { title: 'Defense passive vs active' },
-            { title: 'Ressources defensives' },
+            { title: 'Défense passive vs active' },
+            { title: 'Ressources défensives' },
             { title: 'Sauver des positions perdues' },
-            { title: 'Psychologie defensive' }
+            { title: 'Psychologie défensive' }
           ]
         },
         {
           id: 118,
-          title: 'Psychologie en competition',
+          title: 'Psychologie en compétition',
           subLessons: [
-            { title: 'Gerer la pression' },
+            { title: 'Gérer la pression' },
             { title: 'Concentration maximale' },
-            { title: 'Recuperation entre parties' },
-            { title: 'Mentalite de champion' }
+            { title: 'Récupération entre parties' },
+            { title: 'Mentalité de champion' }
           ]
         },
         {
           id: 119,
-          title: 'Strategies pour gagner des points Elo',
+          title: 'Stratégies pour gagner des points Elo',
           subLessons: [
             { title: 'Choix des tournois' },
             { title: 'Gestion des adversaires' },
@@ -1440,9 +1446,9 @@ export class ProgrammeComponent implements OnInit {
           title: 'Examen final Roi',
           subLessons: [
             { title: 'Test tactique expert' },
-            { title: 'Evaluation strategique complete' },
+            { title: 'Évaluation stratégique complète' },
             { title: 'Finales complexes' },
-            { title: 'Analyse de partie complete' },
+            { title: 'Analyse de partie complète' },
             { title: 'Certification Expert' }
           ]
         }

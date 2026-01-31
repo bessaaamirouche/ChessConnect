@@ -35,9 +35,9 @@ export class BlogListComponent implements OnInit {
 
   ngOnInit(): void {
     this.seoService.updateMetaTags({
-      title: 'Blog - mychess | Conseils et strategies aux echecs',
-      description: 'Decouvrez nos articles sur les echecs : conseils pour debutants, strategies avancees, ouvertures, finales et bien plus encore.',
-      keywords: 'blog echecs, conseils echecs, strategie echecs, apprendre echecs'
+      title: 'Blog - mychess | Conseils et stratégies aux échecs',
+      description: 'Découvrez nos articles sur les échecs : conseils pour débutants, stratégies avancées, ouvertures, finales et bien plus encore.',
+      keywords: 'blog échecs, conseils échecs, stratégie échecs, apprendre échecs'
     });
 
     this.loadArticles();

@@ -68,7 +68,7 @@ export class UserLayoutComponent implements OnInit {
 
     // Compte section
     const compteItems: SidebarItem[] = [
-      { label: 'Mon Profil', icon: 'heroUserCircle', route: '/settings' }
+      { label: 'Parametres', icon: 'heroCog6Tooth', route: '/settings' }
     ];
 
     if (this.authService.isStudent()) {

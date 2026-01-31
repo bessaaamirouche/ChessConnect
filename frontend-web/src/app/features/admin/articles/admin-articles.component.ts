@@ -29,7 +29,7 @@ import { DialogService } from '../../../core/services/dialog.service';
             <thead>
               <tr>
                 <th>Titre</th>
-                <th>Categorie</th>
+                <th>Catégorie</th>
                 <th>Auteur</th>
                 <th>Date</th>
                 <th>Statut</th>
@@ -60,7 +60,7 @@ import { DialogService } from '../../../core/services/dialog.service';
                   </td>
                   <td>
                     @if (article.published) {
-                      <span class="badge badge--published">Publie</span>
+                      <span class="badge badge--published">Publié</span>
                     } @else {
                       <span class="badge badge--draft">Brouillon</span>
                     }
@@ -80,7 +80,7 @@ import { DialogService } from '../../../core/services/dialog.service';
                           (click)="unpublishArticle(article)"
                           [disabled]="actionLoading()"
                         >
-                          Depublier
+                          Dépublier
                         </button>
                       } @else {
                         <button
@@ -117,7 +117,7 @@ import { DialogService } from '../../../core/services/dialog.service';
               [disabled]="currentPage() === 0"
               (click)="loadArticles(currentPage() - 1)"
             >
-              Precedent
+              Précédent
             </button>
             <span>Page {{ currentPage() + 1 }} / {{ articles()!.totalPages }}</span>
             <button
@@ -146,7 +146,7 @@ import { DialogService } from '../../../core/services/dialog.service';
                   <input type="text" [(ngModel)]="formData.title" class="input" placeholder="Titre de l'article">
                 </div>
                 <div class="form-group">
-                  <label>Categorie *</label>
+                  <label>Catégorie *</label>
                   <select [(ngModel)]="formData.category" class="input">
                     @for (cat of categoryKeys; track cat) {
                       <option [value]="cat">{{ categories[cat].label }}</option>
@@ -178,7 +178,7 @@ import { DialogService } from '../../../core/services/dialog.service';
 
               <div class="form-group">
                 <label>Extrait</label>
-                <textarea [(ngModel)]="formData.excerpt" class="input textarea" rows="2" placeholder="Resume court de l'article"></textarea>
+                <textarea [(ngModel)]="formData.excerpt" class="input textarea" rows="2" placeholder="Résumé court de l'article"></textarea>
               </div>
 
               <div class="form-group">
@@ -191,7 +191,7 @@ Votre contenu en Markdown..."></textarea>
               <div class="form-group">
                 <label class="checkbox-label">
                   <input type="checkbox" [(ngModel)]="formData.published">
-                  <span>Publier immediatement</span>
+                  <span>Publier immédiatement</span>
                 </label>
               </div>
             </div>
@@ -205,7 +205,7 @@ Votre contenu en Markdown..."></textarea>
                 @if (saving()) {
                   Enregistrement...
                 } @else {
-                  {{ editingArticle() ? 'Enregistrer' : 'Creer' }}
+                  {{ editingArticle() ? 'Enregistrer' : 'Créer' }}
                 }
               </button>
             </div>
@@ -219,7 +219,7 @@ Votre contenu en Markdown..."></textarea>
           <div class="modal" (click)="$event.stopPropagation()">
             <h3>Confirmer la suppression</h3>
             <p>Voulez-vous vraiment supprimer l'article <strong>{{ articleToDelete()?.title }}</strong> ?</p>
-            <p class="warning">Cette action est irreversible.</p>
+            <p class="warning">Cette action est irréversible.</p>
             <div class="modal-actions">
               <button class="btn btn--ghost" (click)="cancelDelete()">Non, annuler</button>
               <button class="btn btn--danger" (click)="deleteArticle()" [disabled]="actionLoading()">

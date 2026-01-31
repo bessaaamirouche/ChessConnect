@@ -21,7 +21,7 @@ public class JitsiTokenService {
     @Value("${jitsi.app-id:mychess}")
     private String appId;
 
-    @Value("${jitsi.app-secret:cb2431b0b8102427d94c0365abc301e8b9714d5d5eca6526e115de638f8ae77d}")
+    @Value("${jitsi.app-secret}")
     private String appSecret;
 
     @Value("${jitsi.domain:meet.mychess.fr}")

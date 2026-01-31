@@ -224,4 +224,17 @@ export class LessonService {
       })
     );
   }
+
+  /**
+   * Update teacher comment on a lesson (teachers only)
+   */
+  updateTeacherComment(lessonId: number, comment: string): Observable<Lesson> {
+    return this.http.patch<Lesson>(`${this.apiUrl}/${lessonId}/comment`, { comment }).pipe(
+      tap((updatedLesson) => {
+        this.lessonHistorySignal.update(lessons =>
+          lessons.map(l => l.id === lessonId ? updatedLesson : l)
+        );
+      })
+    );
+  }
 }

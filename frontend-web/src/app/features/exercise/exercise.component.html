@@ -7,7 +7,7 @@
 
     @if (exercise()) {
       <div class="exercise-header__info">
-        <h1>{{ exercise()!.courseTitle || ('Entrainement niveau ' + (exercise()!.chessLevel || 'Debutant')) }}</h1>
+        <h1>{{ exercise()!.courseTitle || ('Entraînement niveau ' + (exercise()!.chessLevel || 'Débutant')) }}</h1>
         <p class="lesson-meta">myChessBot en mode {{ difficultyLabels[exercise()!.difficultyLevel].label }}</p>
         <div class="exercise-badges">
           <span
@@ -21,7 +21,7 @@
           @if (engineService.thinking()) {
             <span class="thinking-badge">
               <span class="thinking-dot"></span>
-              myChessBot reflechit...
+              myChessBot réfléchit...
             </span>
           }
         </div>
@@ -35,7 +35,7 @@
         <div class="spinner"></div>
         <p>Chargement de l'exercice...</p>
         @if (!engineInitialized()) {
-          <p class="loading-hint">Initialisation du moteur d'echecs...</p>
+          <p class="loading-hint">Initialisation du moteur d'échecs...</p>
         }
       </div>
     } @else if (exerciseService.error()) {
@@ -73,15 +73,15 @@
               @if (gameStatus() === 'player_won') {
                 <ng-icon name="heroTrophy" size="32"></ng-icon>
                 <h2>Victoire !</h2>
-                <p>Felicitations, vous avez battu myChessBot !</p>
+                <p>Félicitations, vous avez battu myChessBot !</p>
               } @else if (gameStatus() === 'ai_won') {
                 <ng-icon name="heroXCircle" size="32"></ng-icon>
-                <h2>Defaite</h2>
-                <p>myChessBot a gagne cette partie.</p>
+                <h2>Défaite</h2>
+                <p>myChessBot a gagné cette partie.</p>
               } @else {
                 <ng-icon name="heroExclamationTriangle" size="32"></ng-icon>
                 <h2>Match nul</h2>
-                <p>La partie s'est terminee par une egalite.</p>
+                <p>La partie s'est terminée par une égalité.</p>
               }
               <button class="btn btn--primary" (click)="onReset()">
                 Rejouer
@@ -130,7 +130,7 @@
                 </div>
               }
               @if (moveHistory().length === 0) {
-                <p class="no-moves">Aucun coup joue</p>
+                <p class="no-moves">Aucun coup joué</p>
               }
             </div>
           </div>

@@ -19,7 +19,7 @@ export interface Exercise {
 }
 
 export const DIFFICULTY_LABELS: Record<DifficultyLevel, { label: string; color: string }> = {
-  DEBUTANT: { label: 'Debutant', color: '#4ade80' },
+  DEBUTANT: { label: 'Débutant', color: '#4ade80' },
   FACILE: { label: 'Facile', color: '#60a5fa' },
   MOYEN: { label: 'Moyen', color: '#fbbf24' },
   DIFFICILE: { label: 'Difficile', color: '#f97316' },

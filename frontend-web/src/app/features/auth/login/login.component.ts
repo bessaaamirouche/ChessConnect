@@ -115,7 +115,7 @@ export class LoginComponent {
       },
       error: (err) => {
         this.resendingEmail.set(false);
-        this.resendError.set(err.error?.message || 'Erreur lors de l\'envoi. Veuillez reessayer.');
+        this.resendError.set(err.error?.message || 'Erreur lors de l\'envoi. Veuillez réessayer.');
       }
     });
   }
@@ -142,7 +142,7 @@ export class LoginComponent {
         this.contactLoading.set(false);
       },
       error: (err) => {
-        this.contactError.set(err.error?.error || 'Erreur lors de l\'envoi du message. Veuillez reessayer.');
+        this.contactError.set(err.error?.error || 'Erreur lors de l\'envoi du message. Veuillez réessayer.');
         this.contactLoading.set(false);
       }
     });

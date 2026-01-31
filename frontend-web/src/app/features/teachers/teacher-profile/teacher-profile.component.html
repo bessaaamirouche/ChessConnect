@@ -23,7 +23,7 @@
             }
           </div>
           <h1 class="contact-card__name">{{ teacher.firstName }} {{ teacher.lastName }}</h1>
-          <p class="contact-card__title">Coach d'echecs</p>
+          <p class="contact-card__title">Coach d'échecs</p>
           @if (teacher.isOnline) {
             <span class="contact-card__status">
               <span class="status-dot"></span>
@@ -37,7 +37,7 @@
           <div class="contact-card__actions">
             <a [routerLink]="['/book', teacher.id]" class="action-btn action-btn--primary">
               <span class="action-btn__icon">&#128197;</span>
-              <span class="action-btn__label">Reserver</span>
+              <span class="action-btn__label">Réserver</span>
             </a>
             <button
               class="action-btn"
@@ -52,7 +52,7 @@
           <div class="contact-card__actions contact-card__actions--single">
             <a [routerLink]="['/book', teacher.id]" class="action-btn action-btn--primary action-btn--large">
               <span class="action-btn__icon">&#128197;</span>
-              <span class="action-btn__label">Reserver un cours</span>
+              <span class="action-btn__label">Réserver un cours</span>
             </a>
           </div>
         }
@@ -88,13 +88,13 @@
               }
               @if (teacher.lessonsCompleted) {
                 <div class="info-row">
-                  <span class="info-row__label">Cours donnes</span>
+                  <span class="info-row__label">Cours donnés</span>
                   <span class="info-row__value">{{ teacher.lessonsCompleted }}</span>
                 </div>
               }
               @if (teacher.totalStudents) {
                 <div class="info-row">
-                  <span class="info-row__label">Eleves</span>
+                  <span class="info-row__label">Élèves</span>
                   <span class="info-row__value">{{ teacher.totalStudents }}</span>
                 </div>
               }
@@ -118,7 +118,7 @@
           <!-- Bio -->
           @if (teacher.bio) {
             <div class="info-section info-section--bio">
-              <span class="info-section__title">A propos</span>
+              <span class="info-section__title">À propos</span>
               <p class="info-section__text">{{ teacher.bio }}</p>
             </div>
           }
@@ -141,10 +141,10 @@
                 }
               </div>
               @if (paymentService.hasActiveSubscription()) {
-                <p class="info-section__hint">Recevoir un email quand ce coach publie des creneaux</p>
+                <p class="info-section__hint">Recevoir un email quand ce coach publie des créneaux</p>
               } @else {
                 <p class="info-section__hint info-section__hint--premium">
-                  <a routerLink="/subscription">Passez Premium</a> pour recevoir les alertes de disponibilites
+                  <a routerLink="/subscription">Passez Premium</a> pour recevoir les alertes de disponibilités
                 </p>
               }
             </div>

@@ -12,21 +12,21 @@
             <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
           </svg>
         </div>
-        <h1 class="heading-3">Verifiez votre email</h1>
+        <h1 class="heading-3">Vérifiez votre email</h1>
         <p class="text-secondary">
-          Un email de verification a ete envoye a<br>
+          Un email de vérification a été envoyé à<br>
           <strong class="text-gold">{{ registeredEmail() }}</strong>
         </p>
 
         <div class="register-success__info">
-          <p>Cliquez sur le lien dans l'email pour activer votre compte et acceder a la plateforme.</p>
+          <p>Cliquez sur le lien dans l'email pour activer votre compte et accéder à la plateforme.</p>
           <p class="text-warning-subtle">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-right: 4px;">
               <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
               <path d="M12 9v4"/>
               <path d="M12 17h.01"/>
             </svg>
-            Pensez a verifier vos spams si vous ne recevez pas l'email.
+            Pensez à vérifier vos spams si vous ne recevez pas l'email.
           </p>
           <small class="text-muted">Le lien expire dans 24 heures.</small>
         </div>
@@ -34,7 +34,7 @@
         <div class="register-success__actions">
           @if (resendSuccess()) {
             <div class="alert alert--success">
-              Email renvoye ! Verifiez votre boite de reception.
+              Email renvoyé ! Vérifiez votre boîte de réception.
             </div>
           }
           <button
@@ -50,12 +50,12 @@
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
               </svg>
-              Renvoyer l'email de verification
+              Renvoyer l'email de vérification
             }
           </button>
           <a routerLink="/login" class="btn btn--primary btn--block">
             <ng-icon name="heroArrowRight"></ng-icon>
-            Aller a la page de connexion
+            Aller à la page de connexion
           </a>
         </div>
       </div>
@@ -113,11 +113,11 @@
           @if (registerForm.get('firstName')?.invalid && registerForm.get('firstName')?.touched) {
             <span class="form-group__error">
               @if (registerForm.get('firstName')?.errors?.['required']) {
-                Prenom requis
+                Prénom requis
               } @else if (registerForm.get('firstName')?.errors?.['minlength']) {
-                Minimum 2 caracteres
+                Minimum 2 caractères
               } @else if (registerForm.get('firstName')?.errors?.['invalidName']) {
-                Caracteres speciaux non autorises
+                Caractères spéciaux non autorisés
               }
             </span>
           }
@@ -137,9 +137,9 @@
               @if (registerForm.get('lastName')?.errors?.['required']) {
                 Nom requis
               } @else if (registerForm.get('lastName')?.errors?.['minlength']) {
-                Minimum 2 caracteres
+                Minimum 2 caractères
               } @else if (registerForm.get('lastName')?.errors?.['invalidName']) {
-                Caracteres speciaux non autorises
+                Caractères spéciaux non autorisés
               }
             </span>
           }
@@ -269,7 +269,7 @@
           </div>
 
           <div class="form-group">
-            <label class="form-group__label" id="languages-label">Langues parlees</label>
+            <label class="form-group__label" id="languages-label">Langues parlées</label>
             <div class="language-selector" role="group" aria-labelledby="languages-label">
               @for (lang of availableLanguages; track lang.code) {
                 <button
@@ -283,7 +283,7 @@
                 </button>
               }
             </div>
-            <small class="form-hint">Selectionnez au moins une langue</small>
+            <small class="form-hint">Sélectionnez au moins une langue</small>
           </div>
         </div>
       }

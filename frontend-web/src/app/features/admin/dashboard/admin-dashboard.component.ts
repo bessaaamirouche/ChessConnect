@@ -99,11 +99,11 @@ Chart.register(...registerables);
           <h2>Actions rapides</h2>
           <div class="action-grid">
             <a routerLink="/admin/users" class="action-card">
-              <span class="action-card__title">Gerer les utilisateurs</span>
-              <span class="action-card__desc">Voir, suspendre ou reactiver des comptes</span>
+              <span class="action-card__title">Gérer les utilisateurs</span>
+              <span class="action-card__desc">Voir, suspendre ou réactiver des comptes</span>
             </a>
             <a routerLink="/admin/accounting" class="action-card">
-              <span class="action-card__title">Comptabilite</span>
+              <span class="action-card__title">Comptabilité</span>
               <span class="action-card__desc">Revenus, commissions et soldes coachs</span>
             </a>
           </div>

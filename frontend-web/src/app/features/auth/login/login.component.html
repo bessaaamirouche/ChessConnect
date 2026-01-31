@@ -21,9 +21,9 @@
             <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
           </svg>
         </div>
-        <h2 class="verification-notice__title">Verifiez votre email</h2>
+        <h2 class="verification-notice__title">Vérifiez votre email</h2>
         <p class="verification-notice__message">
-          Votre adresse email n'a pas encore ete verifiee.
+          Votre adresse email n'a pas encore été vérifiée.
         </p>
         <p class="verification-notice__email">
           <strong class="text-gold">{{ unverifiedEmail() }}</strong>
@@ -31,8 +31,8 @@
 
         @if (resendSuccess()) {
           <div class="alert alert--success">
-            <p>Un nouvel email de verification a ete envoye !</p>
-            <p class="text-muted text-sm">Verifiez votre boite de reception et vos spams.</p>
+            <p>Un nouvel email de vérification a été envoyé !</p>
+            <p class="text-muted text-sm">Vérifiez votre boîte de réception et vos spams.</p>
           </div>
         } @else {
           <div class="alert-inline-container">
@@ -42,7 +42,7 @@
           </div>
 
           <p class="verification-notice__help">
-            Cliquez sur le lien dans l'email que vous avez recu pour activer votre compte.
+            Cliquez sur le lien dans l'email que vous avez reçu pour activer votre compte.
           </p>
 
           <button
@@ -55,7 +55,7 @@
               <span class="spinner spinner--sm"></span>
               Envoi en cours...
             } @else {
-              Renvoyer l'email de verification
+              Renvoyer l'email de vérification
             }
           </button>
         }
@@ -65,7 +65,7 @@
           class="btn btn--ghost btn--block"
           (click)="emailNotVerified.set(false)"
         >
-          Retour a la connexion
+          Retour à la connexion
         </button>
       </div>
     } @else if (isSuspended() && !showContactForm()) {
@@ -79,10 +79,10 @@
         </div>
         <h2 class="suspension-notice__title">Compte suspendu</h2>
         <p class="suspension-notice__message">
-          Votre compte a ete suspendu par l'administrateur du site.
+          Votre compte a été suspendu par l'administrateur du site.
         </p>
         <p class="suspension-notice__help">
-          Si vous pensez qu'il s'agit d'une erreur ou si vous souhaitez contester cette decision,
+          Si vous pensez qu'il s'agit d'une erreur ou si vous souhaitez contester cette décision,
           vous pouvez contacter l'administrateur.
         </p>
         <button
@@ -97,7 +97,7 @@
           class="btn btn--ghost btn--block"
           (click)="isSuspended.set(false)"
         >
-          Retour a la connexion
+          Retour à la connexion
         </button>
       </div>
     } @else if (showContactForm()) {
@@ -106,15 +106,15 @@
 
         @if (contactSuccess()) {
           <div class="alert alert--success">
-            <p><strong>Message envoye !</strong></p>
-            <p>L'administrateur vous repondra dans les plus brefs delais.</p>
+            <p><strong>Message envoyé !</strong></p>
+            <p>L'administrateur vous répondra dans les plus brefs délais.</p>
           </div>
           <button
             type="button"
             class="btn btn--ghost btn--block"
             (click)="closeContactForm(); isSuspended.set(false)"
           >
-            Retour a la connexion
+            Retour à la connexion
           </button>
         } @else {
           <div class="alert-inline-container">
@@ -135,7 +135,7 @@
                 placeholder="Jean Dupont"
               >
               @if (contactForm.get('name')?.invalid && contactForm.get('name')?.touched) {
-                <span class="form-group__error">Nom requis (min. 2 caracteres)</span>
+                <span class="form-group__error">Nom requis (min. 2 caractères)</span>
               }
             </div>
 
@@ -165,7 +165,7 @@
                 placeholder="Contestation de suspension"
               >
               @if (contactForm.get('subject')?.invalid && contactForm.get('subject')?.touched) {
-                <span class="form-group__error">Sujet requis (min. 5 caracteres)</span>
+                <span class="form-group__error">Sujet requis (min. 5 caractères)</span>
               }
             </div>
 
@@ -180,7 +180,7 @@
                 rows="5"
               ></textarea>
               @if (contactForm.get('message')?.invalid && contactForm.get('message')?.touched) {
-                <span class="form-group__error">Message requis (min. 10 caracteres)</span>
+                <span class="form-group__error">Message requis (min. 10 caractères)</span>
               }
             </div>
 
@@ -256,9 +256,9 @@
             </button>
           </div>
           @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
-            <span class="form-group__error">8 caracteres minimum</span>
+            <span class="form-group__error">8 caractères minimum</span>
           }
-          <a routerLink="/forgot-password" class="forgot-password-link">Mot de passe oublie ?</a>
+          <a routerLink="/forgot-password" class="forgot-password-link">Mot de passe oublié ?</a>
         </div>
 
         <button
@@ -278,7 +278,7 @@
       <div class="auth-card__footer">
         <p>
           Pas encore de compte ?
-          <a routerLink="/register" class="text-gold">Creer un compte</a>
+          <a routerLink="/register" class="text-gold">Créer un compte</a>
         </p>
       </div>
     }

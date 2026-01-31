@@ -39,7 +39,7 @@ interface FirstLessonResponse {
         <header class="modal__header">
           <h2 class="modal__title">
             @if (isFirstLesson()) {
-              Evaluation de l'joueur
+              Évaluation du joueur
             } @else {
               Validation des cours
             }
@@ -62,7 +62,7 @@ interface FirstLessonResponse {
                 <div class="evaluation-mode__header">
                   <ng-icon name="heroAcademicCap" size="48" class="evaluation-mode__icon"></ng-icon>
                   <h3>Premier cours avec {{ studentName() }}</h3>
-                  <p>Définissez le niveau de cet joueur après avoir évalué ses compétences.</p>
+                  <p>Définissez le niveau de ce joueur après avoir évalué ses compétences.</p>
                 </div>
 
                 <div class="level-selection">
@@ -105,7 +105,7 @@ interface FirstLessonResponse {
               <div class="validation-mode">
                 <div class="validation-mode__header">
                   <h3>Cours avec {{ studentName() }}</h3>
-                  <p>Validez les cours que cet joueur a maîtrisés.</p>
+                  <p>Validez les cours que ce joueur a maîtrisés.</p>
                 </div>
 
                 @if (learningPathService.studentProfile()) {

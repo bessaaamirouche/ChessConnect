@@ -27,7 +27,7 @@ export class AdminLayoutComponent {
         { label: 'Vue d\'ensemble', icon: 'heroChartBarSquare', route: '/admin/dashboard' },
         { label: 'Utilisateurs', icon: 'heroUsers', route: '/admin/users' },
         { label: 'Cours', icon: 'heroCalendarDays', route: '/admin/lessons' },
-        { label: 'Comptabilite', icon: 'heroBanknotes', route: '/admin/accounting' },
+        { label: 'Comptabilité', icon: 'heroBanknotes', route: '/admin/accounting' },
         { label: 'Factures', icon: 'heroDocumentText', route: '/admin/invoices' },
         { label: 'Blog', icon: 'heroNewspaper', route: '/admin/blog' }
       ]
@@ -35,7 +35,7 @@ export class AdminLayoutComponent {
     {
       title: 'Compte',
       items: [
-        { label: 'Deconnexion', icon: 'heroArrowRightOnRectangle', action: () => this.logout() }
+        { label: 'Déconnexion', icon: 'heroArrowRightOnRectangle', action: () => this.logout() }
       ]
     }
   ];

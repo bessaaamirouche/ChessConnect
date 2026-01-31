@@ -143,9 +143,9 @@ export class InactivityService implements OnDestroy {
 
     this.ngZone.run(async () => {
       const stay = await this.dialogService.confirm(
-        'Vous allez etre deconnecte dans 5 minutes pour inactivite. Voulez-vous rester connecte ?',
+        'Vous allez être déconnecté dans 5 minutes pour inactivité. Voulez-vous rester connecté ?',
         'Session inactive',
-        { confirmText: 'Rester connecte', cancelText: 'Se deconnecter', variant: 'warning' }
+        { confirmText: 'Rester connecté', cancelText: 'Se déconnecter', variant: 'warning' }
       );
       if (stay) {
         this.resetTimer();
@@ -160,8 +160,8 @@ export class InactivityService implements OnDestroy {
     this.clearStoredActivity();
     this.authService.logout();
     this.dialogService.alert(
-      'Vous avez ete deconnecte pour inactivite (plus d\'une heure sans activite).',
-      'Deconnexion',
+      'Vous avez été déconnecté pour inactivité (plus d\'une heure sans activité).',
+      'Déconnexion',
       { variant: 'warning' }
     );
   }

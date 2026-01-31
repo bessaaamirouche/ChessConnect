@@ -62,7 +62,6 @@ public class SecurityConfig {
                         .requestMatchers("/payments/admin/**").permitAll()
                         .requestMatchers("/contact/**").permitAll()
                         .requestMatchers("/recordings/webhook").permitAll()
-                        .requestMatchers("/recordings/video/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/articles/**").permitAll()
                         .requestMatchers("/sitemap.xml").permitAll()
                         .requestMatchers("/robots.txt").permitAll()
@@ -92,18 +91,29 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Use patterns to work better with reverse proxies
+        // Use specific patterns - avoid wildcards that could match malicious domains
         configuration.setAllowedOriginPatterns(List.of(
-                "http://localhost:*",
+                "http://localhost:4200",
+                "http://localhost:3000",
+                "http://127.0.0.1:4200",
+                "http://127.0.0.1:3000",
                 "http://mychess.fr",
                 "https://mychess.fr",
                 "http://www.mychess.fr",
                 "https://www.mychess.fr",
-                "http://*.mychess.fr",
-                "https://*.mychess.fr"
+                "http://meet.mychess.fr",
+                "https://meet.mychess.fr"
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("*"));
+        // Explicit headers instead of wildcard
+        configuration.setAllowedHeaders(List.of(
+                "Authorization",
+                "Content-Type",
+                "Accept",
+                "Origin",
+                "X-Requested-With",
+                "Cache-Control"
+        ));
         configuration.setAllowCredentials(true);
         configuration.setExposedHeaders(List.of("Authorization"));
 

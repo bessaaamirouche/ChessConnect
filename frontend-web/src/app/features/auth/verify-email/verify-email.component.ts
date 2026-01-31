@@ -140,7 +140,7 @@ export class VerifyEmailComponent implements OnInit {
 
   loading = signal(true);
   success = signal(false);
-  errorMessage = signal('Le lien de verification est invalide ou a expire.');
+  errorMessage = signal('Le lien de vérification est invalide ou a expiré.');
 
   ngOnInit(): void {
     // Only run verification in browser (not during SSR)
@@ -168,7 +168,7 @@ export class VerifyEmailComponent implements OnInit {
       error: (err) => {
         this.loading.set(false);
         this.success.set(false);
-        this.errorMessage.set(err.error?.message || 'Le lien de verification est invalide ou a expire.');
+        this.errorMessage.set(err.error?.message || 'Le lien de vérification est invalide ou a expiré.');
       }
     });
   }

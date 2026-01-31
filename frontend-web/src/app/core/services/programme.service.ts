@@ -40,10 +40,10 @@ export class ProgrammeService {
   readonly coursesByLevel = computed(() => {
     const courses = this.coursesSignal();
     const levels: ProgrammeLevel[] = [
-      { code: 'A', name: 'Pion - Debutant', description: 'Les fondamentaux des echecs (50h)', color: '#78716c', courses: [] },
-      { code: 'B', name: 'Cavalier - Intermediaire', description: 'Approfondissement tactique et strategique (60h)', color: '#22c55e', courses: [] },
-      { code: 'C', name: 'Reine - Avance', description: 'Maitrise strategique et preparation approfondie (70h)', color: '#a855f7', courses: [] },
-      { code: 'D', name: 'Roi - Expert', description: 'Perfectionnement et preparation professionnelle (80h)', color: '#eab308', courses: [] }
+      { code: 'A', name: 'Pion - Débutant', description: 'Les fondamentaux des échecs (50h)', color: '#78716c', courses: [] },
+      { code: 'B', name: 'Cavalier - Intermédiaire', description: 'Approfondissement tactique et stratégique (60h)', color: '#22c55e', courses: [] },
+      { code: 'C', name: 'Reine - Avancé', description: 'Maîtrise stratégique et préparation approfondie (70h)', color: '#a855f7', courses: [] },
+      { code: 'D', name: 'Roi - Expert', description: 'Perfectionnement et préparation professionnelle (80h)', color: '#eab308', courses: [] }
     ];
 
     courses.forEach(course => {
@@ -142,9 +142,9 @@ export class ProgrammeService {
 
   getLevelName(levelCode: string): string {
     const names: Record<string, string> = {
-      'A': 'Debutant',
-      'B': 'Intermediaire',
-      'C': 'Avance',
+      'A': 'Débutant',
+      'B': 'Intermédiaire',
+      'C': 'Avancé',
       'D': 'Expert'
     };
     return names[levelCode] || levelCode;

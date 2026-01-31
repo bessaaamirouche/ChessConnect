@@ -45,6 +45,32 @@
     gap: var(--space-md);
     padding: var(--space-md);
   }
+
+  &--small {
+    margin-top: var(--space-xl);
+    margin-bottom: 0;
+    padding: var(--space-sm) var(--space-md);
+    gap: var(--space-md);
+    justify-content: center;
+    background: transparent;
+    border: none;
+
+    .stat-item {
+      flex: 0;
+      flex-direction: row;
+      gap: var(--space-xs);
+
+      .stat-value {
+        font-size: 0.875rem;
+        color: var(--text-muted);
+      }
+
+      .stat-label {
+        font-size: 0.75rem;
+        margin-top: 0;
+      }
+    }
+  }
 }
 
 .stat-item {

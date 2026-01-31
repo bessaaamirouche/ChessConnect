@@ -13,7 +13,7 @@ import { DialogService } from '../../../core/services/dialog.service';
   template: `
     <div class="accounting">
       <header class="page-header">
-        <h1>Comptabilite</h1>
+        <h1>Comptabilité</h1>
       </header>
 
       @if (loading()) {
@@ -49,11 +49,11 @@ import { DialogService } from '../../../core/services/dialog.service';
               </div>
               <div class="lessons-stat lessons-stat--success">
                 <span class="lessons-stat__value">{{ accounting()!.completedLessons }}</span>
-                <span class="lessons-stat__label">Termines</span>
+                <span class="lessons-stat__label">Terminés</span>
               </div>
               <div class="lessons-stat lessons-stat--error">
                 <span class="lessons-stat__value">{{ accounting()!.cancelledLessons }}</span>
-                <span class="lessons-stat__label">Annules</span>
+                <span class="lessons-stat__label">Annulés</span>
               </div>
             </div>
           </section>
@@ -84,15 +84,15 @@ import { DialogService } from '../../../core/services/dialog.service';
           } @else {
             <div class="table-container">
               <div class="table-header">
-                <span class="results-count">{{ filteredBalances().length }} resultat(s)</span>
+                <span class="results-count">{{ filteredBalances().length }} résultat(s)</span>
               </div>
               <table class="table">
                 <thead>
                   <tr>
                     <th>Coach</th>
                     <th>Ce mois</th>
-                    <th>A virer</th>
-                    <th>Total gagne</th>
+                    <th>À virer</th>
+                    <th>Total gagné</th>
                     <th>Compte</th>
                     <th>Statut</th>
                     <th>Action</th>
@@ -120,7 +120,7 @@ import { DialogService } from '../../../core/services/dialog.service';
                       <td class="amount">{{ formatCents(balance.totalEarnedCents) }}</td>
                       <td>
                         @if (balance.stripeConnectReady) {
-                          <span class="badge badge--success">Pret</span>
+                          <span class="badge badge--success">Prêt</span>
                         } @else if (balance.stripeConnectEnabled) {
                           <span class="badge badge--warning">Incomplet</span>
                         } @else if (balance.iban) {
@@ -131,14 +131,14 @@ import { DialogService } from '../../../core/services/dialog.service';
                             }
                           </div>
                         } @else {
-                          <span class="badge badge--error">Non configure</span>
+                          <span class="badge badge--error">Non configuré</span>
                         }
                       </td>
                       <td>
                         @if (balance.currentMonthPaid) {
-                          <span class="badge badge--success">Paye</span>
+                          <span class="badge badge--success">Payé</span>
                         } @else if (balance.currentMonthEarningsCents > 0) {
-                          <span class="badge badge--pending">A payer</span>
+                          <span class="badge badge--pending">À payer</span>
                         } @else {
                           <span class="badge badge--muted">-</span>
                         }
@@ -170,10 +170,10 @@ import { DialogService } from '../../../core/services/dialog.service';
                               </button>
                             </div>
                           } @else {
-                            <span class="text-muted small">Compte non configure</span>
+                            <span class="text-muted small">Compte non configuré</span>
                           }
                         } @else {
-                          <span class="text-muted small">Rien a virer</span>
+                          <span class="text-muted small">Rien à virer</span>
                         }
                       </td>
                     </tr>
@@ -712,13 +712,13 @@ export class AccountingComponent implements OnInit, OnDestroy {
     const amountCents = this.getTransferAmount(balance);
 
     if (amountCents <= 0) {
-      await this.dialogService.alert('Le montant doit etre superieur a 0', 'Erreur', { variant: 'danger' });
+      await this.dialogService.alert('Le montant doit être supérieur à 0', 'Erreur', { variant: 'danger' });
       return;
     }
 
     if (amountCents > balance.availableBalanceCents) {
       await this.dialogService.alert(
-        `Le montant ne peut pas depasser le solde disponible (${this.formatCents(balance.availableBalanceCents)})`,
+        `Le montant ne peut pas dépasser le solde disponible (${this.formatCents(balance.availableBalanceCents)})`,
         'Erreur',
         { variant: 'danger' }
       );
@@ -726,7 +726,7 @@ export class AccountingComponent implements OnInit, OnDestroy {
     }
 
     const confirmed = await this.dialogService.confirm(
-      `Confirmer le virement de ${this.formatCents(amountCents)} a ${balance.firstName} ${balance.lastName} ?`,
+      `Confirmer le virement de ${this.formatCents(amountCents)} à ${balance.firstName} ${balance.lastName} ?`,
       'Confirmer le virement',
       { confirmText: 'Effectuer le virement', cancelText: 'Annuler', variant: 'info' }
     );
@@ -738,9 +738,9 @@ export class AccountingComponent implements OnInit, OnDestroy {
         this.payingTeacher.set(null);
         if (response.success) {
           const msg = response.stripeTransferId
-            ? `Virement effectue avec succes ! Ref: ${response.stripeTransferId}`
-            : 'Virement effectue avec succes !';
-          this.dialogService.alert(msg, 'Succes', { variant: 'success' });
+            ? `Virement effectué avec succès ! Réf: ${response.stripeTransferId}`
+            : 'Virement effectué avec succès !';
+          this.dialogService.alert(msg, 'Succès', { variant: 'success' });
           this.loadData();
         } else {
           this.dialogService.alert(response.message || 'Erreur lors du virement', 'Erreur', { variant: 'danger' });

@@ -8,8 +8,8 @@
       @if (success()) {
         <div class="success-card text-center">
           <div class="success-icon">&#10004;</div>
-          <h2 class="heading-3">Reservation confirmee !</h2>
-          <p class="text-secondary">Vous allez etre redirige vers Mon Espace...</p>
+          <h2 class="heading-3">Réservation confirmée !</h2>
+          <p class="text-secondary">Vous allez être redirigé vers Mon Espace...</p>
         </div>
       } @else if (teacherService.selectedTeacher()) {
         <div class="booking-content">
@@ -18,7 +18,7 @@
               <ng-icon name="heroArrowLeft" size="18"></ng-icon>
               <span>Retour aux coachs</span>
             </button>
-            <h1 class="heading-3">Reserver un cours</h1>
+            <h1 class="heading-3">Réserver un cours</h1>
           </header>
 
           <!-- Teacher Info -->
@@ -44,7 +44,7 @@
               </div>
               <div class="free-trial-banner__content">
                 <strong>Premier cours offert !</strong>
-                <p>Profitez de votre premier cours gratuit pour decouvrir mychess</p>
+                <p>Profitez de votre premier cours gratuit pour découvrir mychess</p>
               </div>
               <ng-icon name="heroSparkles" size="20" class="free-trial-banner__sparkle"></ng-icon>
             </div>
@@ -99,7 +99,7 @@
           <div class="course-section">
             <h4 class="course-section__title">
               <ng-icon name="heroBookOpen" size="18"></ng-icon>
-              Cours de cette seance
+              Cours de cette séance
             </h4>
 
             @if (learningPathLoading()) {
@@ -122,28 +122,28 @@
               </div>
               <p class="course-section__info">
                 <ng-icon name="heroCheckCircle" size="16"></ng-icon>
-                Ce cours sera automatiquement incremente apres cette seance
+                Ce cours sera automatiquement incrémenté après cette séance
               </p>
             } @else {
               <div class="course-section__empty">
-                <p>Aucun cours defini. <a routerLink="/programme">Consultez le programme</a> pour choisir votre point de depart.</p>
+                <p>Aucun cours défini. <a routerLink="/programme">Consultez le programme</a> pour choisir votre point de départ.</p>
               </div>
             }
           </div>
 
           <!-- Available Slots -->
           <div class="slots-section">
-            <h4 class="slots-title">Choisissez un creneau</h4>
+            <h4 class="slots-title">Choisissez un créneau</h4>
 
             <!-- Premium Priority Banner (for non-premium users) -->
             @if (!paymentService.hasActiveSubscription()) {
               <a routerLink="/subscription" class="premium-priority-banner">
                 <ng-icon name="heroSparkles" size="18" class="premium-priority-banner__icon"></ng-icon>
                 <div class="premium-priority-banner__content">
-                  <strong>Acces prioritaire aux creneaux</strong>
-                  <span>Les membres Premium reservent avant les autres</span>
+                  <strong>Accès prioritaire aux créneaux</strong>
+                  <span>Les membres Premium réservent avant les autres</span>
                 </div>
-                <span class="premium-priority-banner__cta">Decouvrir</span>
+                <span class="premium-priority-banner__cta">Découvrir</span>
               </a>
             }
 
@@ -154,7 +154,7 @@
               </div>
             } @else if (teacherSlots().length === 0) {
               <div class="slots-empty">
-                <p>Aucun creneau disponible</p>
+                <p>Aucun créneau disponible</p>
               </div>
             } @else {
               <div class="slots-calendar">
@@ -237,21 +237,21 @@
               @if (loading()) {
                 <span class="spinner spinner--sm"></span>
                 @if (canUseFreeTrial() && useFreeTrialSignal()) {
-                  Reservation...
+                  Réservation...
                 } @else if (payWithCreditSignal() && canPayWithCredit()) {
                   Paiement...
                 } @else if (requiresPayment()) {
                   Redirection...
                 } @else {
-                  Reservation...
+                  Réservation...
                 }
               } @else {
                 @if (canUseFreeTrial() && useFreeTrialSignal()) {
                   <ng-icon name="heroGift" size="18"></ng-icon>
-                  Reserver mon cours gratuit
+                  Réserver mon cours gratuit
                 } @else if (payWithCreditSignal() && canPayWithCredit()) {
                   <ng-icon name="heroWallet" size="18"></ng-icon>
-                  Payer avec mon credit
+                  Payer avec mon crédit
                 } @else if (requiresPayment()) {
                   <ng-icon name="heroCreditCard" size="18"></ng-icon>
                   Payer {{ formatPrice(teacherService.selectedTeacher()?.hourlyRateCents) }}

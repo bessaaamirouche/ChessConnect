@@ -39,7 +39,7 @@ services:
       # Stripe API Keys - Set via .env file or environment variables
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
       STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY}
-      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-whsec_default}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
       # Email Configuration
       SPRING_MAIL_HOST: ${MAIL_HOST:-smtp.gmail.com}
       SPRING_MAIL_PORT: ${MAIL_PORT:-587}
@@ -52,6 +52,8 @@ services:
       JITSI_APP_ID: ${JITSI_APP_ID:-mychess}
       JITSI_APP_SECRET: ${JITSI_APP_SECRET:?JITSI_APP_SECRET is required}
       JITSI_DOMAIN: ${JITSI_DOMAIN:-meet.mychess.fr}
+      # Jibri Recording Webhook Secret (optional but recommended)
+      JIBRI_WEBHOOK_SECRET: ${JIBRI_WEBHOOK_SECRET:-}
     ports:
       - "8282:8282"
     volumes:

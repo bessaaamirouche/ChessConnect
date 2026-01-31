@@ -76,11 +76,11 @@ export class BookLessonComponent implements OnInit {
     ];
 
     const compteItems: any[] = [
-      { label: 'Mon Profil', icon: 'heroUserCircle', route: '/settings' },
+      { label: 'Parametres', icon: 'heroUserCircle', route: '/settings' },
       { label: 'Mon Solde', icon: 'heroWallet', route: '/wallet' },
       { label: 'Abonnement', icon: 'heroCreditCard', route: '/subscription' },
       { label: 'Mes Factures', icon: 'heroDocumentText', route: '/invoices' },
-      { label: 'Deconnexion', icon: 'heroArrowRightOnRectangle', action: () => this.logout() }
+      { label: 'Déconnexion', icon: 'heroArrowRightOnRectangle', action: () => this.logout() }
     ];
 
     return [

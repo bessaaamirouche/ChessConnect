@@ -89,6 +89,23 @@ public class LessonController {
     }
 
     /**
+     * Add or update a teacher comment on a completed lesson.
+     * The comment is visible to the student and can be updated at any time
+     * as long as the lesson is still in the teacher's history.
+     */
+    @PatchMapping("/{lessonId}/comment")
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseEntity<LessonResponse> updateTeacherComment(
+            @PathVariable Long lessonId,
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @RequestBody Map<String, String> request
+    ) {
+        String comment = request.get("comment");
+        LessonResponse response = lessonService.updateTeacherComment(lessonId, userDetails.getId(), comment);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
      * Check if current student is eligible for a free trial lesson.
      */
     @GetMapping("/free-trial/eligible")

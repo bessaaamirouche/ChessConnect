@@ -20,9 +20,9 @@ export class LegalNoticeComponent {
 
   constructor() {
     this.seoService.updateMetaTags({
-      title: 'Mentions Legales - mychess',
-      description: 'Mentions legales du site mychess.fr - Informations sur l\'editeur, l\'hebergeur et les conditions d\'utilisation.',
-      keywords: 'mentions legales, editeur, hebergeur, mychess, echecs'
+      title: 'Mentions Légales - mychess',
+      description: 'Mentions légales du site mychess.fr - Informations sur l\'éditeur, l\'hébergeur et les conditions d\'utilisation.',
+      keywords: 'mentions légales, éditeur, hébergeur, mychess, échecs'
     });
   }
 

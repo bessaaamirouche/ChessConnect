@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
@@ -153,6 +154,8 @@ public class LessonService {
     /**
      * Book a free trial lesson for first-time students.
      * Each student is eligible for one free trial lesson.
+     * Uses optimistic locking to prevent race conditions where multiple requests
+     * could book multiple free trials for the same student.
      */
     @Transactional
     public LessonResponse bookFreeTrialLesson(Long studentId, BookLessonRequest request) {
@@ -189,6 +192,17 @@ public class LessonService {
         checkTeacherAvailability(teacher.getId(), request.scheduledAt(), request.durationMinutes());
         checkStudentTimeConflict(studentId, request.scheduledAt(), request.durationMinutes());
 
+        // Mark free trial as used FIRST (optimistic locking via @Version on User)
+        // This ensures that if two concurrent requests try to use the free trial,
+        // only one will succeed - the other will get OptimisticLockingFailureException
+        student.setHasUsedFreeTrial(true);
+        try {
+            userRepository.save(student);
+        } catch (ObjectOptimisticLockingFailureException e) {
+            log.warn("Concurrent free trial booking attempt detected for student {}", studentId);
+            throw new IllegalArgumentException("Vous avez déjà utilisé votre cours d'essai gratuit");
+        }
+
         // Create the free trial lesson (15 minutes discovery session)
         Lesson lesson = new Lesson();
         lesson.setStudent(student);
@@ -209,10 +223,6 @@ public class LessonService {
         }
 
         Lesson savedLesson = lessonRepository.save(lesson);
-
-        // Mark free trial as used
-        student.setHasUsedFreeTrial(true);
-        userRepository.save(student);
 
         log.info("Free trial lesson {} booked for student {} with teacher {}",
                 savedLesson.getId(), studentId, teacher.getId());
@@ -331,17 +341,22 @@ public class LessonService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        List<Lesson> lessons = user.getRole() == UserRole.TEACHER
+        boolean isTeacher = user.getRole() == UserRole.TEACHER;
+        List<Lesson> lessons = isTeacher
                 ? lessonRepository.findByTeacherIdOrderByScheduledAtDesc(userId)
                 : lessonRepository.findByStudentIdOrderByScheduledAtDesc(userId);
 
-        // History = lessons where the scheduled date has passed
+        // History = lessons where the scheduled date has passed, excluding soft-deleted ones
         LocalDateTime now = LocalDateTime.now();
         return lessons.stream()
                 .filter(lesson -> {
                     LocalDateTime lessonEnd = lesson.getScheduledAt().plusMinutes(lesson.getDurationMinutes());
                     // Only include in history if the lesson time has passed
-                    return lessonEnd.isBefore(now);
+                    if (!lessonEnd.isBefore(now)) return false;
+                    // Filter out soft-deleted lessons based on user role
+                    if (isTeacher && Boolean.TRUE.equals(lesson.getDeletedByTeacher())) return false;
+                    if (!isTeacher && Boolean.TRUE.equals(lesson.getDeletedByStudent())) return false;
+                    return true;
                 })
                 .map(LessonResponse::from)
                 .toList();
@@ -358,13 +373,50 @@ public class LessonService {
         return LessonResponse.from(lesson);
     }
 
+    /**
+     * Add or update a teacher comment on a completed lesson.
+     * Only the teacher can add comments, and only on lessons that are still in their history.
+     */
+    @Transactional
+    public LessonResponse updateTeacherComment(Long lessonId, Long teacherId, String comment) {
+        Lesson lesson = lessonRepository.findById(lessonId)
+                .orElseThrow(() -> new IllegalArgumentException("Lesson not found"));
+
+        // Only the teacher of this lesson can add comments
+        if (!lesson.getTeacher().getId().equals(teacherId)) {
+            throw new IllegalArgumentException("Not authorized to comment on this lesson");
+        }
+
+        // Only allow comments on completed or cancelled lessons (history)
+        if (lesson.getStatus() == LessonStatus.PENDING || lesson.getStatus() == LessonStatus.CONFIRMED) {
+            throw new IllegalArgumentException("Cannot add comment to a pending or confirmed lesson");
+        }
+
+        // Cannot add comment if teacher has soft-deleted this lesson
+        if (Boolean.TRUE.equals(lesson.getDeletedByTeacher())) {
+            throw new IllegalArgumentException("Cannot add comment to a deleted lesson");
+        }
+
+        lesson.setTeacherComment(comment);
+        lesson.setTeacherCommentAt(LocalDateTime.now());
+        Lesson updatedLesson = lessonRepository.save(lesson);
+
+        log.info("Teacher {} updated comment on lesson {}", teacherId, lessonId);
+        return LessonResponse.from(updatedLesson);
+    }
+
     @Transactional
     public void deleteLesson(Long lessonId, Long userId) {
         Lesson lesson = lessonRepository.findById(lessonId)
                 .orElseThrow(() -> new IllegalArgumentException("Lesson not found"));
 
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
         // Only allow deletion by student or teacher involved
-        if (!lesson.getStudent().getId().equals(userId) && !lesson.getTeacher().getId().equals(userId)) {
+        boolean isTeacher = lesson.getTeacher().getId().equals(userId);
+        boolean isStudent = lesson.getStudent().getId().equals(userId);
+        if (!isTeacher && !isStudent) {
             throw new IllegalArgumentException("Not authorized to delete this lesson");
         }
 
@@ -372,6 +424,31 @@ public class LessonService {
         if (lesson.getStatus() == LessonStatus.PENDING || lesson.getStatus() == LessonStatus.CONFIRMED) {
             throw new IllegalArgumentException("Cannot delete a pending or confirmed lesson. Cancel it first.");
         }
+
+        // Soft delete: mark as deleted for the current user only
+        // The lesson remains visible to the other party
+        if (isTeacher) {
+            lesson.setDeletedByTeacher(true);
+            log.info("Soft deleted lesson {} for teacher {}", lessonId, userId);
+        } else {
+            lesson.setDeletedByStudent(true);
+            log.info("Soft deleted lesson {} for student {}", lessonId, userId);
+        }
+
+        lessonRepository.save(lesson);
+
+        // Only perform hard delete if both parties have deleted the lesson
+        if (Boolean.TRUE.equals(lesson.getDeletedByTeacher()) && Boolean.TRUE.equals(lesson.getDeletedByStudent())) {
+            performHardDelete(lesson);
+        }
+    }
+
+    /**
+     * Perform hard delete of a lesson when both parties have soft-deleted it.
+     */
+    private void performHardDelete(Lesson lesson) {
+        Long lessonId = lesson.getId();
+        log.info("Performing hard delete of lesson {} (both parties deleted)", lessonId);
 
         // Delete recording files if they exist
         deleteRecordingFiles(lessonId);
@@ -403,7 +480,7 @@ public class LessonService {
         });
 
         lessonRepository.delete(lesson);
-        log.info("Deleted lesson {} by user {}", lessonId, userId);
+        log.info("Hard deleted lesson {}", lessonId);
     }
 
     /**

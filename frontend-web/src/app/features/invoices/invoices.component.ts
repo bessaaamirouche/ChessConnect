@@ -45,7 +45,7 @@ type SortOrder = 'asc' | 'desc';
       <header class="page-header">
         <div class="header-content">
           <h1>Mes Factures</h1>
-          <p class="subtitle">Consultez et telechargez vos factures</p>
+          <p class="subtitle">Consultez et téléchargez vos factures</p>
         </div>
       </header>
 
@@ -98,7 +98,7 @@ type SortOrder = 'asc' | 'desc';
             [class.active]="activeFilter() === 'received'"
             (click)="setFilter('received')"
           >
-            Recues
+            Reçues
           </button>
           @if (isTeacher()) {
             <button
@@ -106,7 +106,7 @@ type SortOrder = 'asc' | 'desc';
               [class.active]="activeFilter() === 'issued'"
               (click)="setFilter('issued')"
             >
-              Emises
+              Émises
             </button>
           }
         </div>
@@ -125,7 +125,7 @@ type SortOrder = 'asc' | 'desc';
         <div class="empty-state">
           <ng-icon name="heroDocumentText" class="empty-icon"></ng-icon>
           <h3>Aucune facture</h3>
-          <p>Aucune facture ne correspond a vos criteres</p>
+          <p>Aucune facture ne correspond à vos critères</p>
         </div>
       }
 
@@ -136,7 +136,7 @@ type SortOrder = 'asc' | 'desc';
             <thead>
               <tr>
                 <th class="sortable" (click)="toggleSort('number')">
-                  <span>Numero</span>
+                  <span>Numéro</span>
                   <ng-icon [name]="getSortIcon('number')"></ng-icon>
                 </th>
                 <th>Type</th>
@@ -161,10 +161,10 @@ type SortOrder = 'asc' | 'desc';
                     <div class="type-cell">
                       @if (invoice.isReceived) {
                         <ng-icon name="heroArrowDownLeft" class="type-icon received"></ng-icon>
-                        <span>Recue</span>
+                        <span>Reçue</span>
                       } @else {
                         <ng-icon name="heroArrowUpRight" class="type-icon issued"></ng-icon>
-                        <span>Emise</span>
+                        <span>Émise</span>
                       }
                     </div>
                   </td>
@@ -176,7 +176,7 @@ type SortOrder = 'asc' | 'desc';
                   <td class="amount">{{ formatCents(invoice.totalCents) }}</td>
                   <td>
                     <span class="status-badge" [class.paid]="invoice.status === 'PAID'">
-                      {{ invoice.status === 'PAID' ? 'Payee' : 'En attente' }}
+                      {{ invoice.status === 'PAID' ? 'Payée' : 'En attente' }}
                     </span>
                   </td>
                   <td>
@@ -184,7 +184,7 @@ type SortOrder = 'asc' | 'desc';
                       class="pdf-btn"
                       (click)="downloadPdf(invoice)"
                       [disabled]="downloadingId() === invoice.id"
-                      title="Telecharger PDF"
+                      title="Télécharger PDF"
                     >
                       @if (downloadingId() === invoice.id) {
                         <ng-icon name="heroArrowPath" class="spin"></ng-icon>

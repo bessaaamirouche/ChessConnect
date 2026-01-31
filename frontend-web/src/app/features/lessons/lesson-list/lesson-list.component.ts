@@ -47,7 +47,11 @@ import {
   heroMagnifyingGlass,
   heroDocumentText,
   heroStar,
-  heroBellAlert
+  heroBellAlert,
+  heroChatBubbleLeftRight,
+  heroEllipsisVertical,
+  heroCpuChip,
+  heroLockClosed
 } from '@ng-icons/heroicons/outline';
 import { CHESS_LEVELS, ChessLevel, User } from '../../../core/models/user.model';
 
@@ -89,7 +93,11 @@ export interface PendingValidation {
     heroFunnel,
     heroMagnifyingGlass,
     heroStar,
-    heroBellAlert
+    heroBellAlert,
+    heroChatBubbleLeftRight,
+    heroEllipsisVertical,
+    heroCpuChip,
+    heroLockClosed
   })],
   templateUrl: './lesson-list.component.html',
   styleUrl: './lesson-list.component.scss'
@@ -140,6 +148,22 @@ export class LessonListComponent implements OnInit, OnDestroy {
   showEvaluationModal = signal(false);
   evaluationStudentId = signal<number | null>(null);
   evaluationLessonId = signal<number | null>(null);
+
+  // Teacher comment modal (for editing - teacher side)
+  showCommentModal = signal(false);
+  commentLessonId = signal<number | null>(null);
+  commentStudentName = signal('');
+  commentText = signal('');
+  savingComment = signal(false);
+
+  // View comment modal (for reading - student side)
+  showViewCommentModal = signal(false);
+  viewCommentText = signal('');
+  viewCommentTeacherName = signal('');
+  viewCommentDate = signal<string | null>(null);
+
+  // Actions dropdown menu
+  openDropdownId = signal<number | null>(null);
 
   // Computed filtered history
   filteredHistory = computed(() => {
@@ -209,7 +233,7 @@ export class LessonListComponent implements OnInit, OnDestroy {
     private jitsiService: JitsiService,
     private learningPathService: LearningPathService,
     private walletService: WalletService,
-    private paymentService: PaymentService,
+    public paymentService: PaymentService,
     private toastService: ToastService,
     private http: HttpClient,
     private route: ActivatedRoute,
@@ -410,6 +434,59 @@ export class LessonListComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Open comment view modal (for students)
+  openViewCommentModal(lesson: Lesson): void {
+    this.viewCommentText.set(lesson.teacherComment || '');
+    this.viewCommentTeacherName.set(lesson.teacherName);
+    this.viewCommentDate.set(lesson.teacherCommentAt || null);
+    this.showViewCommentModal.set(true);
+  }
+
+  closeViewCommentModal(): void {
+    this.showViewCommentModal.set(false);
+    this.viewCommentText.set('');
+    this.viewCommentTeacherName.set('');
+    this.viewCommentDate.set(null);
+  }
+
+  // Open comment modal (for teachers)
+  openCommentModal(lesson: Lesson): void {
+    this.commentLessonId.set(lesson.id);
+    this.commentStudentName.set(lesson.studentName);
+    this.commentText.set(lesson.teacherComment || '');
+    this.showCommentModal.set(true);
+  }
+
+  closeCommentModal(): void {
+    this.showCommentModal.set(false);
+    this.commentLessonId.set(null);
+    this.commentStudentName.set('');
+    this.commentText.set('');
+  }
+
+  getCommentForLesson(lessonId: number): string | undefined {
+    const lesson = this.lessonService.lessonHistory().find(l => l.id === lessonId);
+    return lesson?.teacherComment;
+  }
+
+  submitComment(): void {
+    const lessonId = this.commentLessonId();
+    if (!lessonId) return;
+
+    this.savingComment.set(true);
+    this.lessonService.updateTeacherComment(lessonId, this.commentText()).subscribe({
+      next: () => {
+        this.savingComment.set(false);
+        this.closeCommentModal();
+        this.toastService.success('Commentaire enregistré');
+      },
+      error: (err) => {
+        this.savingComment.set(false);
+        this.toastService.error(err.error?.message || 'Erreur lors de l\'enregistrement');
+      }
+    });
+  }
+
   logout(): void {
     this.authService.logout();
   }
@@ -469,7 +546,7 @@ export class LessonListComponent implements OnInit, OnDestroy {
         }
       },
       error: (err) => {
-        console.error('Erreur lors de la generation du token Jitsi:', err);
+        console.error('Erreur lors de la génération du token Jitsi:', err);
         // Fallback sans token
         this.videoCallRoomName.set(roomName);
         this.videoCallToken.set('');
@@ -618,7 +695,7 @@ export class LessonListComponent implements OnInit, OnDestroy {
       const isTeacher = this.authService.isTeacher();
 
       if (lesson.cancelledBy === 'STUDENT') {
-        return isStudent ? 'Annulé par moi' : 'Annulé par l\'joueur';
+        return isStudent ? 'Annulé par moi' : 'Annulé par le joueur';
       }
       if (lesson.cancelledBy === 'TEACHER') {
         return isTeacher ? 'Annulé par moi' : 'Annulé par le coach';
@@ -636,6 +713,19 @@ export class LessonListComponent implements OnInit, OnDestroy {
     } else {
       this.visibleReasonId.set(lessonId);
     }
+  }
+
+  toggleDropdown(lessonId: number, event: Event): void {
+    event.stopPropagation();
+    if (this.openDropdownId() === lessonId) {
+      this.openDropdownId.set(null);
+    } else {
+      this.openDropdownId.set(lessonId);
+    }
+  }
+
+  closeDropdown(): void {
+    this.openDropdownId.set(null);
   }
 
   async deleteLesson(lessonId: number): Promise<void> {

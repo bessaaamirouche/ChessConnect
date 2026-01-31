@@ -57,7 +57,7 @@ export class TeacherListComponent implements OnInit {
     ];
 
     if (this.authService.isTeacher()) {
-      menuItems.push({ label: 'Mes Disponibilites', icon: 'heroClipboardDocumentList', route: '/availability' });
+      menuItems.push({ label: 'Mes Disponibilités', icon: 'heroClipboardDocumentList', route: '/availability' });
     }
 
     if (this.authService.isStudent()) {
@@ -66,7 +66,7 @@ export class TeacherListComponent implements OnInit {
     }
 
     const compteItems: any[] = [
-      { label: 'Mon Profil', icon: 'heroUserCircle', route: '/settings' }
+      { label: 'Parametres', icon: 'heroUserCircle', route: '/settings' }
     ];
 
     if (this.authService.isStudent()) {
@@ -75,7 +75,7 @@ export class TeacherListComponent implements OnInit {
     }
 
     compteItems.push({ label: 'Mes Factures', icon: 'heroDocumentText', route: '/invoices' });
-    compteItems.push({ label: 'Deconnexion', icon: 'heroArrowRightOnRectangle', action: () => this.logout() });
+    compteItems.push({ label: 'Déconnexion', icon: 'heroArrowRightOnRectangle', action: () => this.logout() });
 
     return [
       { title: 'Menu', items: menuItems },

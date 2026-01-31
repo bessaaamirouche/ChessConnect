@@ -22,7 +22,7 @@ export interface HourlyDataPoint {
       <div class="chart-header">
         <h3>Visites du site</h3>
         <div class="total-visits">
-          <span class="total-label">Total periode :</span>
+          <span class="total-label">Total période :</span>
           <span class="total-value">{{ totalVisits() }}</span>
         </div>
       </div>

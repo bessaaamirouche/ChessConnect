@@ -66,7 +66,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormsModule } from '@angular/f
 
       @if (showCalendar()) {
         <div class="calendar-backdrop" (click)="showCalendar.set(false)"></div>
-        <div class="calendar-dropdown">
+        <div class="calendar-dropdown" [style.top.px]="calendarTop()" [style.left.px]="calendarLeft()">
           <div class="calendar-header">
             <button type="button" class="calendar-nav" (click)="prevMonth($event)">&lt;</button>
             <span class="calendar-title">{{ monthNames[calendarMonth()] }} {{ calendarYear() }}</span>
@@ -104,6 +104,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormsModule } from '@angular/f
     .date-input-wrapper {
       position: relative;
       display: inline-block;
+      z-index: 10;
     }
 
     .date-input-group {
@@ -193,32 +194,29 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormsModule } from '@angular/f
         position: fixed;
         inset: 0;
         background: rgba(0, 0, 0, 0.5);
-        z-index: 999;
+        z-index: 99998;
       }
     }
 
     .calendar-dropdown {
-      position: absolute;
-      top: calc(100% + 8px);
-      left: 0;
-      z-index: 1000;
+      position: fixed;
+      z-index: 99999;
       background: var(--bg-secondary, #1a1a1a);
       border: 1px solid var(--border-subtle, #333);
       border-radius: var(--radius-lg, 12px);
-      padding: 12px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-      min-width: 280px;
+      padding: 10px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+      min-width: 240px;
 
       @media (max-width: 768px) {
-        position: fixed;
         left: 50% !important;
         right: auto;
         transform: translateX(-50%);
         top: auto;
         bottom: 20px;
         min-width: auto;
-        width: calc(100vw - 32px);
-        max-width: 320px;
+        width: calc(100vw - 40px);
+        max-width: 280px;
       }
     }
 
@@ -226,7 +224,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormsModule } from '@angular/f
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
     }
 
     .calendar-nav {
@@ -234,12 +232,12 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormsModule } from '@angular/f
       border: none;
       color: var(--text-secondary, #aaa);
       cursor: pointer;
-      padding: 8px 12px;
+      padding: 6px 10px;
       border-radius: var(--radius-sm, 4px);
-      font-size: 1rem;
+      font-size: 0.875rem;
       transition: all 0.2s;
-      min-height: 44px;
-      min-width: 44px;
+      min-height: 32px;
+      min-width: 32px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -253,39 +251,39 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormsModule } from '@angular/f
     .calendar-title {
       font-weight: 600;
       color: var(--text-primary, #fff);
-      font-size: 0.9375rem;
+      font-size: 0.8125rem;
     }
 
     .calendar-weekdays {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
-      gap: 2px;
-      margin-bottom: 8px;
+      gap: 1px;
+      margin-bottom: 4px;
     }
 
     .weekday {
       text-align: center;
-      font-size: 0.75rem;
+      font-size: 0.6875rem;
       font-weight: 600;
       color: var(--text-muted, #666);
-      padding: 4px;
+      padding: 2px;
       text-transform: uppercase;
-      min-height: 36px;
-      min-width: 36px;
+      min-height: 28px;
+      min-width: 28px;
       display: flex;
       align-items: center;
       justify-content: center;
 
       @media (max-width: 768px) {
-        min-height: 44px;
-        min-width: 44px;
+        min-height: 32px;
+        min-width: 32px;
       }
     }
 
     .calendar-days {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
-      gap: 2px;
+      gap: 1px;
     }
 
     .calendar-day {
@@ -293,20 +291,20 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormsModule } from '@angular/f
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.875rem;
+      font-size: 0.8125rem;
       color: var(--text-primary, #fff);
       background: transparent;
       border: none;
       border-radius: var(--radius-sm, 4px);
       cursor: pointer;
       transition: all 0.15s;
-      min-height: 36px;
-      min-width: 36px;
+      min-height: 28px;
+      min-width: 28px;
 
       @media (max-width: 768px) {
-        min-height: 44px;
-        min-width: 44px;
-        font-size: 1rem;
+        min-height: 32px;
+        min-width: 32px;
+        font-size: 0.875rem;
       }
 
       &:hover:not(:disabled) {
@@ -346,6 +344,8 @@ export class DateInputComponent implements ControlValueAccessor, OnInit {
   showCalendar = signal(false);
   calendarMonth = signal(new Date().getMonth());
   calendarYear = signal(new Date().getFullYear());
+  calendarTop = signal(0);
+  calendarLeft = signal(0);
 
   weekDays = ['Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa', 'Di'];
   monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
@@ -436,6 +436,37 @@ export class DateInputComponent implements ControlValueAccessor, OnInit {
         const now = new Date();
         this.calendarMonth.set(now.getMonth());
         this.calendarYear.set(now.getFullYear());
+      }
+
+      // Calculate position for fixed positioning
+      const rect = this.elementRef.nativeElement.getBoundingClientRect();
+      const calendarHeight = 280; // Approximate height
+      const calendarWidth = 240;
+      const viewportHeight = window.innerHeight;
+      const viewportWidth = window.innerWidth;
+
+      // Check if mobile
+      if (viewportWidth <= 768) {
+        // Mobile: center horizontally, position at bottom
+        this.calendarTop.set(viewportHeight - calendarHeight - 20);
+        this.calendarLeft.set((viewportWidth - calendarWidth) / 2);
+      } else {
+        // Desktop: position below input, check if fits
+        let top = rect.bottom + 8;
+        let left = rect.left;
+
+        // If calendar would go below viewport, show above input
+        if (top + calendarHeight > viewportHeight) {
+          top = rect.top - calendarHeight - 8;
+        }
+
+        // If calendar would go off right edge, align to right of input
+        if (left + calendarWidth > viewportWidth) {
+          left = rect.right - calendarWidth;
+        }
+
+        this.calendarTop.set(Math.max(8, top));
+        this.calendarLeft.set(Math.max(8, left));
       }
     }
   }

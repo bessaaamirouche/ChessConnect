@@ -134,6 +134,11 @@ export const routes: Routes = [
     path: 'blog/:slug',
     loadComponent: () => import('./features/blog/blog-article/blog-article.component').then(m => m.BlogArticleComponent)
   },
+  // Info pages
+  {
+    path: 'how-it-works',
+    loadComponent: () => import('./features/how-it-works/how-it-works.component').then(m => m.HowItWorksComponent)
+  },
   // Legal pages
   {
     path: 'terms',

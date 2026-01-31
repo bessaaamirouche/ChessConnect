@@ -1,7 +1,7 @@
 <div class="modal-backdrop" (click)="onBackdropClick($event)">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="rating-modal-title" appFocusTrap>
     <div class="modal__header">
-      <h2 id="rating-modal-title">Evaluer votre cours</h2>
+      <h2 id="rating-modal-title">Évaluer votre cours</h2>
       <button type="button" class="modal__close" (click)="onClose()" aria-label="Fermer">&times;</button>
     </div>
 
@@ -24,7 +24,7 @@
               role="radio"
               [class.star-btn--filled]="star <= getDisplayStars()"
               [attr.aria-checked]="selectedStars() === star"
-              [attr.aria-label]="star + ' etoile' + (star > 1 ? 's' : '')"
+              [attr.aria-label]="star + ' étoile' + (star > 1 ? 's' : '')"
               (mouseenter)="setHoveredStars(star)"
               (click)="selectStars(star)"
             >
@@ -37,9 +37,9 @@
             @case (1) { Mauvais }
             @case (2) { Passable }
             @case (3) { Bien }
-            @case (4) { Tres bien }
+            @case (4) { Très bien }
             @case (5) { Excellent }
-            @default { Selectionnez une note }
+            @default { Sélectionnez une note }
           }
         </p>
       </div>
@@ -51,7 +51,7 @@
           [(ngModel)]="comment"
           class="textarea"
           rows="4"
-          placeholder="Partagez votre experience avec ce coach..."
+          placeholder="Partagez votre expérience avec ce coach..."
         ></textarea>
       </div>
     </div>

@@ -47,7 +47,7 @@ export class RatingModalComponent {
 
   onSubmit(): void {
     if (this.selectedStars() === 0) {
-      this.error.set('Veuillez selectionner une note');
+      this.error.set('Veuillez sélectionner une note');
       return;
     }
 

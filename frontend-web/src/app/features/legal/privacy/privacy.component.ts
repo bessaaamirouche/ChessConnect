@@ -20,9 +20,9 @@ export class PrivacyComponent {
 
   constructor() {
     this.seoService.updateMetaTags({
-      title: 'Politique de Confidentialite - mychess',
-      description: 'Decouvrez comment mychess protege vos donnees personnelles conformement au RGPD.',
-      keywords: 'RGPD, confidentialite, donnees personnelles, mychess, vie privee'
+      title: 'Politique de Confidentialité - mychess',
+      description: 'Découvrez comment mychess protège vos données personnelles conformément au RGPD.',
+      keywords: 'RGPD, confidentialité, données personnelles, mychess, vie privée'
     });
   }
 

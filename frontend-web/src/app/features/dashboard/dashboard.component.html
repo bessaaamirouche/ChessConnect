@@ -90,11 +90,11 @@
               <span class="earnings-item__value">{{ formatCents(teacherService.balance()?.availableBalanceCents || 0) }}</span>
             </div>
             <div class="earnings-item">
-              <span class="earnings-item__label">Total gagne</span>
+              <span class="earnings-item__label">Total gagné</span>
               <span class="earnings-item__value">{{ formatCents(teacherService.balance()?.totalEarnedCents || 0) }}</span>
             </div>
             <div class="earnings-item">
-              <span class="earnings-item__label">Deja retire</span>
+              <span class="earnings-item__label">Déjà retiré</span>
               <span class="earnings-item__value">{{ formatCents(teacherService.balance()?.totalWithdrawnCents || 0) }}</span>
             </div>
           </div>
@@ -102,7 +102,7 @@
           @if (teacherService.balance() && teacherService.balance()!.availableBalanceCents >= 10000 && stripeConnectReady()) {
             <div class="withdraw-form">
               <div class="withdraw-input-group">
-                <label class="form-label">Montant a retirer</label>
+                <label class="form-label">Montant à retirer</label>
                 <div class="input-with-addon">
                   <input
                     type="number"
@@ -137,7 +137,7 @@
               <a routerLink="/settings" class="link">Configurez votre compte bancaire</a> pour pouvoir retirer vos gains.
             </p>
           } @else {
-            <p class="earnings-hint">Aucun gain disponible pour le moment. Terminez des cours pour commencer a gagner !</p>
+            <p class="earnings-hint">Aucun gain disponible pour le moment. Terminez des cours pour commencer à gagner !</p>
           }
         </div>
       </section>
@@ -393,25 +393,25 @@
     <div class="settings-overlay" (click)="closeSettings()"></div>
     <aside class="settings-panel">
       <div class="settings-panel__header">
-        <h2>Parametres</h2>
+        <h2>Paramètres</h2>
         <button class="settings-panel__close" (click)="closeSettings()">✕</button>
       </div>
 
       <div class="settings-panel__content">
         <!-- Profile Section -->
         <section class="settings-section">
-          <h3>Informations du coachil</h3>
+          <h3>Informations du profil</h3>
 
           <div class="alert-inline-container">
             <div class="alert-inline" [class.alert-inline--visible]="settingsSuccess() || settingsError()" [class.alert-inline--success]="settingsSuccess()" [class.alert-inline--error]="settingsError()">
-              <span>{{ settingsSuccess() ? 'Profil mis a jour !' : settingsError() }}</span>
+              <span>{{ settingsSuccess() ? 'Profil mis à jour !' : settingsError() }}</span>
             </div>
           </div>
 
           <form [formGroup]="settingsForm" (ngSubmit)="saveSettings()">
             <div class="settings-form-row">
               <div class="form-group">
-                <label class="form-group__label">Prenom</label>
+                <label class="form-group__label">Prénom</label>
                 <input type="text" formControlName="firstName" class="input">
               </div>
               <div class="form-group">
@@ -438,7 +438,7 @@
 
               <div class="form-group">
                 <label class="form-group__label">Bio</label>
-                <textarea formControlName="bio" class="textarea" rows="3" placeholder="Votre experience..."></textarea>
+                <textarea formControlName="bio" class="textarea" rows="3" placeholder="Votre expérience..."></textarea>
               </div>
             }
 
@@ -458,7 +458,7 @@
 
           <div class="alert-inline-container">
             <div class="alert-inline" [class.alert-inline--visible]="passwordSuccess() || passwordError()" [class.alert-inline--success]="passwordSuccess()" [class.alert-inline--error]="passwordError()">
-              <span>{{ passwordSuccess() ? 'Mot de passe modifie !' : passwordError() }}</span>
+              <span>{{ passwordSuccess() ? 'Mot de passe modifié !' : passwordError() }}</span>
             </div>
           </div>
 

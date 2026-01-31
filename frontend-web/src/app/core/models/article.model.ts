@@ -53,8 +53,8 @@ export interface ArticlePage {
 }
 
 export const ARTICLE_CATEGORIES: Record<string, { label: string; color: string }> = {
-  debutant: { label: 'Debutant', color: '#78716c' },
-  strategie: { label: 'Strategie', color: '#3b82f6' },
+  debutant: { label: 'Débutant', color: '#78716c' },
+  strategie: { label: 'Stratégie', color: '#3b82f6' },
   progression: { label: 'Progression', color: '#22c55e' },
   conseils: { label: 'Conseils', color: '#a855f7' },
   enfants: { label: 'Enfants', color: '#f59e0b' },

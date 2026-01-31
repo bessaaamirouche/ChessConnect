@@ -200,8 +200,8 @@ export class SeoService {
    * Set blog list page SEO
    */
   setBlogListPage(): void {
-    const pageTitle = 'Blog Echecs - Conseils et Strategies | mychess';
-    const description = 'Decouvrez nos articles sur les echecs : strategies, ouvertures, conseils pour progresser. Apprenez des meilleurs coachs d\'echecs en ligne.';
+    const pageTitle = 'Blog Échecs - Conseils et Stratégies | mychess';
+    const description = 'Découvrez nos articles sur les échecs : stratégies, ouvertures, conseils pour progresser. Apprenez des meilleurs coachs d\'échecs en ligne.';
 
     this.updateTags({
       title: pageTitle,
@@ -324,7 +324,7 @@ export class SeoService {
       'name': 'mychess',
       'url': this.baseUrl,
       'logo': `${this.baseUrl}/assets/logo.png`,
-      'description': 'Plateforme de cours d\'echecs en ligne avec des coachs qualifies',
+      'description': 'Plateforme de cours d\'échecs en ligne avec des coachs qualifiés',
       'sameAs': [],
       'contactPoint': {
         '@type': 'ContactPoint',

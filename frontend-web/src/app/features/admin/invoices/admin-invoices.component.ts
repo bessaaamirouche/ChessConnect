@@ -49,7 +49,7 @@ import { InvoiceService, Invoice } from '../../../core/services/invoice.service'
         </div>
         <div class="stat-card">
           <span class="stat-value">{{ paidCount() }}</span>
-          <span class="stat-label">Payees</span>
+          <span class="stat-label">Payées</span>
         </div>
       </div>
 
@@ -59,14 +59,14 @@ import { InvoiceService, Invoice } from '../../../core/services/invoice.service'
           <ng-icon name="heroMagnifyingGlass"></ng-icon>
           <input
             type="text"
-            placeholder="Rechercher par numero, client, emetteur..."
+            placeholder="Rechercher par numéro, client, émetteur..."
             [ngModel]="searchQuery()"
             (ngModelChange)="searchQuery.set($event)"
           >
         </div>
         <select class="filter-select" [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
           <option value="">Tous les statuts</option>
-          <option value="PAID">Payees</option>
+          <option value="PAID">Payées</option>
           <option value="PENDING">En attente</option>
         </select>
         <select class="filter-select" [ngModel]="typeFilter()" (ngModelChange)="typeFilter.set($event)">
@@ -104,7 +104,7 @@ import { InvoiceService, Invoice } from '../../../core/services/invoice.service'
         <div class="empty-state">
           <ng-icon name="heroDocumentText" class="empty-icon"></ng-icon>
           <h3>Aucune facture</h3>
-          <p>Aucune facture trouvee</p>
+          <p>Aucune facture trouvée</p>
         </div>
       }
 
@@ -114,7 +114,7 @@ import { InvoiceService, Invoice } from '../../../core/services/invoice.service'
           <table class="invoices-table">
             <thead>
               <tr>
-                <th>Numero</th>
+                <th>Numéro</th>
                 <th>Type</th>
                 <th class="sortable" (click)="toggleSort('issuedAt')">
                   Date
@@ -122,7 +122,7 @@ import { InvoiceService, Invoice } from '../../../core/services/invoice.service'
                     <span>{{ sortDirection() === 'asc' ? '▲' : '▼' }}</span>
                   }
                 </th>
-                <th>Emetteur</th>
+                <th>Émetteur</th>
                 <th>Client</th>
                 <th>Description</th>
                 <th>Montant</th>
@@ -146,7 +146,7 @@ import { InvoiceService, Invoice } from '../../../core/services/invoice.service'
                   <td class="amount">{{ formatCents(invoice.totalCents) }}</td>
                   <td>
                     <span class="status-badge" [class.paid]="invoice.status === 'PAID'">
-                      {{ invoice.status === 'PAID' ? 'Payee' : 'En attente' }}
+                      {{ invoice.status === 'PAID' ? 'Payée' : 'En attente' }}
                     </span>
                   </td>
                   <td>
@@ -154,7 +154,7 @@ import { InvoiceService, Invoice } from '../../../core/services/invoice.service'
                       class="btn-icon"
                       (click)="downloadPdf(invoice)"
                       [disabled]="downloadingId() === invoice.id"
-                      title="Telecharger PDF"
+                      title="Télécharger PDF"
                     >
                       @if (downloadingId() === invoice.id) {
                         <ng-icon name="heroArrowPath" class="spin"></ng-icon>

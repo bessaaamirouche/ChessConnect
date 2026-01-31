@@ -155,7 +155,7 @@ export class SettingsComponent implements OnInit {
     this.route.queryParams.subscribe(params => {
       // Handle Stripe Connect return
       if (params['stripe_connect'] === 'return') {
-        this.stripeConnectSuccess.set('Configuration terminee !');
+        this.stripeConnectSuccess.set('Configuration terminée !');
         this.loadStripeConnectStatus();
         window.history.replaceState({}, '', '/settings');
         setTimeout(() => this.stripeConnectSuccess.set(null), 3000);
@@ -163,7 +163,7 @@ export class SettingsComponent implements OnInit {
 
       // Handle Stripe Connect refresh (incomplete onboarding)
       if (params['stripe_connect'] === 'refresh') {
-        this.stripeConnectError.set('Configuration incomplete. Veuillez reprendre le processus.');
+        this.stripeConnectError.set('Configuration incomplète. Veuillez reprendre le processus.');
         window.history.replaceState({}, '', '/settings');
       }
     });
@@ -245,13 +245,13 @@ export class SettingsComponent implements OnInit {
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
-      this.avatarError.set('Le fichier doit etre une image');
+      this.avatarError.set('Le fichier doit être une image');
       return;
     }
 
     // Validate file size (5MB max)
     if (file.size > 5 * 1024 * 1024) {
-      this.avatarError.set('L\'image ne doit pas depasser 5 Mo');
+      this.avatarError.set('L\'image ne doit pas dépasser 5 Mo');
       return;
     }
 
@@ -420,9 +420,9 @@ export class SettingsComponent implements OnInit {
 
   async disconnectStripeConnect(): Promise<void> {
     const confirmed = await this.dialogService.confirm(
-      'Etes-vous sur de vouloir deconnecter votre compte ? Vous ne pourrez plus recevoir de paiements.',
-      'Deconnexion Stripe',
-      { confirmText: 'Deconnecter', cancelText: 'Annuler', variant: 'danger' }
+      'Êtes-vous sûr de vouloir déconnecter votre compte ? Vous ne pourrez plus recevoir de paiements.',
+      'Déconnexion Stripe',
+      { confirmText: 'Déconnecter', cancelText: 'Annuler', variant: 'danger' }
     );
     if (!confirmed) return;
 
@@ -432,13 +432,13 @@ export class SettingsComponent implements OnInit {
     this.stripeConnectService.disconnect().subscribe({
       next: () => {
         this.stripeConnectLoading.set(false);
-        this.stripeConnectSuccess.set('Compte deconnecte');
+        this.stripeConnectSuccess.set('Compte déconnecté');
         this.loadStripeConnectStatus();
         setTimeout(() => this.stripeConnectSuccess.set(null), 3000);
       },
       error: (err) => {
         this.stripeConnectLoading.set(false);
-        this.stripeConnectError.set(err.error?.message || 'Erreur lors de la deconnexion');
+        this.stripeConnectError.set(err.error?.message || 'Erreur lors de la déconnexion');
       }
     });
   }
@@ -474,7 +474,7 @@ export class SettingsComponent implements OnInit {
 
     const amountCents = amount * 100;
     if (amountCents > balance.availableBalanceCents) {
-      this.stripeConnectError.set('Le montant depasse votre solde disponible');
+      this.stripeConnectError.set('Le montant dépasse votre solde disponible');
       return;
     }
 
@@ -492,7 +492,7 @@ export class SettingsComponent implements OnInit {
       next: (response) => {
         this.withdrawing.set(false);
         if (response.success) {
-          this.stripeConnectSuccess.set(`Retrait de ${this.formatCents(response.amountCents || 0)} effectue !`);
+          this.stripeConnectSuccess.set(`Retrait de ${this.formatCents(response.amountCents || 0)} effectué !`);
           this.loadTeacherBalance();
           setTimeout(() => this.stripeConnectSuccess.set(null), 5000);
         } else {
@@ -514,7 +514,7 @@ export class SettingsComponent implements OnInit {
       next: (response) => {
         this.recalculatingBalance.set(false);
         if (response.success) {
-          this.stripeConnectSuccess.set('Balance recalculee avec succes !');
+          this.stripeConnectSuccess.set('Balance recalculée avec succès !');
           this.loadTeacherBalance();
           setTimeout(() => this.stripeConnectSuccess.set(null), 3000);
         } else {
@@ -532,7 +532,7 @@ export class SettingsComponent implements OnInit {
   async deleteAccount(): Promise<void> {
     // First confirmation
     const firstConfirm = await this.dialogService.confirm(
-      'Cette action est irreversible. Toutes vos donnees seront supprimees definitivement.',
+      'Cette action est irréversible. Toutes vos données seront supprimées définitivement.',
       'Supprimer mon compte',
       { confirmText: 'Continuer', cancelText: 'Annuler', variant: 'danger' }
     );
@@ -542,7 +542,7 @@ export class SettingsComponent implements OnInit {
     const password = await this.dialogService.prompt(
       'Entrez votre mot de passe pour confirmer',
       'Confirmation requise',
-      { confirmText: 'Supprimer definitivement', cancelText: 'Annuler', inputLabel: 'Mot de passe', inputType: 'password', variant: 'danger' }
+      { confirmText: 'Supprimer définitivement', cancelText: 'Annuler', inputLabel: 'Mot de passe', inputType: 'password', variant: 'danger' }
     );
     if (!password) return;
 
@@ -554,7 +554,7 @@ export class SettingsComponent implements OnInit {
     }).subscribe({
       next: () => {
         this.deletingAccount.set(false);
-        this.toastService.success('Votre compte a ete supprime avec succes');
+        this.toastService.success('Votre compte a été supprimé avec succès');
         this.authService.logout();
         this.router.navigate(['/']);
       },

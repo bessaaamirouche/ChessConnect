@@ -103,8 +103,8 @@ sudo ufw allow 8282
 
 - **Inscription Joueur/Coach** : Creation de compte avec roles et badges visuels
 - **Premier Cours Offert** : Les nouveaux joueurs beneficient d'un premier cours gratuit
-- **Quiz d'Evaluation** : Determinez votre niveau d'echecs (Pion, Cavalier, Fou, Tour, Dame)
-- **Parcours d'Apprentissage** : 50 cours structures par niveau
+- **Quiz d'Evaluation** : Determinez votre niveau d'echecs (A, B, C, D)
+- **Parcours d'Apprentissage** : 120 cours structures par niveau, 546 lecons
 - **Reservation de Cours** : Reservez des sessions avec des coachs
 - **Disponibilites 24h/24** : Les coachs peuvent creer des creneaux a n'importe quelle heure
 - **Reservations urgentes** : Les creneaux restent visibles jusqu'a 5 min apres l'heure de debut
@@ -264,8 +264,8 @@ Le frontend demarre sur `http://localhost:4200`
 
 ## Specifications Metier
 
-- **Cursus Standardise:** 5 niveaux (Pion, Cavalier, Fou, Tour, Dame). Le joueur progresse meme s'il change de prof.
-- **Quiz d'Evaluation:** 25 questions (5 par niveau) pour determiner le niveau initial
+- **Cursus Standardise:** 4 niveaux (A, B, C, D). Le joueur progresse meme s'il change de prof.
+- **Quiz d'Evaluation:** 20 questions (5 par niveau) pour determiner le niveau initial
 - **Reservations:** Sessions d'une heure via Jitsi Meet
 - **Disponibilites:** Le coach cree des creneaux d'au moins 1h pour permettre une reservation
 - **Abonnement Premium:** 4,99€/mois pour fonctionnalités exclusives (pas de quota de cours)
@@ -286,7 +286,8 @@ Le frontend demarre sur `http://localhost:4200`
 
 ### Progression (Learning Path)
 
-- Niveaux d'echecs : Pion, Cavalier, Fou, Tour, Dame
+- Niveaux d'echecs : A (Pion), B (Cavalier), C (Fou), D (Tour)
+- 120 cours, 546 lecons au total
 - Cours par niveau (grades) avec accordeon
 - Statuts cours : LOCKED, IN_PROGRESS, PENDING_VALIDATION, COMPLETED
 - Validation des cours par le coach uniquement
@@ -496,6 +497,9 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 # Jitsi (obligatoire pour les appels video)
 JITSI_APP_SECRET=votre_secret_jitsi
 
+# Jibri Recording Webhook (optionnel mais recommande)
+JIBRI_WEBHOOK_SECRET=votre_secret_webhook_jibri
+
 # Google Calendar (optionnel)
 GOOGLE_CLIENT_ID=votre_client_id_google
 GOOGLE_CLIENT_SECRET=votre_client_secret_google
@@ -538,11 +542,16 @@ Variables configurees dans `docker-compose.yml` :
 - **Expiration JWT** : 1 heure (au lieu de 24h) avec refresh token de 7 jours
 - **Masquage IBAN** : Les IBAN sont masques dans les reponses API (`FR76XXXX...1234`)
 - **Logging securise** : Secrets Stripe et SQL non logues en production
+- **Webhook Jibri** : Validation HMAC-SHA256 des webhooks d'enregistrement video
+- **ACL Videos** : Seul le student/teacher/admin d'un cours peut acceder a son enregistrement
+- **Optimistic Locking** : Prevention des race conditions sur le premier cours gratuit (`@Version` sur User)
 
 ### Frontend
 - **CSP Headers** : Content-Security-Policy complete configuree dans nginx
-- **XSS Protection** : Sanitization whitelist dans `markdown.pipe.ts` (sans bypassSecurityTrustHtml)
+- **XSS Protection** : Sanitization whitelist avec DOMParser dans `markdown.pipe.ts` (sans bypassSecurityTrustHtml)
 - **Security Headers** : X-Frame-Options, X-Content-Type-Options, X-XSS-Protection, Referrer-Policy, Permissions-Policy
+- **Pas de token localStorage** : Authentification geree uniquement via cookies HttpOnly
+- **Container non-root** : Le frontend s'execute avec un utilisateur non-privilegie
 
 ### Headers Nginx
 ```

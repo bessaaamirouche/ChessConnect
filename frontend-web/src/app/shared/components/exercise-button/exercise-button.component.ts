@@ -18,54 +18,76 @@ import { PaymentService } from '../../../core/services/payment.service';
         title="S'entrainer contre myChessBot"
       >
         <ng-icon name="heroCpuChip" size="14"></ng-icon>
-        M'exercer
+        <span>M'exercer</span>
       </a>
     } @else {
       <a
         routerLink="/subscription"
         [queryParams]="{ required: 'exercise' }"
         class="exercise-btn exercise-btn--locked"
-        title="Fonctionnalite Premium - Abonnez-vous pour acceder"
+        title="Fonctionnalité Premium - Abonnez-vous pour accéder"
       >
         <ng-icon name="heroLockClosed" size="14"></ng-icon>
-        Premium
+        <span>Premium</span>
       </a>
     }
   `,
   styles: [`
-    :host {
-      margin-left: auto;
-    }
-
     .exercise-btn {
       display: inline-flex;
       align-items: center;
-      gap: 0.35rem;
-      padding: 0.35rem 0.75rem;
-      background: rgba(212, 175, 55, 0.15);
-      border: 1px solid rgba(212, 175, 55, 0.3);
-      color: #d4af37;
-      border-radius: var(--radius-md, 6px);
-      font-size: 0.75rem;
-      font-weight: 500;
+      justify-content: center;
+      gap: 4px;
+      height: 26px;
+      padding: 0 10px;
+      background: var(--bg-tertiary, rgba(255, 255, 255, 0.05));
+      border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.1));
+      color: var(--text-secondary, #9ca3af);
+      border-radius: var(--radius-sm, 4px);
+      font-size: 0.6875rem;
+      font-weight: 400;
       text-decoration: none;
-      transition: all 0.2s ease;
+      transition: all 0.15s ease;
       white-space: nowrap;
+      flex-shrink: 0;
+
+      @media (max-width: 480px) {
+        width: 26px;
+        height: 26px;
+        padding: 0;
+
+        span {
+          display: none;
+        }
+      }
 
       &:hover {
-        background: rgba(212, 175, 55, 0.25);
-        border-color: rgba(212, 175, 55, 0.5);
-        transform: translateY(-1px);
+        background: var(--bg-secondary, rgba(255, 255, 255, 0.08));
+        border-color: var(--border-default, rgba(255, 255, 255, 0.15));
+        color: var(--text-primary, #fff);
+      }
+
+      ng-icon {
+        color: var(--text-muted, #6b7280);
+        flex-shrink: 0;
+      }
+
+      &:hover ng-icon {
+        color: var(--text-secondary, #9ca3af);
       }
 
       &--locked {
-        background: rgba(107, 105, 101, 0.15);
-        border-color: rgba(107, 105, 101, 0.3);
-        color: #9ca3af;
+        background: rgba(107, 105, 101, 0.1);
+        border-color: rgba(107, 105, 101, 0.2);
+        color: #6b7280;
+
+        ng-icon {
+          color: #6b7280;
+        }
 
         &:hover {
-          background: rgba(107, 105, 101, 0.25);
-          border-color: rgba(107, 105, 101, 0.5);
+          background: rgba(107, 105, 101, 0.15);
+          border-color: rgba(107, 105, 101, 0.3);
         }
       }
     }

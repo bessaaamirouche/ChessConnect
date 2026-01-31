@@ -186,6 +186,8 @@ export interface LessonResponse {
   refundPercentage?: number;
   refundedAmountCents?: number;
   teacherObservations?: string;
+  teacherComment?: string;
+  teacherCommentAt?: string;
   recordingUrl?: string;
   teacherJoinedAt?: string;
   createdAt: string;

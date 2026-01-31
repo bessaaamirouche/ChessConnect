@@ -3,7 +3,7 @@
     <div>
       <h1 class="page-header__title">Ma Progression</h1>
       @if (!loading() && !error()) {
-        <p class="page-header__subtitle">{{ totalValidatedCourses() }} cours valides sur {{ totalCourses() }}</p>
+        <p class="page-header__subtitle">{{ totalValidatedCourses() }} cours validés sur {{ totalCourses() }}</p>
       }
     </div>
   </header>
@@ -19,7 +19,7 @@
       <h3>Erreur</h3>
       <p>{{ error() }}</p>
       <button class="btn btn--primary" (click)="learningPathService.loadLearningPath().subscribe()">
-        Reessayer
+        Réessayer
       </button>
     </div>
   } @else {
@@ -122,7 +122,7 @@
       <div class="cta-card">
         <div class="cta-card__content">
           <h3>Continuez votre progression !</h3>
-          <p>Reservez un cours avec un coach pour valider vos connaissances.</p>
+          <p>Réservez un cours avec un coach pour valider vos connaissances.</p>
         </div>
         <a routerLink="/teachers" class="btn btn--primary btn--lg">
           Trouver un coach
@@ -135,8 +135,8 @@
       <div class="quiz-cta-card">
         <div class="quiz-cta-card__icon">♟</div>
         <div class="quiz-cta-card__content">
-          <h4>Reevaluez votre niveau</h4>
-          <p>Vous pensez avoir progresse ? Repassez le quiz pour mettre a jour votre niveau.</p>
+          <h4>Réévaluez votre niveau</h4>
+          <p>Vous pensez avoir progressé ? Repassez le quiz pour mettre à jour votre niveau.</p>
         </div>
         <a routerLink="/quiz" class="btn btn--secondary">
           Passer le quiz

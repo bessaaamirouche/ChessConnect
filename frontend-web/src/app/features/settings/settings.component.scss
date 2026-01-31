@@ -700,6 +700,37 @@ input[type="date"] {
   }
 }
 
+// Email reminder option (students)
+.email-reminder-option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin-top: var(--space-md);
+  padding: var(--space-md);
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    flex: 1;
+  }
+
+  &__label {
+    font-weight: 500;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+  }
+
+  &__description {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    line-height: 1.4;
+  }
+}
+
 // Balance grid
 .balance-grid {
   display: grid;
@@ -750,77 +781,69 @@ input[type="date"] {
   border-radius: var(--radius-md);
 }
 
-// Danger Zone (Account Deletion)
+// Danger Zone (Account Deletion) - Compact
 .card--danger {
-  border-color: rgba(248, 113, 113, 0.3);
-  background: rgba(248, 113, 113, 0.03);
+  border-color: rgba(248, 113, 113, 0.2);
+  background: rgba(248, 113, 113, 0.02);
+
+  &.card--compact {
+    padding: var(--space-md);
+  }
 }
 
-.card__title--danger {
+.danger-header {
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
+  gap: var(--space-xs);
+  font-size: 0.75rem;
+  font-weight: 600;
   color: var(--error);
-  border-bottom-color: rgba(248, 113, 113, 0.2);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: var(--space-sm);
+  opacity: 0.8;
 }
 
-.danger-section {
+.danger-row {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-lg);
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
 
-  @media (min-width: 600px) {
-    flex-direction: row;
-    align-items: flex-start;
-    justify-content: space-between;
-  }
-
-  &__info {
+  &__text {
     display: flex;
     flex-direction: column;
-    gap: var(--space-sm);
-    flex: 1;
+    gap: 2px;
+    min-width: 0;
   }
 
   &__title {
-    font-size: 0.9375rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin: 0;
-  }
-
-  &__description {
     font-size: 0.8125rem;
-    color: var(--text-secondary);
-    line-height: 1.5;
-    margin: 0;
+    font-weight: 500;
+    color: var(--text-primary);
   }
 
-  &__warning {
-    font-size: 0.75rem;
+  &__desc {
+    font-size: 0.7rem;
     color: var(--text-muted);
-    font-style: italic;
-    margin: 0;
-    padding-left: var(--space-sm);
-    border-left: 2px solid rgba(248, 113, 113, 0.3);
   }
 
   .btn--danger {
     flex-shrink: 0;
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-sm);
     background: transparent;
     color: var(--error);
-    border: 1px solid var(--error);
+    border: 1px solid rgba(248, 113, 113, 0.4);
+    font-size: 0.75rem;
+    padding: 6px 12px;
 
     &:hover:not(:disabled) {
       background: var(--error);
       color: white;
+      border-color: var(--error);
     }
 
     &:disabled {
-      opacity: 0.6;
+      opacity: 0.5;
       cursor: not-allowed;
     }
   }

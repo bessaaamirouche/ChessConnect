@@ -467,7 +467,7 @@ export class DashboardComponent implements OnInit {
 
     const amountCents = amount * 100;
     if (amountCents > balance.availableBalanceCents) {
-      this.withdrawError.set('Le montant depasse votre solde disponible');
+      this.withdrawError.set('Le montant dépasse votre solde disponible');
       return;
     }
 
@@ -485,7 +485,7 @@ export class DashboardComponent implements OnInit {
       next: (response) => {
         this.withdrawing.set(false);
         if (response.success) {
-          this.withdrawSuccess.set(`Retrait de ${this.formatCents(response.amountCents || 0)} effectue !`);
+          this.withdrawSuccess.set(`Retrait de ${this.formatCents(response.amountCents || 0)} effectué !`);
           this.teacherService.getMyBalance().subscribe({
             next: (balance) => {
               const maxAmount = Math.floor(balance.availableBalanceCents / 100);

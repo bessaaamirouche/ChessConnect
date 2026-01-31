@@ -33,21 +33,21 @@ import { AdminService, AdminLessonResponse } from '../../../core/services/admin.
               [class.tab--active]="activeTab() === 'upcoming'"
               (click)="setTab('upcoming')"
             >
-              A venir ({{ upcomingLessons().length }})
+              À venir ({{ upcomingLessons().length }})
             </button>
             <button
               class="tab"
               [class.tab--active]="activeTab() === 'completed'"
               (click)="setTab('completed')"
             >
-              Termines ({{ completedLessons().length }})
+              Terminés ({{ completedLessons().length }})
             </button>
             <button
               class="tab"
               [class.tab--active]="activeTab() === 'cancelled'"
               (click)="setTab('cancelled')"
             >
-              Annules ({{ cancelledLessons().length }})
+              Annulés ({{ cancelledLessons().length }})
             </button>
           </div>
         </div>
@@ -58,7 +58,7 @@ import { AdminService, AdminLessonResponse } from '../../../core/services/admin.
       } @else {
         <div class="table-container">
           <div class="table-header">
-            <span class="results-count">{{ filteredLessons().length }} resultat(s)</span>
+            <span class="results-count">{{ filteredLessons().length }} résultat(s)</span>
           </div>
           <table class="table">
             <thead>
@@ -103,7 +103,7 @@ import { AdminService, AdminLessonResponse } from '../../../core/services/admin.
                   </td>
                   <td>
                     <div class="actions-cell">
-                      <button class="btn-action btn-action--details" (click)="openDetails(lesson)" title="Voir les details">
+                      <button class="btn-action btn-action--details" (click)="openDetails(lesson)" title="Voir les détails">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                           <circle cx="12" cy="12" r="10"></circle>
                           <path d="M12 16v-4"></path>
@@ -124,7 +124,7 @@ import { AdminService, AdminLessonResponse } from '../../../core/services/admin.
               } @empty {
                 <tr>
                   <td colspan="7" class="empty-state">
-                    Aucun cours {{ activeTab() === 'upcoming' ? 'a venir' : (activeTab() === 'completed' ? 'termine' : 'annule') }}
+                    Aucun cours {{ activeTab() === 'upcoming' ? 'à venir' : (activeTab() === 'completed' ? 'terminé' : 'annulé') }}
                   </td>
                 </tr>
               }
@@ -134,7 +134,7 @@ import { AdminService, AdminLessonResponse } from '../../../core/services/admin.
 
         @if (activeTab() === 'completed' && completedLessons().length > 0) {
           <div class="summary-card">
-            <h3>Resume des cours effectues</h3>
+            <h3>Résumé des cours effectués</h3>
             <div class="summary-stats">
               <div class="stat">
                 <span class="stat__value">{{ completedLessons().length }}</span>
@@ -168,7 +168,7 @@ import { AdminService, AdminLessonResponse } from '../../../core/services/admin.
                 autoplay
                 class="video-player"
               >
-                Votre navigateur ne supporte pas la lecture de videos.
+                Votre navigateur ne supporte pas la lecture de vidéos.
               </video>
             </div>
           </div>
@@ -185,14 +185,14 @@ import { AdminService, AdminLessonResponse } from '../../../core/services/admin.
             </div>
             <div class="detail-content">
               <div class="detail-section">
-                <h4>Informations generales</h4>
+                <h4>Informations générales</h4>
                 <div class="detail-grid">
                   <div class="detail-item">
                     <span class="detail-label">Date</span>
                     <span class="detail-value">{{ selectedLesson()!.scheduledAt | date:'dd/MM/yyyy HH:mm' }}</span>
                   </div>
                   <div class="detail-item">
-                    <span class="detail-label">Duree</span>
+                    <span class="detail-label">Durée</span>
                     <span class="detail-value">{{ selectedLesson()!.durationMinutes }} min</span>
                   </div>
                   <div class="detail-item">
@@ -244,7 +244,7 @@ import { AdminService, AdminLessonResponse } from '../../../core/services/admin.
                   <h4>Annulation</h4>
                   <div class="detail-grid">
                     <div class="detail-item">
-                      <span class="detail-label">Annule par</span>
+                      <span class="detail-label">Annulé par</span>
                       <span class="detail-value">{{ getCancelledByLabel(selectedLesson()!.cancelledBy) }}</span>
                     </div>
                     @if (selectedLesson()!.cancellationReason) {
@@ -1044,9 +1044,9 @@ export class AdminLessonsComponent implements OnInit {
   getStatusLabel(status: string): string {
     const labels: Record<string, string> = {
       PENDING: 'En attente',
-      CONFIRMED: 'Confirme',
-      COMPLETED: 'Termine',
-      CANCELLED: 'Annule'
+      CONFIRMED: 'Confirmé',
+      COMPLETED: 'Terminé',
+      CANCELLED: 'Annulé'
     };
     return labels[status] || status;
   }
@@ -1090,7 +1090,7 @@ export class AdminLessonsComponent implements OnInit {
     const labels: Record<string, string> = {
       STUDENT: 'Le joueur',
       TEACHER: 'Le coach',
-      SYSTEM: 'Systeme (auto)',
+      SYSTEM: 'Système (auto)',
       ADMIN: 'Administrateur'
     };
     return labels[cancelledBy] || cancelledBy;

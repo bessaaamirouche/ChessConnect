@@ -47,7 +47,7 @@ export class ResetPasswordComponent implements OnInit {
           this.validating.set(false);
           this.tokenValid.set(response.valid);
           if (!response.valid) {
-            this.error.set('Le lien de reinitialisation est invalide ou a expire.');
+            this.error.set('Le lien de réinitialisation est invalide ou a expiré.');
           }
         },
         error: () => {

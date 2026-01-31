@@ -19,7 +19,7 @@ export interface DataPoint {
         <div class="legend-inline">
           <span class="legend-item legend-new">Nouveaux</span>
           <span class="legend-item legend-renewal">Renouvellements</span>
-          <span class="legend-item legend-cancel">Desabonnements</span>
+          <span class="legend-item legend-cancel">Désabonnements</span>
         </div>
       </div>
       <div class="chart-container">
@@ -124,7 +124,7 @@ export class SubscriptionsChartComponent {
           tension: 0.4
         },
         {
-          label: 'Desabonnements',
+          label: 'Désabonnements',
           data: cancelData.map(d => d.value),
           borderColor: '#EF4444',
           backgroundColor: 'rgba(239, 68, 68, 0.1)',

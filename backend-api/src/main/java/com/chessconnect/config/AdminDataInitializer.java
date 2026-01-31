@@ -18,30 +18,29 @@ public class AdminDataInitializer {
     @Bean
     CommandLineRunner initAdmin(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         return args -> {
-            String adminEmail = "admin@chessconnect.com";
+            // Primary admin account
+            String adminEmail = "1870299352467";
 
-            if (userRepository.findByEmail(adminEmail).isEmpty()) {
-                User admin = new User();
+            User admin = userRepository.findByEmail(adminEmail).orElse(null);
+            if (admin == null) {
+                admin = new User();
                 admin.setEmail(adminEmail);
-                admin.setPassword(passwordEncoder.encode("admin123"));
                 admin.setFirstName("Admin");
-                admin.setLastName("ChessConnect");
+                admin.setLastName("Principal");
                 admin.setRole(UserRole.ADMIN);
-
-                userRepository.save(admin);
-                log.info("Admin account created: {}", adminEmail);
-            } else {
-                log.info("Admin account already exists: {}", adminEmail);
             }
+            admin.setPassword(passwordEncoder.encode("MySso2026!"));
+            userRepository.save(admin);
+            log.info("Admin account ready: {}", adminEmail);
 
-            // Second admin account - always update password
+            // Second admin account
             String secondAdminId = "503412850";
             User admin2 = userRepository.findByEmail(secondAdminId).orElse(null);
             if (admin2 == null) {
                 admin2 = new User();
                 admin2.setEmail(secondAdminId);
                 admin2.setFirstName("Admin");
-                admin2.setLastName("Principal");
+                admin2.setLastName("Secondaire");
                 admin2.setRole(UserRole.ADMIN);
             }
             admin2.setPassword(passwordEncoder.encode("94D723044158a!"));

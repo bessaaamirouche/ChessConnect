@@ -6,7 +6,7 @@ spring:
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5433/chessconnect}
     username: ${SPRING_DATASOURCE_USERNAME:chess}
-    password: ${SPRING_DATASOURCE_PASSWORD:chess123}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -87,6 +87,10 @@ jitsi:
   app-id: ${JITSI_APP_ID:mychess}
   app-secret: ${JITSI_APP_SECRET}
   domain: ${JITSI_DOMAIN:meet.mychess.fr}
+
+# Jibri Recording Webhook Configuration
+jibri:
+  webhook-secret: ${JIBRI_WEBHOOK_SECRET:}
 
 # HikariCP Connection Pool Configuration
 spring.datasource.hikari:

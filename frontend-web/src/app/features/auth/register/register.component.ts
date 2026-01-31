@@ -176,7 +176,7 @@ export class RegisterComponent {
       next: () => {
         this.resendLoading.set(false);
         this.resendSuccess.set(true);
-        this.toastService.success('Email de verification renvoye !');
+        this.toastService.success('Email de vérification renvoyé !');
       },
       error: (err) => {
         this.resendLoading.set(false);

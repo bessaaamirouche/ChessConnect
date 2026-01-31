@@ -38,7 +38,7 @@ declare var JitsiMeetExternalAPI: any;
             }
           </div>
           <div class="video-call-header__actions">
-            <button class="video-call-header__close" (click)="onClose()" title="Quitter la réunion" aria-label="Fermer la visioconference">
+            <button class="video-call-header__close" (click)="onClose()" title="Quitter la réunion" aria-label="Fermer la visioconférence">
               <ng-icon name="heroXMark" size="24" aria-hidden="true"></ng-icon>
             </button>
           </div>
@@ -316,7 +316,7 @@ export class VideoCallComponent implements OnInit, OnDestroy, AfterViewInit {
 
       if (status.on) {
         this.recordingStarted = true;
-        this.toastService.show('L\'enregistrement de votre cours a demarré', 'info');
+        this.toastService.show('L\'enregistrement de votre cours a démarré', 'info');
       }
     });
 

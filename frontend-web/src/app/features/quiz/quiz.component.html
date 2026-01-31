@@ -6,8 +6,8 @@
           <div class="quiz-intro__icon">♟</div>
           <h1 class="quiz-intro__title">Testez vos connaissances</h1>
           <p class="quiz-intro__description">
-            Ce quiz est indicatif et vous permet de tester vos connaissances aux echecs.
-            Votre niveau officiel sera determine par votre coach lors de votre premier cours.
+            Ce quiz est indicatif et vous permet de tester vos connaissances aux échecs.
+            Votre niveau officiel sera déterminé par votre coach lors de votre premier cours.
           </p>
 
           <div class="quiz-intro__info">
@@ -26,7 +26,7 @@
           </div>
 
           <div class="quiz-intro__levels">
-            <h3>Niveaux evalues</h3>
+            <h3>Niveaux évalués</h3>
             <div class="quiz-intro__levels-list">
               @for (level of levels; track level) {
                 <div class="quiz-intro__level">
@@ -133,11 +133,11 @@
               [disabled]="quizService.isFirstQuestion()"
             >
               <ng-icon name="heroArrowLeft"></ng-icon>
-              Precedent
+              Précédent
             </button>
 
             <span class="quiz-nav__answered">
-              {{ quizService.answeredCount() }} / {{ quizService.totalQuestions() }} repondues
+              {{ quizService.answeredCount() }} / {{ quizService.totalQuestions() }} répondues
             </span>
 
             <div class="quiz-nav__right">
@@ -178,19 +178,19 @@
           <div class="quiz-result">
             <div class="quiz-result__header">
               <div class="quiz-result__icon">{{ getLevelIcon(result.determinedLevel) }}</div>
-              <h1 class="quiz-result__title">Niveau suggere : {{ result.levelDisplayName }}</h1>
+              <h1 class="quiz-result__title">Niveau suggéré : {{ result.levelDisplayName }}</h1>
               <p class="quiz-result__subtitle">{{ result.levelDescription }}</p>
             </div>
 
             <p class="quiz-result__message">{{ result.message }}</p>
 
             <div class="quiz-result__notice">
-              <strong>Note :</strong> Ce resultat est indicatif. Votre coach evaluera officiellement votre niveau lors de votre premier cours avec des exercices pratiques.
+              <strong>Note :</strong> Ce résultat est indicatif. Votre coach évaluera officiellement votre niveau lors de votre premier cours avec des exercices pratiques.
             </div>
 
             <!-- Scores by Level -->
             <div class="quiz-result__scores">
-              <h3>Resultats par niveau</h3>
+              <h3>Résultats par niveau</h3>
               <div class="quiz-result__scores-list">
                 @for (level of levels; track level) {
                   <div class="quiz-result__score" [class.quiz-result__score--passed]="isLevelPassed(level)" [class.quiz-result__score--failed]="isLevelEvaluated(level) && !isLevelPassed(level)" [class.quiz-result__score--not-evaluated]="!isLevelEvaluated(level)">
@@ -212,7 +212,7 @@
                           <ng-icon name="heroXCircle" class="text-error"></ng-icon>
                         }
                       } @else {
-                        <span class="text-muted">Non evalue</span>
+                        <span class="text-muted">Non évalué</span>
                       }
                     </span>
                   </div>

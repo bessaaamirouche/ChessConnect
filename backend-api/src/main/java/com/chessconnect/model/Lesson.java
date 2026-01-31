@@ -94,6 +94,18 @@ public class Lesson {
     @Column(name = "teacher_observations", columnDefinition = "TEXT")
     private String teacherObservations;
 
+    @Column(name = "teacher_comment", columnDefinition = "TEXT")
+    private String teacherComment;
+
+    @Column(name = "teacher_comment_at")
+    private LocalDateTime teacherCommentAt;
+
+    @Column(name = "deleted_by_teacher")
+    private Boolean deletedByTeacher = false;
+
+    @Column(name = "deleted_by_student")
+    private Boolean deletedByStudent = false;
+
     @Column(name = "recording_url")
     private String recordingUrl;
 
@@ -205,6 +217,18 @@ public class Lesson {
 
     public String getTeacherObservations() { return teacherObservations; }
     public void setTeacherObservations(String teacherObservations) { this.teacherObservations = teacherObservations; }
+
+    public String getTeacherComment() { return teacherComment; }
+    public void setTeacherComment(String teacherComment) { this.teacherComment = teacherComment; }
+
+    public LocalDateTime getTeacherCommentAt() { return teacherCommentAt; }
+    public void setTeacherCommentAt(LocalDateTime teacherCommentAt) { this.teacherCommentAt = teacherCommentAt; }
+
+    public Boolean getDeletedByTeacher() { return deletedByTeacher; }
+    public void setDeletedByTeacher(Boolean deletedByTeacher) { this.deletedByTeacher = deletedByTeacher; }
+
+    public Boolean getDeletedByStudent() { return deletedByStudent; }
+    public void setDeletedByStudent(Boolean deletedByStudent) { this.deletedByStudent = deletedByStudent; }
 
     public String getRecordingUrl() { return recordingUrl; }
     public void setRecordingUrl(String recordingUrl) { this.recordingUrl = recordingUrl; }

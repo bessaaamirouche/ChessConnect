@@ -2,7 +2,7 @@
   <header class="page-header">
     <div>
       <h1 class="page-header__title">Programme Pedagogique</h1>
-      <p class="page-header__subtitle">Curriculum complet d'enseignement des echecs - {{ getTotalCourses() }} cours, {{ getTotalSubLessons() }} lecons</p>
+      <p class="page-header__subtitle">Progressez à votre rythme avec notre parcours structuré</p>
     </div>
     @if (isStudent() && currentCourseId() > 1) {
       <button class="btn btn--ghost" (click)="goBackToPreviousCourse()">
@@ -20,7 +20,7 @@
       <div class="current-course-banner__content">
         <span class="current-course-banner__label">Votre prochain cours</span>
         <span class="current-course-banner__title">{{ getCurrentCourseTitle() }}</span>
-        <span class="current-course-banner__level">Niveau {{ getCurrentLevelCode() }}</span>
+        <span class="current-course-banner__level">Niveau {{ getCurrentLevelName() }}</span>
       </div>
       <div class="current-course-banner__progress">
         <span class="current-course-banner__progress-text">{{ currentCourseId() }}/{{ getTotalCourses() }}</span>
@@ -28,31 +28,10 @@
     </div>
   }
 
-  <div class="stats-bar">
-    <div class="stat-item">
-      <span class="stat-value">4</span>
-      <span class="stat-label">Niveaux</span>
-    </div>
-    <div class="stat-item">
-      <span class="stat-value">{{ getTotalCourses() }}</span>
-      <span class="stat-label">Cours</span>
-    </div>
-    <div class="stat-item">
-      <span class="stat-value">{{ getTotalSubLessons() }}</span>
-      <span class="stat-label">Lecons</span>
-    </div>
-    @if (isStudent()) {
-      <div class="stat-item stat-item--highlight">
-        <span class="stat-value">{{ currentCourseId() - 1 }}</span>
-        <span class="stat-label">Completes</span>
-      </div>
-    }
-  </div>
-
   @if (isStudent()) {
     <div class="info-banner">
       <ng-icon name="heroBookOpen" size="20"></ng-icon>
-      <span>Cliquez sur un cours pour voir son contenu. Vous pouvez choisir de commencer a partir d'un cours different en cliquant sur "Demarrer ici".</span>
+      <span>Cliquez sur un cours pour voir son contenu. Vous pouvez choisir de commencer à partir d'un cours différent en cliquant sur "Démarrer ici".</span>
     </div>
   }
 
@@ -67,7 +46,7 @@
         >
           <div class="level-header__left">
             <div class="level-badge" [style.background]="level.color">
-              {{ level.code }}
+              {{ level.icon }}
             </div>
             <div class="level-info">
               <h2 class="level-name">{{ level.name }}</h2>
@@ -147,5 +126,20 @@
         }
       </div>
     }
+  </div>
+
+  <div class="stats-bar stats-bar--small">
+    <div class="stat-item">
+      <span class="stat-value">4</span>
+      <span class="stat-label">Niveaux</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value">{{ getTotalCourses() }}</span>
+      <span class="stat-label">Cours</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value">{{ getTotalSubLessons() }}</span>
+      <span class="stat-label">Lecons</span>
+    </div>
   </div>
 </div>

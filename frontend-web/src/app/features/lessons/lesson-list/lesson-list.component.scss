@@ -485,7 +485,6 @@
 
   &__dropdown {
     position: relative;
-    margin-left: auto;
   }
 
   &__dropdown-backdrop {
@@ -640,7 +639,8 @@
 
 .badge--sm {
   font-size: 0.6875rem;
-  padding: 2px 8px;
+  padding: 4px 8px;
+  min-height: 24px;
 }
 
 .empty-state {

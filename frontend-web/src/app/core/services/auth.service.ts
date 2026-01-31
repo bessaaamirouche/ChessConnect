@@ -37,11 +37,13 @@ export class AuthService {
     if (isPlatformBrowser(this.platformId)) {
       this.currentUserSignal.set(this.loadUserFromStorage());
       this.tokenSignal.set(this.loadTokenFromStorage());
-    }
-    // Initialize notifications for current user if already logged in
-    const user = this.loadUserFromStorage();
-    if (user?.id) {
-      this.notificationCenterService.initializeForUser(user.id);
+
+      // Initialize notifications for current user if already logged in
+      // Use setTimeout to defer to avoid circular dependency during construction
+      const user = this.loadUserFromStorage();
+      if (user?.id) {
+        setTimeout(() => this.notificationCenterService.initializeForUser(user.id), 0);
+      }
     }
   }
 

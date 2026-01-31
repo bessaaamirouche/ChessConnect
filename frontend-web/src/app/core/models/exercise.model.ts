@@ -1,5 +1,5 @@
 export type DifficultyLevel = 'DEBUTANT' | 'FACILE' | 'MOYEN' | 'DIFFICILE' | 'EXPERT';
-export type ChessLevel = 'PION' | 'CAVALIER' | 'FOU' | 'TOUR' | 'DAME';
+export type ChessLevel = 'A' | 'B' | 'C' | 'D';
 
 export interface Exercise {
   id: number;

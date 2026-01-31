@@ -1,142 +1,117 @@
-import { Component, OnInit, signal, ChangeDetectionStrategy, computed } from '@angular/core';
+import { Component, OnInit, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { DatePipe, DecimalPipe } from '@angular/common';
-import { ProgressService, LevelInfo } from '../../core/services/progress.service';
-import { AuthService } from '../../core/services/auth.service';
 import { LearningPathService } from '../../core/services/learning-path.service';
+import { AuthService } from '../../core/services/auth.service';
 import { SeoService } from '../../core/services/seo.service';
-import { CHESS_LEVELS, ChessLevel } from '../../core/models/user.model';
-import { Course } from '../../core/models/learning-path.model';
+import { Course, GradeWithCourses } from '../../core/models/learning-path.model';
+import { ChessLevel, CHESS_LEVELS } from '../../core/models/user.model';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
-  heroChartBarSquare,
-  heroCalendarDays,
-  heroTrophy,
-  heroAcademicCap,
-  heroUserCircle,
-  heroArrowRightOnRectangle,
-  heroExclamationTriangle,
-  heroBookOpen,
-  heroArrowTrendingUp,
   heroCheckCircle,
-  heroCheck,
   heroChevronDown,
   heroChevronUp,
   heroLockClosed,
   heroClock,
-  heroCheckBadge
+  heroCheckBadge,
+  heroExclamationTriangle,
+  heroAcademicCap
 } from '@ng-icons/heroicons/outline';
+
+interface LevelGroup {
+  code: ChessLevel;
+  name: string;
+  color: string;
+  courses: Course[];
+  totalCourses: number;
+  completedCourses: number;
+  isUnlocked: boolean;
+}
 
 @Component({
   selector: 'app-progress',
   standalone: true,
-  imports: [RouterLink, DatePipe, DecimalPipe, NgIconComponent],
+  imports: [RouterLink, NgIconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({
-    heroChartBarSquare,
-    heroCalendarDays,
-    heroTrophy,
-    heroAcademicCap,
-    heroUserCircle,
-    heroArrowRightOnRectangle,
-    heroExclamationTriangle,
-    heroBookOpen,
-    heroArrowTrendingUp,
     heroCheckCircle,
-    heroCheck,
     heroChevronDown,
     heroChevronUp,
     heroLockClosed,
     heroClock,
-    heroCheckBadge
+    heroCheckBadge,
+    heroExclamationTriangle,
+    heroAcademicCap
   })],
   templateUrl: './progress.component.html',
   styleUrl: './progress.component.scss'
 })
 export class ProgressComponent implements OnInit {
-  levels: ChessLevel[] = ['PION', 'CAVALIER', 'FOU', 'TOUR', 'DAME', 'ROI'];
-  CHESS_LEVELS = CHESS_LEVELS;
-
-  expandedLevel = signal<ChessLevel | null>(null);
+  expandedLevel = signal<ChessLevel | null>('A');
 
   constructor(
-    public progressService: ProgressService,
-    public authService: AuthService,
     public learningPathService: LearningPathService,
+    public authService: AuthService,
     private seoService: SeoService
   ) {}
 
   ngOnInit(): void {
     this.seoService.setProgressPage();
-    this.progressService.loadMyProgress().subscribe();
-    this.progressService.loadAllLevels().subscribe();
     this.learningPathService.loadLearningPath().subscribe();
   }
 
-  toggleLevel(level: ChessLevel): void {
-    if (this.expandedLevel() === level) {
+  // Now grades come directly as A/B/C/D from backend
+  programmeLevels = computed<LevelGroup[]>(() => {
+    const grades = this.learningPathService.grades();
+    if (!grades.length) return [];
+
+    return grades.map(grade => ({
+      code: grade.grade,
+      name: CHESS_LEVELS[grade.grade]?.label || grade.displayName,
+      color: this.getLevelColor(grade.grade),
+      courses: grade.courses,
+      totalCourses: grade.totalCourses,
+      completedCourses: grade.completedCourses,
+      isUnlocked: grade.isUnlocked
+    }));
+  });
+
+  totalValidatedCourses = computed(() => this.learningPathService.completedCourses());
+  totalCourses = computed(() => this.learningPathService.totalCourses());
+  loading = computed(() => this.learningPathService.loading());
+  error = computed(() => this.learningPathService.error());
+
+  toggleLevel(code: ChessLevel): void {
+    if (this.expandedLevel() === code) {
       this.expandedLevel.set(null);
     } else {
-      this.expandedLevel.set(level);
+      this.expandedLevel.set(code);
     }
   }
 
-  isExpanded(level: ChessLevel): boolean {
-    return this.expandedLevel() === level;
+  isExpanded(code: ChessLevel): boolean {
+    return this.expandedLevel() === code;
   }
 
-  getCoursesForLevel(level: ChessLevel): Course[] {
-    const grades = this.learningPathService.grades();
-    const grade = grades.find(g => g.grade === level);
-    return grade?.courses ?? [];
+  getLevelIcon(code: ChessLevel): string {
+    return CHESS_LEVELS[code]?.icon || '🎓';
   }
 
-  getCompletedCoursesCount(level: ChessLevel): number {
-    const grades = this.learningPathService.grades();
-    const grade = grades.find(g => g.grade === level);
-    return grade?.completedCourses ?? 0;
-  }
-
-  getTotalCoursesCount(level: ChessLevel): number {
-    const grades = this.learningPathService.grades();
-    const grade = grades.find(g => g.grade === level);
-    return grade?.totalCourses ?? 0;
-  }
-
-  getLevelIcon(level: ChessLevel): string {
-    return this.progressService.getLevelIcon(level);
-  }
-
-  getLevelColor(level: ChessLevel): string {
-    return this.progressService.getLevelColor(level);
-  }
-
-  isLevelCompleted(level: ChessLevel): boolean {
-    const currentLevel = this.progressService.currentLevel();
-    if (!currentLevel) return false;
-    return CHESS_LEVELS[level].order < CHESS_LEVELS[currentLevel].order;
-  }
-
-  isCurrentLevel(level: ChessLevel): boolean {
-    return this.progressService.currentLevel() === level;
-  }
-
-  isLevelLocked(level: ChessLevel): boolean {
-    const currentLevel = this.progressService.currentLevel();
-    if (!currentLevel) return true;
-    return CHESS_LEVELS[level].order > CHESS_LEVELS[currentLevel].order;
-  }
-
-  getLessonsRequired(level: ChessLevel): number {
-    const requirements: Record<ChessLevel, number> = {
-      PION: 45,
-      CAVALIER: 45,
-      FOU: 45,
-      TOUR: 45,
-      DAME: 45,
-      ROI: 0
+  getLevelColor(code: ChessLevel): string {
+    const colors: Record<ChessLevel, string> = {
+      'A': '#4CAF50',  // Green for beginners
+      'B': '#2196F3',  // Blue for intermediate
+      'C': '#9C27B0',  // Purple for advanced
+      'D': '#FF9800'   // Orange for expert
     };
-    return requirements[level];
+    return colors[code] || '#4CAF50';
+  }
+
+  isLevelCompleted(level: LevelGroup): boolean {
+    return level.completedCourses === level.totalCourses && level.totalCourses > 0;
+  }
+
+  isLevelInProgress(level: LevelGroup): boolean {
+    return level.completedCourses > 0 && level.completedCourses < level.totalCourses;
   }
 
   logout(): void {

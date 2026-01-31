@@ -85,7 +85,8 @@ public class AuthController {
         cookie.setSecure(true);
         cookie.setPath("/");
         cookie.setMaxAge((int) (jwtExpiration / 1000)); // Convert ms to seconds
-        cookie.setAttribute("SameSite", "Strict");
+        // Use Lax to allow cookie on redirects from external sites (Stripe checkout)
+        cookie.setAttribute("SameSite", "Lax");
         response.addCookie(cookie);
     }
 

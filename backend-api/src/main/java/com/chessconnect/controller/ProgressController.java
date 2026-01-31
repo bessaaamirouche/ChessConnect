@@ -65,12 +65,10 @@ public class ProgressController {
 
     private int getLessonsRequired(ChessLevel level) {
         return switch (level) {
-            case PION -> 45;
-            case CAVALIER -> 45;
-            case FOU -> 45;
-            case TOUR -> 45;
-            case DAME -> 45;
-            case ROI -> 0;
+            case A -> 50;  // Pion - 50h
+            case B -> 60;  // Cavalier - 60h
+            case C -> 70;  // Reine - 70h
+            case D -> 0;   // Roi - Max level
         };
     }
 

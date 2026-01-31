@@ -1,5 +1,5 @@
 import { Component, signal, ChangeDetectionStrategy, inject } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { SeoService } from '../../../core/services/seo.service';
@@ -9,6 +9,18 @@ import { UserRole, AVAILABLE_LANGUAGES } from '../../../core/models/user.model';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { heroAcademicCap, heroUserGroup, heroPlayCircle, heroArrowRight } from '@ng-icons/heroicons/outline';
 import { DateInputComponent } from '../../../shared/components/date-input/date-input.component';
+
+// Custom validator for names - allows only letters, spaces, hyphens, and apostrophes
+function nameValidator(control: AbstractControl): ValidationErrors | null {
+  const value = control.value;
+  if (!value) return null;
+  // Pattern matches Unicode letters, spaces, hyphens, and apostrophes
+  const namePattern = /^[a-zA-ZÀ-ÿ\u00C0-\u024F\u1E00-\u1EFF\s\-']+$/;
+  if (!namePattern.test(value)) {
+    return { invalidName: true };
+  }
+  return null;
+}
 
 @Component({
   selector: 'app-register',
@@ -50,8 +62,8 @@ export class RegisterComponent {
   ) {
     this.seoService.setRegisterPage();
     this.registerForm = this.fb.group({
-      firstName: ['', [Validators.required, Validators.minLength(2)]],
-      lastName: ['', [Validators.required, Validators.minLength(2)]],
+      firstName: ['', [Validators.required, Validators.minLength(2), nameValidator]],
+      lastName: ['', [Validators.required, Validators.minLength(2), nameValidator]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(8)]],
       role: ['STUDENT', Validators.required],

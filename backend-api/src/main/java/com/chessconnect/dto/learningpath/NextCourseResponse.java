@@ -10,12 +10,10 @@ public record NextCourseResponse(
 ) {
     public static NextCourseResponse create(Long courseId, String title, ChessLevel grade) {
         String gradeName = switch (grade) {
-            case PION -> "Pion";
-            case CAVALIER -> "Cavalier";
-            case FOU -> "Fou";
-            case TOUR -> "Tour";
-            case DAME -> "Dame";
-            case ROI -> "Roi";
+            case A -> "Pion";
+            case B -> "Cavalier";
+            case C -> "Reine";
+            case D -> "Roi";
         };
         return new NextCourseResponse(courseId, title, grade, gradeName);
     }

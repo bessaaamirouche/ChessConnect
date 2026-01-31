@@ -152,7 +152,8 @@ export class NotificationCenterService {
       'refund': 'success', // Show refunds as success
       'lesson_confirmed': 'success',
       'lesson_cancelled': 'warning',
-      'new_booking': 'info'
+      'new_booking': 'info',
+      'pending_validation': 'warning' // Remind coach to validate courses
     };
     return typeMap[backendType.toLowerCase()] || 'info';
   }

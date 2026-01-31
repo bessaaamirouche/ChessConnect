@@ -5,6 +5,41 @@
   width: 100%;
 }
 
+// Pending Validation Banner
+.pending-validation-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  margin-bottom: var(--space-lg);
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(245, 158, 11, 0.08) 100%);
+  border: 1px solid var(--warning-500, #f59e0b);
+  border-radius: var(--radius-lg);
+
+  &__icon {
+    color: var(--warning-500, #f59e0b);
+    flex-shrink: 0;
+  }
+
+  &__content {
+    flex: 1;
+    font-size: 0.9375rem;
+    color: var(--text-primary);
+
+    strong {
+      color: var(--warning-500, #f59e0b);
+      font-weight: 600;
+    }
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    text-align: center;
+    gap: var(--space-sm);
+    padding: var(--space-md);
+  }
+}
+
 .dashboard {
   width: 100%;
   padding: var(--space-xl);

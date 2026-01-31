@@ -11,7 +11,7 @@
 
 export type UserRole = 'STUDENT' | 'TEACHER' | 'ADMIN';
 
-export type ChessLevel = 'PION' | 'CAVALIER' | 'FOU' | 'TOUR' | 'DAME' | 'ROI';
+export type ChessLevel = 'A' | 'B' | 'C' | 'D';
 
 export type LessonStatus = 'PENDING' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED' | 'NO_SHOW';
 

@@ -11,10 +11,12 @@ import { JitsiService } from '../../../core/services/jitsi.service';
 import { LearningPathService } from '../../../core/services/learning-path.service';
 import { WalletService } from '../../../core/services/wallet.service';
 import { PaymentService } from '../../../core/services/payment.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { NextCourse } from '../../../core/models/learning-path.model';
 import { LESSON_STATUS_LABELS, Lesson } from '../../../core/models/lesson.model';
 import { ConfirmDialogComponent } from '../../../shared/confirm-dialog/confirm-dialog.component';
 import { StudentProfileModalComponent } from '../../../shared/student-profile-modal/student-profile-modal.component';
+import { StudentEvaluationModalComponent } from '../../../shared/student-evaluation-modal/student-evaluation-modal.component';
 import { RatingModalComponent } from '../../../shared/rating-modal/rating-modal.component';
 import { VideoCallComponent } from '../../../shared/video-call/video-call.component';
 import { ExerciseButtonComponent } from '../../../shared/components/exercise-button/exercise-button.component';
@@ -47,12 +49,20 @@ import {
   heroStar,
   heroBellAlert
 } from '@ng-icons/heroicons/outline';
-import { CHESS_LEVELS, User } from '../../../core/models/user.model';
+import { CHESS_LEVELS, ChessLevel, User } from '../../../core/models/user.model';
+
+export interface PendingValidation {
+  id: number;
+  lessonId: number;
+  studentId: number;
+  studentName: string;
+  createdAt: string;
+}
 
 @Component({
   selector: 'app-lesson-list',
   standalone: true,
-  imports: [RouterLink, DatePipe, FormsModule, ConfirmDialogComponent, NgIconComponent, StudentProfileModalComponent, RatingModalComponent, VideoCallComponent, ExerciseButtonComponent],
+  imports: [RouterLink, DatePipe, FormsModule, ConfirmDialogComponent, NgIconComponent, StudentProfileModalComponent, StudentEvaluationModalComponent, RatingModalComponent, VideoCallComponent, ExerciseButtonComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({
     heroCalendarDays,
@@ -126,6 +136,11 @@ export class LessonListComponent implements OnInit, OnDestroy {
   emailRemindersEnabled = signal(true);
   savingEmailReminders = signal(false);
 
+  // Evaluation modal (shown after completing a lesson)
+  showEvaluationModal = signal(false);
+  evaluationStudentId = signal<number | null>(null);
+  evaluationLessonId = signal<number | null>(null);
+
   // Computed filtered history
   filteredHistory = computed(() => {
     let lessons = this.lessonService.lessonHistory();
@@ -180,6 +195,9 @@ export class LessonListComponent implements OnInit, OnDestroy {
   // Next course cache by student ID
   nextCourseByStudent = signal<Map<number, NextCourse | null>>(new Map());
 
+  // Pending validations for teachers
+  pendingValidations = signal<PendingValidation[]>([]);
+
   // Polling for lesson status check (when in video call)
   private lessonStatusCheckInterval: any = null;
 
@@ -192,6 +210,7 @@ export class LessonListComponent implements OnInit, OnDestroy {
     private learningPathService: LearningPathService,
     private walletService: WalletService,
     private paymentService: PaymentService,
+    private toastService: ToastService,
     private http: HttpClient,
     private route: ActivatedRoute,
     private router: Router
@@ -224,6 +243,7 @@ export class LessonListComponent implements OnInit, OnDestroy {
         // Load next courses for pending lessons (teachers only)
         if (this.authService.isTeacher()) {
           this.loadNextCoursesForPendingLessons();
+          this.loadPendingValidations();
         }
       }
     });
@@ -267,6 +287,21 @@ export class LessonListComponent implements OnInit, OnDestroy {
   // Get next course for a student
   getNextCourse(studentId: number): NextCourse | null | undefined {
     return this.nextCourseByStudent().get(studentId);
+  }
+
+  // Load pending validations for teachers
+  loadPendingValidations(): void {
+    this.http.get<PendingValidation[]>('/api/lessons/pending-validations').subscribe({
+      next: (validations) => this.pendingValidations.set(validations)
+    });
+  }
+
+  // Open student profile for first pending validation
+  openFirstPendingValidation(): void {
+    const validations = this.pendingValidations();
+    if (validations.length > 0) {
+      this.openStudentProfile(validations[0].studentId);
+    }
   }
 
   confirmLesson(lessonId: number): void {
@@ -330,13 +365,39 @@ export class LessonListComponent implements OnInit, OnDestroy {
       this.lessonService.completeLesson(lessonId, observations).subscribe({
         next: () => {
           this.closeCompleteModal();
-          // Open student profile modal for course validation
+          // Open evaluation modal for level evaluation or course validation
           if (studentId) {
-            this.openStudentProfile(studentId);
+            this.openEvaluationModal(studentId, lessonId);
           }
         },
         error: () => this.closeCompleteModal()
       });
+    }
+  }
+
+  // Evaluation modal methods
+  openEvaluationModal(studentId: number, lessonId: number): void {
+    this.evaluationStudentId.set(studentId);
+    this.evaluationLessonId.set(lessonId);
+    this.showEvaluationModal.set(true);
+  }
+
+  closeEvaluationModal(): void {
+    this.showEvaluationModal.set(false);
+    this.evaluationStudentId.set(null);
+    this.evaluationLessonId.set(null);
+  }
+
+  onLevelSet(event: { studentId: number; level: ChessLevel }): void {
+    this.toastService.success(`Niveau ${event.level} défini pour cet joueur`);
+    this.closeEvaluationModal();
+  }
+
+  onEvaluationCourseValidated(event: { studentId: number; courseId: number }): void {
+    this.toastService.success('Cours validé avec succès');
+    // Reload pending validations
+    if (this.authService.isTeacher()) {
+      this.loadPendingValidations();
     }
   }
 
@@ -526,12 +587,28 @@ export class LessonListComponent implements OnInit, OnDestroy {
   }
 
   onCourseValidated(event: { studentId: number; courseId: number }): void {
-    // Optionally refresh lessons or show notification
-    console.log('Course validated:', event);
+    // Reload pending validations after course validation
+    if (this.authService.isTeacher()) {
+      this.loadPendingValidations();
+    }
+  }
+
+  onStudentProfileClosedWithoutValidation(studentId: number): void {
+    // Find student name from pending validations
+    const validation = this.pendingValidations().find(v => v.studentId === studentId);
+    const studentName = validation?.studentName || 'le joueur';
+
+    // Show toast warning
+    this.toastService.warning(`N'oubliez pas de valider les cours de ${studentName}`);
+
+    // Create backend notification for later reminder
+    this.http.post('/api/notifications/pending-validation', { studentId }).subscribe({
+      error: (err) => console.debug('Failed to create pending validation notification:', err)
+    });
   }
 
   getLevelLabel(level: string): string {
-    const levelInfo = CHESS_LEVELS[level as keyof typeof CHESS_LEVELS];
+    const levelInfo = CHESS_LEVELS[level as ChessLevel];
     return levelInfo?.label || level;
   }
 

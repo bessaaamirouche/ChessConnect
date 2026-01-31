@@ -21,53 +21,43 @@ class ExerciseControllerTest {
     class DifficultyLevelMappingTests {
 
         @Test
-        @DisplayName("PION level should map to DEBUTANT difficulty")
-        void pionShouldMapToDebutant() {
-            ChessLevel level = ChessLevel.PION;
+        @DisplayName("Level A should map to DEBUTANT difficulty")
+        void levelAShouldMapToDebutant() {
+            ChessLevel level = ChessLevel.A;
             DifficultyLevel expected = DifficultyLevel.DEBUTANT;
 
             // Verify the mapping exists
-            assertThat(level).isEqualTo(ChessLevel.PION);
+            assertThat(level).isEqualTo(ChessLevel.A);
             assertThat(expected).isEqualTo(DifficultyLevel.DEBUTANT);
         }
 
         @Test
-        @DisplayName("CAVALIER level should map to FACILE difficulty")
-        void cavalierShouldMapToFacile() {
-            ChessLevel level = ChessLevel.CAVALIER;
+        @DisplayName("Level B should map to FACILE difficulty")
+        void levelBShouldMapToFacile() {
+            ChessLevel level = ChessLevel.B;
             DifficultyLevel expected = DifficultyLevel.FACILE;
 
-            assertThat(level).isEqualTo(ChessLevel.CAVALIER);
+            assertThat(level).isEqualTo(ChessLevel.B);
             assertThat(expected).isEqualTo(DifficultyLevel.FACILE);
         }
 
         @Test
-        @DisplayName("FOU level should map to MOYEN difficulty")
-        void fouShouldMapToMoyen() {
-            ChessLevel level = ChessLevel.FOU;
+        @DisplayName("Level C should map to MOYEN difficulty")
+        void levelCShouldMapToMoyen() {
+            ChessLevel level = ChessLevel.C;
             DifficultyLevel expected = DifficultyLevel.MOYEN;
 
-            assertThat(level).isEqualTo(ChessLevel.FOU);
+            assertThat(level).isEqualTo(ChessLevel.C);
             assertThat(expected).isEqualTo(DifficultyLevel.MOYEN);
         }
 
         @Test
-        @DisplayName("TOUR level should map to DIFFICILE difficulty")
-        void tourShouldMapToDifficile() {
-            ChessLevel level = ChessLevel.TOUR;
-            DifficultyLevel expected = DifficultyLevel.DIFFICILE;
-
-            assertThat(level).isEqualTo(ChessLevel.TOUR);
-            assertThat(expected).isEqualTo(DifficultyLevel.DIFFICILE);
-        }
-
-        @Test
-        @DisplayName("DAME level should map to EXPERT difficulty")
-        void dameShouldMapToExpert() {
-            ChessLevel level = ChessLevel.DAME;
+        @DisplayName("Level D should map to EXPERT difficulty")
+        void levelDShouldMapToExpert() {
+            ChessLevel level = ChessLevel.D;
             DifficultyLevel expected = DifficultyLevel.EXPERT;
 
-            assertThat(level).isEqualTo(ChessLevel.DAME);
+            assertThat(level).isEqualTo(ChessLevel.D);
             assertThat(expected).isEqualTo(DifficultyLevel.EXPERT);
         }
     }
@@ -134,13 +124,12 @@ class ExerciseControllerTest {
         @Test
         @DisplayName("All chess levels should be defined")
         void allChessLevelsShouldBeDefined() {
-            assertThat(ChessLevel.values()).hasSize(5);
+            assertThat(ChessLevel.values()).hasSize(4);
             assertThat(ChessLevel.values()).contains(
-                ChessLevel.PION,
-                ChessLevel.CAVALIER,
-                ChessLevel.FOU,
-                ChessLevel.TOUR,
-                ChessLevel.DAME
+                ChessLevel.A,
+                ChessLevel.B,
+                ChessLevel.C,
+                ChessLevel.D
             );
         }
     }

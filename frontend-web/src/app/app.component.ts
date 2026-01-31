@@ -33,6 +33,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   constructor() {
     // Use effect to react to auth state changes (replaces 2s polling)
+    // allowSignalWrites: true because startPolling/stopPolling write to signals
     effect(() => {
       const user = this.authService.currentUser();
       const isStudent = this.authService.isStudent();
@@ -53,7 +54,7 @@ export class AppComponent implements OnInit, OnDestroy {
         this.inactivityService.stopWatching();
         this.presenceService.stopHeartbeat();
       }
-    });
+    }, { allowSignalWrites: true });
   }
 
   ngOnInit(): void {

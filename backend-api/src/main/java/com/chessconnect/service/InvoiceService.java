@@ -1047,15 +1047,14 @@ public class InvoiceService {
             }
         }
 
-        // Check if credit note already exists for this refund
-        if (stripeRefundId != null) {
-            boolean exists = lessonInvoices.stream()
-                    .anyMatch(inv -> inv.getInvoiceType() == InvoiceType.CREDIT_NOTE
-                            && stripeRefundId.equals(inv.getStripeRefundId()));
-            if (exists) {
-                log.info("Credit note already exists for refund {}", stripeRefundId);
-                return null;
-            }
+        // Check if credit note already exists for this lesson (idempotency for both Stripe and wallet refunds)
+        boolean creditNoteExists = lessonInvoices.stream()
+                .anyMatch(inv -> inv.getInvoiceType() == InvoiceType.CREDIT_NOTE
+                        && inv.getOriginalInvoice() != null
+                        && inv.getOriginalInvoice().getInvoiceType() == InvoiceType.LESSON_INVOICE);
+        if (creditNoteExists) {
+            log.info("Credit note already exists for lesson {} - skipping duplicate", lesson.getId());
+            return null;
         }
 
         User student = lesson.getStudent();
@@ -1089,6 +1088,53 @@ public class InvoiceService {
         String newStatus = refundPercentage == 100 ? "REFUNDED" : "PARTIALLY_REFUNDED";
         originalInvoice.setStatus(newStatus);
         invoiceRepository.save(originalInvoice);
+
+        // Also update the COMMISSION_INVOICE status and create credit note for commission
+        Invoice commissionInvoice = lessonInvoices.stream()
+                .filter(inv -> inv.getInvoiceType() == InvoiceType.COMMISSION_INVOICE)
+                .findFirst()
+                .orElse(null);
+        if (commissionInvoice != null) {
+            // Check if commission credit note already exists
+            boolean commissionCreditNoteExists = lessonInvoices.stream()
+                    .anyMatch(inv -> inv.getInvoiceType() == InvoiceType.CREDIT_NOTE
+                            && inv.getOriginalInvoice() != null
+                            && inv.getOriginalInvoice().getInvoiceType() == InvoiceType.COMMISSION_INVOICE);
+
+            if (!commissionCreditNoteExists) {
+                // Calculate commission refund amount
+                int commissionRefundCents = (commissionInvoice.getTotalCents() * refundPercentage) / 100;
+
+                // Create credit note for commission
+                Invoice commissionCreditNote = new Invoice();
+                commissionCreditNote.setInvoiceNumber(generateInvoiceNumber("AV"));
+                commissionCreditNote.setInvoiceType(InvoiceType.CREDIT_NOTE);
+                commissionCreditNote.setCustomer(teacher); // Teacher receives the credit
+                commissionCreditNote.setIssuer(null); // Platform is the issuer
+                commissionCreditNote.setLesson(lesson);
+                commissionCreditNote.setOriginalInvoice(commissionInvoice);
+                commissionCreditNote.setRefundPercentage(refundPercentage);
+                commissionCreditNote.setSubtotalCents(-commissionRefundCents);
+                commissionCreditNote.setVatCents(0);
+                commissionCreditNote.setTotalCents(-commissionRefundCents);
+                commissionCreditNote.setVatRate(0);
+
+                String commissionRefundDescription = refundPercentage == 100
+                        ? "Avoir - Annulation commission plateforme"
+                        : String.format("Avoir - Remboursement partiel commission (%d%%)", refundPercentage);
+                commissionCreditNote.setDescription(commissionRefundDescription);
+                commissionCreditNote.setStatus("REFUNDED");
+                commissionCreditNote.setIssuedAt(LocalDateTime.now());
+
+                invoiceRepository.save(commissionCreditNote);
+                log.info("Generated commission credit note #{} for lesson {} (-{} cents)",
+                        commissionCreditNote.getInvoiceNumber(), lesson.getId(), commissionRefundCents);
+            }
+
+            commissionInvoice.setStatus(newStatus);
+            invoiceRepository.save(commissionInvoice);
+            log.info("Updated commission invoice #{} status to {}", commissionInvoice.getInvoiceNumber(), newStatus);
+        }
 
         // Determine refund method
         boolean isWalletRefund = stripeRefundId == null;

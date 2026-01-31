@@ -20,10 +20,6 @@
 .section {
   margin-bottom: var(--space-lg);
 
-  &--compact {
-    margin-bottom: var(--space-md);
-  }
-
   &__header {
     margin-bottom: var(--space-xs);
   }
@@ -35,127 +31,13 @@
   }
 }
 
-// Stats Grid
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--space-sm);
-}
-
-.hero-section {
-  margin-bottom: var(--space-lg);
-}
-
-.current-level-card {
-  display: flex;
-  align-items: center;
-  gap: var(--space-lg);
-  padding: var(--space-lg);
-  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
-
-  &__icon {
-    font-size: 2.5rem;
-    line-height: 1;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-  }
-
-  &__info {
-    flex: 1;
-  }
-
-  &__label {
-    display: block;
-    font-size: 0.625rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--text-muted);
-    margin-bottom: 2px;
-  }
-
-  &__title {
-    font-family: var(--font-display);
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin: 0 0 2px;
-  }
-
-  &__description {
-    font-size: 0.8125rem;
-    color: var(--text-secondary);
-  }
-
-  &__next {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: var(--space-sm) var(--space-md);
-    background: var(--bg-primary);
-    border-radius: var(--radius-md);
-    opacity: 0.6;
-
-    &-label {
-      font-size: 0.625rem;
-      color: var(--text-muted);
-      margin-bottom: 2px;
-    }
-
-    &-icon {
-      font-size: 1.25rem;
-      color: var(--text-muted);
-    }
-  }
-}
-
-.progress-bar-container {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: var(--space-md);
-}
-
-.progress-bar {
-  height: 16px;
-  background: var(--bg-tertiary);
-  border-radius: var(--radius-full);
-  overflow: hidden;
-  margin-bottom: var(--space-sm);
-
-  &__fill {
-    height: 100%;
-    border-radius: var(--radius-full);
-    transition: width 0.5s ease-out;
-    background: linear-gradient(90deg, var(--gold-500), var(--gold-400));
-  }
-
-  &__info {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-  }
-
-  &__remaining {
-    color: var(--text-muted);
-
-    &.gold {
-      color: var(--gold-400);
-      font-weight: 600;
-    }
-  }
-}
-
 .levels-timeline {
   display: flex;
   flex-direction: column;
   position: relative;
 }
 
-// Compact Level Card with Accordion
+// Level Card with Accordion
 .level-card {
   background: var(--bg-secondary);
   border: 1px solid var(--border-subtle);
@@ -308,7 +190,7 @@
   &__order {
     font-size: 0.75rem;
     color: var(--text-muted);
-    width: 20px;
+    width: 24px;
     flex-shrink: 0;
   }
 
@@ -414,38 +296,6 @@
   }
 }
 
-// Compact Stats Cards
-.stats-card {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: var(--space-md);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: var(--space-xs);
-
-  &__icon {
-    color: var(--gold-400);
-    font-size: 1.25rem;
-  }
-
-  &__value {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    line-height: 1;
-  }
-
-  &__label {
-    font-size: 0.6875rem;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-  }
-}
-
 .loading-state {
   display: flex;
   flex-direction: column;
@@ -482,24 +332,6 @@
 }
 
 @media (max-width: 768px) {
-  .main-content {
-    padding: var(--space-md);
-  }
-
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .current-level-card {
-    flex-direction: column;
-    text-align: center;
-    padding: var(--space-md);
-
-    &__next {
-      margin-top: var(--space-sm);
-    }
-  }
-
   .level-card {
     &__header {
       padding: var(--space-sm) var(--space-md);
@@ -522,7 +354,7 @@
 
   .course-item {
     &__order {
-      width: 16px;
+      width: 20px;
     }
 
     &__title {

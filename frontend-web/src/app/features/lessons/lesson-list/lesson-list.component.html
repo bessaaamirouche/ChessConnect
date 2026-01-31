@@ -28,6 +28,26 @@
       }
     </header>
 
+    <!-- Pending Validations Banner (Teachers only) -->
+    @if (authService.isTeacher() && pendingValidations().length > 0) {
+      <div class="pending-validation-banner">
+        <div class="pending-validation-banner__icon">
+          <ng-icon name="heroBellAlert" size="20"></ng-icon>
+        </div>
+        <div class="pending-validation-banner__content">
+          <strong>{{ pendingValidations().length }}</strong>
+          @if (pendingValidations().length === 1) {
+            cours a valider
+          } @else {
+            cours a valider
+          }
+        </div>
+        <button class="btn btn--secondary btn--sm" (click)="openFirstPendingValidation()">
+          Voir les joueurs
+        </button>
+      </div>
+    }
+
     <!-- Upcoming Lessons -->
     <section class="section">
       <div class="section__header">
@@ -346,7 +366,19 @@
       [studentId]="selectedStudentId()!"
       (close)="closeStudentProfile()"
       (courseValidated)="onCourseValidated($event)"
+      (closedWithoutValidation)="onStudentProfileClosedWithoutValidation($event)"
     ></app-student-profile-modal>
+  }
+
+  <!-- Student Evaluation Modal (After lesson completion) -->
+  @if (showEvaluationModal() && evaluationStudentId() && evaluationLessonId()) {
+    <app-student-evaluation-modal
+      [studentId]="evaluationStudentId()!"
+      [lessonId]="evaluationLessonId()!"
+      (close)="closeEvaluationModal()"
+      (levelSet)="onLevelSet($event)"
+      (courseValidated)="onEvaluationCourseValidated($event)"
+    ></app-student-evaluation-modal>
   }
 
   <!-- Complete Lesson Modal -->

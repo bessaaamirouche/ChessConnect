@@ -1,6 +1,7 @@
 package com.chessconnect.controller;
 
 import com.chessconnect.model.UserNotification;
+import com.chessconnect.repository.UserRepository;
 import com.chessconnect.security.UserDetailsImpl;
 import com.chessconnect.service.UserNotificationService;
 import org.springframework.http.ResponseEntity;
@@ -15,9 +16,11 @@ import java.util.Map;
 public class NotificationController {
 
     private final UserNotificationService notificationService;
+    private final UserRepository userRepository;
 
-    public NotificationController(UserNotificationService notificationService) {
+    public NotificationController(UserNotificationService notificationService, UserRepository userRepository) {
         this.notificationService = notificationService;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -93,6 +96,30 @@ public class NotificationController {
         notificationService.deleteNotification(id, userId);
         return ResponseEntity.ok(Map.of("message", "Notification deleted"));
     }
+
+    /**
+     * Create a pending validation notification for a teacher.
+     * Called when the teacher closes the student profile modal without validating courses.
+     */
+    @PostMapping("/pending-validation")
+    public ResponseEntity<?> createPendingValidationNotification(
+            @RequestBody PendingValidationRequest request,
+            @AuthenticationPrincipal UserDetailsImpl userDetails
+    ) {
+        Long teacherId = userDetails.getId();
+        Long studentId = request.studentId();
+
+        // Get student name
+        String studentName = userRepository.findById(studentId)
+                .map(u -> u.getFirstName() + " " + u.getLastName())
+                .orElse("le joueur");
+
+        notificationService.notifyPendingValidation(teacherId, studentId, studentName);
+        return ResponseEntity.ok(Map.of("message", "Notification created"));
+    }
+
+    // Request DTO
+    public record PendingValidationRequest(Long studentId) {}
 
     // Response DTO
     public record NotificationResponse(

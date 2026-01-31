@@ -95,7 +95,12 @@ public class PaymentController {
                     .orElseThrow(() -> new RuntimeException("Teacher not found"));
 
             int amountCents = teacher.getHourlyRateCents();
-            String description = String.format("Cours d'échecs avec %s", teacher.getFullName());
+            // Sanitize teacher name for Stripe - remove special characters
+            String sanitizedName = teacher.getFullName().replaceAll("[^a-zA-ZÀ-ÿ\\s\\-']", "").trim();
+            if (sanitizedName.isEmpty()) {
+                sanitizedName = "Coach";
+            }
+            String description = String.format("Cours d'échecs avec %s", sanitizedName);
 
             Session session = stripeService.createLessonPaymentSession(
                     student,

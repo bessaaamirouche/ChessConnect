@@ -40,10 +40,10 @@ export class ProgrammeService {
   readonly coursesByLevel = computed(() => {
     const courses = this.coursesSignal();
     const levels: ProgrammeLevel[] = [
-      { code: 'A', name: 'Niveau A - Debutant', description: 'Les fondamentaux des echecs', color: '#4CAF50', courses: [] },
-      { code: 'B', name: 'Niveau B - Intermediaire', description: 'Approfondissement tactique et strategique', color: '#2196F3', courses: [] },
-      { code: 'C', name: 'Niveau C - Avance', description: 'Maitrise strategique et preparation approfondie', color: '#9C27B0', courses: [] },
-      { code: 'D', name: 'Niveau D - Expert', description: 'Perfectionnement et preparation professionnelle', color: '#FF9800', courses: [] }
+      { code: 'A', name: 'Pion - Debutant', description: 'Les fondamentaux des echecs (50h)', color: '#78716c', courses: [] },
+      { code: 'B', name: 'Cavalier - Intermediaire', description: 'Approfondissement tactique et strategique (60h)', color: '#22c55e', courses: [] },
+      { code: 'C', name: 'Reine - Avance', description: 'Maitrise strategique et preparation approfondie (70h)', color: '#a855f7', courses: [] },
+      { code: 'D', name: 'Roi - Expert', description: 'Perfectionnement et preparation professionnelle (80h)', color: '#eab308', courses: [] }
     ];
 
     courses.forEach(course => {

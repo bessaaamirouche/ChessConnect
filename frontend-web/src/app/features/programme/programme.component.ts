@@ -148,7 +148,7 @@ export class ProgrammeComponent implements OnInit {
   levels: Level[] = [
     {
       code: 'A',
-      name: 'Niveau A - Debutant',
+      name: 'Pion - Debutant',
       description: 'Les fondamentaux des echecs pour bien commencer',
       color: '#4CAF50',
       icon: 'heroBookOpen',
@@ -359,7 +359,7 @@ export class ProgrammeComponent implements OnInit {
         },
         {
           id: 20,
-          title: 'Revision et evaluation Niveau A',
+          title: 'Revision et evaluation Pion',
           subLessons: [
             { title: 'Quiz sur les regles' },
             { title: 'Exercices de mat en 1' },
@@ -460,7 +460,7 @@ export class ProgrammeComponent implements OnInit {
         },
         {
           id: 90,
-          title: 'Exercices de consolidation Niveau A',
+          title: 'Exercices de consolidation Pion',
           subLessons: [
             { title: 'Revision des regles' },
             { title: 'Exercices tactiques de base' },
@@ -472,7 +472,7 @@ export class ProgrammeComponent implements OnInit {
     },
     {
       code: 'B',
-      name: 'Niveau B - Intermediaire',
+      name: 'Cavalier - Intermediaire',
       description: 'Approfondissement tactique et strategique',
       color: '#2196F3',
       icon: 'heroAcademicCap',
@@ -683,7 +683,7 @@ export class ProgrammeComponent implements OnInit {
         },
         {
           id: 40,
-          title: 'Revision et evaluation Niveau B',
+          title: 'Revision et evaluation Cavalier',
           subLessons: [
             { title: 'Test tactique avance' },
             { title: 'Quiz sur les ouvertures' },
@@ -785,7 +785,7 @@ export class ProgrammeComponent implements OnInit {
         },
         {
           id: 100,
-          title: 'Exercices de consolidation Niveau B',
+          title: 'Exercices de consolidation Cavalier',
           subLessons: [
             { title: 'Test tactique intermediaire' },
             { title: 'Quiz strategique' },
@@ -797,7 +797,7 @@ export class ProgrammeComponent implements OnInit {
     },
     {
       code: 'C',
-      name: 'Niveau C - Avance',
+      name: 'Reine - Avance',
       description: 'Maitrise strategique et preparation approfondie',
       color: '#9C27B0',
       icon: 'heroTrophy',
@@ -1012,7 +1012,7 @@ export class ProgrammeComponent implements OnInit {
         },
         {
           id: 60,
-          title: 'Revision et evaluation Niveau C',
+          title: 'Revision et evaluation Reine',
           subLessons: [
             { title: 'Test tactique avance' },
             { title: 'Evaluation strategique' },
@@ -1114,7 +1114,7 @@ export class ProgrammeComponent implements OnInit {
         },
         {
           id: 110,
-          title: 'Exercices de consolidation Niveau C',
+          title: 'Exercices de consolidation Reine',
           subLessons: [
             { title: 'Test tactique avance' },
             { title: 'Evaluation strategique' },
@@ -1126,7 +1126,7 @@ export class ProgrammeComponent implements OnInit {
     },
     {
       code: 'D',
-      name: 'Niveau D - Expert',
+      name: 'Roi - Expert',
       description: 'Perfectionnement et preparation professionnelle',
       color: '#FF9800',
       icon: 'heroStar',
@@ -1335,7 +1335,7 @@ export class ProgrammeComponent implements OnInit {
         },
         {
           id: 80,
-          title: 'Revision et evaluation Niveau D',
+          title: 'Revision et evaluation Roi',
           subLessons: [
             { title: 'Test tactique expert' },
             { title: 'Evaluation strategique avancee' },
@@ -1437,7 +1437,7 @@ export class ProgrammeComponent implements OnInit {
         },
         {
           id: 120,
-          title: 'Examen final Niveau D',
+          title: 'Examen final Roi',
           subLessons: [
             { title: 'Test tactique expert' },
             { title: 'Evaluation strategique complete' },

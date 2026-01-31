@@ -84,7 +84,7 @@ class ExerciseServiceTest {
         existingExercise.setStartingFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
         existingExercise.setPlayerColor("white");
         existingExercise.setDifficultyLevel(DifficultyLevel.DEBUTANT);
-        existingExercise.setChessLevel(ChessLevel.PION);
+        existingExercise.setChessLevel(ChessLevel.A);
     }
 
     @Nested
@@ -189,11 +189,10 @@ class ExerciseServiceTest {
         @Test
         @DisplayName("All chess levels should exist")
         void allChessLevelsShouldExist() {
-            assertThat(ChessLevel.PION).isNotNull();
-            assertThat(ChessLevel.CAVALIER).isNotNull();
-            assertThat(ChessLevel.FOU).isNotNull();
-            assertThat(ChessLevel.TOUR).isNotNull();
-            assertThat(ChessLevel.DAME).isNotNull();
+            assertThat(ChessLevel.A).isNotNull();
+            assertThat(ChessLevel.B).isNotNull();
+            assertThat(ChessLevel.C).isNotNull();
+            assertThat(ChessLevel.D).isNotNull();
         }
     }
 

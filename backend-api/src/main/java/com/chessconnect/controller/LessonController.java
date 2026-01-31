@@ -3,8 +3,10 @@ package com.chessconnect.controller;
 import com.chessconnect.dto.lesson.BookLessonRequest;
 import com.chessconnect.dto.lesson.LessonResponse;
 import com.chessconnect.dto.lesson.UpdateLessonStatusRequest;
+import com.chessconnect.dto.PendingValidationResponse;
 import com.chessconnect.security.UserDetailsImpl;
 import com.chessconnect.service.LessonService;
+import com.chessconnect.service.PendingValidationService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,9 +21,11 @@ import java.util.Map;
 public class LessonController {
 
     private final LessonService lessonService;
+    private final PendingValidationService pendingValidationService;
 
-    public LessonController(LessonService lessonService) {
+    public LessonController(LessonService lessonService, PendingValidationService pendingValidationService) {
         this.lessonService = lessonService;
+        this.pendingValidationService = pendingValidationService;
     }
 
     @PostMapping("/book")
@@ -139,5 +143,56 @@ public class LessonController {
     ) {
         boolean joined = lessonService.hasTeacherJoined(lessonId);
         return ResponseEntity.ok(Map.of("teacherJoined", joined));
+    }
+
+    /**
+     * Get pending course validations for the current teacher.
+     */
+    @GetMapping("/pending-validations")
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseEntity<List<PendingValidationResponse>> getPendingValidations(
+            @AuthenticationPrincipal UserDetailsImpl userDetails
+    ) {
+        List<PendingValidationResponse> validations = pendingValidationService.getPendingValidations(userDetails.getId());
+        return ResponseEntity.ok(validations);
+    }
+
+    /**
+     * Dismiss a pending validation.
+     */
+    @DeleteMapping("/pending-validations/{id}")
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseEntity<Void> dismissPendingValidation(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetailsImpl userDetails
+    ) {
+        pendingValidationService.dismissPendingValidation(id, userDetails.getId());
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Get count of pending validations for the current teacher.
+     */
+    @GetMapping("/pending-validations/count")
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseEntity<Map<String, Integer>> getPendingValidationsCount(
+            @AuthenticationPrincipal UserDetailsImpl userDetails
+    ) {
+        int count = pendingValidationService.getPendingValidationCount(userDetails.getId());
+        return ResponseEntity.ok(Map.of("count", count));
+    }
+
+    /**
+     * Check if this is the first completed lesson between the current teacher and the specified student.
+     * Used to determine whether to show the level evaluation modal or the course validation modal.
+     */
+    @GetMapping("/is-first-lesson/{studentId}")
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseEntity<Map<String, Object>> isFirstLesson(
+            @PathVariable Long studentId,
+            @AuthenticationPrincipal UserDetailsImpl userDetails
+    ) {
+        Map<String, Object> result = lessonService.checkFirstLesson(userDetails.getId(), studentId);
+        return ResponseEntity.ok(result);
     }
 }

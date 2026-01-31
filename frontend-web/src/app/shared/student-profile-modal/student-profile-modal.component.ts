@@ -3,7 +3,7 @@ import { DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LearningPathService } from '../../core/services/learning-path.service';
 import { Course } from '../../core/models/learning-path.model';
-import { ChessLevel } from '../../core/models/user.model';
+import { ChessLevel, CHESS_LEVELS } from '../../core/models/user.model';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   heroXMark,
@@ -37,19 +37,20 @@ export class StudentProfileModalComponent implements OnInit {
   @Input() studentId!: number;
   @Output() close = new EventEmitter<void>();
   @Output() courseValidated = new EventEmitter<{ studentId: number; courseId: number }>();
+  @Output() closedWithoutValidation = new EventEmitter<number>();
 
+  private hasValidatedCourse = false;
   expandedGrade = signal<ChessLevel | null>(null);
   validatingCourse = signal<number | null>(null);
-  selectedLevel = signal<ChessLevel>('PION');
+  selectedLevel = signal<ChessLevel>('A');
   settingLevel = signal<boolean>(false);
 
+  // 4 levels mapped to chess pieces: A→Pion, B→Cavalier, C→Reine, D→Roi
   readonly chessLevels: { value: ChessLevel; label: string; icon: string }[] = [
-    { value: 'PION', label: 'Pion', icon: '♟' },
-    { value: 'CAVALIER', label: 'Cavalier', icon: '♞' },
-    { value: 'FOU', label: 'Fou', icon: '♝' },
-    { value: 'TOUR', label: 'Tour', icon: '♜' },
-    { value: 'DAME', label: 'Dame', icon: '♛' },
-    { value: 'ROI', label: 'Roi', icon: '♚' }
+    { value: 'A', label: 'Pion - Débutant', icon: '♟' },
+    { value: 'B', label: 'Cavalier - Intermédiaire', icon: '♞' },
+    { value: 'C', label: 'Reine - Avancé', icon: '♛' },
+    { value: 'D', label: 'Roi - Expert', icon: '♚' }
   ];
 
   constructor(public learningPathService: LearningPathService) {}
@@ -61,6 +62,10 @@ export class StudentProfileModalComponent implements OnInit {
   }
 
   closeModal(): void {
+    // If no course was validated during this session, emit reminder event
+    if (!this.hasValidatedCourse) {
+      this.closedWithoutValidation.emit(this.studentId);
+    }
     this.learningPathService.clearStudentProfile();
     this.close.emit();
   }
@@ -92,6 +97,7 @@ export class StudentProfileModalComponent implements OnInit {
     this.learningPathService.validateCourse(this.studentId, course.id).subscribe({
       next: () => {
         this.validatingCourse.set(null);
+        this.hasValidatedCourse = true;
         this.courseValidated.emit({ studentId: this.studentId, courseId: course.id });
       },
       error: () => {
@@ -124,10 +130,16 @@ export class StudentProfileModalComponent implements OnInit {
   }
 
   getGradeIcon(grade: ChessLevel): string {
-    return this.learningPathService.getGradeIcon(grade);
+    return CHESS_LEVELS[grade]?.icon || '🎓';
   }
 
   getGradeColor(grade: ChessLevel): string {
-    return this.learningPathService.getGradeColor(grade);
+    const colors: Record<ChessLevel, string> = {
+      'A': '#4CAF50',  // Green for beginners
+      'B': '#2196F3',  // Blue for intermediate
+      'C': '#9C27B0',  // Purple for advanced
+      'D': '#FF9800'   // Orange for expert
+    };
+    return colors[grade] || '#4CAF50';
   }
 }

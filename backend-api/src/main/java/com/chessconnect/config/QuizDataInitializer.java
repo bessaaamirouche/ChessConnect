@@ -25,24 +25,22 @@ public class QuizDataInitializer implements CommandLineRunner {
         if (questionRepository.count() == 0) {
             List<QuizQuestion> questions = new ArrayList<>();
 
-            // 5 questions per level = 30 total
-            questions.addAll(createPionQuestions());
-            questions.addAll(createCavalierQuestions());
-            questions.addAll(createFouQuestions());
-            questions.addAll(createTourQuestions());
-            questions.addAll(createDameQuestions());
-            questions.addAll(createRoiQuestions());
+            // 5 questions per level = 20 total (4 levels)
+            questions.addAll(createLevelAQuestions());
+            questions.addAll(createLevelBQuestions());
+            questions.addAll(createLevelCQuestions());
+            questions.addAll(createLevelDQuestions());
 
             questionRepository.saveAll(questions);
-            System.out.println("✓ 30 questions de quiz initialisées avec succès");
+            System.out.println("✓ 20 questions de quiz initialisées avec succès");
         }
     }
 
-    private List<QuizQuestion> createPionQuestions() {
+    private List<QuizQuestion> createLevelAQuestions() {
         List<QuizQuestion> questions = new ArrayList<>();
 
         questions.add(new QuizQuestion(
-            ChessLevel.PION,
+            ChessLevel.A,
             "Comment se déplace le Cavalier ?",
             "En diagonale uniquement",
             "En forme de L (2 cases + 1 case perpendiculaire)",
@@ -54,7 +52,7 @@ public class QuizDataInitializer implements CommandLineRunner {
         ));
 
         questions.add(new QuizQuestion(
-            ChessLevel.PION,
+            ChessLevel.A,
             "Combien de cases peut avancer un pion lors de son premier coup ?",
             "1 case uniquement",
             "1 ou 2 cases au choix",
@@ -66,7 +64,7 @@ public class QuizDataInitializer implements CommandLineRunner {
         ));
 
         questions.add(new QuizQuestion(
-            ChessLevel.PION,
+            ChessLevel.A,
             "Qu'est-ce qu'un échec et mat ?",
             "Quand le roi est capturé",
             "Quand le roi est attaqué et ne peut pas s'échapper",
@@ -78,7 +76,7 @@ public class QuizDataInitializer implements CommandLineRunner {
         ));
 
         questions.add(new QuizQuestion(
-            ChessLevel.PION,
+            ChessLevel.A,
             "Quelle est la valeur relative de la Dame par rapport au Pion ?",
             "3 pions",
             "5 pions",
@@ -90,7 +88,7 @@ public class QuizDataInitializer implements CommandLineRunner {
         ));
 
         questions.add(new QuizQuestion(
-            ChessLevel.PION,
+            ChessLevel.A,
             "Qu'est-ce que le roque ?",
             "Un coup qui permet de capturer deux pièces",
             "Un coup spécial où le Roi et une Tour bougent ensemble",
@@ -104,11 +102,11 @@ public class QuizDataInitializer implements CommandLineRunner {
         return questions;
     }
 
-    private List<QuizQuestion> createCavalierQuestions() {
+    private List<QuizQuestion> createLevelBQuestions() {
         List<QuizQuestion> questions = new ArrayList<>();
 
         questions.add(new QuizQuestion(
-            ChessLevel.CAVALIER,
+            ChessLevel.B,
             "Qu'est-ce qu'une fourchette aux échecs ?",
             "Un coup qui défend deux pièces",
             "Une attaque simultanée sur deux pièces ou plus",
@@ -120,7 +118,7 @@ public class QuizDataInitializer implements CommandLineRunner {
         ));
 
         questions.add(new QuizQuestion(
-            ChessLevel.CAVALIER,
+            ChessLevel.B,
             "Qu'est-ce qu'un clouage ?",
             "Quand une pièce ne peut pas bouger car elle protège une pièce plus importante",
             "Quand deux pièces sont sur la même case",
@@ -132,49 +130,7 @@ public class QuizDataInitializer implements CommandLineRunner {
         ));
 
         questions.add(new QuizQuestion(
-            ChessLevel.CAVALIER,
-            "Comment mater avec Roi + Tour contre Roi seul ?",
-            "En plaçant la Tour au centre",
-            "En poussant le Roi adverse vers le bord de l'échiquier",
-            "C'est impossible",
-            "En sacrifiant la Tour",
-            "B",
-            "Pour mater avec Roi + Tour, il faut utiliser la technique de 'l'escalier' : repousser progressivement le Roi adverse vers le bord, puis donner le mat sur la dernière rangée.",
-            3
-        ));
-
-        questions.add(new QuizQuestion(
-            ChessLevel.CAVALIER,
-            "Qu'est-ce qu'une enfilade ?",
-            "Une attaque sur une pièce importante qui, en bougeant, expose une pièce derrière elle",
-            "Une série de coups forcés",
-            "Une formation de pions",
-            "Un type de sacrifice",
-            "A",
-            "L'enfilade est l'inverse du clouage : on attaque une pièce importante (comme le Roi ou la Dame) qui doit bouger, exposant une pièce moins importante derrière elle.",
-            4
-        ));
-
-        questions.add(new QuizQuestion(
-            ChessLevel.CAVALIER,
-            "En général, quel couple de pièces mineures est considéré comme légèrement supérieur ?",
-            "Deux Cavaliers",
-            "Deux Fous (la paire de Fous)",
-            "Un Cavalier et un Fou",
-            "Ils sont exactement égaux",
-            "B",
-            "La paire de Fous est souvent considérée comme légèrement supérieure, surtout dans les positions ouvertes où les diagonales sont dégagées.",
-            5
-        ));
-
-        return questions;
-    }
-
-    private List<QuizQuestion> createFouQuestions() {
-        List<QuizQuestion> questions = new ArrayList<>();
-
-        questions.add(new QuizQuestion(
-            ChessLevel.FOU,
+            ChessLevel.B,
             "Quels sont les premiers coups de la Défense Sicilienne ?",
             "1.e4 e5",
             "1.d4 d5",
@@ -182,11 +138,11 @@ public class QuizDataInitializer implements CommandLineRunner {
             "1.c4 e5",
             "C",
             "La Défense Sicilienne commence par 1.e4 c5. C'est la réponse la plus populaire et combative contre 1.e4.",
-            1
+            3
         ));
 
         questions.add(new QuizQuestion(
-            ChessLevel.FOU,
+            ChessLevel.B,
             "Qu'est-ce qu'un pion passé ?",
             "Un pion qui a atteint la dernière rangée",
             "Un pion qui n'a plus de pions adverses devant lui ou sur les colonnes adjacentes",
@@ -194,11 +150,11 @@ public class QuizDataInitializer implements CommandLineRunner {
             "Un pion isolé",
             "B",
             "Un pion passé n'a plus de pions adverses pouvant bloquer son avance vers la promotion. Ces pions sont très précieux en finale.",
-            2
+            4
         ));
 
         questions.add(new QuizQuestion(
-            ChessLevel.FOU,
+            ChessLevel.B,
             "Pourquoi le contrôle du centre est-il important en ouverture ?",
             "Car le Roi doit être au centre",
             "Car les pièces au centre contrôlent plus de cases et sont plus mobiles",
@@ -206,41 +162,17 @@ public class QuizDataInitializer implements CommandLineRunner {
             "Car les pions du centre valent plus",
             "B",
             "Les pièces placées au centre contrôlent plus de cases et peuvent se déplacer facilement des deux côtés de l'échiquier. Le centre (e4, d4, e5, d5) est stratégiquement crucial.",
-            3
-        ));
-
-        questions.add(new QuizQuestion(
-            ChessLevel.FOU,
-            "Qu'est-ce que l'Ouverture Italienne ?",
-            "1.e4 e5 2.Cf3 Cc6 3.Fc4",
-            "1.e4 e5 2.Cf3 Cc6 3.Fb5",
-            "1.d4 d5 2.c4",
-            "1.e4 c5",
-            "A",
-            "L'Ouverture Italienne (Giuoco Piano) commence par 1.e4 e5 2.Cf3 Cc6 3.Fc4, où le Fou vise la case faible f7. L'Espagnole serait 3.Fb5.",
-            4
-        ));
-
-        questions.add(new QuizQuestion(
-            ChessLevel.FOU,
-            "Qu'est-ce qu'une colonne ouverte ?",
-            "Une colonne sans aucune pièce",
-            "Une colonne sans pions",
-            "Une colonne contrôlée par une Tour",
-            "La colonne du Roi après le roque",
-            "B",
-            "Une colonne ouverte est une colonne verticale (a-h) qui ne contient aucun pion. Les Tours sont particulièrement efficaces sur les colonnes ouvertes.",
             5
         ));
 
         return questions;
     }
 
-    private List<QuizQuestion> createTourQuestions() {
+    private List<QuizQuestion> createLevelCQuestions() {
         List<QuizQuestion> questions = new ArrayList<>();
 
         questions.add(new QuizQuestion(
-            ChessLevel.TOUR,
+            ChessLevel.C,
             "Qu'est-ce que la technique de Philidor dans les finales Tour + Pion ?",
             "Attaquer le pion adverse avec la Tour",
             "Placer la Tour sur la 6ème rangée pour couper le Roi adverse",
@@ -252,7 +184,7 @@ public class QuizDataInitializer implements CommandLineRunner {
         ));
 
         questions.add(new QuizQuestion(
-            ChessLevel.TOUR,
+            ChessLevel.C,
             "Qu'est-ce que l'opposition des Rois ?",
             "Quand les deux Rois sont face à face avec une case entre eux",
             "Quand un Roi attaque l'autre",
@@ -264,7 +196,7 @@ public class QuizDataInitializer implements CommandLineRunner {
         ));
 
         questions.add(new QuizQuestion(
-            ChessLevel.TOUR,
+            ChessLevel.C,
             "Qu'est-ce que la règle du carré dans les finales de pions ?",
             "Les pions doivent former un carré",
             "Si le Roi peut entrer dans le carré imaginaire du pion, il peut l'arrêter",
@@ -276,7 +208,7 @@ public class QuizDataInitializer implements CommandLineRunner {
         ));
 
         questions.add(new QuizQuestion(
-            ChessLevel.TOUR,
+            ChessLevel.C,
             "Qu'est-ce que la position de Lucena ?",
             "Une position de mat célèbre",
             "Une position gagnante avec Tour + Pion où on utilise la technique du 'pont'",
@@ -288,7 +220,7 @@ public class QuizDataInitializer implements CommandLineRunner {
         ));
 
         questions.add(new QuizQuestion(
-            ChessLevel.TOUR,
+            ChessLevel.C,
             "Qu'est-ce que la prophylaxie aux échecs ?",
             "Une technique de promotion de pion",
             "Anticiper et empêcher les plans de l'adversaire avant qu'il ne les réalise",
@@ -302,11 +234,11 @@ public class QuizDataInitializer implements CommandLineRunner {
         return questions;
     }
 
-    private List<QuizQuestion> createDameQuestions() {
+    private List<QuizQuestion> createLevelDQuestions() {
         List<QuizQuestion> questions = new ArrayList<>();
 
         questions.add(new QuizQuestion(
-            ChessLevel.DAME,
+            ChessLevel.D,
             "Qu'est-ce qu'un sacrifice positionnel ?",
             "Un sacrifice qui gagne immédiatement du matériel",
             "Un sacrifice pour un mat en quelques coups",
@@ -318,19 +250,7 @@ public class QuizDataInitializer implements CommandLineRunner {
         ));
 
         questions.add(new QuizQuestion(
-            ChessLevel.DAME,
-            "Quels facteurs sont essentiels pour évaluer une position complexe ?",
-            "Uniquement le matériel",
-            "Matériel, activité des pièces, structure de pions, sécurité du Roi, et initiative",
-            "Le nombre de pièces développées",
-            "La position du Roi uniquement",
-            "B",
-            "L'évaluation d'une position prend en compte de nombreux facteurs : le matériel, l'activité des pièces, la structure de pions, la sécurité des Rois, l'initiative, et les plans possibles.",
-            2
-        ));
-
-        questions.add(new QuizQuestion(
-            ChessLevel.DAME,
+            ChessLevel.D,
             "Qu'est-ce que le zugzwang ?",
             "Une attaque double",
             "Une situation où tout coup empire sa position - l'obligation de jouer est un désavantage",
@@ -338,65 +258,11 @@ public class QuizDataInitializer implements CommandLineRunner {
             "Une technique de finale",
             "B",
             "Le zugzwang (de l'allemand 'obligation de jouer') est une situation où le joueur qui doit jouer voit sa position se détériorer quel que soit son coup. C'est courant en finale.",
-            3
-        ));
-
-        questions.add(new QuizQuestion(
-            ChessLevel.DAME,
-            "Quels éléments sont nécessaires pour mener une attaque sur le roque adverse ?",
-            "Avoir plus de matériel",
-            "Plus de pièces en attaque qu'en défense, des faiblesses dans l'abri du Roi, des lignes ouvertes",
-            "Avoir la Dame et rien d'autre",
-            "Avoir fait le grand roque soi-même",
-            "B",
-            "Pour attaquer le roque, il faut généralement : plus de pièces participant à l'attaque que de défenseurs, des faiblesses (pions avancés, cases faibles), et des lignes/diagonales ouvertes vers le Roi.",
-            4
-        ));
-
-        questions.add(new QuizQuestion(
-            ChessLevel.DAME,
-            "Qu'est-ce que la défense dynamique ?",
-            "Défendre passivement ses pièces",
-            "Se défendre en créant des contre-menaces et en maintenant l'activité de ses pièces",
-            "Échanger toutes les pièces",
-            "Fuir avec le Roi",
-            "B",
-            "La défense dynamique consiste à se défendre de façon active : créer des contre-menaces, maintenir l'initiative, utiliser des ressources tactiques plutôt que de défendre passivement.",
-            5
-        ));
-
-        return questions;
-    }
-
-    private List<QuizQuestion> createRoiQuestions() {
-        List<QuizQuestion> questions = new ArrayList<>();
-
-        questions.add(new QuizQuestion(
-            ChessLevel.ROI,
-            "Qu'est-ce que la théorie des cases correspondantes en finale de pions ?",
-            "Une technique pour calculer le mat",
-            "Un système pour déterminer quelles cases chaque Roi doit occuper pour gagner ou annuler",
-            "Une méthode pour évaluer les structures de pions",
-            "Une règle d'ouverture moderne",
-            "B",
-            "La théorie des cases correspondantes (ou conjugaison des cases) est un concept avancé des finales de pions où chaque case occupée par un Roi correspond à une case que l'autre Roi doit occuper pour maintenir l'équilibre.",
-            1
-        ));
-
-        questions.add(new QuizQuestion(
-            ChessLevel.ROI,
-            "Dans la variante Najdorf de la Sicilienne, quelle est l'idée derrière 6.Fg5 (l'Attaque Anglaise) ?",
-            "Développer le Fou rapidement",
-            "Préparer f4 et une attaque sur l'aile roi avec g4-g5",
-            "Échanger les Fous de cases noires",
-            "Contrôler la case d5",
-            "B",
-            "L'Attaque Anglaise (6.Fg5 suivi de Dd2, f3, 0-0-0, g4) vise une attaque directe sur le roque noir avec la poussée g4-g5 pour ouvrir des lignes contre le Roi.",
             2
         ));
 
         questions.add(new QuizQuestion(
-            ChessLevel.ROI,
+            ChessLevel.D,
             "Qu'est-ce que le concept de 'forteresse' aux échecs ?",
             "Une position où le matériel supérieur ne peut pas forcer le gain",
             "Un roque avec tous les pions intacts",
@@ -408,7 +274,7 @@ public class QuizDataInitializer implements CommandLineRunner {
         ));
 
         questions.add(new QuizQuestion(
-            ChessLevel.ROI,
+            ChessLevel.D,
             "Quelle est la caractéristique principale du système de Maroczy (Bind) ?",
             "Une attaque rapide sur le Roi",
             "Le contrôle spatial avec les pions c4 et e4 empêchant ...d5",
@@ -420,7 +286,7 @@ public class QuizDataInitializer implements CommandLineRunner {
         ));
 
         questions.add(new QuizQuestion(
-            ChessLevel.ROI,
+            ChessLevel.D,
             "Qu'est-ce que le principe de la 'transformation des avantages' de Steinitz ?",
             "Échanger ses pièces quand on a l'avantage",
             "Convertir un type d'avantage temporaire en un avantage permanent d'une autre nature",

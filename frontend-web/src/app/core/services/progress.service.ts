@@ -44,23 +44,23 @@ export class ProgressService {
   readonly lessonsToNextLevel = computed(() => {
     const p = this.progressSignal();
     if (!p) return 0;
-    // ROI level has 0 required lessons (max level)
-    if (p.currentLevel === 'ROI' || p.lessonsRequiredForNextLevel === 0) return 0;
+    // D level has 0 required lessons (max level)
+    if (p.currentLevel === 'D' || p.lessonsRequiredForNextLevel === 0) return 0;
     return Math.max(0, p.lessonsRequiredForNextLevel - p.lessonsAtCurrentLevel);
   });
 
   readonly isMaxLevel = computed(() =>
-    this.currentLevel() === 'ROI'
+    this.currentLevel() === 'D'
   );
 
   readonly overallProgress = computed(() => {
     const p = this.progressSignal();
     if (!p) return 0;
 
-    // 6 levels total (PION to ROI), each level = 100/6 ≈ 16.67%
+    // 4 levels total (A to D), each level = 100/4 = 25%
     const levelOrder = CHESS_LEVELS[p.currentLevel].order;
-    const baseProgress = (levelOrder - 1) * (100 / 6);
-    const levelProgress = (p.progressPercentage / 100) * (100 / 6);
+    const baseProgress = (levelOrder - 1) * (100 / 4);
+    const levelProgress = (p.progressPercentage / 100) * (100 / 4);
 
     return Math.min(100, baseProgress + levelProgress);
   });
@@ -92,24 +92,20 @@ export class ProgressService {
 
   getLevelIcon(level: ChessLevel): string {
     const icons: Record<ChessLevel, string> = {
-      PION: '♟',
-      CAVALIER: '♞',
-      FOU: '♝',
-      TOUR: '♜',
-      DAME: '♛',
-      ROI: '♚'
+      A: '♟',  // Pion
+      B: '♞',  // Cavalier
+      C: '♛',  // Reine
+      D: '♚'   // Roi
     };
     return icons[level];
   }
 
   getLevelColor(level: ChessLevel): string {
     const colors: Record<ChessLevel, string> = {
-      PION: '#78716c',
-      CAVALIER: '#22c55e',
-      FOU: '#3b82f6',
-      TOUR: '#a855f7',
-      DAME: '#eab308',
-      ROI: '#dc2626'
+      A: '#78716c',  // Pion - gris
+      B: '#22c55e',  // Cavalier - vert
+      C: '#a855f7',  // Reine - violet
+      D: '#eab308'   // Roi - or
     };
     return colors[level];
   }

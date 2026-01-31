@@ -20,23 +20,17 @@ public class QuizResult {
     @Column(name = "determined_level", nullable = false)
     private ChessLevel determinedLevel;
 
-    @Column(name = "pion_score")
-    private Integer pionScore;
+    @Column(name = "level_a_score")
+    private Integer levelAScore;
 
-    @Column(name = "cavalier_score")
-    private Integer cavalierScore;
+    @Column(name = "level_b_score")
+    private Integer levelBScore;
 
-    @Column(name = "fou_score")
-    private Integer fouScore;
+    @Column(name = "level_c_score")
+    private Integer levelCScore;
 
-    @Column(name = "tour_score")
-    private Integer tourScore;
-
-    @Column(name = "dame_score")
-    private Integer dameScore;
-
-    @Column(name = "roi_score")
-    private Integer roiScore;
+    @Column(name = "level_d_score")
+    private Integer levelDScore;
 
     @Column(name = "completed_at", nullable = false)
     private LocalDateTime completedAt;
@@ -59,23 +53,17 @@ public class QuizResult {
     public ChessLevel getDeterminedLevel() { return determinedLevel; }
     public void setDeterminedLevel(ChessLevel determinedLevel) { this.determinedLevel = determinedLevel; }
 
-    public Integer getPionScore() { return pionScore; }
-    public void setPionScore(Integer pionScore) { this.pionScore = pionScore; }
+    public Integer getLevelAScore() { return levelAScore; }
+    public void setLevelAScore(Integer levelAScore) { this.levelAScore = levelAScore; }
 
-    public Integer getCavalierScore() { return cavalierScore; }
-    public void setCavalierScore(Integer cavalierScore) { this.cavalierScore = cavalierScore; }
+    public Integer getLevelBScore() { return levelBScore; }
+    public void setLevelBScore(Integer levelBScore) { this.levelBScore = levelBScore; }
 
-    public Integer getFouScore() { return fouScore; }
-    public void setFouScore(Integer fouScore) { this.fouScore = fouScore; }
+    public Integer getLevelCScore() { return levelCScore; }
+    public void setLevelCScore(Integer levelCScore) { this.levelCScore = levelCScore; }
 
-    public Integer getTourScore() { return tourScore; }
-    public void setTourScore(Integer tourScore) { this.tourScore = tourScore; }
-
-    public Integer getDameScore() { return dameScore; }
-    public void setDameScore(Integer dameScore) { this.dameScore = dameScore; }
-
-    public Integer getRoiScore() { return roiScore; }
-    public void setRoiScore(Integer roiScore) { this.roiScore = roiScore; }
+    public Integer getLevelDScore() { return levelDScore; }
+    public void setLevelDScore(Integer levelDScore) { this.levelDScore = levelDScore; }
 
     public LocalDateTime getCompletedAt() { return completedAt; }
     public void setCompletedAt(LocalDateTime completedAt) { this.completedAt = completedAt; }

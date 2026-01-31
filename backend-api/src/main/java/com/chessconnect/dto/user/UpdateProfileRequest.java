@@ -1,5 +1,7 @@
 package com.chessconnect.dto.user;
 
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -7,7 +9,12 @@ import java.util.List;
 
 @Data
 public class UpdateProfileRequest {
+    @Size(min = 1, max = 100, message = "First name must be between 1 and 100 characters")
+    @Pattern(regexp = "^[\\p{L}\\s\\-']*$", message = "First name contains invalid characters")
     private String firstName;
+
+    @Size(min = 1, max = 100, message = "Last name must be between 1 and 100 characters")
+    @Pattern(regexp = "^[\\p{L}\\s\\-']*$", message = "Last name contains invalid characters")
     private String lastName;
 
     // Teacher fields

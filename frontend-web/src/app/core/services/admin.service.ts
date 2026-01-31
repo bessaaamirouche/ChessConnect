@@ -69,6 +69,14 @@ export class AdminService {
     return this.http.patch<AdminActionResponse>(`${this.apiUrl}/users/${id}/activate`, {});
   }
 
+  deleteUser(id: number): Observable<{ message: string; refundedAmountCents: number; requiresManualRefund: boolean }> {
+    return this.http.delete<{ message: string; refundedAmountCents: number; requiresManualRefund: boolean }>(`${this.apiUrl}/users/${id}`);
+  }
+
+  getUserWallet(id: number): Observable<{ balanceCents: number; balanceFormatted: string }> {
+    return this.http.get<{ balanceCents: number; balanceFormatted: string }>(`${this.apiUrl}/users/${id}/wallet`);
+  }
+
   // Lessons
   getUpcomingLessons(): Observable<AdminLessonResponse[]> {
     return this.http.get<AdminLessonResponse[]>(`${this.apiUrl}/lessons/upcoming`);

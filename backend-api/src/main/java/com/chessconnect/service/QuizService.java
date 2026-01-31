@@ -70,7 +70,7 @@ public class QuizService {
 
     /**
      * Evaluate the quiz and determine the student's level.
-     * Algorithm: Start from PION, advance if score >= 70%
+     * Algorithm: Start from A, advance if score >= 70%
      */
     @Transactional
     public QuizResultResponse evaluateQuiz(Long studentId, QuizSubmitRequest request) {
@@ -103,7 +103,7 @@ public class QuizService {
         }
 
         // Determine level: highest level where score >= 70%
-        ChessLevel determinedLevel = ChessLevel.PION;
+        ChessLevel determinedLevel = ChessLevel.A;
 
         for (ChessLevel level : ChessLevel.values()) {
             int score = scoresByLevel.getOrDefault(level, 0);
@@ -125,12 +125,10 @@ public class QuizService {
         QuizResult quizResult = new QuizResult();
         quizResult.setStudent(student);
         quizResult.setDeterminedLevel(determinedLevel);
-        quizResult.setPionScore(scoresByLevel.get(ChessLevel.PION));
-        quizResult.setCavalierScore(scoresByLevel.get(ChessLevel.CAVALIER));
-        quizResult.setFouScore(scoresByLevel.get(ChessLevel.FOU));
-        quizResult.setTourScore(scoresByLevel.get(ChessLevel.TOUR));
-        quizResult.setDameScore(scoresByLevel.get(ChessLevel.DAME));
-        quizResult.setRoiScore(scoresByLevel.get(ChessLevel.ROI));
+        quizResult.setLevelAScore(scoresByLevel.get(ChessLevel.A));
+        quizResult.setLevelBScore(scoresByLevel.get(ChessLevel.B));
+        quizResult.setLevelCScore(scoresByLevel.get(ChessLevel.C));
+        quizResult.setLevelDScore(scoresByLevel.get(ChessLevel.D));
 
         resultRepository.save(quizResult);
 

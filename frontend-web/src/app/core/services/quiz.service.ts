@@ -164,24 +164,20 @@ export class QuizService {
 
   getLevelIcon(level: ChessLevel): string {
     const icons: Record<ChessLevel, string> = {
-      PION: '♟',
-      CAVALIER: '♞',
-      FOU: '♝',
-      TOUR: '♜',
-      DAME: '♛',
-      ROI: '♚'
+      A: '♟',  // Pion
+      B: '♞',  // Cavalier
+      C: '♛',  // Reine
+      D: '♚'   // Roi
     };
     return icons[level];
   }
 
   getLevelLabel(level: ChessLevel): string {
     const labels: Record<ChessLevel, string> = {
-      PION: 'Pion',
-      CAVALIER: 'Cavalier',
-      FOU: 'Fou',
-      TOUR: 'Tour',
-      DAME: 'Dame',
-      ROI: 'Roi'
+      A: 'Pion',
+      B: 'Cavalier',
+      C: 'Reine',
+      D: 'Roi'
     };
     return labels[level];
   }

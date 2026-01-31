@@ -18,7 +18,7 @@ public class Progress {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "current_level", nullable = false)
-    private ChessLevel currentLevel = ChessLevel.PION;
+    private ChessLevel currentLevel = ChessLevel.A;
 
     @Column(name = "total_lessons_completed", nullable = false)
     private Integer totalLessonsCompleted = 0;
@@ -27,7 +27,7 @@ public class Progress {
     private Integer lessonsAtCurrentLevel = 0;
 
     @Column(name = "lessons_required_for_next_level", nullable = false)
-    private Integer lessonsRequiredForNextLevel = 10;
+    private Integer lessonsRequiredForNextLevel = 50; // Default for level A (Pion)
 
     @Column(name = "last_lesson_date")
     private LocalDateTime lastLessonDate;
@@ -97,7 +97,7 @@ public class Progress {
         this.lessonsAtCurrentLevel++;
         this.lastLessonDate = LocalDateTime.now();
 
-        if (lessonsAtCurrentLevel >= lessonsRequiredForNextLevel && currentLevel != ChessLevel.ROI) {
+        if (lessonsAtCurrentLevel >= lessonsRequiredForNextLevel && currentLevel != ChessLevel.D) {
             levelUp();
         }
     }
@@ -110,17 +110,15 @@ public class Progress {
 
     private int calculateRequiredLessons(ChessLevel level) {
         return switch (level) {
-            case PION -> 45;
-            case CAVALIER -> 45;
-            case FOU -> 45;
-            case TOUR -> 45;
-            case DAME -> 45;
-            case ROI -> 0; // Max level, no more required
+            case A -> 50;  // Pion - 50h
+            case B -> 60;  // Cavalier - 60h
+            case C -> 70;  // Reine - 70h
+            case D -> 0;   // Roi - Max level
         };
     }
 
     public double getProgressPercentage() {
-        if (currentLevel == ChessLevel.ROI) return 100.0;
+        if (currentLevel == ChessLevel.D) return 100.0;
         return (double) lessonsAtCurrentLevel / lessonsRequiredForNextLevel * 100;
     }
 }

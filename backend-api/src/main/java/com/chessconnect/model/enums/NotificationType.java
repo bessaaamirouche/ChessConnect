@@ -8,5 +8,6 @@ public enum NotificationType {
     REFUND,
     LESSON_CONFIRMED,
     LESSON_CANCELLED,
-    NEW_BOOKING
+    NEW_BOOKING,
+    PENDING_VALIDATION
 }

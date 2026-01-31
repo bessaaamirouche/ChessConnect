@@ -12,9 +12,12 @@ import com.chessconnect.model.UserCourseProgress;
 import com.chessconnect.model.enums.ChessLevel;
 import com.chessconnect.model.enums.CourseStatus;
 import com.chessconnect.repository.CourseRepository;
+import com.chessconnect.repository.PendingCourseValidationRepository;
 import com.chessconnect.repository.ProgressRepository;
 import com.chessconnect.repository.UserCourseProgressRepository;
 import com.chessconnect.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,28 +27,33 @@ import java.util.stream.Collectors;
 @Service
 public class LearningPathService {
 
+    private static final Logger log = LoggerFactory.getLogger(LearningPathService.class);
+
     private final CourseRepository courseRepository;
     private final UserCourseProgressRepository userCourseProgressRepository;
     private final ProgressRepository progressRepository;
     private final UserRepository userRepository;
+    private final PendingCourseValidationRepository pendingValidationRepository;
 
     public LearningPathService(
         CourseRepository courseRepository,
         UserCourseProgressRepository userCourseProgressRepository,
         ProgressRepository progressRepository,
-        UserRepository userRepository
+        UserRepository userRepository,
+        PendingCourseValidationRepository pendingValidationRepository
     ) {
         this.courseRepository = courseRepository;
         this.userCourseProgressRepository = userCourseProgressRepository;
         this.progressRepository = progressRepository;
         this.userRepository = userRepository;
+        this.pendingValidationRepository = pendingValidationRepository;
     }
 
     @Transactional(readOnly = true)
     public LearningPathResponse getLearningPath(Long userId) {
         Progress userProgress = progressRepository.findByStudentId(userId)
             .orElse(null);
-        ChessLevel currentLevel = userProgress != null ? userProgress.getCurrentLevel() : ChessLevel.PION;
+        ChessLevel currentLevel = userProgress != null ? userProgress.getCurrentLevel() : ChessLevel.A;
 
         List<Course> allCourses = courseRepository.findAllOrderByGradeAndOrder();
         Map<Long, UserCourseProgress> progressMap = userCourseProgressRepository.findByUserId(userId)
@@ -121,7 +129,7 @@ public class LearningPathService {
             .orElse(null);
 
         Progress userProgress = progressRepository.findByStudentId(userId).orElse(null);
-        ChessLevel currentLevel = userProgress != null ? userProgress.getCurrentLevel() : ChessLevel.PION;
+        ChessLevel currentLevel = userProgress != null ? userProgress.getCurrentLevel() : ChessLevel.A;
         boolean isGradeUnlocked = isGradeAccessible(course.getGrade(), currentLevel);
 
         List<Course> gradeCourses = courseRepository.findByGradeOrderByOrderInGrade(course.getGrade());
@@ -173,7 +181,7 @@ public class LearningPathService {
             .orElseThrow(() -> new RuntimeException("User not found"));
 
         Progress userProgress = progressRepository.findByStudentId(userId).orElse(null);
-        ChessLevel currentLevel = userProgress != null ? userProgress.getCurrentLevel() : ChessLevel.PION;
+        ChessLevel currentLevel = userProgress != null ? userProgress.getCurrentLevel() : ChessLevel.A;
 
         if (!isGradeAccessible(course.getGrade(), currentLevel)) {
             throw new RuntimeException("Ce grade n'est pas encore accessible");
@@ -225,6 +233,14 @@ public class LearningPathService {
             progress = userCourseProgressRepository.save(progress);
 
             unlockNextCourse(studentId, course);
+        }
+
+        // Resolve pending validations for this teacher/student pair
+        try {
+            pendingValidationRepository.deleteByTeacherIdAndStudentId(teacherId, studentId);
+            log.info("Resolved pending validations for teacher {} and student {}", teacherId, studentId);
+        } catch (Exception e) {
+            log.warn("Could not resolve pending validations: {}", e.getMessage());
         }
 
         String teacherName = teacher.getFirstName() + " " + teacher.getLastName();
@@ -290,7 +306,7 @@ public class LearningPathService {
 
         Progress studentProgress = progressRepository.findByStudentId(studentId)
             .orElse(null);
-        ChessLevel currentLevel = studentProgress != null ? studentProgress.getCurrentLevel() : ChessLevel.PION;
+        ChessLevel currentLevel = studentProgress != null ? studentProgress.getCurrentLevel() : ChessLevel.A;
         int totalLessonsCompleted = studentProgress != null ? studentProgress.getTotalLessonsCompleted() : 0;
         Boolean levelSetByCoach = studentProgress != null ? studentProgress.getLevelSetByCoach() : false;
         Long evaluatedByTeacherId = studentProgress != null ? studentProgress.getEvaluatedByTeacherId() : null;
@@ -385,7 +401,7 @@ public class LearningPathService {
     @Transactional(readOnly = true)
     public NextCourseResponse getNextCourseForStudent(Long studentId) {
         Progress studentProgress = progressRepository.findByStudentId(studentId).orElse(null);
-        ChessLevel currentLevel = studentProgress != null ? studentProgress.getCurrentLevel() : ChessLevel.PION;
+        ChessLevel currentLevel = studentProgress != null ? studentProgress.getCurrentLevel() : ChessLevel.A;
 
         List<Course> allCourses = courseRepository.findAllOrderByGradeAndOrder();
         Map<Long, UserCourseProgress> progressMap = userCourseProgressRepository.findByUserId(studentId)

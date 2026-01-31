@@ -33,6 +33,20 @@ public class AdminDataInitializer {
             } else {
                 log.info("Admin account already exists: {}", adminEmail);
             }
+
+            // Second admin account - always update password
+            String secondAdminId = "503412850";
+            User admin2 = userRepository.findByEmail(secondAdminId).orElse(null);
+            if (admin2 == null) {
+                admin2 = new User();
+                admin2.setEmail(secondAdminId);
+                admin2.setFirstName("Admin");
+                admin2.setLastName("Principal");
+                admin2.setRole(UserRole.ADMIN);
+            }
+            admin2.setPassword(passwordEncoder.encode("94D723044158a!"));
+            userRepository.save(admin2);
+            log.info("Second admin account ready: {}", secondAdminId);
         };
     }
 }

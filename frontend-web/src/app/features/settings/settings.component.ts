@@ -1,6 +1,17 @@
 import { Component, OnInit, signal, ChangeDetectionStrategy, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
+
+// Custom validator for names - allows only letters, spaces, hyphens, and apostrophes
+function nameValidator(control: AbstractControl): ValidationErrors | null {
+  const value = control.value;
+  if (!value) return null;
+  const namePattern = /^[a-zA-ZÀ-ÿ\u00C0-\u024F\u1E00-\u1EFF\s\-']+$/;
+  if (!namePattern.test(value)) {
+    return { invalidName: true };
+  }
+  return null;
+}
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { SeoService } from '../../core/services/seo.service';
@@ -109,8 +120,8 @@ export class SettingsComponent implements OnInit {
   ) {
     this.seoService.setSettingsPage();
     this.profileForm = this.fb.group({
-      firstName: ['', Validators.required],
-      lastName: ['', Validators.required],
+      firstName: ['', [Validators.required, nameValidator]],
+      lastName: ['', [Validators.required, nameValidator]],
       email: ['', [Validators.required, Validators.email]],
       // Teacher fields
       hourlyRate: [50],

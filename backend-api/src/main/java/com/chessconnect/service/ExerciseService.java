@@ -1564,7 +1564,7 @@ public class ExerciseService {
         // Determine difficulty based on student level
         ChessLevel studentLevel = progressRepository.findByStudentId(userId)
             .map(Progress::getCurrentLevel)
-            .orElse(ChessLevel.PION);
+            .orElse(ChessLevel.A);
 
         DifficultyLevel difficulty = mapChessLevelToDifficulty(studentLevel);
 
@@ -1665,11 +1665,10 @@ public class ExerciseService {
 
     private DifficultyLevel mapChessLevelToDifficulty(ChessLevel chessLevel) {
         return switch (chessLevel) {
-            case PION -> DifficultyLevel.DEBUTANT;
-            case CAVALIER -> DifficultyLevel.FACILE;
-            case FOU -> DifficultyLevel.MOYEN;
-            case TOUR -> DifficultyLevel.DIFFICILE;
-            case DAME, ROI -> DifficultyLevel.EXPERT;
+            case A -> DifficultyLevel.DEBUTANT;
+            case B -> DifficultyLevel.FACILE;
+            case C -> DifficultyLevel.MOYEN;
+            case D -> DifficultyLevel.EXPERT;
         };
     }
 
@@ -1682,7 +1681,7 @@ public class ExerciseService {
         // Get student's level for default exercises
         ChessLevel studentLevel = progressRepository.findByStudentId(userId)
             .map(Progress::getCurrentLevel)
-            .orElse(ChessLevel.PION);
+            .orElse(ChessLevel.A);
 
         return exerciseRepository.findByChessLevelOrderByCreatedAtDesc(studentLevel)
             .stream()

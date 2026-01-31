@@ -111,7 +111,15 @@
             placeholder="Jean"
           >
           @if (registerForm.get('firstName')?.invalid && registerForm.get('firstName')?.touched) {
-            <span class="form-group__error">Minimum 2 caractères</span>
+            <span class="form-group__error">
+              @if (registerForm.get('firstName')?.errors?.['required']) {
+                Prenom requis
+              } @else if (registerForm.get('firstName')?.errors?.['minlength']) {
+                Minimum 2 caracteres
+              } @else if (registerForm.get('firstName')?.errors?.['invalidName']) {
+                Caracteres speciaux non autorises
+              }
+            </span>
           }
         </div>
         <div class="form-group">
@@ -125,7 +133,15 @@
             placeholder="Dupont"
           >
           @if (registerForm.get('lastName')?.invalid && registerForm.get('lastName')?.touched) {
-            <span class="form-group__error">Minimum 2 caractères</span>
+            <span class="form-group__error">
+              @if (registerForm.get('lastName')?.errors?.['required']) {
+                Nom requis
+              } @else if (registerForm.get('lastName')?.errors?.['minlength']) {
+                Minimum 2 caracteres
+              } @else if (registerForm.get('lastName')?.errors?.['invalidName']) {
+                Caracteres speciaux non autorises
+              }
+            </span>
           }
         </div>
       </div>

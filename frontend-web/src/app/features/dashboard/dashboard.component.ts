@@ -1,6 +1,17 @@
 import { Component, OnInit, signal, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
+
+// Custom validator for names - allows only letters, spaces, hyphens, and apostrophes
+function nameValidator(control: AbstractControl): ValidationErrors | null {
+  const value = control.value;
+  if (!value) return null;
+  const namePattern = /^[a-zA-ZÀ-ÿ\u00C0-\u024F\u1E00-\u1EFF\s\-']+$/;
+  if (!namePattern.test(value)) {
+    return { invalidName: true };
+  }
+  return null;
+}
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../core/services/auth.service';
 import { LessonService } from '../../core/services/lesson.service';
@@ -130,8 +141,8 @@ export class DashboardComponent implements OnInit {
   ) {
     this.seoService.setDashboardPage();
     this.settingsForm = this.fb.group({
-      firstName: ['', Validators.required],
-      lastName: ['', Validators.required],
+      firstName: ['', [Validators.required, nameValidator]],
+      lastName: ['', [Validators.required, nameValidator]],
       hourlyRate: [50],
       acceptsFreeTrial: [true],
       bio: ['']
@@ -144,8 +155,8 @@ export class DashboardComponent implements OnInit {
     });
 
     this.profileForm = this.fb.group({
-      firstName: ['', Validators.required],
-      lastName: ['', Validators.required],
+      firstName: ['', [Validators.required, nameValidator]],
+      lastName: ['', [Validators.required, nameValidator]],
       hourlyRate: [50],
       acceptsFreeTrial: [true],
       bio: ['']

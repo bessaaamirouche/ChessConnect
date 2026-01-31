@@ -79,6 +79,43 @@ public class AdminController {
     }
 
     /**
+     * Delete a user (RGPD compliance).
+     * Automatically handles wallet balance by recording ADMIN_REFUND transaction.
+     * Returns refund amount for manual bank transfer if applicable.
+     */
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
+        try {
+            // Check and refund wallet balance first
+            int refundedAmount = walletService.adminRefundWallet(id, "Suppression compte par admin");
+
+            // Delete the user
+            adminService.deleteUser(id);
+
+            if (refundedAmount > 0) {
+                String formattedAmount = String.format("%.2f", refundedAmount / 100.0);
+                return ResponseEntity.ok(Map.of(
+                    "message", "Utilisateur supprime. " + formattedAmount + " EUR a rembourser manuellement.",
+                    "refundedAmountCents", refundedAmount,
+                    "requiresManualRefund", true
+                ));
+            }
+
+            return ResponseEntity.ok(Map.of(
+                "message", "Utilisateur supprime avec succes",
+                "refundedAmountCents", 0,
+                "requiresManualRefund", false
+            ));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("message", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body(Map.of("message", "Erreur lors de la suppression: " + e.getMessage()));
+        }
+    }
+
+    /**
      * Refund user's wallet balance (for manual bank transfer before account deletion).
      * Clears the wallet balance and records the transaction.
      */

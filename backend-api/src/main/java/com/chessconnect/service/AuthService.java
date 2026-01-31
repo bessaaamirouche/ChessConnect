@@ -93,7 +93,7 @@ public class AuthService {
         if (request.role() == UserRole.STUDENT) {
             Progress progress = new Progress();
             progress.setStudent(savedUser);
-            progress.setCurrentLevel(ChessLevel.PION);
+            progress.setCurrentLevel(ChessLevel.A);
             progressRepository.save(progress);
         }
 

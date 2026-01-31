@@ -33,7 +33,9 @@ import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 @Service
@@ -58,6 +60,7 @@ public class LessonService {
     private final InvoiceService invoiceService;
     private final WalletService walletService;
     private final ProgrammeService programmeService;
+    private final PendingValidationService pendingValidationService;
 
     public LessonService(
             LessonRepository lessonRepository,
@@ -71,7 +74,8 @@ public class LessonService {
             TeacherBalanceService teacherBalanceService,
             InvoiceService invoiceService,
             WalletService walletService,
-            ProgrammeService programmeService
+            ProgrammeService programmeService,
+            PendingValidationService pendingValidationService
     ) {
         this.lessonRepository = lessonRepository;
         this.userRepository = userRepository;
@@ -85,6 +89,7 @@ public class LessonService {
         this.invoiceService = invoiceService;
         this.walletService = walletService;
         this.programmeService = programmeService;
+        this.pendingValidationService = pendingValidationService;
     }
 
     @Transactional
@@ -289,6 +294,17 @@ public class LessonService {
                         lesson.getStudent().getId(), lesson.getId());
             } catch (Exception e) {
                 log.warn("Could not advance student to next course: {}", e.getMessage());
+            }
+
+            // Create pending validation for the coach to validate the student's courses
+            try {
+                pendingValidationService.createPendingValidation(
+                        lesson.getId(),
+                        lesson.getTeacher().getId(),
+                        lesson.getStudent().getId()
+                );
+            } catch (Exception e) {
+                log.warn("Could not create pending validation: {}", e.getMessage());
             }
         }
 
@@ -620,6 +636,28 @@ public class LessonService {
         } else {
             return 0;   // < 2h before: no refund
         }
+    }
+
+    /**
+     * Check if this is the first completed lesson between a teacher and student.
+     * Used to determine whether to show level evaluation modal or course validation modal.
+     */
+    public Map<String, Object> checkFirstLesson(Long teacherId, Long studentId) {
+        Map<String, Object> result = new HashMap<>();
+
+        User student = userRepository.findById(studentId)
+                .orElseThrow(() -> new IllegalArgumentException("Student not found"));
+
+        // Check if student's level has been set by a coach
+        Progress progress = progressRepository.findByStudentId(studentId).orElse(null);
+        boolean levelSetByCoach = progress != null && Boolean.TRUE.equals(progress.getLevelSetByCoach());
+
+        // If level was already set by a coach, it's not a "first lesson" in terms of evaluation
+        result.put("isFirstLesson", !levelSetByCoach);
+        result.put("studentName", student.getFirstName() + " " + student.getLastName());
+        result.put("studentId", studentId);
+
+        return result;
     }
 
     /**

@@ -22,15 +22,16 @@ public class RateLimitingFilter extends OncePerRequestFilter {
 
     private static final Logger log = LoggerFactory.getLogger(RateLimitingFilter.class);
 
-    // Rate limits per minute by endpoint category
-    private static final int RATE_LIMIT_AUTH = 5;           // Login, register, password reset
-    private static final int RATE_LIMIT_PAYMENT = 10;       // Payment operations
-    private static final int RATE_LIMIT_BOOKING = 20;       // Lesson booking
-    private static final int RATE_LIMIT_UPLOAD = 5;         // File uploads
-    private static final int RATE_LIMIT_CONTACT = 3;        // Contact form
-    private static final int RATE_LIMIT_API_WRITE = 30;     // POST/PUT/DELETE general
-    private static final int RATE_LIMIT_API_READ = 100;     // GET requests
-    private static final int RATE_LIMIT_GLOBAL = 200;       // Global per IP
+    // Rate limits per minute by endpoint category (increased for high traffic)
+    private static final int RATE_LIMIT_AUTH = 30;          // Login, register, password reset
+    private static final int RATE_LIMIT_PAYMENT = 120;      // Payment operations
+    private static final int RATE_LIMIT_BOOKING = 200;      // Lesson booking
+    private static final int RATE_LIMIT_AVAILABILITY = 300; // Availabilities (coaches create many slots)
+    private static final int RATE_LIMIT_UPLOAD = 30;        // File uploads
+    private static final int RATE_LIMIT_CONTACT = 15;       // Contact form
+    private static final int RATE_LIMIT_API_WRITE = 300;    // POST/PUT/DELETE general
+    private static final int RATE_LIMIT_API_READ = 600;     // GET requests
+    private static final int RATE_LIMIT_GLOBAL = 1500;      // Global per IP (high traffic)
 
     private static final long WINDOW_MS = 60_000; // 1 minute window
 
@@ -115,13 +116,23 @@ public class RateLimitingFilter extends OncePerRequestFilter {
             return RATE_LIMIT_AUTH;
         }
 
-        // Payment endpoints
+        // Payment status checks (GET) - higher limit for polling
+        if ("GET".equals(method) && (path.contains("/payments/subscription") || path.contains("/wallet/balance"))) {
+            return RATE_LIMIT_API_READ;
+        }
+
+        // Payment endpoints (POST/etc) - strict limit
         if (path.contains("/payments/") || path.contains("/wallet/")) {
             return RATE_LIMIT_PAYMENT;
         }
 
+        // Availability endpoints (coaches create many slots at once)
+        if (path.contains("/availabilities")) {
+            return RATE_LIMIT_AVAILABILITY;
+        }
+
         // Booking endpoints
-        if (path.contains("/lessons/book") || path.contains("/availabilities")) {
+        if (path.contains("/lessons/book")) {
             return RATE_LIMIT_BOOKING;
         }
 
@@ -146,11 +157,16 @@ public class RateLimitingFilter extends OncePerRequestFilter {
 
     private String getEndpointCategory(String path) {
         if (isAuthEndpoint(path)) return "auth";
+        // Separate category for status checks (higher limits)
+        if (path.equals("/api/payments/subscription") || path.contains("/wallet/balance")) return "status";
         if (path.contains("/payments/") || path.contains("/wallet/")) return "payment";
+        if (path.contains("/availabilities")) return "availability"; // Separate category for high volume
         if (path.contains("/lessons/")) return "lessons";
         if (path.contains("/upload")) return "upload";
         if (path.contains("/contact")) return "contact";
         if (path.contains("/admin/")) return "admin";
+        if (path.contains("/notifications")) return "notifications"; // Polling endpoint
+        if (path.contains("/teachers")) return "teachers"; // Often polled
         return "api";
     }
 

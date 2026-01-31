@@ -1,232 +1,147 @@
 <div class="progress-page">
-    <header class="page-header">
-      <div>
-        <h1 class="page-header__title">Ma Progression</h1>
-        <p class="page-header__subtitle">Suivez votre parcours vers la maîtrise des échecs</p>
-      </div>
-    </header>
-
-    @if (progressService.loading()) {
-      <div class="loading-state">
-        <span class="spinner spinner--lg"></span>
-        <p>Chargement de votre progression...</p>
-      </div>
-    } @else if (progressService.error()) {
-      <div class="error-state">
-        <div class="error-state__icon"><ng-icon name="heroExclamationTriangle" size="48"></ng-icon></div>
-        <h3>Erreur</h3>
-        <p>{{ progressService.error() }}</p>
-        <button class="btn btn--primary" (click)="progressService.loadMyProgress().subscribe()">
-          Réessayer
-        </button>
-      </div>
-    } @else if (progressService.progress()) {
-      <!-- Current Level Hero -->
-      <section class="hero-section">
-        <div class="current-level-card">
-          <div class="current-level-card__icon" [style.color]="getLevelColor(progressService.currentLevel()!)">
-            {{ getLevelIcon(progressService.currentLevel()!) }}
-          </div>
-          <div class="current-level-card__info">
-            <span class="current-level-card__label">Niveau actuel</span>
-            <h2 class="current-level-card__title">{{ progressService.currentLevelInfo()?.label }}</h2>
-            <span class="current-level-card__description">{{ progressService.currentLevelInfo()?.description }}</span>
-          </div>
-          @if (!progressService.isMaxLevel()) {
-            <div class="current-level-card__next">
-              <span class="current-level-card__next-label">Prochain niveau</span>
-              <span class="current-level-card__next-icon">
-                {{ getLevelIcon(progressService.progress()!.currentLevel === 'PION' ? 'CAVALIER' :
-                   progressService.progress()!.currentLevel === 'CAVALIER' ? 'FOU' :
-                   progressService.progress()!.currentLevel === 'FOU' ? 'TOUR' : 'DAME') }}
-              </span>
-            </div>
-          }
-        </div>
-      </section>
-
-      <!-- Stats Cards -->
-      <section class="section section--compact">
-        <div class="stats-grid">
-          <div class="stats-card">
-            <div class="stats-card__icon"><ng-icon name="heroBookOpen" size="20"></ng-icon></div>
-            <div class="stats-card__value">{{ progressService.totalLessons() }}</div>
-            <div class="stats-card__label">Cours terminés</div>
-          </div>
-          <div class="stats-card">
-            <div class="stats-card__icon"><ng-icon name="heroArrowTrendingUp" size="20"></ng-icon></div>
-            <div class="stats-card__value">{{ progressService.progressPercentage() | number:'1.0-0' }}%</div>
-            <div class="stats-card__label">Progression</div>
-          </div>
-          <div class="stats-card">
-            <div class="stats-card__icon"><ng-icon name="heroCheckCircle" size="20"></ng-icon></div>
-            <div class="stats-card__value">{{ progressService.lessonsToNextLevel() }}</div>
-            <div class="stats-card__label">Restants</div>
-          </div>
-          <div class="stats-card">
-            <div class="stats-card__icon"><ng-icon name="heroTrophy" size="20"></ng-icon></div>
-            <div class="stats-card__value">{{ progressService.overallProgress() | number:'1.0-0' }}%</div>
-            <div class="stats-card__label">Total</div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Progress Bar Section -->
-      <section class="section">
-        <div class="section__header">
-          <h2 class="section__title">Progression vers le niveau suivant</h2>
-        </div>
-
-        <div class="progress-bar-container">
-          <div class="progress-bar">
-            <div
-              class="progress-bar__fill"
-              [style.width.%]="progressService.progressPercentage()"
-              [style.background-color]="getLevelColor(progressService.currentLevel()!)"
-            ></div>
-          </div>
-          <div class="progress-bar__info">
-            <span>{{ progressService.progress()!.lessonsAtCurrentLevel }} / {{ progressService.progress()!.lessonsRequiredForNextLevel }} cours</span>
-            @if (!progressService.isMaxLevel()) {
-              <span class="progress-bar__remaining">
-                Plus que {{ progressService.lessonsToNextLevel() }} cours pour débloquer {{ getLevelIcon(progressService.progress()!.currentLevel === 'PION' ? 'CAVALIER' :
-                   progressService.progress()!.currentLevel === 'CAVALIER' ? 'FOU' :
-                   progressService.progress()!.currentLevel === 'FOU' ? 'TOUR' : 'DAME') }}
-              </span>
-            } @else {
-              <span class="progress-bar__remaining gold">Niveau maximum atteint !</span>
-            }
-          </div>
-        </div>
-      </section>
-
-      <!-- Level Timeline with Accordion -->
-      <section class="section">
-        <div class="section__header">
-          <h2 class="section__title">Parcours des niveaux</h2>
-        </div>
-
-        <div class="levels-timeline">
-          @for (level of levels; track level; let i = $index; let last = $last) {
-            <div
-              class="level-card"
-              [class.completed]="isLevelCompleted(level)"
-              [class.current]="isCurrentLevel(level)"
-              [class.locked]="isLevelLocked(level)"
-              [class.expanded]="isExpanded(level)"
-            >
-              <!-- Card Header (clickable) -->
-              <button
-                class="level-card__header"
-                (click)="toggleLevel(level)"
-              >
-                <div
-                  class="level-card__icon"
-                  [style.border-color]="isLevelCompleted(level) || isCurrentLevel(level) ? getLevelColor(level) : '#4a4a4a'"
-                  [style.background-color]="isLevelCompleted(level) ? getLevelColor(level) : 'transparent'"
-                >
-                  @if (isLevelCompleted(level)) {
-                    <ng-icon name="heroCheck" class="level-card__check"></ng-icon>
-                  } @else {
-                    <span [style.color]="isCurrentLevel(level) ? getLevelColor(level) : '#6b6b6b'">
-                      {{ getLevelIcon(level) }}
-                    </span>
-                  }
-                </div>
-
-                <div class="level-card__content">
-                  <h4 class="level-card__title" [style.color]="isLevelLocked(level) ? '#6b6b6b' : '#fff'">
-                    {{ CHESS_LEVELS[level].label }}
-                  </h4>
-                  @if (isCurrentLevel(level)) {
-                    <span class="level-card__badge">En cours</span>
-                  }
-                </div>
-
-                <div class="level-card__progress">
-                  <span class="level-card__progress-text">
-                    {{ getCompletedCoursesCount(level) }}/{{ getTotalCoursesCount(level) }} cours
-                  </span>
-                </div>
-
-                <div class="level-card__chevron">
-                  @if (isLevelLocked(level)) {
-                    <ng-icon name="heroLockClosed" class="level-card__lock-indicator"></ng-icon>
-                  }
-                  <ng-icon [name]="isExpanded(level) ? 'heroChevronUp' : 'heroChevronDown'"></ng-icon>
-                </div>
-              </button>
-
-              <!-- Accordion Content (courses list) -->
-              @if (isExpanded(level)) {
-                <div class="level-card__courses">
-                  @for (course of getCoursesForLevel(level); track course.id) {
-                    <div class="course-item" [class.course-item--completed]="course.status === 'COMPLETED'" [class.course-item--locked]="course.status === 'LOCKED'">
-                      <span class="course-item__order">{{ course.orderInGrade }}.</span>
-                      <span class="course-item__title">{{ course.title }}</span>
-                      <span class="course-item__status">
-                        @switch (course.status) {
-                          @case ('COMPLETED') {
-                            <ng-icon name="heroCheckCircle" class="course-item__icon course-item__icon--completed"></ng-icon>
-                          }
-                          @case ('IN_PROGRESS') {
-                            <ng-icon name="heroClock" class="course-item__icon course-item__icon--in-progress"></ng-icon>
-                          }
-                          @case ('PENDING_VALIDATION') {
-                            <ng-icon name="heroCheckBadge" class="course-item__icon course-item__icon--pending"></ng-icon>
-                          }
-                          @case ('LOCKED') {
-                            <ng-icon name="heroLockClosed" class="course-item__icon course-item__icon--locked"></ng-icon>
-                          }
-                        }
-                      </span>
-                    </div>
-                  } @empty {
-                    <p class="level-card__empty">Aucun cours disponible</p>
-                  }
-                </div>
-              }
-            </div>
-
-            @if (!last) {
-              <div
-                class="level-connector"
-                [class.completed]="isLevelCompleted(levels[i + 1]) || isCurrentLevel(levels[i + 1])"
-              ></div>
-            }
-          }
-        </div>
-      </section>
-
-      <!-- Call to Action -->
-      @if (!progressService.isMaxLevel()) {
-        <section class="section">
-          <div class="cta-card">
-            <div class="cta-card__content">
-              <h3>Continuez votre progression !</h3>
-              <p>Réservez un cours pour avancer vers le niveau {{ CHESS_LEVELS[progressService.progress()!.currentLevel === 'PION' ? 'CAVALIER' :
-                   progressService.progress()!.currentLevel === 'CAVALIER' ? 'FOU' :
-                   progressService.progress()!.currentLevel === 'FOU' ? 'TOUR' : 'DAME'].label }}</p>
-            </div>
-            <a routerLink="/teachers" class="btn btn--primary btn--lg">
-              Trouver un coach
-            </a>
-          </div>
-        </section>
+  <header class="page-header">
+    <div>
+      <h1 class="page-header__title">Ma Progression</h1>
+      @if (!loading() && !error()) {
+        <p class="page-header__subtitle">{{ totalValidatedCourses() }} cours valides sur {{ totalCourses() }}</p>
       }
+    </div>
+  </header>
 
-      <!-- Retake Quiz Option -->
-      <section class="section">
-        <div class="quiz-cta-card">
-          <div class="quiz-cta-card__icon">♟</div>
-          <div class="quiz-cta-card__content">
-            <h4>Reevaluez votre niveau</h4>
-            <p>Vous pensez avoir progresse ? Repassez le quiz pour mettre a jour votre niveau.</p>
+  @if (loading()) {
+    <div class="loading-state">
+      <span class="spinner spinner--lg"></span>
+      <p>Chargement de votre progression...</p>
+    </div>
+  } @else if (error()) {
+    <div class="error-state">
+      <div class="error-state__icon"><ng-icon name="heroExclamationTriangle" size="48"></ng-icon></div>
+      <h3>Erreur</h3>
+      <p>{{ error() }}</p>
+      <button class="btn btn--primary" (click)="learningPathService.loadLearningPath().subscribe()">
+        Reessayer
+      </button>
+    </div>
+  } @else {
+    <!-- Levels Accordion -->
+    <section class="section">
+      <div class="levels-timeline">
+        @for (level of programmeLevels(); track level.code; let i = $index; let last = $last) {
+          <div
+            class="level-card"
+            [class.completed]="isLevelCompleted(level)"
+            [class.current]="isLevelInProgress(level)"
+            [class.locked]="!level.isUnlocked"
+            [class.expanded]="isExpanded(level.code)"
+          >
+            <!-- Card Header (clickable) -->
+            <button
+              class="level-card__header"
+              (click)="toggleLevel(level.code)"
+            >
+              <div
+                class="level-card__icon"
+                [style.border-color]="level.isUnlocked ? level.color : '#4a4a4a'"
+                [style.background-color]="isLevelCompleted(level) ? level.color : 'transparent'"
+              >
+                @if (isLevelCompleted(level)) {
+                  <ng-icon name="heroCheckCircle" class="level-card__check"></ng-icon>
+                } @else {
+                  <span [style.color]="level.isUnlocked ? level.color : '#6b6b6b'">
+                    {{ getLevelIcon(level.code) }}
+                  </span>
+                }
+              </div>
+
+              <div class="level-card__content">
+                <h4 class="level-card__title" [style.color]="!level.isUnlocked ? '#6b6b6b' : '#fff'">
+                  {{ level.name }}
+                </h4>
+                @if (isLevelInProgress(level)) {
+                  <span class="level-card__badge">En cours</span>
+                }
+              </div>
+
+              <div class="level-card__progress">
+                <span class="level-card__progress-text">
+                  {{ level.completedCourses }}/{{ level.totalCourses }} cours
+                </span>
+              </div>
+
+              <div class="level-card__chevron">
+                @if (!level.isUnlocked) {
+                  <ng-icon name="heroLockClosed" class="level-card__lock-indicator"></ng-icon>
+                }
+                <ng-icon [name]="isExpanded(level.code) ? 'heroChevronUp' : 'heroChevronDown'"></ng-icon>
+              </div>
+            </button>
+
+            <!-- Accordion Content (courses list) -->
+            @if (isExpanded(level.code)) {
+              <div class="level-card__courses">
+                @for (course of level.courses; track course.id; let courseIndex = $index) {
+                  <div class="course-item" [class.course-item--completed]="course.status === 'COMPLETED'" [class.course-item--locked]="course.status === 'LOCKED'">
+                    <span class="course-item__order">{{ courseIndex + 1 }}.</span>
+                    <span class="course-item__title">{{ course.title }}</span>
+                    <span class="course-item__status">
+                      @switch (course.status) {
+                        @case ('COMPLETED') {
+                          <ng-icon name="heroCheckCircle" class="course-item__icon course-item__icon--completed"></ng-icon>
+                        }
+                        @case ('IN_PROGRESS') {
+                          <ng-icon name="heroClock" class="course-item__icon course-item__icon--in-progress"></ng-icon>
+                        }
+                        @case ('PENDING_VALIDATION') {
+                          <ng-icon name="heroCheckBadge" class="course-item__icon course-item__icon--pending"></ng-icon>
+                        }
+                        @case ('LOCKED') {
+                          <ng-icon name="heroLockClosed" class="course-item__icon course-item__icon--locked"></ng-icon>
+                        }
+                      }
+                    </span>
+                  </div>
+                } @empty {
+                  <p class="level-card__empty">Aucun cours disponible</p>
+                }
+              </div>
+            }
           </div>
-          <a routerLink="/quiz" class="btn btn--secondary">
-            Passer le quiz
-          </a>
+
+          @if (!last) {
+            <div
+              class="level-connector"
+              [class.completed]="programmeLevels()[i + 1]?.isUnlocked"
+            ></div>
+          }
+        }
+      </div>
+    </section>
+
+    <!-- Call to Action -->
+    <section class="section">
+      <div class="cta-card">
+        <div class="cta-card__content">
+          <h3>Continuez votre progression !</h3>
+          <p>Reservez un cours avec un coach pour valider vos connaissances.</p>
         </div>
-      </section>
-    }
+        <a routerLink="/teachers" class="btn btn--primary btn--lg">
+          Trouver un coach
+        </a>
+      </div>
+    </section>
+
+    <!-- Retake Quiz Option -->
+    <section class="section">
+      <div class="quiz-cta-card">
+        <div class="quiz-cta-card__icon">♟</div>
+        <div class="quiz-cta-card__content">
+          <h4>Reevaluez votre niveau</h4>
+          <p>Vous pensez avoir progresse ? Repassez le quiz pour mettre a jour votre niveau.</p>
+        </div>
+        <a routerLink="/quiz" class="btn btn--secondary">
+          Passer le quiz
+        </a>
+      </div>
+    </section>
+  }
 </div>

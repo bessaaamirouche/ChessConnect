@@ -4,51 +4,62 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rappel de cours</title>
-    <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #e8e8e8; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #0a0a0f; }
-        .container { background-color: #12121a; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); }
-        .header { background: linear-gradient(135deg, #1a1a2e 0%, #12121a 100%); color: white; padding: 30px 20px; text-align: center; border-bottom: 2px solid #d4a84b; }
-        .header img { max-width: 150px; height: auto; }
-        .content { background-color: #12121a; padding: 30px; }
-        .content p { color: #b8b8c8; margin: 15px 0; }
-        .content strong { color: #ffffff; }
-        .lesson-info { background-color: #1a1a2e; padding: 20px; border-radius: 10px; border-left: 4px solid #d4a84b; margin: 20px 0; }
-        .lesson-info p { margin: 8px 0; color: #b8b8c8; }
-        .lesson-info strong { color: #d4a84b; }
-        .button { display: inline-block; background: linear-gradient(135deg, #d4a84b 0%, #c49a3f 100%); color: #0a0a0f !important; padding: 14px 35px; text-decoration: none; border-radius: 8px; margin: 20px 0; font-weight: 600; font-size: 16px; }
-        .tip { color: #888; font-size: 14px; background-color: #1a1a2e; padding: 12px 15px; border-radius: 8px; margin-top: 15px; }
-        .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; background-color: #0a0a0f; }
-    </style>
 </head>
-<body>
-    <div class="container">
-        <div class="header">
-            <img th:src="${logoUrl}" src="https://mychess.fr/assets/logo.png" alt="Mychess" />
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; line-height: 1.6; color: #333333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f5f5f5;">
+    <div style="background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);">
+        <!-- Header -->
+        <div style="background: linear-gradient(135deg, #1a1a2e 0%, #12121a 100%); color: white; padding: 30px 20px; text-align: center; border-bottom: 3px solid #d4a84b;">
+            <img th:src="${logoUrl}" src="https://mychess.fr/assets/logo.png" alt="Mychess" style="max-width: 120px; height: auto;" />
         </div>
-        <div class="content">
-            <p>Bonjour <strong th:text="${firstName}">Utilisateur</strong>,</p>
 
-            <p>Votre cours d'echecs commence dans <strong style="color: #d4a84b;">1 heure</strong> !</p>
+        <!-- Content -->
+        <div style="background-color: #ffffff; padding: 30px;">
+            <p style="color: #333333; margin: 15px 0; font-size: 16px;">
+                Bonjour <strong th:text="${firstName}" style="color: #1a1a2e;">Utilisateur</strong>,
+            </p>
 
-            <div class="lesson-info">
-                <p><strong>Coach :</strong> <span th:text="${teacherName}">Prof. Martin</span></p>
-                <p><strong>Date :</strong> <span th:text="${lessonDate}">15 janvier 2024</span></p>
-                <p><strong>Heure :</strong> <span th:text="${lessonTime}">14:00</span></p>
+            <p style="color: #555555; margin: 15px 0; font-size: 15px;">
+                Votre cours d'echecs commence dans <strong style="color: #d4a84b;">1 heure</strong> !
+            </p>
+
+            <!-- Lesson info box -->
+            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 10px; border-left: 4px solid #d4a84b; margin: 25px 0;">
+                <p style="margin: 8px 0; color: #555555; font-size: 15px;">
+                    <strong style="color: #d4a84b;">Coach :</strong> <span th:text="${teacherName}">Prof. Martin</span>
+                </p>
+                <p style="margin: 8px 0; color: #555555; font-size: 15px;">
+                    <strong style="color: #d4a84b;">Date :</strong> <span th:text="${lessonDate}">15 janvier 2024</span>
+                </p>
+                <p style="margin: 8px 0; color: #555555; font-size: 15px;">
+                    <strong style="color: #d4a84b;">Heure :</strong> <span th:text="${lessonTime}">14:00</span>
+                </p>
             </div>
 
-            <p>Preparez-vous et rejoignez la salle de classe virtuelle a l'heure :</p>
-
-            <p style="text-align: center;">
-                <a th:href="${meetingLink}" class="button">Rejoindre le cours</a>
+            <p style="color: #555555; margin: 15px 0; font-size: 15px;">
+                Preparez-vous et rejoignez la salle de classe virtuelle a l'heure :
             </p>
 
-            <p class="tip">
-                Conseil : Testez votre camera et microphone quelques minutes avant le cours.
+            <!-- Button -->
+            <p style="text-align: center; margin: 30px 0;">
+                <a th:href="${meetingLink}"
+                   style="display: inline-block; background-color: #d4a84b; color: #ffffff; padding: 16px 40px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 12px rgba(212, 168, 75, 0.4);">
+                    Rejoindre le cours
+                </a>
             </p>
+
+            <!-- Tip box -->
+            <div style="color: #666666; font-size: 14px; background-color: #e3f2fd; padding: 15px; border-radius: 8px; margin-top: 20px; border-left: 4px solid #2196f3;">
+                <strong style="color: #1976d2;">Conseil :</strong> Testez votre camera et microphone quelques minutes avant le cours.
+            </div>
         </div>
     </div>
-    <div class="footer">
-        <p>&copy; 2026 Mychess. Tous droits reserves.</p>
+
+    <!-- Footer -->
+    <div style="text-align: center; padding: 20px; color: #999999; font-size: 12px;">
+        <p>&copy; 2026 Mychess - Plateforme de cours d'echecs en ligne</p>
+        <p style="margin-top: 10px;">
+            <a href="https://mychess.fr" style="color: #d4a84b; text-decoration: none;">mychess.fr</a>
+        </p>
     </div>
 </body>
 </html>

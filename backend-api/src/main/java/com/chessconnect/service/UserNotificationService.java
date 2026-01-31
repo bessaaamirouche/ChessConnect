@@ -168,4 +168,17 @@ public class UserNotificationService {
                 "/lessons"
         );
     }
+
+    /**
+     * Notify teacher about pending course validation.
+     */
+    public void notifyPendingValidation(Long teacherId, Long studentId, String studentName) {
+        createNotification(
+                teacherId,
+                NotificationType.PENDING_VALIDATION,
+                "Validation en attente",
+                String.format("N'oubliez pas de valider les cours de %s", studentName),
+                "/lessons?openStudentProfile=" + studentId
+        );
+    }
 }

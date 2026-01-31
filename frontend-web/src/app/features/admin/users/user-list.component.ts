@@ -130,18 +130,34 @@ import { DialogService } from '../../../core/services/dialog.service';
                         }
                       </td>
                       <td>
-                        <button
-                          class="action-btn action-btn--suspend"
-                          (click)="suspendUser(user)"
-                          [disabled]="actionLoading()"
-                          title="Ajouter a la blacklist"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
-                          </svg>
-                          Blacklister
-                        </button>
+                        <div class="action-buttons">
+                          <button
+                            class="action-btn action-btn--suspend"
+                            (click)="suspendUser(user)"
+                            [disabled]="actionLoading()"
+                            title="Ajouter a la blacklist"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                              <circle cx="12" cy="12" r="10"></circle>
+                              <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+                            </svg>
+                            Blacklister
+                          </button>
+                          <button
+                            class="action-btn action-btn--delete"
+                            (click)="deleteUser(user)"
+                            [disabled]="actionLoading()"
+                            title="Supprimer definitivement"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                              <polyline points="3 6 5 6 21 6"></polyline>
+                              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                              <line x1="10" y1="11" x2="10" y2="17"></line>
+                              <line x1="14" y1="11" x2="14" y2="17"></line>
+                            </svg>
+                            Supprimer
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   }
@@ -201,18 +217,34 @@ import { DialogService } from '../../../core/services/dialog.service';
                         }
                       </td>
                       <td>
-                        <button
-                          class="action-btn action-btn--activate"
-                          (click)="activateUser(user)"
-                          [disabled]="actionLoading()"
-                          title="Retirer de la blacklist"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                          </svg>
-                          Reactiver
-                        </button>
+                        <div class="action-buttons">
+                          <button
+                            class="action-btn action-btn--activate"
+                            (click)="activateUser(user)"
+                            [disabled]="actionLoading()"
+                            title="Retirer de la blacklist"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                            </svg>
+                            Reactiver
+                          </button>
+                          <button
+                            class="action-btn action-btn--delete"
+                            (click)="deleteUser(user)"
+                            [disabled]="actionLoading()"
+                            title="Supprimer definitivement"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                              <polyline points="3 6 5 6 21 6"></polyline>
+                              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                              <line x1="10" y1="11" x2="10" y2="17"></line>
+                              <line x1="14" y1="11" x2="14" y2="17"></line>
+                            </svg>
+                            Supprimer
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   }
@@ -495,6 +527,21 @@ import { DialogService } from '../../../core/services/dialog.service';
           background: rgba(239, 68, 68, 0.15);
         }
       }
+
+      &--delete {
+        background: rgba(220, 38, 38, 0.08);
+        color: #dc2626;
+
+        &:hover:not(:disabled) {
+          background: rgba(220, 38, 38, 0.15);
+        }
+      }
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
     }
 
     .empty-state {
@@ -780,6 +827,72 @@ export class UserListComponent implements OnInit {
       error: () => {
         this.actionLoading.set(false);
         this.dialogService.alert('Erreur lors de la reactivation', 'Erreur', { variant: 'danger' });
+      }
+    });
+  }
+
+  async deleteUser(user: UserListResponse): Promise<void> {
+    // First check wallet balance for students
+    if (user.role === 'STUDENT') {
+      this.adminService.getUserWallet(user.id).subscribe({
+        next: async (wallet) => {
+          if (wallet.balanceCents > 0) {
+            const confirmWithWallet = await this.dialogService.confirm(
+              `${user.firstName} ${user.lastName} a ${wallet.balanceFormatted} dans son portefeuille.\n\nLe solde sera automatiquement enregistre pour remboursement manuel (virement bancaire).\n\nVoulez-vous continuer ?`,
+              'Supprimer avec solde',
+              { confirmText: 'Supprimer et enregistrer remboursement', cancelText: 'Annuler', variant: 'danger' }
+            );
+            if (confirmWithWallet) {
+              this.performDelete(user);
+            }
+          } else {
+            this.confirmAndDelete(user);
+          }
+        },
+        error: () => {
+          // If wallet check fails, proceed with normal deletion
+          this.confirmAndDelete(user);
+        }
+      });
+    } else {
+      this.confirmAndDelete(user);
+    }
+  }
+
+  private async confirmAndDelete(user: UserListResponse): Promise<void> {
+    const confirmed = await this.dialogService.confirm(
+      `Etes-vous sur de vouloir supprimer definitivement ${user.firstName} ${user.lastName} ?\n\nCette action est irreversible et supprimera toutes les donnees associees.`,
+      'Supprimer l\'utilisateur',
+      { confirmText: 'Supprimer definitivement', cancelText: 'Annuler', variant: 'danger' }
+    );
+    if (confirmed) {
+      this.performDelete(user);
+    }
+  }
+
+  private performDelete(user: UserListResponse): void {
+    this.actionLoading.set(true);
+    this.adminService.deleteUser(user.id).subscribe({
+      next: (response) => {
+        this.loadUsers(this.currentPage());
+        this.actionLoading.set(false);
+        this.adminStateService.notifyUserChange('delete', user.id);
+
+        if (response.requiresManualRefund) {
+          const amount = (response.refundedAmountCents / 100).toFixed(2);
+          this.dialogService.alert(
+            `Utilisateur supprime.\n\n${amount} EUR a rembourser manuellement par virement bancaire.`,
+            'Remboursement requis',
+            { variant: 'warning' }
+          );
+        } else {
+          this.dialogService.alert('Utilisateur supprime avec succes.', 'Succes', { variant: 'success' });
+        }
+      },
+      error: (err) => {
+        this.actionLoading.set(false);
+        const message = err.error?.message || 'Erreur lors de la suppression';
+        this.dialogService.alert(message, 'Erreur', { variant: 'danger' });
       }
     });
   }

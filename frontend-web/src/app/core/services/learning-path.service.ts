@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, tap, catchError, of } from 'rxjs';
 import { LearningPath, Course, GradeWithCourses, NextCourse } from '../models/learning-path.model';
 import { StudentProfile } from '../models/student-profile.model';
-import { ChessLevel } from '../models/user.model';
+import { ChessLevel, CHESS_LEVELS } from '../models/user.model';
 
 @Injectable({
   providedIn: 'root'
@@ -205,27 +205,17 @@ export class LearningPathService {
   }
 
   getGradeIcon(grade: ChessLevel): string {
-    const icons: Record<ChessLevel, string> = {
-      PION: '♟',
-      CAVALIER: '♞',
-      FOU: '♝',
-      TOUR: '♜',
-      DAME: '♛',
-      ROI: '♚'
-    };
-    return icons[grade];
+    return CHESS_LEVELS[grade]?.icon || '🎓';
   }
 
   getGradeColor(grade: ChessLevel): string {
     const colors: Record<ChessLevel, string> = {
-      PION: '#78716c',
-      CAVALIER: '#22c55e',
-      FOU: '#3b82f6',
-      TOUR: '#a855f7',
-      DAME: '#eab308',
-      ROI: '#dc2626'
+      'A': '#78716c',  // Pion - gris
+      'B': '#22c55e',  // Cavalier - vert
+      'C': '#a855f7',  // Reine - violet
+      'D': '#eab308'   // Roi - or
     };
-    return colors[grade];
+    return colors[grade] || '#78716c';
   }
 
   clearCurrentCourse(): void {

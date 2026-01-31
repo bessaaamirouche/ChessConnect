@@ -33,7 +33,7 @@ type QuizStep = 'intro' | 'questions' | 'result';
 export class QuizComponent implements OnInit {
   step = signal<QuizStep>('intro');
   CHESS_LEVELS = CHESS_LEVELS;
-  levels: ChessLevel[] = ['PION', 'CAVALIER', 'FOU', 'TOUR', 'DAME', 'ROI'];
+  levels: ChessLevel[] = ['A', 'B', 'C', 'D'];
 
   constructor(
     public quizService: QuizService,

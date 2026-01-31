@@ -54,7 +54,7 @@ public class UserController {
     @PatchMapping("/me")
     public ResponseEntity<TeacherProfileResponse> updateProfile(
             @AuthenticationPrincipal UserDetails userDetails,
-            @RequestBody UpdateProfileRequest request) {
+            @Valid @RequestBody UpdateProfileRequest request) {
 
         User user = userRepository.findByEmail(userDetails.getUsername())
                 .orElseThrow(() -> new RuntimeException("User not found"));

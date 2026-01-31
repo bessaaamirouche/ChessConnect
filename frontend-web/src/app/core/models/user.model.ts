@@ -41,11 +41,25 @@ export const AVAILABLE_LANGUAGES: { code: string; name: string }[] = [
 // Import ChessLevel to use in CHESS_LEVELS constant
 import { ChessLevel } from '@contracts';
 
-export const CHESS_LEVELS: Record<ChessLevel, { order: number; label: string; description: string; icon?: string }> = {
-  PION: { order: 1, label: 'Pion', description: 'Débutant', icon: '♟' },
-  CAVALIER: { order: 2, label: 'Cavalier', description: 'Intermédiaire', icon: '♞' },
-  FOU: { order: 3, label: 'Fou', description: 'Confirmé', icon: '♝' },
-  TOUR: { order: 4, label: 'Tour', description: 'Avancé', icon: '♜' },
-  DAME: { order: 5, label: 'Dame', description: 'Expert', icon: '♛' },
-  ROI: { order: 6, label: 'Roi', description: 'Maître', icon: '♚' }
+// 4 levels mapped to chess pieces: A→Pion, B→Cavalier, C→Reine, D→Roi
+export const CHESS_LEVELS: Record<ChessLevel, { order: number; label: string; description: string; icon: string; pieceName: string }> = {
+  A: { order: 1, label: 'Pion', description: 'Débutant', icon: '♟', pieceName: 'PION' },
+  B: { order: 2, label: 'Cavalier', description: 'Intermédiaire', icon: '♞', pieceName: 'CAVALIER' },
+  C: { order: 3, label: 'Reine', description: 'Avancé', icon: '♛', pieceName: 'REINE' },
+  D: { order: 4, label: 'Roi', description: 'Expert', icon: '♚', pieceName: 'ROI' }
 };
+
+// Helper function to get level info
+export function getLevelInfo(level: ChessLevel) {
+  return CHESS_LEVELS[level] || CHESS_LEVELS.A;
+}
+
+// Helper function to get level icon
+export function getLevelIcon(level: ChessLevel): string {
+  return CHESS_LEVELS[level]?.icon || '🎓';
+}
+
+// Helper function to get level label
+export function getLevelLabel(level: ChessLevel): string {
+  return CHESS_LEVELS[level]?.label || level;
+}

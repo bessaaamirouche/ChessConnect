@@ -1,3 +1,12 @@
+@if (stripeConnectLoading()) {
+  <div class="loading-overlay">
+    <div class="loading-overlay__content">
+      <div class="spinner spinner--lg"></div>
+      <p>Connexion a Stripe en cours...</p>
+    </div>
+  </div>
+}
+
 <div class="settings-page">
     <header class="page-header">
       <div>

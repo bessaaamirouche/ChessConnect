@@ -25,7 +25,9 @@ import {
   heroVideoCamera,
   heroBell,
   heroClock,
-  heroChartBar
+  heroChartBar,
+  heroPlayPause,
+  heroPuzzlePiece
 } from '@ng-icons/heroicons/outline';
 
 @Component({
@@ -50,7 +52,9 @@ import {
     heroVideoCamera,
     heroBell,
     heroClock,
-    heroChartBar
+    heroChartBar,
+    heroPlayPause,
+    heroPuzzlePiece
   })],
   templateUrl: './subscription.component.html',
   styleUrl: './subscription.component.scss'
@@ -59,6 +63,8 @@ export class SubscriptionComponent implements OnInit {
   processingPlan = signal<SubscriptionPlan | null>(null);
   showCancelConfirm = signal(false);
   cancelling = signal(false);
+  startingTrial = signal(false);
+  trialSuccess = signal(false);
 
   // Embedded checkout
   showCheckout = signal(false);
@@ -80,6 +86,23 @@ export class SubscriptionComponent implements OnInit {
   ngOnInit(): void {
     this.paymentService.loadPlans().subscribe();
     this.paymentService.loadActiveSubscription().subscribe();
+    this.paymentService.checkTrialEligibility().subscribe();
+    this.paymentService.loadFreeTrialStatus().subscribe();
+  }
+
+  startFreeTrial(): void {
+    this.startingTrial.set(true);
+    this.paymentService.startFreeTrial().subscribe({
+      next: (response) => {
+        this.startingTrial.set(false);
+        if (response.success) {
+          this.trialSuccess.set(true);
+        }
+      },
+      error: () => {
+        this.startingTrial.set(false);
+      }
+    });
   }
 
   subscribeToPlan(plan: SubscriptionPlan): void {

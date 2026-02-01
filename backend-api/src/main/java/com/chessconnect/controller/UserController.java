@@ -74,9 +74,6 @@ public class UserController {
             if (request.getAcceptsSubscription() != null) {
                 user.setAcceptsSubscription(request.getAcceptsSubscription());
             }
-            if (request.getAcceptsFreeTrial() != null) {
-                user.setAcceptsFreeTrial(request.getAcceptsFreeTrial());
-            }
             if (request.getBio() != null) {
                 user.setBio(request.getBio());
             }
@@ -153,9 +150,6 @@ public class UserController {
 
         if (request.getHourlyRateCents() != null) {
             user.setHourlyRateCents(request.getHourlyRateCents());
-        }
-        if (request.getAcceptsFreeTrial() != null) {
-            user.setAcceptsFreeTrial(request.getAcceptsFreeTrial());
         }
         if (request.getBio() != null) {
             user.setBio(request.getBio());
@@ -243,7 +237,6 @@ public class UserController {
                 .role(user.getRole().name())
                 .hourlyRateCents(user.getHourlyRateCents())
                 .acceptsSubscription(user.getAcceptsSubscription())
-                .acceptsFreeTrial(user.getAcceptsFreeTrial())
                 .bio(user.getBio())
                 .avatarUrl(user.getAvatarUrl())
                 .languages(TeacherProfileResponse.parseLanguages(user.getLanguages()))

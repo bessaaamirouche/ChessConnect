@@ -144,7 +144,6 @@ export class DashboardComponent implements OnInit {
       firstName: ['', [Validators.required, nameValidator]],
       lastName: ['', [Validators.required, nameValidator]],
       hourlyRate: [50],
-      acceptsFreeTrial: [true],
       bio: ['']
     });
 
@@ -158,7 +157,6 @@ export class DashboardComponent implements OnInit {
       firstName: ['', [Validators.required, nameValidator]],
       lastName: ['', [Validators.required, nameValidator]],
       hourlyRate: [50],
-      acceptsFreeTrial: [true],
       bio: ['']
     });
   }
@@ -191,7 +189,6 @@ export class DashboardComponent implements OnInit {
         firstName: user.firstName,
         lastName: user.lastName,
         hourlyRate: user.hourlyRateCents ? user.hourlyRateCents / 100 : 50,
-        acceptsFreeTrial: user.acceptsFreeTrial ?? true,
         bio: user.bio || ''
       });
     }
@@ -220,7 +217,6 @@ export class DashboardComponent implements OnInit {
       firstName: formValue.firstName,
       lastName: formValue.lastName,
       hourlyRateCents: formValue.hourlyRate * 100,
-      acceptsFreeTrial: formValue.acceptsFreeTrial,
       bio: formValue.bio
     };
 
@@ -272,7 +268,6 @@ export class DashboardComponent implements OnInit {
         firstName: user.firstName,
         lastName: user.lastName,
         hourlyRate: user.hourlyRateCents ? user.hourlyRateCents / 100 : 50,
-        acceptsFreeTrial: user.acceptsFreeTrial ?? true,
         bio: user.bio || ''
       });
     }
@@ -303,7 +298,6 @@ export class DashboardComponent implements OnInit {
 
     if (this.authService.isTeacher()) {
       payload.hourlyRateCents = formValue.hourlyRate * 100;
-      payload.acceptsFreeTrial = formValue.acceptsFreeTrial;
       payload.bio = formValue.bio;
     }
 

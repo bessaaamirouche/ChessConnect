@@ -92,6 +92,20 @@ jitsi:
 jibri:
   webhook-secret: ${JIBRI_WEBHOOK_SECRET:}
 
+# Bunny Stream Configuration (for video streaming with transcoding)
+bunny:
+  stream:
+    api-key: ${BUNNY_STREAM_API_KEY:}
+    library-id: ${BUNNY_STREAM_LIBRARY_ID:590076}
+    cdn-hostname: ${BUNNY_STREAM_CDN_HOSTNAME:vz-34fe20be-093.b-cdn.net}
+  # Bunny Storage Configuration (for direct file CDN hosting)
+  storage:
+    zone: ${BUNNY_STORAGE_ZONE:mychess}
+    api-key: ${BUNNY_STORAGE_API_KEY:}
+    host: ${BUNNY_STORAGE_HOST:storage.bunnycdn.com}
+  cdn:
+    url: ${BUNNY_CDN_URL:https://mychess.b-cdn.net}
+
 # HikariCP Connection Pool Configuration
 spring.datasource.hikari:
   minimum-idle: 5

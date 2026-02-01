@@ -58,6 +58,10 @@ public class StripeService {
     }
 
     public Session createCheckoutSession(User user, SubscriptionPlan plan, String customerId, boolean embedded) throws StripeException {
+        return createCheckoutSession(user, plan, customerId, embedded, false);
+    }
+
+    public Session createCheckoutSession(User user, SubscriptionPlan plan, String customerId, boolean embedded, boolean withTrial) throws StripeException {
         // Use dynamic price data instead of pre-created price IDs
         SessionCreateParams.Builder paramsBuilder = SessionCreateParams.builder()
                 .setMode(SessionCreateParams.Mode.SUBSCRIPTION)
@@ -86,6 +90,15 @@ public class StripeService {
                                 .setQuantity(1L)
                                 .build()
                 );
+
+        // Add 14-day free trial for new subscribers
+        if (withTrial) {
+            paramsBuilder.setSubscriptionData(
+                    SessionCreateParams.SubscriptionData.builder()
+                            .setTrialPeriodDays(14L)
+                            .build()
+            );
+        }
 
         if (embedded) {
             paramsBuilder.setUiMode(SessionCreateParams.UiMode.EMBEDDED);

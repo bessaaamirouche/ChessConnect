@@ -171,14 +171,24 @@ public class UserNotificationService {
 
     /**
      * Notify teacher about pending course validation.
+     * Only creates notification if one doesn't already exist for this teacher/student pair.
      */
     public void notifyPendingValidation(Long teacherId, Long studentId, String studentName) {
+        String link = "/lessons?openStudentProfile=" + studentId;
+
+        // Check if notification already exists
+        if (notificationRepository.existsByUserIdAndTypeAndLinkAndIsReadFalse(
+                teacherId, NotificationType.PENDING_VALIDATION, link)) {
+            log.debug("Pending validation notification already exists for teacher {} and student {}", teacherId, studentId);
+            return;
+        }
+
         createNotification(
                 teacherId,
                 NotificationType.PENDING_VALIDATION,
                 "Validation en attente",
                 String.format("N'oubliez pas de valider les cours de %s", studentName),
-                "/lessons?openStudentProfile=" + studentId
+                link
         );
     }
 }

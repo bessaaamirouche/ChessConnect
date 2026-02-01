@@ -47,7 +47,6 @@ export interface RegisterRequest {
   lastName: string;
   role: UserRole;
   hourlyRateCents?: number;
-  acceptsFreeTrial?: boolean;
   bio?: string;
   languages?: string[];
   birthDate?: string;
@@ -91,7 +90,6 @@ export interface User {
   // Teacher fields
   hourlyRateCents?: number;
   acceptsSubscription?: boolean;
-  acceptsFreeTrial?: boolean;
   bio?: string;
   avatarUrl?: string;
   languages?: string[];
@@ -120,7 +118,6 @@ export interface UpdateUserRequest {
   firstName?: string;
   lastName?: string;
   hourlyRateCents?: number;
-  acceptsFreeTrial?: boolean;
   bio?: string;
   languages?: string[];
   siret?: string;
@@ -143,7 +140,6 @@ export interface TeacherProfileResponse {
   role: string;
   hourlyRateCents?: number;
   acceptsSubscription?: boolean;
-  acceptsFreeTrial?: boolean;
   bio?: string;
   avatarUrl?: string;
   languages?: string[];
@@ -178,8 +174,6 @@ export interface LessonResponse {
   commissionCents?: number;
   teacherEarningsCents?: number;
   isFromSubscription?: boolean;
-  isFreeTrial?: boolean;
-  freeTrialStartedAt?: string;
   notes?: string;
   cancellationReason?: string;
   cancelledBy?: string;

@@ -24,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
@@ -62,6 +61,7 @@ public class LessonService {
     private final WalletService walletService;
     private final ProgrammeService programmeService;
     private final PendingValidationService pendingValidationService;
+    private final BunnyStorageService bunnyStorageService;
 
     public LessonService(
             LessonRepository lessonRepository,
@@ -76,7 +76,8 @@ public class LessonService {
             InvoiceService invoiceService,
             WalletService walletService,
             ProgrammeService programmeService,
-            PendingValidationService pendingValidationService
+            PendingValidationService pendingValidationService,
+            BunnyStorageService bunnyStorageService
     ) {
         this.lessonRepository = lessonRepository;
         this.userRepository = userRepository;
@@ -91,6 +92,7 @@ public class LessonService {
         this.walletService = walletService;
         this.programmeService = programmeService;
         this.pendingValidationService = pendingValidationService;
+        this.bunnyStorageService = bunnyStorageService;
     }
 
     @Transactional
@@ -141,102 +143,7 @@ public class LessonService {
 
         Lesson savedLesson = lessonRepository.save(lesson);
 
-        // If student was eligible for free trial but is paying directly, forfeit the free trial
-        if (!Boolean.TRUE.equals(student.getHasUsedFreeTrial())) {
-            student.setHasUsedFreeTrial(true);
-            userRepository.save(student);
-            log.info("Student {} forfeited free trial by paying for lesson {}", studentId, savedLesson.getId());
-        }
-
         return LessonResponse.from(savedLesson);
-    }
-
-    /**
-     * Book a free trial lesson for first-time students.
-     * Each student is eligible for one free trial lesson.
-     * Uses optimistic locking to prevent race conditions where multiple requests
-     * could book multiple free trials for the same student.
-     */
-    @Transactional
-    public LessonResponse bookFreeTrialLesson(Long studentId, BookLessonRequest request) {
-        User student = userRepository.findById(studentId)
-                .orElseThrow(() -> new IllegalArgumentException("Student not found"));
-
-        if (student.getRole() != UserRole.STUDENT) {
-            throw new IllegalArgumentException("Only students can book lessons");
-        }
-
-        // Check if student has already used their free trial
-        if (Boolean.TRUE.equals(student.getHasUsedFreeTrial())) {
-            throw new IllegalArgumentException("Vous avez déjà utilisé votre cours d'essai gratuit");
-        }
-
-        User teacher = userRepository.findById(request.teacherId())
-                .orElseThrow(() -> new IllegalArgumentException("Teacher not found"));
-
-        if (teacher.getRole() != UserRole.TEACHER) {
-            throw new IllegalArgumentException("Selected user is not a teacher");
-        }
-
-        // Check if teacher accepts free trial lessons
-        if (!Boolean.TRUE.equals(teacher.getAcceptsFreeTrial())) {
-            throw new IllegalArgumentException("Ce coach n'accepte pas les cours découverte gratuits");
-        }
-
-        // Validate that the lesson end time is still in the future
-        LocalDateTime lessonEnd = request.scheduledAt().plusMinutes(request.durationMinutes());
-        if (!lessonEnd.isAfter(LocalDateTime.now())) {
-            throw new IllegalArgumentException("Lesson must end in the future");
-        }
-
-        checkTeacherAvailability(teacher.getId(), request.scheduledAt(), request.durationMinutes());
-        checkStudentTimeConflict(studentId, request.scheduledAt(), request.durationMinutes());
-
-        // Mark free trial as used FIRST (optimistic locking via @Version on User)
-        // This ensures that if two concurrent requests try to use the free trial,
-        // only one will succeed - the other will get OptimisticLockingFailureException
-        student.setHasUsedFreeTrial(true);
-        try {
-            userRepository.save(student);
-        } catch (ObjectOptimisticLockingFailureException e) {
-            log.warn("Concurrent free trial booking attempt detected for student {}", studentId);
-            throw new IllegalArgumentException("Vous avez déjà utilisé votre cours d'essai gratuit");
-        }
-
-        // Create the free trial lesson (15 minutes discovery session)
-        Lesson lesson = new Lesson();
-        lesson.setStudent(student);
-        lesson.setTeacher(teacher);
-        lesson.setScheduledAt(request.scheduledAt());
-        lesson.setDurationMinutes(15); // Free trial is limited to 15 minutes
-        lesson.setNotes("[Cours découverte - 15 min]");
-        lesson.setStatus(LessonStatus.PENDING);
-        lesson.setIsFromSubscription(false);
-        lesson.setIsFreeTrial(true); // Mark as free trial
-        lesson.setPriceCents(0); // Free!
-
-        // Set the course if provided
-        if (request.courseId() != null) {
-            Course course = courseRepository.findById(request.courseId())
-                    .orElse(null);
-            lesson.setCourse(course);
-        }
-
-        Lesson savedLesson = lessonRepository.save(lesson);
-
-        log.info("Free trial lesson {} booked for student {} with teacher {}",
-                savedLesson.getId(), studentId, teacher.getId());
-
-        return LessonResponse.from(savedLesson);
-    }
-
-    /**
-     * Check if a student is eligible for a free trial lesson.
-     */
-    public boolean isEligibleForFreeTrial(Long studentId) {
-        return userRepository.findById(studentId)
-                .map(user -> user.getRole() == UserRole.STUDENT && !Boolean.TRUE.equals(user.getHasUsedFreeTrial()))
-                .orElse(false);
     }
 
     @Transactional
@@ -450,7 +357,10 @@ public class LessonService {
         Long lessonId = lesson.getId();
         log.info("Performing hard delete of lesson {} (both parties deleted)", lessonId);
 
-        // Delete recording files if they exist
+        // Delete recording from Bunny CDN if applicable
+        deleteCdnRecording(lesson);
+
+        // Delete local recording files if they exist
         deleteRecordingFiles(lessonId);
 
         // Delete related rating if exists
@@ -481,6 +391,29 @@ public class LessonService {
 
         lessonRepository.delete(lesson);
         log.info("Hard deleted lesson {}", lessonId);
+    }
+
+    /**
+     * Delete recording from Bunny CDN if the recording URL is from Bunny.
+     */
+    private void deleteCdnRecording(Lesson lesson) {
+        String recordingUrl = lesson.getRecordingUrl();
+        if (recordingUrl == null || recordingUrl.isBlank()) {
+            return;
+        }
+
+        // Check if URL is from Bunny CDN
+        if (bunnyStorageService.isBunnyCdnUrl(recordingUrl)) {
+            String filename = bunnyStorageService.extractFilenameFromUrl(recordingUrl);
+            if (filename != null) {
+                boolean deleted = bunnyStorageService.deleteRecording(filename);
+                if (deleted) {
+                    log.info("Deleted recording from Bunny CDN for lesson {}: {}", lesson.getId(), filename);
+                } else {
+                    log.warn("Failed to delete recording from Bunny CDN for lesson {}: {}", lesson.getId(), filename);
+                }
+            }
+        }
     }
 
     /**
@@ -549,12 +482,6 @@ public class LessonService {
 
         LocalDateTime now = LocalDateTime.now();
         lesson.setTeacherJoinedAt(now);
-
-        // Pour les cours découverte, enregistrer le moment du premier accès
-        // pour que le chrono soit persistant même si on quitte/revient
-        if (Boolean.TRUE.equals(lesson.getIsFreeTrial()) && lesson.getFreeTrialStartedAt() == null) {
-            lesson.setFreeTrialStartedAt(now);
-        }
 
         lessonRepository.save(lesson);
 

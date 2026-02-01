@@ -96,7 +96,6 @@ export class BookLessonComponent implements OnInit {
   success = signal(false);
   selectedSlot = signal<TimeSlot | null>(null);
   selectedCourse = signal<Course | null>(null);
-  useFreeTrialSignal = signal(true);
   payWithCreditSignal = signal(false);
 
   // Embedded checkout
@@ -129,15 +128,6 @@ export class BookLessonComponent implements OnInit {
     return grade.courses;
   });
 
-  // Free trial eligibility (student eligible AND teacher accepts free trial)
-  freeTrialEligible = this.lessonService.freeTrialEligible;
-
-  // Can use free trial: student eligible AND selected teacher accepts free trials
-  canUseFreeTrial = computed(() => {
-    const teacher = this.teacherService.selectedTeacher();
-    return this.freeTrialEligible() && teacher?.acceptsFreeTrial === true;
-  });
-
   // Check if user has enough credit for the lesson
   canPayWithCredit = computed(() => {
     const teacher = this.teacherService.selectedTeacher();
@@ -156,18 +146,10 @@ export class BookLessonComponent implements OnInit {
     return Array.from(this.slotsByDate().keys()).sort();
   });
 
-  // Check if one-time payment is required (always true unless free trial)
+  // Check if one-time payment is required
   requiresPayment = computed(() => {
     const teacher = this.teacherService.selectedTeacher();
-    if (!teacher) return false;
-
-    // If can use free trial (eligible + teacher accepts) and user wants to use it, no payment required
-    if (this.canUseFreeTrial() && this.useFreeTrialSignal()) {
-      return false;
-    }
-
-    // All lessons require payment at coach's rate
-    return true;
+    return !!teacher;
   });
 
   private urlValidator = inject(UrlValidatorService);
@@ -201,9 +183,6 @@ export class BookLessonComponent implements OnInit {
         this.loadAvailableSlots(+teacherId);
       });
     }
-
-    // Check free trial eligibility
-    this.lessonService.checkFreeTrialEligibility().subscribe();
 
     // Load wallet balance
     this.walletService.loadBalance().subscribe();
@@ -302,10 +281,6 @@ export class BookLessonComponent implements OnInit {
     return this.learningPathService.getGradeColor(grade as any);
   }
 
-  toggleFreeTrial(value: boolean): void {
-    this.useFreeTrialSignal.set(value);
-  }
-
   togglePayWithCredit(value: boolean): void {
     this.payWithCreditSignal.set(value);
   }
@@ -328,29 +303,6 @@ export class BookLessonComponent implements OnInit {
     const courseId = currentCourse.id;
 
     this.loading.set(true);
-
-    // If can use free trial (eligible + teacher accepts) and user wants it, book free trial
-    if (this.canUseFreeTrial() && this.useFreeTrialSignal()) {
-      this.lessonService.bookFreeTrialLesson({
-        teacherId: teacher.id,
-        scheduledAt,
-        notes,
-        useSubscription: false,
-        courseId
-      }).subscribe({
-        next: () => {
-          this.success.set(true);
-          this.loading.set(false);
-          setTimeout(() => {
-            this.router.navigate(['/dashboard']);
-          }, 2000);
-        },
-        error: () => {
-          this.loading.set(false);
-        }
-      });
-      return;
-    }
 
     // Pay with credit
     if (this.payWithCreditSignal() && this.canPayWithCredit()) {

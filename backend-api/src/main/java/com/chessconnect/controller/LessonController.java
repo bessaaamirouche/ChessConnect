@@ -106,38 +106,6 @@ public class LessonController {
     }
 
     /**
-     * Check if current student is eligible for a free trial lesson.
-     */
-    @GetMapping("/free-trial/eligible")
-    @PreAuthorize("hasRole('STUDENT')")
-    public ResponseEntity<Map<String, Boolean>> checkFreeTrialEligibility(
-            @AuthenticationPrincipal UserDetailsImpl userDetails
-    ) {
-        boolean eligible = lessonService.isEligibleForFreeTrial(userDetails.getId());
-        return ResponseEntity.ok(Map.of("eligible", eligible));
-    }
-
-    /**
-     * Book a free trial lesson (first lesson is free for new students).
-     */
-    @PostMapping("/free-trial/book")
-    @PreAuthorize("hasRole('STUDENT')")
-    public ResponseEntity<?> bookFreeTrialLesson(
-            @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @Valid @RequestBody BookLessonRequest request
-    ) {
-        try {
-            LessonResponse response = lessonService.bookFreeTrialLesson(userDetails.getId(), request);
-            return ResponseEntity.ok(response);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(Map.of(
-                    "success", false,
-                    "error", e.getMessage()
-            ));
-        }
-    }
-
-    /**
      * Mark that the teacher has joined the video call.
      * This allows the student to see the "Accéder" button.
      */

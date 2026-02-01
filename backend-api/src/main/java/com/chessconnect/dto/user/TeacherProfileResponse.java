@@ -19,7 +19,6 @@ public class TeacherProfileResponse {
     // Teacher fields
     private Integer hourlyRateCents;
     private Boolean acceptsSubscription;
-    private Boolean acceptsFreeTrial;
     private String bio;
     private String avatarUrl;
     private List<String> languages;

@@ -43,7 +43,6 @@ public record RegisterRequest(
         @Min(value = 1000, message = "Hourly rate must be at least 10€")
         @Max(value = 50000, message = "Hourly rate must not exceed 500€")
         Integer hourlyRateCents,
-        Boolean acceptsFreeTrial,
         @Size(max = 2000, message = "Bio must not exceed 2000 characters")
         String bio,
         @Size(max = 10, message = "Maximum 10 languages allowed")

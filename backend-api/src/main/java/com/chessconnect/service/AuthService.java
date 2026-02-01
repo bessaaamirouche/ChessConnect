@@ -72,9 +72,12 @@ public class AuthService {
         user.setEmailVerified(false); // Require email verification
 
         if (request.role() == UserRole.TEACHER) {
+            // Validate required bio for teachers
+            if (request.bio() == null || request.bio().trim().length() < 20) {
+                throw new IllegalArgumentException("La biographie est obligatoire (minimum 20 caracteres)");
+            }
             user.setHourlyRateCents(request.hourlyRateCents() != null ? request.hourlyRateCents() : 5000);
-            user.setAcceptsFreeTrial(request.acceptsFreeTrial() != null ? request.acceptsFreeTrial() : true);
-            user.setBio(request.bio());
+            user.setBio(request.bio().trim());
             // Save languages for teachers
             if (request.languages() != null && !request.languages().isEmpty()) {
                 user.setLanguages(String.join(",", request.languages()));

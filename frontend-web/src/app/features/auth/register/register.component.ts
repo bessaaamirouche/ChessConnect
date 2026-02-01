@@ -22,6 +22,17 @@ function nameValidator(control: AbstractControl): ValidationErrors | null {
   return null;
 }
 
+// Custom email validator - accepts hyphens, dots, underscores, and plus signs in local part
+function emailValidator(control: AbstractControl): ValidationErrors | null {
+  const value = control.value;
+  if (!value) return null;
+  const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  if (!emailPattern.test(value)) {
+    return { email: true };
+  }
+  return null;
+}
+
 @Component({
   selector: 'app-register',
   standalone: true,
@@ -64,17 +75,21 @@ export class RegisterComponent {
     this.registerForm = this.fb.group({
       firstName: ['', [Validators.required, Validators.minLength(2), nameValidator]],
       lastName: ['', [Validators.required, Validators.minLength(2), nameValidator]],
-      email: ['', [Validators.required, Validators.email]],
+      email: ['', [Validators.required, emailValidator]],
       password: ['', [Validators.required, Validators.minLength(8)]],
       role: ['STUDENT', Validators.required],
       // Teacher fields
       hourlyRate: [50],
-      acceptsFreeTrial: [true],
       bio: [''],
       // Student fields
       birthDate: [''],
       eloRating: [null],
       knowsElo: [false]
+    });
+
+    // Update bio validation when role changes
+    this.registerForm.get('role')?.valueChanges.subscribe(role => {
+      this.updateBioValidation(role);
     });
   }
 
@@ -109,6 +124,17 @@ export class RegisterComponent {
   selectRole(role: UserRole): void {
     this.selectedRole.set(role);
     this.registerForm.patchValue({ role });
+    this.updateBioValidation(role);
+  }
+
+  private updateBioValidation(role: UserRole): void {
+    const bioControl = this.registerForm.get('bio');
+    if (role === 'TEACHER') {
+      bioControl?.setValidators([Validators.required, Validators.minLength(20)]);
+    } else {
+      bioControl?.clearValidators();
+    }
+    bioControl?.updateValueAndValidity();
   }
 
   onSubmit(): void {
@@ -123,7 +149,6 @@ export class RegisterComponent {
     const formValue = { ...this.registerForm.value };
     if (formValue.role === 'STUDENT') {
       delete formValue.hourlyRate;
-      delete formValue.acceptsFreeTrial;
       delete formValue.bio;
       // Handle ELO - only include if user knows it
       if (!formValue.knowsElo || !formValue.eloRating) {

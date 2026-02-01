@@ -28,8 +28,10 @@ export class AdminLayoutComponent {
         { label: 'Utilisateurs', icon: 'heroUsers', route: '/admin/users' },
         { label: 'Cours', icon: 'heroCalendarDays', route: '/admin/lessons' },
         { label: 'Comptabilité', icon: 'heroBanknotes', route: '/admin/accounting' },
+        { label: 'Stripe Connect', icon: 'heroCreditCard', route: '/admin/stripe-connect' },
         { label: 'Factures', icon: 'heroDocumentText', route: '/admin/invoices' },
-        { label: 'Blog', icon: 'heroNewspaper', route: '/admin/blog' }
+        { label: 'Blog', icon: 'heroNewspaper', route: '/admin/blog' },
+        { label: 'Messages', icon: 'heroChatBubbleLeftRight', route: '/admin/messages' }
       ]
     },
     {

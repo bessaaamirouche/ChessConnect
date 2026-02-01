@@ -27,7 +27,8 @@ import {
   heroExclamationTriangle,
   heroWallet,
   heroStar,
-  heroBookOpen
+  heroBookOpen,
+  heroChatBubbleLeftRight
 } from '@ng-icons/heroicons/outline';
 import { heroStarSolid } from '@ng-icons/heroicons/solid';
 import { AuthService } from '../../../core/services/auth.service';
@@ -79,7 +80,8 @@ export interface SidebarSection {
       heroWallet,
       heroStar,
       heroStarSolid,
-      heroBookOpen
+      heroBookOpen,
+      heroChatBubbleLeftRight
     })
   ],
   template: `

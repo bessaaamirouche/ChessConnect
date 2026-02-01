@@ -36,23 +36,8 @@
             </div>
           </div>
 
-          <!-- Free Trial Banner (only if student eligible AND teacher accepts) -->
-          @if (canUseFreeTrial()) {
-            <div class="free-trial-banner">
-              <div class="free-trial-banner__icon">
-                <ng-icon name="heroGift" size="24"></ng-icon>
-              </div>
-              <div class="free-trial-banner__content">
-                <strong>Premier cours offert !</strong>
-                <p>Profitez de votre premier cours gratuit pour découvrir mychess</p>
-              </div>
-              <ng-icon name="heroSparkles" size="20" class="free-trial-banner__sparkle"></ng-icon>
-            </div>
-          }
-
           <!-- Payment Info -->
-          @if (!canUseFreeTrial()) {
-            <div class="subscription-info">
+          <div class="subscription-info">
               <div class="subscription-info__card subscription-info__card--payment">
                 <span class="subscription-info__icon"><ng-icon name="heroBanknotes" size="18"></ng-icon></span>
                 <div>
@@ -86,7 +71,6 @@
                 </div>
               </div>
             }
-          }
 
           <!-- Error -->
           <div class="alert-inline-container">
@@ -216,47 +200,31 @@
               <div class="price-summary__row">
                 <span>Prix</span>
                 <span class="price-summary__value">
-                  @if (canUseFreeTrial() && useFreeTrialSignal()) {
-                    <span class="price-summary__free">GRATUIT</span>
-                    <span class="price-summary__original">{{ formatPrice(teacherService.selectedTeacher()?.hourlyRateCents) }}</span>
-                  } @else {
-                    {{ formatPrice(teacherService.selectedTeacher()?.hourlyRateCents) }}
-                  }
+                  {{ formatPrice(teacherService.selectedTeacher()?.hourlyRateCents) }}
                 </span>
               </div>
             </div>
 
             <button
               type="submit"
-              class="btn btn--block"
-              [class.btn--primary]="!canUseFreeTrial() || !useFreeTrialSignal()"
-              [class.btn--free-trial]="canUseFreeTrial() && useFreeTrialSignal()"
+              class="btn btn--block btn--primary"
               [class.btn--credit]="payWithCreditSignal() && canPayWithCredit()"
               [disabled]="!selectedSlot() || !programmeService.currentCourse() || loading()"
             >
               @if (loading()) {
                 <span class="spinner spinner--sm"></span>
-                @if (canUseFreeTrial() && useFreeTrialSignal()) {
-                  Réservation...
-                } @else if (payWithCreditSignal() && canPayWithCredit()) {
+                @if (payWithCreditSignal() && canPayWithCredit()) {
                   Paiement...
-                } @else if (requiresPayment()) {
-                  Redirection...
                 } @else {
-                  Réservation...
+                  Redirection...
                 }
               } @else {
-                @if (canUseFreeTrial() && useFreeTrialSignal()) {
-                  <ng-icon name="heroGift" size="18"></ng-icon>
-                  Réserver mon cours gratuit
-                } @else if (payWithCreditSignal() && canPayWithCredit()) {
+                @if (payWithCreditSignal() && canPayWithCredit()) {
                   <ng-icon name="heroWallet" size="18"></ng-icon>
                   Payer avec mon crédit
-                } @else if (requiresPayment()) {
+                } @else {
                   <ng-icon name="heroCreditCard" size="18"></ng-icon>
                   Payer {{ formatPrice(teacherService.selectedTeacher()?.hourlyRateCents) }}
-                } @else {
-                  Confirmer
                 }
               }
               </button>

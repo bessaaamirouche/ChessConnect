@@ -161,4 +161,22 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
     // Find active lessons for teacher/student by status (for admin deletion with refund)
     List<Lesson> findByTeacherIdAndStatusIn(Long teacherId, Collection<LessonStatus> statuses);
     List<Lesson> findByStudentIdAndStatusIn(Long studentId, Collection<LessonStatus> statuses);
+
+    // Admin: Find lessons with messages/notes for review
+    @Query("SELECT l FROM Lesson l " +
+           "LEFT JOIN FETCH l.student " +
+           "LEFT JOIN FETCH l.teacher " +
+           "WHERE l.createdAt BETWEEN :startDate AND :endDate " +
+           "AND (l.notes IS NOT NULL AND l.notes <> '' " +
+           "  OR l.teacherObservations IS NOT NULL AND l.teacherObservations <> '' " +
+           "  OR l.teacherComment IS NOT NULL AND l.teacherComment <> '') " +
+           "AND (:teacherId IS NULL OR l.teacher.id = :teacherId) " +
+           "AND (:studentId IS NULL OR l.student.id = :studentId) " +
+           "ORDER BY l.createdAt DESC")
+    List<Lesson> findLessonsWithMessages(
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate,
+            @Param("teacherId") Long teacherId,
+            @Param("studentId") Long studentId
+    );
 }

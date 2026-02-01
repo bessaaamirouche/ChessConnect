@@ -1,0 +1,568 @@
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  OnDestroy,
+  OnInit,
+  ChangeDetectionStrategy,
+  signal,
+  computed,
+  inject
+} from '@angular/core';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { NgIconComponent, provideIcons } from '@ng-icons/core';
+import {
+  heroXMark,
+  heroPlay,
+  heroPause,
+  heroSpeakerWave,
+  heroSpeakerXMark,
+  heroArrowsPointingOut,
+  heroArrowDownTray,
+  heroForward,
+  heroBackward
+} from '@ng-icons/heroicons/outline';
+import { heroPlaySolid } from '@ng-icons/heroicons/solid';
+import Hls from 'hls.js';
+import { VideoProgressService } from '../../../core/services/video-progress.service';
+import { AuthService } from '../../../core/services/auth.service';
+
+@Component({
+  selector: 'app-video-player',
+  standalone: true,
+  imports: [NgIconComponent],
+  viewProviders: [provideIcons({
+    heroXMark,
+    heroPlay,
+    heroPause,
+    heroSpeakerWave,
+    heroSpeakerXMark,
+    heroArrowsPointingOut,
+    heroArrowDownTray,
+    heroForward,
+    heroBackward,
+    heroPlaySolid
+  })],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: './video-player.component.html',
+  styleUrl: './video-player.component.scss'
+})
+export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
+  @Input() url!: string;
+  @Input() videoId?: string | number | null; // Unique identifier for saving progress
+  @Input() title = 'Enregistrement du cours';
+  @Input() teacherName?: string;
+  @Input() lessonDate?: string;
+  @Input() downloadUrl?: string;
+  @Output() close = new EventEmitter<void>();
+
+  private readonly PROGRESS_STORAGE_KEY = 'video_progress_';
+  private readonly SAVE_INTERVAL = 5000; // Save every 5 seconds
+  private readonly RESUME_THRESHOLD = 10; // Don't save if less than 10 seconds
+  private readonly COMPLETION_THRESHOLD = 0.95; // Consider complete at 95%
+  private saveProgressInterval: any;
+
+  @ViewChild('videoElement') videoElement?: ElementRef<HTMLVideoElement>;
+  @ViewChild('playerContainer') playerContainer?: ElementRef<HTMLDivElement>;
+
+  // Signals for reactive state
+  isPlaying = signal(false);
+  isMuted = signal(false);
+  isFullscreen = signal(false);
+  currentTime = signal(0);
+  duration = signal(0);
+  volume = signal(1);
+  isLoading = signal(true);
+  hasError = signal(false);
+  showControls = signal(true);
+  savedProgressTime = signal<number | null>(null); // For resume indicator
+
+  // Computed values
+  progress = computed(() => {
+    const dur = this.duration();
+    return dur > 0 ? (this.currentTime() / dur) * 100 : 0;
+  });
+
+  formattedCurrentTime = computed(() => this.formatTime(this.currentTime()));
+  formattedDuration = computed(() => this.formatTime(this.duration()));
+
+  // Bunny Stream detection
+  isBunnyStream = signal(false);
+  bunnyEmbedUrl = signal<SafeResourceUrl | null>(null);
+
+  private hls: Hls | null = null;
+  private controlsTimeout: any;
+
+  private sanitizer = inject(DomSanitizer);
+  private videoProgressService = inject(VideoProgressService);
+  private authService = inject(AuthService);
+
+  ngOnInit(): void {
+    this.detectBunnyStream();
+    this.checkSavedProgress();
+  }
+
+  private checkSavedProgress(): void {
+    const lessonId = this.getNumericLessonId();
+
+    // If authenticated, fetch from backend first
+    if (lessonId && this.authService.isAuthenticated()) {
+      this.videoProgressService.getProgress(lessonId).subscribe(progress => {
+        if (progress.watchPosition && progress.watchPosition > this.RESUME_THRESHOLD && !progress.completed) {
+          this.savedProgressTime.set(progress.watchPosition);
+        }
+      });
+      return;
+    }
+
+    // Fallback to localStorage
+    const key = this.getStorageKey();
+    if (!key) return;
+
+    try {
+      const savedData = localStorage.getItem(key);
+      if (savedData) {
+        const progressData = JSON.parse(savedData);
+        if (progressData.time && progressData.time > this.RESUME_THRESHOLD) {
+          this.savedProgressTime.set(progressData.time);
+        }
+      }
+    } catch {
+      // Ignore invalid data
+    }
+  }
+
+  private getNumericLessonId(): number | null {
+    if (!this.videoId) return null;
+    const id = typeof this.videoId === 'string' ? parseInt(this.videoId, 10) : this.videoId;
+    return isNaN(id) ? null : id;
+  }
+
+  ngAfterViewInit(): void {
+    if (!this.isBunnyStream()) {
+      this.initializePlayer();
+    }
+    this.setupKeyboardControls();
+  }
+
+  ngOnDestroy(): void {
+    // Save progress before destroying
+    this.saveProgress();
+    this.destroyPlayer();
+    if (this.controlsTimeout) {
+      clearTimeout(this.controlsTimeout);
+    }
+    if (this.saveProgressInterval) {
+      clearInterval(this.saveProgressInterval);
+    }
+    document.removeEventListener('keydown', this.handleKeydown);
+  }
+
+  private detectBunnyStream(): void {
+    if (!this.url) return;
+
+    // Bunny Stream URL patterns:
+    // - iframe.mediadelivery.net/embed/{library_id}/{video_id}
+    // - video.bunnycdn.com/{library_id}/{video_id}
+    // - {pull_zone}.b-cdn.net/{video_id}/playlist.m3u8
+
+    if (this.url.includes('mediadelivery.net') || this.url.includes('bunnycdn.com')) {
+      this.isBunnyStream.set(true);
+
+      // If it's already an embed URL, use it directly
+      if (this.url.includes('/embed/')) {
+        this.bunnyEmbedUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(this.url));
+      } else {
+        // Convert to embed URL if possible
+        const embedUrl = this.convertToBunnyEmbed(this.url);
+        if (embedUrl) {
+          this.bunnyEmbedUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(embedUrl));
+        } else {
+          // Fall back to HLS player
+          this.isBunnyStream.set(false);
+        }
+      }
+    } else if (this.url.includes('.b-cdn.net') && this.url.includes('playlist.m3u8')) {
+      // This is a Bunny CDN HLS stream - use native player
+      this.isBunnyStream.set(false);
+    }
+  }
+
+  private convertToBunnyEmbed(url: string): string | null {
+    // Try to extract library and video IDs from various URL formats
+    const patterns = [
+      /video\.bunnycdn\.com\/(\w+)\/(\w+)/,
+      /(\w+)\.b-cdn\.net\/(\w+)\//
+    ];
+
+    for (const pattern of patterns) {
+      const match = url.match(pattern);
+      if (match) {
+        const [, libraryId, videoId] = match;
+        return `https://iframe.mediadelivery.net/embed/${libraryId}/${videoId}?autoplay=true&preload=true`;
+      }
+    }
+    return null;
+  }
+
+  private initializePlayer(): void {
+    console.log('[VideoPlayer] initializePlayer called, url:', this.url, 'videoId:', this.videoId);
+    const video = this.videoElement?.nativeElement;
+    if (!video || !this.url) {
+      console.log('[VideoPlayer] initializePlayer: no video element or url');
+      return;
+    }
+
+    // Set up video event listeners
+    video.addEventListener('loadedmetadata', () => {
+      this.duration.set(video.duration);
+      this.isLoading.set(false);
+      // Restore saved progress after metadata is loaded
+      this.restoreProgress();
+    });
+
+    video.addEventListener('timeupdate', () => {
+      this.currentTime.set(video.currentTime);
+    });
+
+    video.addEventListener('play', () => {
+      this.isPlaying.set(true);
+      // Clear resume hint once playing
+      this.savedProgressTime.set(null);
+    });
+    video.addEventListener('pause', () => {
+      this.isPlaying.set(false);
+      // Save progress when paused
+      this.saveProgress();
+    });
+    video.addEventListener('ended', () => {
+      this.isPlaying.set(false);
+      // Clear progress when video ends
+      this.clearProgress();
+    });
+    video.addEventListener('waiting', () => this.isLoading.set(true));
+    video.addEventListener('canplay', () => this.isLoading.set(false));
+    video.addEventListener('error', () => {
+      this.hasError.set(true);
+      this.isLoading.set(false);
+    });
+
+    // Start periodic progress saving
+    this.startProgressSaving();
+
+    // Check if URL is HLS (.m3u8)
+    const isHls = this.url.includes('.m3u8');
+
+    if (isHls) {
+      if (Hls.isSupported()) {
+        this.hls = new Hls({
+          enableWorker: true,
+          lowLatencyMode: false,
+        });
+        this.hls.loadSource(this.url);
+        this.hls.attachMedia(video);
+        this.hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          video.play().catch(() => {});
+        });
+        this.hls.on(Hls.Events.ERROR, (_, data) => {
+          if (data.fatal) {
+            if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
+              this.hls?.startLoad();
+            } else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
+              this.hls?.recoverMediaError();
+            } else {
+              this.hasError.set(true);
+            }
+          }
+        });
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = this.url;
+        video.play().catch(() => {});
+      } else {
+        const mp4Url = this.url.replace('/playlist.m3u8', '/play_720p.mp4');
+        video.src = mp4Url;
+        video.play().catch(() => {});
+      }
+    } else {
+      video.src = this.url;
+      video.play().catch(() => {});
+    }
+  }
+
+  private destroyPlayer(): void {
+    if (this.hls) {
+      this.hls.destroy();
+      this.hls = null;
+    }
+  }
+
+  private setupKeyboardControls(): void {
+    document.addEventListener('keydown', this.handleKeydown);
+  }
+
+  private handleKeydown = (e: KeyboardEvent): void => {
+    if (this.isBunnyStream()) return;
+
+    const video = this.videoElement?.nativeElement;
+    if (!video) return;
+
+    switch (e.key) {
+      case ' ':
+      case 'k':
+        e.preventDefault();
+        this.togglePlay();
+        break;
+      case 'ArrowLeft':
+        e.preventDefault();
+        this.skip(-10);
+        break;
+      case 'ArrowRight':
+        e.preventDefault();
+        this.skip(10);
+        break;
+      case 'm':
+        e.preventDefault();
+        this.toggleMute();
+        break;
+      case 'f':
+        e.preventDefault();
+        this.toggleFullscreen();
+        break;
+      case 'Escape':
+        if (this.isFullscreen()) {
+          this.toggleFullscreen();
+        } else {
+          this.close.emit();
+        }
+        break;
+    }
+  };
+
+  // Player controls
+  togglePlay(): void {
+    const video = this.videoElement?.nativeElement;
+    if (!video) return;
+
+    if (video.paused) {
+      video.play();
+    } else {
+      video.pause();
+    }
+  }
+
+  toggleMute(): void {
+    const video = this.videoElement?.nativeElement;
+    if (!video) return;
+
+    video.muted = !video.muted;
+    this.isMuted.set(video.muted);
+  }
+
+  setVolume(event: Event): void {
+    const video = this.videoElement?.nativeElement;
+    const input = event.target as HTMLInputElement;
+    if (!video) return;
+
+    const value = parseFloat(input.value);
+    video.volume = value;
+    this.volume.set(value);
+    this.isMuted.set(value === 0);
+  }
+
+  seek(event: MouseEvent): void {
+    const video = this.videoElement?.nativeElement;
+    const progressBar = event.currentTarget as HTMLElement;
+    if (!video) return;
+
+    const rect = progressBar.getBoundingClientRect();
+    const pos = (event.clientX - rect.left) / rect.width;
+    video.currentTime = pos * video.duration;
+  }
+
+  skip(seconds: number): void {
+    const video = this.videoElement?.nativeElement;
+    if (!video) return;
+
+    video.currentTime = Math.max(0, Math.min(video.currentTime + seconds, video.duration));
+  }
+
+  toggleFullscreen(): void {
+    const container = this.playerContainer?.nativeElement;
+    if (!container) return;
+
+    if (!document.fullscreenElement) {
+      container.requestFullscreen?.();
+      this.isFullscreen.set(true);
+    } else {
+      document.exitFullscreen?.();
+      this.isFullscreen.set(false);
+    }
+  }
+
+  onMouseMove(): void {
+    this.showControls.set(true);
+    if (this.controlsTimeout) {
+      clearTimeout(this.controlsTimeout);
+    }
+    this.controlsTimeout = setTimeout(() => {
+      if (this.isPlaying()) {
+        this.showControls.set(false);
+      }
+    }, 3000);
+  }
+
+  download(): void {
+    const url = this.downloadUrl || this.url;
+    if (url) {
+      window.open(url, '_blank');
+    }
+  }
+
+  formatTime(seconds: number): string {
+    if (isNaN(seconds)) return '0:00';
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  }
+
+  // Progress saving methods
+  private getStorageKey(): string | null {
+    if (!this.videoId) return null;
+    return `${this.PROGRESS_STORAGE_KEY}${this.videoId}`;
+  }
+
+  private saveProgress(): void {
+    const video = this.videoElement?.nativeElement;
+    if (!video || isNaN(video.currentTime) || isNaN(video.duration)) {
+      console.log('[VideoPlayer] saveProgress: no video element or invalid time');
+      return;
+    }
+
+    const currentTime = video.currentTime;
+    const duration = video.duration;
+
+    // Don't save if video just started
+    if (currentTime < this.RESUME_THRESHOLD) {
+      console.log('[VideoPlayer] saveProgress: skipping, currentTime < threshold', currentTime);
+      return;
+    }
+
+    // Check if video is essentially complete
+    const isComplete = duration > 0 && currentTime / duration >= this.COMPLETION_THRESHOLD;
+
+    // Save to backend if authenticated
+    const lessonId = this.getNumericLessonId();
+    console.log('[VideoPlayer] saveProgress:', { lessonId, currentTime, duration, isComplete, isAuth: this.authService.isAuthenticated() });
+
+    if (lessonId && this.authService.isAuthenticated()) {
+      if (isComplete) {
+        this.videoProgressService.saveProgress(lessonId, currentTime, duration, true).subscribe();
+      } else {
+        this.videoProgressService.saveProgress(lessonId, currentTime, duration, false).subscribe();
+      }
+    } else {
+      console.log('[VideoPlayer] saveProgress: not saving to backend, lessonId:', lessonId, 'isAuth:', this.authService.isAuthenticated());
+    }
+
+    // Also save to localStorage as fallback
+    const key = this.getStorageKey();
+    if (!key) return;
+
+    if (isComplete) {
+      localStorage.removeItem(key);
+      return;
+    }
+
+    const progressData = {
+      time: currentTime,
+      duration: duration,
+      updatedAt: Date.now()
+    };
+    localStorage.setItem(key, JSON.stringify(progressData));
+  }
+
+  private restoreProgress(): void {
+    const video = this.videoElement?.nativeElement;
+    if (!video) return;
+
+    const lessonId = this.getNumericLessonId();
+
+    // If authenticated, restore from backend
+    if (lessonId && this.authService.isAuthenticated()) {
+      this.videoProgressService.getProgress(lessonId).subscribe(progress => {
+        if (progress.watchPosition && progress.watchPosition > this.RESUME_THRESHOLD && !progress.completed) {
+          this.seekToPosition(video, progress.watchPosition);
+        }
+      });
+      return;
+    }
+
+    // Fallback to localStorage
+    const key = this.getStorageKey();
+    if (!key) return;
+
+    try {
+      const savedData = localStorage.getItem(key);
+      if (!savedData) return;
+
+      const progressData = JSON.parse(savedData);
+      const savedTime = progressData.time;
+
+      if (savedTime && savedTime > this.RESUME_THRESHOLD) {
+        this.seekToPosition(video, savedTime);
+      }
+    } catch (e) {
+      localStorage.removeItem(key);
+    }
+  }
+
+  private seekToPosition(video: HTMLVideoElement, position: number): void {
+    const seekToSavedTime = () => {
+      if (video.duration && position < video.duration * this.COMPLETION_THRESHOLD) {
+        video.currentTime = position;
+        this.currentTime.set(position);
+      }
+    };
+
+    if (video.readyState >= 1) {
+      seekToSavedTime();
+    } else {
+      video.addEventListener('loadedmetadata', seekToSavedTime, { once: true });
+    }
+  }
+
+  private startProgressSaving(): void {
+    console.log('[VideoPlayer] startProgressSaving, videoId:', this.videoId);
+    if (!this.videoId) {
+      console.log('[VideoPlayer] No videoId, not starting progress saving');
+      return;
+    }
+
+    // Save progress periodically
+    this.saveProgressInterval = setInterval(() => {
+      if (this.isPlaying()) {
+        this.saveProgress();
+      }
+    }, this.SAVE_INTERVAL);
+  }
+
+  private clearProgress(): void {
+    // Mark as completed on backend
+    const lessonId = this.getNumericLessonId();
+    if (lessonId && this.authService.isAuthenticated()) {
+      const video = this.videoElement?.nativeElement;
+      const duration = video?.duration || 0;
+      this.videoProgressService.saveProgress(lessonId, duration, duration, true).subscribe();
+    }
+
+    // Clear localStorage
+    const key = this.getStorageKey();
+    if (key) {
+      localStorage.removeItem(key);
+    }
+  }
+}

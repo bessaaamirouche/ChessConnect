@@ -53,6 +53,7 @@
   max-width: 480px;
   padding: var(--space-sm);
   margin-top: 0;
+  overflow: visible !important; // Allow calendar dropdown to show
 
   @include respond-to(sm) {
     padding: var(--space-md);

@@ -20,7 +20,6 @@ public class UpdateProfileRequest {
     // Teacher fields
     private Integer hourlyRateCents;
     private Boolean acceptsSubscription;
-    private Boolean acceptsFreeTrial;
     private String bio;
     private List<String> languages;
 

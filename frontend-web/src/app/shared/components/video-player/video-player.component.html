@@ -1,0 +1,161 @@
+<div class="video-overlay" (click)="close.emit()">
+  <div class="video-modal" (click)="$event.stopPropagation()">
+    <!-- Header -->
+    <div class="video-header">
+      <div class="video-header__info">
+        <h3>{{ title }}</h3>
+        @if (teacherName || lessonDate) {
+          <p class="video-header__meta">
+            @if (teacherName) {
+              <span>{{ teacherName }}</span>
+            }
+            @if (teacherName && lessonDate) {
+              <span class="separator">•</span>
+            }
+            @if (lessonDate) {
+              <span>{{ lessonDate }}</span>
+            }
+          </p>
+        }
+      </div>
+      <div class="video-header__actions">
+        @if (downloadUrl) {
+          <button class="video-btn video-btn--icon" (click)="download()" title="Telecharger">
+            <ng-icon name="heroArrowDownTray" size="20"></ng-icon>
+          </button>
+        }
+        <button class="video-btn video-btn--icon video-btn--close" (click)="close.emit()" title="Fermer">
+          <ng-icon name="heroXMark" size="24"></ng-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- Player Container -->
+    <div
+      #playerContainer
+      class="video-container"
+      [class.video-container--fullscreen]="isFullscreen()"
+      (mousemove)="onMouseMove()"
+    >
+      <!-- Bunny Stream Embed -->
+      @if (isBunnyStream() && bunnyEmbedUrl()) {
+        <iframe
+          [src]="bunnyEmbedUrl()"
+          class="bunny-iframe"
+          loading="lazy"
+          allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture"
+          allowfullscreen
+        ></iframe>
+      } @else {
+        <!-- Native Video Player -->
+        <video
+          #videoElement
+          class="video-element"
+          playsinline
+          (click)="togglePlay()"
+        >
+          Votre navigateur ne supporte pas la lecture de videos.
+        </video>
+
+        <!-- Loading Spinner -->
+        @if (isLoading()) {
+          <div class="video-loader">
+            <div class="spinner spinner--lg"></div>
+          </div>
+        }
+
+        <!-- Error State -->
+        @if (hasError()) {
+          <div class="video-error">
+            <p>Impossible de charger la video</p>
+            <button class="btn btn--primary btn--sm" (click)="close.emit()">Fermer</button>
+          </div>
+        }
+
+        <!-- Play Button Overlay -->
+        @if (!isPlaying() && !isLoading() && !hasError()) {
+          <button class="video-play-overlay" (click)="togglePlay()">
+            <div class="video-play-btn">
+              <ng-icon name="heroPlaySolid" size="48"></ng-icon>
+            </div>
+            @if (savedProgressTime()) {
+              <div class="video-resume-hint">
+                Reprendre a {{ formatTime(savedProgressTime()!) }}
+              </div>
+            }
+          </button>
+        }
+
+        <!-- Controls -->
+        <div class="video-controls" [class.video-controls--visible]="showControls() || !isPlaying()">
+          <!-- Progress Bar -->
+          <div class="video-progress" (click)="seek($event)">
+            <div class="video-progress__track">
+              <div class="video-progress__fill" [style.width.%]="progress()"></div>
+            </div>
+          </div>
+
+          <!-- Control Buttons -->
+          <div class="video-controls__row">
+            <div class="video-controls__left">
+              <!-- Play/Pause -->
+              <button class="video-btn" (click)="togglePlay()" [title]="isPlaying() ? 'Pause' : 'Lecture'">
+                <ng-icon [name]="isPlaying() ? 'heroPause' : 'heroPlay'" size="24"></ng-icon>
+              </button>
+
+              <!-- Skip Backward -->
+              <button class="video-btn" (click)="skip(-10)" title="Reculer de 10s">
+                <ng-icon name="heroBackward" size="20"></ng-icon>
+              </button>
+
+              <!-- Skip Forward -->
+              <button class="video-btn" (click)="skip(10)" title="Avancer de 10s">
+                <ng-icon name="heroForward" size="20"></ng-icon>
+              </button>
+
+              <!-- Volume -->
+              <div class="video-volume">
+                <button class="video-btn" (click)="toggleMute()" [title]="isMuted() ? 'Activer le son' : 'Couper le son'">
+                  <ng-icon [name]="isMuted() ? 'heroSpeakerXMark' : 'heroSpeakerWave'" size="20"></ng-icon>
+                </button>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.1"
+                  [value]="volume()"
+                  (input)="setVolume($event)"
+                  class="video-volume__slider"
+                >
+              </div>
+
+              <!-- Time -->
+              <div class="video-time">
+                <span>{{ formattedCurrentTime() }}</span>
+                <span class="separator">/</span>
+                <span>{{ formattedDuration() }}</span>
+              </div>
+            </div>
+
+            <div class="video-controls__right">
+              <!-- Fullscreen -->
+              <button class="video-btn" (click)="toggleFullscreen()" title="Plein ecran">
+                <ng-icon name="heroArrowsPointingOut" size="20"></ng-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Keyboard Shortcuts Hint -->
+    @if (!isBunnyStream()) {
+      <div class="video-hints">
+        <span><kbd>Espace</kbd> Lecture/Pause</span>
+        <span><kbd>←</kbd><kbd>→</kbd> ±10s</span>
+        <span><kbd>M</kbd> Muet</span>
+        <span><kbd>F</kbd> Plein ecran</span>
+      </div>
+    }
+  </div>
+</div>

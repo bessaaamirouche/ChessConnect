@@ -1,6 +1,7 @@
 package com.chessconnect.repository;
 
 import com.chessconnect.model.UserNotification;
+import com.chessconnect.model.enums.NotificationType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -41,4 +42,7 @@ public interface UserNotificationRepository extends JpaRepository<UserNotificati
 
     @Query("SELECT n FROM UserNotification n WHERE n.user.id = :userId ORDER BY n.createdAt DESC")
     List<UserNotification> findByUserIdOrderByCreatedAtDescAll(@Param("userId") Long userId);
+
+    // Check if a notification of this type and link already exists for the user
+    boolean existsByUserIdAndTypeAndLinkAndIsReadFalse(Long userId, NotificationType type, String link);
 }

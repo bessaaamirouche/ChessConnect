@@ -474,3 +474,182 @@
     flex-direction: column;
   }
 }
+
+// Trial Banner
+.trial-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  background: linear-gradient(135deg, rgba(212, 168, 75, 0.15) 0%, rgba(212, 168, 75, 0.05) 100%);
+  border: 2px solid var(--gold-400);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-lg);
+
+  &__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, var(--gold-400), var(--gold-500));
+    border-radius: var(--radius-full);
+    color: var(--text-inverse);
+    flex-shrink: 0;
+  }
+
+  &__content {
+    flex: 1;
+
+    strong {
+      display: block;
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--gold-400);
+      margin-bottom: var(--space-xs);
+    }
+
+    p {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      margin: 0;
+    }
+  }
+
+  &__btn {
+    flex-shrink: 0;
+    align-self: center;
+  }
+
+  &--free {
+    flex-wrap: wrap;
+  }
+
+  @media (max-width: 600px) {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+
+    &__btn {
+      width: 100%;
+    }
+  }
+}
+
+// Trial Success Banner
+.trial-success-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(34, 197, 94, 0.05) 100%);
+  border: 2px solid var(--success-500);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-lg);
+
+  ng-icon {
+    color: var(--success-500);
+    flex-shrink: 0;
+  }
+
+  strong {
+    display: block;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--success-500);
+    margin-bottom: var(--space-xs);
+  }
+
+  p {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+
+  .btn {
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 600px) {
+    flex-direction: column;
+    text-align: center;
+
+    .btn {
+      margin-left: 0;
+      width: 100%;
+    }
+  }
+}
+
+// Active Subscription Card - Trial variant
+.active-subscription-card--trial {
+  border-color: var(--gold-400);
+  background: linear-gradient(135deg, rgba(212, 168, 75, 0.08) 0%, var(--bg-secondary) 100%);
+}
+
+.active-subscription-card__badge--trial {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: linear-gradient(135deg, var(--gold-400), var(--gold-500));
+  padding: 4px var(--space-sm);
+  font-size: 0.75rem;
+}
+
+.active-subscription-card__trial-info {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  background: rgba(212, 168, 75, 0.1);
+  border: 1px solid rgba(212, 168, 75, 0.3);
+  border-radius: var(--radius-sm);
+  color: var(--gold-400);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+
+  ng-icon {
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  strong {
+    color: var(--gold-300);
+  }
+}
+
+.active-subscription-card__cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--border-subtle);
+
+  p {
+    margin: 0;
+    font-size: 0.875rem;
+  }
+}
+
+// Gold button for trial
+.btn--gold {
+  background: linear-gradient(135deg, var(--gold-400), var(--gold-500));
+  color: var(--text-inverse);
+  font-weight: 600;
+  border: none;
+
+  &:hover {
+    background: linear-gradient(135deg, var(--gold-500), var(--gold-400));
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(212, 168, 75, 0.3);
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+}

@@ -178,6 +178,47 @@ public class PaymentController {
                 .orElse(ResponseEntity.noContent().build());
     }
 
+    // Check if user is eligible for 14-day free trial (with Stripe - requires card)
+    @GetMapping("/subscription/trial-eligible")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<Map<String, Boolean>> checkTrialEligibility(
+            @AuthenticationPrincipal UserDetailsImpl userDetails
+    ) {
+        boolean eligible = subscriptionService.isEligibleForTrial(userDetails.getId());
+        return ResponseEntity.ok(Map.of("eligible", eligible));
+    }
+
+    // Get free trial status (without card)
+    @GetMapping("/subscription/free-trial")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<Map<String, Object>> getFreeTrialStatus(
+            @AuthenticationPrincipal UserDetailsImpl userDetails
+    ) {
+        Map<String, Object> status = subscriptionService.getTrialStatus(userDetails.getId());
+        return ResponseEntity.ok(status);
+    }
+
+    // Start 14-day free premium trial (no card required)
+    @PostMapping("/subscription/free-trial/start")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<Map<String, Object>> startFreeTrial(
+            @AuthenticationPrincipal UserDetailsImpl userDetails
+    ) {
+        try {
+            subscriptionService.startFreeTrial(userDetails.getId());
+            Map<String, Object> status = subscriptionService.getTrialStatus(userDetails.getId());
+            status.put("success", true);
+            status.put("message", "Essai gratuit de 14 jours activé !");
+            return ResponseEntity.ok(status);
+        } catch (RuntimeException e) {
+            log.error("Error starting free trial for user {}", userDetails.getId(), e);
+            return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "error", e.getMessage()
+            ));
+        }
+    }
+
     // Get subscription history
     @GetMapping("/subscription/history")
     @PreAuthorize("hasRole('STUDENT')")

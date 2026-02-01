@@ -62,7 +62,10 @@ public class SubscriptionService {
             throw new RuntimeException("User already has an active subscription");
         }
 
-        Session session = stripeService.createCheckoutSession(user, plan, null, embedded);
+        // Offer 14-day free trial if user has never subscribed before
+        boolean isFirstTimeSubscriber = subscriptionRepository.findByStudentIdOrderByCreatedAtDesc(userId).isEmpty();
+
+        Session session = stripeService.createCheckoutSession(user, plan, null, embedded, isFirstTimeSubscriber);
 
         CheckoutSessionResponse.CheckoutSessionResponseBuilder responseBuilder = CheckoutSessionResponse.builder()
                 .sessionId(session.getId())
@@ -75,6 +78,14 @@ public class SubscriptionService {
         }
 
         return responseBuilder.build();
+    }
+
+    /**
+     * Check if a user is eligible for the 14-day free trial.
+     * Users who have never subscribed before are eligible.
+     */
+    public boolean isEligibleForTrial(Long userId) {
+        return subscriptionRepository.findByStudentIdOrderByCreatedAtDesc(userId).isEmpty();
     }
 
     @Transactional
@@ -172,15 +183,93 @@ public class SubscriptionService {
     }
 
     /**
-     * Check if a user has an active Premium subscription.
+     * Check if a user has an active Premium subscription OR an active free trial.
      * This is the main method to check for Premium features access.
      */
     public boolean isPremium(Long userId) {
-        return !subscriptionRepository.findActiveSubscriptionsByStudentId(userId).isEmpty();
+        // Check for active paid subscription
+        if (!subscriptionRepository.findActiveSubscriptionsByStudentId(userId).isEmpty()) {
+            return true;
+        }
+
+        // Check for active free trial (without card)
+        User user = userRepository.findById(userId).orElse(null);
+        if (user != null && user.hasActivePremiumTrial()) {
+            return true;
+        }
+
+        return false;
     }
 
     public boolean hasActiveSubscription(Long userId) {
-        return isPremium(userId);
+        return !subscriptionRepository.findActiveSubscriptionsByStudentId(userId).isEmpty();
+    }
+
+    /**
+     * Check if a user is eligible for the free trial without credit card.
+     * Users who have never had a trial AND never had a subscription are eligible.
+     */
+    public boolean isEligibleForFreeTrial(Long userId) {
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) return false;
+
+        // Already had a trial
+        if (user.getPremiumTrialEnd() != null) {
+            return false;
+        }
+
+        // Already had a subscription
+        if (!subscriptionRepository.findByStudentIdOrderByCreatedAtDesc(userId).isEmpty()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Start a 14-day free premium trial without requiring a credit card.
+     */
+    @Transactional
+    public void startFreeTrial(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!isEligibleForFreeTrial(userId)) {
+            throw new RuntimeException("User is not eligible for free trial");
+        }
+
+        // Set trial end date to 14 days from now
+        user.setPremiumTrialEnd(LocalDate.now().plusDays(14));
+        userRepository.save(user);
+
+        log.info("Started 14-day free Premium trial for user {} (ends {})",
+                userId, user.getPremiumTrialEnd());
+    }
+
+    /**
+     * Get trial status for a user.
+     */
+    public Map<String, Object> getTrialStatus(Long userId) {
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) {
+            return Map.of("hasActiveTrial", false, "eligible", false);
+        }
+
+        boolean hasActiveTrial = user.hasActivePremiumTrial();
+        boolean eligible = isEligibleForFreeTrial(userId);
+        LocalDate trialEnd = user.getPremiumTrialEnd();
+
+        Map<String, Object> result = new java.util.HashMap<>();
+        result.put("hasActiveTrial", hasActiveTrial);
+        result.put("eligible", eligible);
+        result.put("trialEndDate", trialEnd);
+
+        if (hasActiveTrial && trialEnd != null) {
+            long daysRemaining = java.time.temporal.ChronoUnit.DAYS.between(LocalDate.now(), trialEnd);
+            result.put("daysRemaining", daysRemaining);
+        }
+
+        return result;
     }
 
     /**

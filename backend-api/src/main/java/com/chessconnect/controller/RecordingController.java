@@ -4,6 +4,8 @@ import com.chessconnect.model.Lesson;
 import com.chessconnect.model.User;
 import com.chessconnect.repository.LessonRepository;
 import com.chessconnect.repository.UserRepository;
+import com.chessconnect.service.BunnyStorageService;
+import com.chessconnect.service.BunnyStreamService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,11 +23,13 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,7 +43,9 @@ public class RecordingController {
     // Whitelist of allowed domains for recording URLs
     private static final Set<String> ALLOWED_URL_DOMAINS = Set.of(
             "meet.mychess.fr",
-            "mychess.fr"
+            "mychess.fr",
+            "vz-34fe20be-093.b-cdn.net",  // Bunny Stream CDN
+            "mychess.b-cdn.net"           // Bunny Storage CDN
     );
 
     // Pattern for valid filenames (alphanumeric, hyphens, underscores, .mp4 extension)
@@ -50,13 +56,18 @@ public class RecordingController {
 
     private final LessonRepository lessonRepository;
     private final UserRepository userRepository;
+    private final BunnyStreamService bunnyStreamService;
+    private final BunnyStorageService bunnyStorageService;
 
     @Value("${jibri.webhook-secret:}")
     private String webhookSecret;
 
-    public RecordingController(LessonRepository lessonRepository, UserRepository userRepository) {
+    public RecordingController(LessonRepository lessonRepository, UserRepository userRepository,
+                               BunnyStreamService bunnyStreamService, BunnyStorageService bunnyStorageService) {
         this.lessonRepository = lessonRepository;
         this.userRepository = userRepository;
+        this.bunnyStreamService = bunnyStreamService;
+        this.bunnyStorageService = bunnyStorageService;
     }
 
     /**
@@ -127,7 +138,61 @@ public class RecordingController {
             return ResponseEntity.ok().body("Lesson not found");
         }
 
-        // Validate and sanitize the video URL
+        // Find the local video file
+        File localFile = findRecordingFile(lessonId);
+
+        // Priority 1: Upload to Bunny Storage CDN (simple file hosting)
+        if (bunnyStorageService.isConfigured() && localFile != null && localFile.exists()) {
+            final Long finalLessonId = lessonId;
+            final File finalLocalFile = localFile;
+
+            // Upload asynchronously to not block the webhook response
+            CompletableFuture.runAsync(() -> {
+                try {
+                    String cdnFilename = bunnyStorageService.generateRecordingFilename(finalLessonId);
+                    byte[] fileBytes = Files.readAllBytes(finalLocalFile.toPath());
+                    String cdnUrl = bunnyStorageService.uploadRecording(fileBytes, cdnFilename);
+
+                    if (cdnUrl != null) {
+                        lesson.setRecordingUrl(cdnUrl);
+                        lessonRepository.save(lesson);
+                        log.info("Recording uploaded to Bunny CDN for lesson {}: {}", finalLessonId, cdnUrl);
+
+                        // Delete local file after successful upload
+                        try {
+                            Files.deleteIfExists(finalLocalFile.toPath());
+                            log.debug("Deleted local recording file after CDN upload: {}", finalLocalFile.getPath());
+                        } catch (Exception e) {
+                            log.warn("Could not delete local file after CDN upload: {}", e.getMessage());
+                        }
+                    } else {
+                        log.warn("Failed to upload to Bunny CDN, trying Bunny Stream for lesson {}", finalLessonId);
+                        // Fall back to Bunny Stream
+                        uploadToBunnyStreamFallback(lesson, finalLocalFile, finalLessonId, videoUrl, roomName, filename);
+                    }
+                } catch (Exception e) {
+                    log.error("Error uploading to Bunny CDN for lesson {}", finalLessonId, e);
+                    // Fall back to Bunny Stream
+                    uploadToBunnyStreamFallback(lesson, finalLocalFile, finalLessonId, videoUrl, roomName, filename);
+                }
+            });
+
+            log.info("Recording upload to Bunny CDN initiated for lesson {}", lessonId);
+            return ResponseEntity.ok().body("Recording upload initiated for lesson " + lessonId);
+        }
+
+        // Priority 2: Upload to Bunny Stream if Bunny Storage not configured
+        if (bunnyStreamService.isConfigured() && localFile != null && localFile.exists()) {
+            final Long finalLessonId = lessonId;
+            CompletableFuture.runAsync(() -> {
+                uploadToBunnyStreamFallback(lesson, localFile, finalLessonId, videoUrl, roomName, filename);
+            });
+
+            log.info("Recording upload to Bunny Stream initiated for lesson {}", lessonId);
+            return ResponseEntity.ok().body("Recording upload initiated for lesson " + lessonId);
+        }
+
+        // Fall back to local URL if no Bunny service configured or file not found
         String recordingUrl = sanitizeAndValidateUrl(videoUrl, roomName, filename);
         if (recordingUrl == null) {
             log.warn("Invalid video URL provided: {}", videoUrl);
@@ -139,6 +204,35 @@ public class RecordingController {
 
         log.info("Recording linked to lesson {}: {}", lessonId, recordingUrl);
         return ResponseEntity.ok().body("Recording linked to lesson " + lessonId);
+    }
+
+    /**
+     * Fallback method to upload to Bunny Stream if Bunny Storage fails.
+     */
+    private void uploadToBunnyStreamFallback(Lesson lesson, File localFile, Long lessonId,
+                                              String videoUrl, String roomName, String filename) {
+        try {
+            if (bunnyStreamService.isConfigured()) {
+                String title = "Cours " + lessonId + " - " + lesson.getTeacher().getFirstName() + " & " + lesson.getStudent().getFirstName();
+                String bunnyUrl = bunnyStreamService.uploadAndGetUrl(title, localFile);
+                if (bunnyUrl != null) {
+                    lesson.setRecordingUrl(bunnyUrl);
+                    lessonRepository.save(lesson);
+                    log.info("Recording uploaded to Bunny Stream for lesson {}: {}", lessonId, bunnyUrl);
+                    return;
+                }
+            }
+
+            // Final fallback to local URL
+            log.warn("Failed to upload to Bunny Stream, keeping local URL for lesson {}", lessonId);
+            String localUrl = sanitizeAndValidateUrl(videoUrl, roomName, filename);
+            if (localUrl != null) {
+                lesson.setRecordingUrl(localUrl);
+                lessonRepository.save(lesson);
+            }
+        } catch (Exception e) {
+            log.error("Error in Bunny Stream fallback for lesson {}", lessonId, e);
+        }
     }
 
     /**

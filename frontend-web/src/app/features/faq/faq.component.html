@@ -1,0 +1,111 @@
+<div class="faq-wrapper">
+  <!-- Navbar -->
+  <nav class="nav">
+    <div class="nav__container">
+      <a routerLink="/" class="nav__logo">
+        <img src="assets/logo.png" alt="myChess" class="nav__logo-img">
+      </a>
+
+      <!-- Mobile hamburger -->
+      <button class="nav__hamburger" [class.active]="mobileMenuOpen()" (click)="toggleMobileMenu()">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <!-- Mobile menu overlay -->
+      <div class="nav__mobile-overlay" [class.active]="mobileMenuOpen()" (click)="closeMobileMenu()"></div>
+
+      <!-- Desktop Pill Tabs Navigation -->
+      <div class="nav__pills">
+        <a routerLink="/" class="nav__pill">Accueil</a>
+        <a routerLink="/teachers" class="nav__pill">Nos coachs</a>
+        <a routerLink="/how-it-works" class="nav__pill">Comment ca marche ?</a>
+        <a routerLink="/blog" class="nav__pill">Blog</a>
+        @if (authService.isAuthenticated()) {
+          <a routerLink="/dashboard" class="nav__pill">Mon Espace</a>
+        } @else {
+          <a routerLink="/login" class="nav__pill">S'identifier</a>
+          <a routerLink="/register" class="nav__pill">S'inscrire</a>
+        }
+      </div>
+
+      <!-- Mobile Drawer Menu -->
+      <div class="nav__links" [class.active]="mobileMenuOpen()">
+        <a routerLink="/" (click)="closeMobileMenu()">Accueil</a>
+        <a routerLink="/teachers" (click)="closeMobileMenu()">Nos coachs</a>
+        <a routerLink="/how-it-works" (click)="closeMobileMenu()">Comment ca marche ?</a>
+        <a routerLink="/blog" (click)="closeMobileMenu()">Blog</a>
+
+        <div class="nav__mobile-actions">
+          @if (authService.isAuthenticated()) {
+            <a routerLink="/dashboard" class="nav__btn nav__btn--primary" (click)="closeMobileMenu()">Mon Espace</a>
+          } @else {
+            <a routerLink="/login" class="nav__btn nav__btn--ghost" (click)="closeMobileMenu()">S'identifier</a>
+            <a routerLink="/register" class="nav__btn nav__btn--primary" (click)="closeMobileMenu()">S'inscrire</a>
+          }
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="faq-page">
+    <header class="faq-header">
+      <ng-icon name="heroQuestionMarkCircle" size="48"></ng-icon>
+      <h1>Questions frequentes</h1>
+      <p>Trouvez rapidement les reponses a vos questions</p>
+    </header>
+
+    <nav class="faq-categories">
+      @for (cat of categories; track cat.id) {
+        <button
+          class="faq-category"
+          [class.faq-category--active]="activeCategory() === cat.id"
+          (click)="setCategory(cat.id)"
+        >
+          {{ cat.label }}
+        </button>
+      }
+    </nav>
+
+    <div class="faq-list">
+      @for (faq of filteredFaqs; track faq.question; let i = $index) {
+        <div class="faq-item" [class.faq-item--open]="openIndex() === i">
+          <button class="faq-item__question" (click)="toggleFaq(i)">
+            <span>{{ faq.question }}</span>
+            <ng-icon
+              [name]="openIndex() === i ? 'heroChevronUp' : 'heroChevronDown'"
+              size="20"
+            ></ng-icon>
+          </button>
+          @if (openIndex() === i) {
+            <div class="faq-item__answer">
+              <p>{{ faq.answer }}</p>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <section class="faq-contact">
+      <h2>Vous n'avez pas trouve votre reponse ?</h2>
+      <p>Notre equipe est la pour vous aider</p>
+      <a href="mailto:support@mychess.fr" class="btn btn--primary">
+        Contactez-nous
+      </a>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="faq-footer">
+    <div class="faq-footer__container">
+      <p>&copy; 2026 mychess. Tous droits reserves.</p>
+      <div class="faq-footer__links">
+        <a routerLink="/terms">CGU</a>
+        <a routerLink="/privacy">Confidentialite</a>
+        <a routerLink="/legal-notice">Mentions legales</a>
+      </div>
+    </div>
+  </footer>
+</div>

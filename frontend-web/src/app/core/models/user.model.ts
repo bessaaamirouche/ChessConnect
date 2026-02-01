@@ -21,7 +21,6 @@ export { TeacherBalanceResponse as TeacherBalance } from '@contracts';
 // Frontend-specific interfaces (not in backend DTOs)
 export interface UpdateTeacherProfileRequest {
   hourlyRateCents?: number;
-  acceptsFreeTrial?: boolean;
   bio?: string;
 }
 

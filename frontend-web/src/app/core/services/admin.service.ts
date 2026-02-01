@@ -153,4 +153,46 @@ export class AdminService {
     const params = new HttpParams().set('period', period);
     return this.http.get<AnalyticsResponse>(`${this.apiUrl}/analytics`, { params });
   }
+
+  // Stripe Connect
+  getStripeConnectAccounts(): Observable<StripeConnectAccount[]> {
+    return this.http.get<StripeConnectAccount[]>(`${this.apiUrl}/stripe-connect/accounts`);
+  }
+
+  getStripeAccountDetails(teacherId: number): Observable<StripeAccountDetails> {
+    return this.http.get<StripeAccountDetails>(`${this.apiUrl}/stripe-connect/accounts/${teacherId}`);
+  }
+
+  getExpressDashboardLink(teacherId: number): Observable<{ success: boolean; dashboardUrl?: string; message?: string }> {
+    return this.http.post<{ success: boolean; dashboardUrl?: string; message?: string }>(
+      `${this.apiUrl}/stripe-connect/accounts/${teacherId}/dashboard-link`, {}
+    );
+  }
+}
+
+export interface StripeConnectAccount {
+  teacherId: number;
+  teacherName: string;
+  teacherEmail: string;
+  stripeAccountId: string | null;
+  hasStripeAccount: boolean;
+  chargesEnabled?: boolean;
+  payoutsEnabled?: boolean;
+  detailsSubmitted?: boolean;
+  isReady: boolean;
+  pendingRequirements?: string;
+  stripeEmail?: string;
+  error?: string;
+}
+
+export interface StripeAccountDetails {
+  hasAccount: boolean;
+  teacherName: string;
+  accountId?: string;
+  email?: string;
+  chargesEnabled?: boolean;
+  payoutsEnabled?: boolean;
+  detailsSubmitted?: boolean;
+  isReady?: boolean;
+  pendingRequirements?: string;
 }

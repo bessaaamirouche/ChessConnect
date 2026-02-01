@@ -139,6 +139,14 @@ export const routes: Routes = [
     path: 'how-it-works',
     loadComponent: () => import('./features/how-it-works/how-it-works.component').then(m => m.HowItWorksComponent)
   },
+  {
+    path: 'pricing',
+    loadComponent: () => import('./features/pricing/pricing.component').then(m => m.PricingComponent)
+  },
+  {
+    path: 'faq',
+    loadComponent: () => import('./features/faq/faq.component').then(m => m.FaqComponent)
+  },
   // Legal pages
   {
     path: 'terms',

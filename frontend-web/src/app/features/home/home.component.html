@@ -36,12 +36,10 @@
            class="nav__pill"
            [class.nav__pill--active]="activeSection() === 'levels'"
            (click)="scrollToSection('levels')">Parcours</a>
-        <a href="#how-it-works"
-           class="nav__pill"
-           [class.nav__pill--active]="activeSection() === 'how-it-works'"
-           (click)="scrollToSection('how-it-works')">Fonctionnement</a>
+        <a routerLink="/how-it-works" class="nav__pill">Comment ca marche ?</a>
         <a routerLink="/teachers" class="nav__pill">Nos coachs</a>
         <a routerLink="/blog" class="nav__pill">Blog</a>
+        <a routerLink="/faq" class="nav__pill">FAQ</a>
         @if (authService.isAuthenticated()) {
           <a routerLink="/dashboard" class="nav__pill">Mon Espace</a>
         } @else {
@@ -54,9 +52,10 @@
       <div class="nav__links" [class.active]="mobileMenuOpen()">
         <a href="#features" (click)="scrollToSection('features'); closeMobileMenu()">Avantages</a>
         <a href="#levels" (click)="scrollToSection('levels'); closeMobileMenu()">Parcours</a>
-        <a href="#how-it-works" (click)="scrollToSection('how-it-works'); closeMobileMenu()">Fonctionnement</a>
+        <a routerLink="/how-it-works" (click)="closeMobileMenu()">Comment ca marche ?</a>
         <a routerLink="/teachers" (click)="closeMobileMenu()">Nos coachs</a>
         <a routerLink="/blog" (click)="closeMobileMenu()">Blog</a>
+        <a routerLink="/faq" (click)="closeMobileMenu()">FAQ</a>
 
         <!-- Mobile-only auth buttons -->
         <div class="nav__mobile-actions">
@@ -157,9 +156,9 @@
             <div class="feature-card__icon">
               <ng-icon name="heroShieldCheck" size="32"></ng-icon>
             </div>
-            <h3 class="feature-card__title">Premier cours offert</h3>
+            <h3 class="feature-card__title">Essai Premium gratuit</h3>
             <p class="feature-card__desc">
-              Testez sans engagement. Paiement sécurisé par Stripe pour les cours suivants.
+              14 jours d'accès Premium offerts. Paiement sécurisé par Stripe.
             </p>
           </div>
         </div>
@@ -179,56 +178,39 @@
           <div class="level-item" appScrollReveal="fade-left">
             <div class="level-item__badge level-item__badge--pion">&#9823;</div>
             <div class="level-item__content">
-              <span class="level-item__tag">Débutant</span>
+              <span class="level-item__tag">Debutant</span>
               <h3 class="level-item__title">Pion</h3>
-              <p class="level-item__desc">Découvrez l'échiquier et ses secrets. Premiers pas vers la maîtrise du jeu.</p>
+              <p class="level-item__desc">Decouvrez l'echiquier et ses secrets. Premiers pas vers la maitrise du jeu.</p>
             </div>
           </div>
 
           <div class="level-item level-item--right" appScrollReveal="fade-right">
             <div class="level-item__badge level-item__badge--cavalier">&#9822;</div>
             <div class="level-item__content">
-              <span class="level-item__tag">Intermédiaire</span>
+              <span class="level-item__tag">Intermediaire</span>
               <h3 class="level-item__title">Cavalier</h3>
               <p class="level-item__desc">Dominez le centre et construisez des positions solides. L'art de l'ouverture.</p>
             </div>
           </div>
 
           <div class="level-item" appScrollReveal="fade-left">
-            <div class="level-item__badge level-item__badge--fou">&#9821;</div>
+            <div class="level-item__badge level-item__badge--reine">&#9819;</div>
             <div class="level-item__content">
-              <span class="level-item__tag">Confirmé</span>
-              <h3 class="level-item__title">Fou</h3>
-              <p class="level-item__desc">Affûtez votre vision tactique. Anticipez et calculez comme un joueur aguerri.</p>
+              <span class="level-item__tag">Avance</span>
+              <h3 class="level-item__title">Reine</h3>
+              <p class="level-item__desc">Maitrisez les finales et les subtilites strategiques des grands joueurs.</p>
             </div>
           </div>
 
-          <div class="level-item level-item--right" appScrollReveal="fade-right">
-            <div class="level-item__badge level-item__badge--tour">&#9820;</div>
-            <div class="level-item__content">
-              <span class="level-item__tag">Avancé</span>
-              <h3 class="level-item__title">Tour</h3>
-              <p class="level-item__desc">Maîtrisez les finales et les subtilités stratégiques des grands joueurs.</p>
-            </div>
-          </div>
-
-          <div class="level-item level-item--right" appScrollReveal="fade-right">
-            <div class="level-item__badge level-item__badge--dame">&#9819;</div>
-            <div class="level-item__content">
-              <span class="level-item__tag">Expert</span>
-              <h3 class="level-item__title">Dame</h3>
-              <p class="level-item__desc">Jouez au plus haut niveau. Préparation sur mesure pour la compétition.</p>
-            </div>
-          </div>
-
-          <div class="level-item level-item--featured" appScrollReveal="scale-up">
+          <div class="level-item level-item--right level-item--featured" appScrollReveal="fade-right">
             <div class="level-item__badge level-item__badge--roi">&#9818;</div>
             <div class="level-item__content">
-              <span class="level-item__tag">Maître</span>
+              <span class="level-item__tag">Expert</span>
               <h3 class="level-item__title">Roi</h3>
-              <p class="level-item__desc">Le sommet de l'excellence. Maîtrisez les secrets des grands maîtres.</p>
+              <p class="level-item__desc">Le sommet de l'excellence. Jouez au plus haut niveau comme les grands maitres.</p>
             </div>
           </div>
+
         </div>
 
         <div class="section__cta" appScrollReveal="fade-up">
@@ -278,7 +260,7 @@
             <div class="step__number">03</div>
             <div class="step__content">
               <h3 class="step__title">Réservez votre cours</h3>
-              <p class="step__desc">Sélectionnez un créneau et commencez votre premier cours - c'est offert !</p>
+              <p class="step__desc">Sélectionnez un créneau et commencez votre apprentissage avec 14 jours Premium offerts !</p>
             </div>
             <div class="step__visual">
               <div class="step__icon">
@@ -312,19 +294,21 @@
           <div class="footer__column">
             <h4>Ressources</h4>
             <a routerLink="/blog">Blog</a>
-            <a href="#">FAQ</a>
-            <a href="#">Support</a>
+            <a routerLink="/how-it-works">Comment ca marche ?</a>
+            <a routerLink="/faq">FAQ</a>
           </div>
 
           <div class="footer__column">
-            <h4>Contact</h4>
+            <h4>Suivez-nous</h4>
             <a href="mailto:support@mychess.fr">support&#64;mychess.fr</a>
-            <div class="footer__socials">
-              <a href="https://www.instagram.com/mychess_learning" target="_blank" rel="noopener noreferrer" aria-label="Instagram" class="footer__social-link">
+            <div class="footer__instagram">
+              <a href="https://www.instagram.com/mychess_learning" target="_blank" rel="noopener noreferrer" class="footer__social-link">
                 <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
                   <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
                 </svg>
+                <span>&#64;mychess_learning</span>
               </a>
+              <img src="assets/qr-instagram.png" alt="QR Code Instagram mychess" class="footer__qr-code" loading="lazy">
             </div>
           </div>
         </div>
@@ -343,7 +327,7 @@
     </div>
   </footer>
 
-  <!-- Free Trial Popup Banner -->
+  <!-- Premium Trial Popup Banner -->
   @if (showPromoPopup()) {
     <div class="promo-popup" [class.promo-popup--expanded]="promoExpanded()">
       @if (!promoExpanded()) {
@@ -358,7 +342,7 @@
         </button>
         <div class="promo-popup__content">
           <ng-icon name="heroGift" size="18"></ng-icon>
-          <span>Premier cours <strong>gratuit</strong> pour les 100 premiers inscrits !</span>
+          <span>Essayez l'offre Premium <strong>gratuitement</strong> pendant 14 jours !</span>
           <a routerLink="/register" class="promo-popup__btn">J'en profite</a>
         </div>
       }

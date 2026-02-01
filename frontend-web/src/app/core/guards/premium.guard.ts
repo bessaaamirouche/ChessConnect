@@ -2,7 +2,7 @@ import { inject } from '@angular/core';
 import { Router, CanActivateFn } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { PaymentService } from '../services/payment.service';
-import { map, catchError, of } from 'rxjs';
+import { map, catchError, of, forkJoin } from 'rxjs';
 
 export const premiumGuard: CanActivateFn = () => {
   const authService = inject(AuthService);
@@ -21,8 +21,11 @@ export const premiumGuard: CanActivateFn = () => {
     return false;
   }
 
-  // Check for active subscription
-  return paymentService.loadActiveSubscription().pipe(
+  // Check for active subscription OR active trial
+  return forkJoin([
+    paymentService.loadActiveSubscription(),
+    paymentService.loadFreeTrialStatus()
+  ]).pipe(
     map(() => {
       if (paymentService.hasActiveSubscription()) {
         return true;

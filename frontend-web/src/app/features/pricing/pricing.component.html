@@ -1,0 +1,318 @@
+<div class="pricing-wrapper">
+  <!-- Navbar -->
+  <nav class="nav">
+    <div class="nav__container">
+      <a routerLink="/" class="nav__logo">
+        <img src="assets/logo.png" alt="myChess" class="nav__logo-img">
+      </a>
+
+      <!-- Mobile hamburger -->
+      <button class="nav__hamburger" [class.active]="mobileMenuOpen()" (click)="toggleMobileMenu()">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <!-- Mobile menu overlay -->
+      <div class="nav__mobile-overlay" [class.active]="mobileMenuOpen()" (click)="closeMobileMenu()"></div>
+
+      <!-- Desktop Pill Tabs Navigation -->
+      <div class="nav__pills">
+        <a routerLink="/" class="nav__pill">Accueil</a>
+        <a routerLink="/teachers" class="nav__pill">Nos coachs</a>
+        <a routerLink="/how-it-works" class="nav__pill">Comment ca marche ?</a>
+        <a routerLink="/blog" class="nav__pill">Blog</a>
+        @if (authService.isAuthenticated()) {
+          <a routerLink="/dashboard" class="nav__pill">Mon Espace</a>
+        } @else {
+          <a routerLink="/login" class="nav__pill">S'identifier</a>
+          <a routerLink="/register" class="nav__pill">S'inscrire</a>
+        }
+      </div>
+
+      <!-- Mobile Drawer Menu -->
+      <div class="nav__links" [class.active]="mobileMenuOpen()">
+        <a routerLink="/" (click)="closeMobileMenu()">Accueil</a>
+        <a routerLink="/teachers" (click)="closeMobileMenu()">Nos coachs</a>
+        <a routerLink="/how-it-works" (click)="closeMobileMenu()">Comment ca marche ?</a>
+        <a routerLink="/blog" (click)="closeMobileMenu()">Blog</a>
+
+        <div class="nav__mobile-actions">
+          @if (authService.isAuthenticated()) {
+            <a routerLink="/dashboard" class="nav__btn nav__btn--primary" (click)="closeMobileMenu()">Mon Espace</a>
+          } @else {
+            <a routerLink="/login" class="nav__btn nav__btn--ghost" (click)="closeMobileMenu()">S'identifier</a>
+            <a routerLink="/register" class="nav__btn nav__btn--primary" (click)="closeMobileMenu()">S'inscrire</a>
+          }
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="pricing-page">
+    <!-- Hero Section -->
+    <section class="pricing-hero">
+      <div class="pricing-hero__content">
+        <span class="pricing-hero__badge">
+          <ng-icon name="heroSparkles" size="16"></ng-icon>
+          Premium
+        </span>
+        <h1 class="pricing-hero__title">Passez au niveau superieur</h1>
+        <p class="pricing-hero__subtitle">
+          Debloquez toutes les fonctionnalites exclusives pour accelerer votre progression aux echecs
+        </p>
+      </div>
+    </section>
+
+    <!-- Pricing Card -->
+    <section class="pricing-section">
+      <div class="pricing-card">
+        <div class="pricing-card__header">
+          <h2 class="pricing-card__name">Abonnement Premium</h2>
+          <div class="pricing-card__price">
+            <span class="pricing-card__price-amount">4,99 &euro;</span>
+            <span class="pricing-card__price-period">/mois</span>
+          </div>
+          <p class="pricing-card__tagline">Sans engagement - Annulez a tout moment</p>
+        </div>
+
+        <div class="pricing-card__trial">
+          <ng-icon name="heroGift" size="20"></ng-icon>
+          <span><strong>14 jours d'essai gratuit</strong> - Aucune carte bancaire requise</span>
+        </div>
+
+        <div class="pricing-card__cta">
+          @if (authService.isAuthenticated() && authService.isStudent()) {
+            <a routerLink="/subscription" class="btn btn--primary btn--lg">
+              <ng-icon name="heroSparkles" size="18"></ng-icon>
+              Commencer l'essai gratuit
+            </a>
+          } @else if (authService.isAuthenticated()) {
+            <p class="text-muted">L'abonnement Premium est reserve aux joueurs</p>
+          } @else {
+            <a routerLink="/register" class="btn btn--primary btn--lg">
+              <ng-icon name="heroSparkles" size="18"></ng-icon>
+              S'inscrire et essayer gratuitement
+            </a>
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- Benefits Section -->
+    <section class="benefits-section">
+      <h2 class="section-title">Les avantages Premium</h2>
+      <p class="section-subtitle">Tout ce dont vous avez besoin pour progresser rapidement</p>
+
+      <div class="benefits-grid">
+        <!-- Benefit 1: Video Recordings -->
+        <div class="benefit-card">
+          <div class="benefit-card__icon benefit-card__icon--video">
+            <ng-icon name="heroVideoCamera" size="32"></ng-icon>
+          </div>
+          <h3 class="benefit-card__title">Revisionnage illimite</h3>
+          <p class="benefit-card__description">
+            Accedez aux enregistrements video de tous vos cours passes. Revisez les parties analysees,
+            les ouvertures et les finales a votre rythme, autant de fois que necessaire.
+          </p>
+          <ul class="benefit-card__features">
+            <li><ng-icon name="heroCheck" size="16"></ng-icon> Enregistrement automatique des cours</li>
+            <li><ng-icon name="heroCheck" size="16"></ng-icon> Stockage illimite</li>
+            <li><ng-icon name="heroCheck" size="16"></ng-icon> Accessible depuis l'historique</li>
+          </ul>
+        </div>
+
+        <!-- Benefit 2: Priority Notifications -->
+        <div class="benefit-card">
+          <div class="benefit-card__icon benefit-card__icon--bell">
+            <ng-icon name="heroBell" size="32"></ng-icon>
+          </div>
+          <h3 class="benefit-card__title">Notifications prioritaires</h3>
+          <p class="benefit-card__description">
+            Soyez le premier informe quand vos coachs favoris publient de nouveaux creneaux.
+            Ne manquez plus jamais une opportunite de reserver avec votre coach prefere.
+          </p>
+          <ul class="benefit-card__features">
+            <li><ng-icon name="heroCheck" size="16"></ng-icon> Alertes email instantanees</li>
+            <li><ng-icon name="heroCheck" size="16"></ng-icon> Coachs favoris illimites</li>
+            <li><ng-icon name="heroCheck" size="16"></ng-icon> Personnalisation des alertes</li>
+          </ul>
+        </div>
+
+        <!-- Benefit 3: Premium Badge -->
+        <div class="benefit-card">
+          <div class="benefit-card__icon benefit-card__icon--star">
+            <ng-icon name="heroStar" size="32"></ng-icon>
+          </div>
+          <h3 class="benefit-card__title">Badge Premium</h3>
+          <p class="benefit-card__description">
+            Affichez votre engagement avec un badge dore visible sur votre profil.
+            Montrez aux coachs que vous etes un joueur serieux et motive.
+          </p>
+          <ul class="benefit-card__features">
+            <li><ng-icon name="heroCheck" size="16"></ng-icon> Badge dore sur le profil</li>
+            <li><ng-icon name="heroCheck" size="16"></ng-icon> Visibilite aupres des coachs</li>
+            <li><ng-icon name="heroCheck" size="16"></ng-icon> Statut Premium affiche</li>
+          </ul>
+        </div>
+
+        <!-- Benefit 4: Training Bot -->
+        <div class="benefit-card">
+          <div class="benefit-card__icon benefit-card__icon--cpu">
+            <ng-icon name="heroCpuChip" size="32"></ng-icon>
+          </div>
+          <h3 class="benefit-card__title">Entrainement myChessBot</h3>
+          <p class="benefit-card__description">
+            Pratiquez contre notre moteur d'echecs integre apres chaque cours.
+            5 niveaux de difficulte adaptes a votre progression pour vous ameliorer continuellement.
+          </p>
+          <ul class="benefit-card__features">
+            <li><ng-icon name="heroCheck" size="16"></ng-icon> 5 niveaux de difficulte</li>
+            <li><ng-icon name="heroCheck" size="16"></ng-icon> Exercices lies aux cours</li>
+            <li><ng-icon name="heroCheck" size="16"></ng-icon> Evaluation en temps reel</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Comparison Section -->
+    <section class="comparison-section">
+      <h2 class="section-title">Gratuit vs Premium</h2>
+
+      <div class="comparison-table">
+        <div class="comparison-table__header">
+          <div class="comparison-table__feature-col">Fonctionnalite</div>
+          <div class="comparison-table__free-col">Gratuit</div>
+          <div class="comparison-table__premium-col">
+            <ng-icon name="heroSparkles" size="16"></ng-icon>
+            Premium
+          </div>
+        </div>
+
+        <div class="comparison-table__row">
+          <div class="comparison-table__feature">Reservation de cours</div>
+          <div class="comparison-table__free"><ng-icon name="heroCheck" size="18"></ng-icon></div>
+          <div class="comparison-table__premium"><ng-icon name="heroCheck" size="18"></ng-icon></div>
+        </div>
+
+        <div class="comparison-table__row">
+          <div class="comparison-table__feature">Visioconference Jitsi</div>
+          <div class="comparison-table__free"><ng-icon name="heroCheck" size="18"></ng-icon></div>
+          <div class="comparison-table__premium"><ng-icon name="heroCheck" size="18"></ng-icon></div>
+        </div>
+
+        <div class="comparison-table__row">
+          <div class="comparison-table__feature">Suivi de progression</div>
+          <div class="comparison-table__free"><ng-icon name="heroCheck" size="18"></ng-icon></div>
+          <div class="comparison-table__premium"><ng-icon name="heroCheck" size="18"></ng-icon></div>
+        </div>
+
+        <div class="comparison-table__row comparison-table__row--highlight">
+          <div class="comparison-table__feature">Revisionnage des cours</div>
+          <div class="comparison-table__free"><ng-icon name="heroXMark" size="18"></ng-icon></div>
+          <div class="comparison-table__premium"><ng-icon name="heroCheck" size="18"></ng-icon></div>
+        </div>
+
+        <div class="comparison-table__row comparison-table__row--highlight">
+          <div class="comparison-table__feature">Notifications prioritaires</div>
+          <div class="comparison-table__free"><ng-icon name="heroXMark" size="18"></ng-icon></div>
+          <div class="comparison-table__premium"><ng-icon name="heroCheck" size="18"></ng-icon></div>
+        </div>
+
+        <div class="comparison-table__row comparison-table__row--highlight">
+          <div class="comparison-table__feature">Badge Premium</div>
+          <div class="comparison-table__free"><ng-icon name="heroXMark" size="18"></ng-icon></div>
+          <div class="comparison-table__premium"><ng-icon name="heroCheck" size="18"></ng-icon></div>
+        </div>
+
+        <div class="comparison-table__row comparison-table__row--highlight">
+          <div class="comparison-table__feature">Entrainement myChessBot</div>
+          <div class="comparison-table__free"><ng-icon name="heroXMark" size="18"></ng-icon></div>
+          <div class="comparison-table__premium"><ng-icon name="heroCheck" size="18"></ng-icon></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq-section">
+      <h2 class="section-title">Questions frequentes</h2>
+
+      <div class="faq-list">
+        <div class="faq-item">
+          <h3 class="faq-item__question">
+            <ng-icon name="heroClock" size="20"></ng-icon>
+            Comment fonctionne l'essai gratuit ?
+          </h3>
+          <p class="faq-item__answer">
+            L'essai gratuit vous donne acces a toutes les fonctionnalites Premium pendant 14 jours,
+            sans avoir a entrer de carte bancaire. A la fin de l'essai, vous pouvez choisir de vous abonner ou non.
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <h3 class="faq-item__question">
+            <ng-icon name="heroCalendarDays" size="20"></ng-icon>
+            Puis-je annuler a tout moment ?
+          </h3>
+          <p class="faq-item__answer">
+            Oui, l'abonnement est sans engagement. Vous pouvez annuler a tout moment depuis votre espace abonnement.
+            Vous conserverez l'acces Premium jusqu'a la fin de la periode payee.
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <h3 class="faq-item__question">
+            <ng-icon name="heroShieldCheck" size="20"></ng-icon>
+            Le paiement est-il securise ?
+          </h3>
+          <p class="faq-item__answer">
+            Absolument. Nous utilisons Stripe, le leader mondial du paiement en ligne.
+            Vos donnees bancaires sont chiffrees et ne sont jamais stockees sur nos serveurs.
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <h3 class="faq-item__question">
+            <ng-icon name="heroArrowTrendingUp" size="20"></ng-icon>
+            Premium inclut-il des cours gratuits ?
+          </h3>
+          <p class="faq-item__answer">
+            Non, l'abonnement Premium donne acces aux fonctionnalites exclusives (revisionnage, notifications, etc.).
+            Les cours restent payes separement au tarif de chaque coach (30 a 80 EUR/h).
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Final CTA -->
+    <section class="final-cta">
+      <div class="final-cta__content">
+        <h2>Pret a progresser plus vite ?</h2>
+        <p>Rejoignez les joueurs Premium et accelerez votre apprentissage des echecs</p>
+        @if (authService.isAuthenticated() && authService.isStudent()) {
+          <a routerLink="/subscription" class="btn btn--primary btn--lg">
+            <ng-icon name="heroSparkles" size="18"></ng-icon>
+            Demarrer mon essai gratuit
+          </a>
+        } @else if (!authService.isAuthenticated()) {
+          <a routerLink="/register" class="btn btn--primary btn--lg">
+            Creer mon compte gratuit
+          </a>
+        }
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="pricing-footer">
+    <div class="pricing-footer__container">
+      <p>&copy; 2026 mychess. Tous droits reserves.</p>
+      <div class="pricing-footer__links">
+        <a routerLink="/terms">CGU</a>
+        <a routerLink="/privacy">Confidentialite</a>
+        <a routerLink="/legal-notice">Mentions legales</a>
+      </div>
+    </div>
+  </footer>
+</div>

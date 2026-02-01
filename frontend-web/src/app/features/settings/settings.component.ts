@@ -125,7 +125,6 @@ export class SettingsComponent implements OnInit {
       email: ['', [Validators.required, Validators.email]],
       // Teacher fields
       hourlyRate: [50],
-      acceptsFreeTrial: [true],
       bio: [''],
       // Teacher professional fields
       siret: [''],
@@ -177,7 +176,6 @@ export class SettingsComponent implements OnInit {
         lastName: user.lastName,
         email: user.email,
         hourlyRate: user.hourlyRateCents ? user.hourlyRateCents / 100 : 50,
-        acceptsFreeTrial: user.acceptsFreeTrial ?? true,
         bio: user.bio || '',
         // Professional fields
         siret: user.siret || '',
@@ -312,7 +310,6 @@ export class SettingsComponent implements OnInit {
 
     if (this.isTeacher()) {
       payload.hourlyRateCents = formValue.hourlyRate * 100;
-      payload.acceptsFreeTrial = formValue.acceptsFreeTrial;
       payload.bio = formValue.bio;
       payload.languages = this.selectedLanguages();
       // Professional fields

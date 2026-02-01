@@ -2,12 +2,24 @@ package com.chessconnect.controller;
 
 import com.chessconnect.dto.admin.*;
 import com.chessconnect.dto.lesson.LessonResponse;
+import com.chessconnect.model.Lesson;
 import com.chessconnect.model.Payment;
 import com.chessconnect.model.Subscription;
+import com.chessconnect.model.User;
+import com.chessconnect.model.enums.UserRole;
+import com.chessconnect.repository.LessonRepository;
+import com.chessconnect.repository.UserRepository;
 import com.chessconnect.service.AdminService;
 import com.chessconnect.service.AnalyticsService;
+import com.chessconnect.service.StripeConnectService;
 import com.chessconnect.service.StripeService;
 import com.chessconnect.service.WalletService;
+import com.stripe.exception.StripeException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -25,14 +37,28 @@ public class AdminController {
 
     private final AdminService adminService;
     private final StripeService stripeService;
+    private final StripeConnectService stripeConnectService;
     private final AnalyticsService analyticsService;
     private final WalletService walletService;
+    private final UserRepository userRepository;
+    private final LessonRepository lessonRepository;
 
-    public AdminController(AdminService adminService, StripeService stripeService, AnalyticsService analyticsService, WalletService walletService) {
+    public AdminController(
+            AdminService adminService,
+            StripeService stripeService,
+            StripeConnectService stripeConnectService,
+            AnalyticsService analyticsService,
+            WalletService walletService,
+            UserRepository userRepository,
+            LessonRepository lessonRepository
+    ) {
         this.adminService = adminService;
         this.stripeService = stripeService;
+        this.stripeConnectService = stripeConnectService;
         this.analyticsService = analyticsService;
         this.walletService = walletService;
+        this.userRepository = userRepository;
+        this.lessonRepository = lessonRepository;
     }
 
     // ============= USER MANAGEMENT =============
@@ -322,5 +348,264 @@ public class AdminController {
             @RequestParam(defaultValue = "day") String period
     ) {
         return ResponseEntity.ok(analyticsService.getAnalytics(period));
+    }
+
+    // ============= STRIPE CONNECT =============
+
+    /**
+     * Get all coaches with their Stripe Connect status.
+     */
+    @GetMapping("/stripe-connect/accounts")
+    public ResponseEntity<?> getStripeConnectAccounts() {
+        try {
+            List<User> teachers = userRepository.findByRole(UserRole.TEACHER);
+            List<Map<String, Object>> accounts = new java.util.ArrayList<>();
+
+            for (User teacher : teachers) {
+                Map<String, Object> accountInfo = new java.util.HashMap<>();
+                accountInfo.put("teacherId", teacher.getId());
+                accountInfo.put("teacherName", teacher.getFullName());
+                accountInfo.put("teacherEmail", teacher.getEmail());
+                accountInfo.put("stripeAccountId", teacher.getStripeConnectAccountId());
+                accountInfo.put("hasStripeAccount", teacher.getStripeConnectAccountId() != null);
+
+                if (teacher.getStripeConnectAccountId() != null) {
+                    try {
+                        var details = stripeConnectService.getAccountDetails(teacher.getStripeConnectAccountId());
+                        if (details != null) {
+                            accountInfo.put("chargesEnabled", details.chargesEnabled());
+                            accountInfo.put("payoutsEnabled", details.payoutsEnabled());
+                            accountInfo.put("detailsSubmitted", details.detailsSubmitted());
+                            accountInfo.put("isReady", details.payoutsEnabled() && details.detailsSubmitted());
+                            accountInfo.put("pendingRequirements", details.pendingRequirements());
+                            accountInfo.put("stripeEmail", details.email());
+                        }
+                    } catch (StripeException e) {
+                        accountInfo.put("error", "Erreur Stripe: " + e.getMessage());
+                    }
+                } else {
+                    accountInfo.put("isReady", false);
+                }
+
+                accounts.add(accountInfo);
+            }
+
+            return ResponseEntity.ok(accounts);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                "success", false,
+                "message", e.getMessage()
+            ));
+        }
+    }
+
+    /**
+     * Get Express Dashboard link for a specific coach.
+     */
+    @PostMapping("/stripe-connect/accounts/{teacherId}/dashboard-link")
+    public ResponseEntity<?> getExpressDashboardLink(@PathVariable Long teacherId) {
+        try {
+            User teacher = userRepository.findById(teacherId)
+                .orElseThrow(() -> new IllegalArgumentException("Coach non trouve"));
+
+            if (teacher.getStripeConnectAccountId() == null) {
+                return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "message", "Ce coach n'a pas de compte Stripe Connect"
+                ));
+            }
+
+            String dashboardUrl = stripeConnectService.createExpressDashboardLink(teacher.getStripeConnectAccountId());
+
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "dashboardUrl", dashboardUrl
+            ));
+        } catch (StripeException e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                "success", false,
+                "message", "Erreur Stripe: " + e.getMessage()
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                "success", false,
+                "message", e.getMessage()
+            ));
+        }
+    }
+
+    /**
+     * Get detailed Stripe account info for a specific coach.
+     */
+    @GetMapping("/stripe-connect/accounts/{teacherId}")
+    public ResponseEntity<?> getStripeAccountDetails(@PathVariable Long teacherId) {
+        try {
+            User teacher = userRepository.findById(teacherId)
+                .orElseThrow(() -> new IllegalArgumentException("Coach non trouve"));
+
+            if (teacher.getStripeConnectAccountId() == null) {
+                return ResponseEntity.ok(Map.of(
+                    "hasAccount", false,
+                    "teacherName", teacher.getFullName()
+                ));
+            }
+
+            var details = stripeConnectService.getAccountDetails(teacher.getStripeConnectAccountId());
+
+            return ResponseEntity.ok(Map.of(
+                "hasAccount", true,
+                "teacherName", teacher.getFullName(),
+                "accountId", details.accountId(),
+                "email", details.email() != null ? details.email() : "",
+                "chargesEnabled", details.chargesEnabled(),
+                "payoutsEnabled", details.payoutsEnabled(),
+                "detailsSubmitted", details.detailsSubmitted(),
+                "isReady", details.payoutsEnabled() && details.detailsSubmitted(),
+                "pendingRequirements", details.pendingRequirements() != null ? details.pendingRequirements() : ""
+            ));
+        } catch (StripeException e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                "success", false,
+                "message", "Erreur Stripe: " + e.getMessage()
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                "success", false,
+                "message", e.getMessage()
+            ));
+        }
+    }
+
+    // ============= MESSAGES / NOTES =============
+
+    /**
+     * Get all messages/notes from lessons for admin review.
+     * Filters: dateFrom, dateTo, teacherId, studentId
+     */
+    @GetMapping("/messages")
+    public ResponseEntity<?> getLessonMessages(
+            @RequestParam(required = false) String dateFrom,
+            @RequestParam(required = false) String dateTo,
+            @RequestParam(required = false) Long teacherId,
+            @RequestParam(required = false) Long studentId
+    ) {
+        try {
+            // Parse dates
+            LocalDateTime startDate = dateFrom != null ?
+                LocalDate.parse(dateFrom).atStartOfDay() :
+                LocalDateTime.now().minusMonths(3); // Default: last 3 months
+
+            LocalDateTime endDate = dateTo != null ?
+                LocalDate.parse(dateTo).atTime(23, 59, 59) :
+                LocalDateTime.now();
+
+            // Get lessons with messages
+            List<Lesson> lessons = lessonRepository.findLessonsWithMessages(
+                startDate, endDate, teacherId, studentId
+            );
+
+            // Map to response
+            List<Map<String, Object>> messages = new ArrayList<>();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+            for (Lesson lesson : lessons) {
+                // Add student notes if present
+                if (lesson.getNotes() != null && !lesson.getNotes().isBlank()) {
+                    Map<String, Object> noteMessage = new HashMap<>();
+                    noteMessage.put("id", lesson.getId());
+                    noteMessage.put("type", "NOTE_ETUDIANT");
+                    noteMessage.put("from", lesson.getStudent().getFullName());
+                    noteMessage.put("fromId", lesson.getStudent().getId());
+                    noteMessage.put("fromRole", "STUDENT");
+                    noteMessage.put("to", lesson.getTeacher().getFullName());
+                    noteMessage.put("toId", lesson.getTeacher().getId());
+                    noteMessage.put("toRole", "TEACHER");
+                    noteMessage.put("content", lesson.getNotes());
+                    noteMessage.put("date", lesson.getCreatedAt().format(formatter));
+                    noteMessage.put("lessonDate", lesson.getScheduledAt().format(formatter));
+                    noteMessage.put("lessonId", lesson.getId());
+                    messages.add(noteMessage);
+                }
+
+                // Add teacher observations if present
+                if (lesson.getTeacherObservations() != null && !lesson.getTeacherObservations().isBlank()) {
+                    Map<String, Object> obsMessage = new HashMap<>();
+                    obsMessage.put("id", lesson.getId() * 10 + 1);
+                    obsMessage.put("type", "OBSERVATION_COACH");
+                    obsMessage.put("from", lesson.getTeacher().getFullName());
+                    obsMessage.put("fromId", lesson.getTeacher().getId());
+                    obsMessage.put("fromRole", "TEACHER");
+                    obsMessage.put("to", lesson.getStudent().getFullName());
+                    obsMessage.put("toId", lesson.getStudent().getId());
+                    obsMessage.put("toRole", "STUDENT");
+                    obsMessage.put("content", lesson.getTeacherObservations());
+                    obsMessage.put("date", lesson.getUpdatedAt() != null ? lesson.getUpdatedAt().format(formatter) : lesson.getCreatedAt().format(formatter));
+                    obsMessage.put("lessonDate", lesson.getScheduledAt().format(formatter));
+                    obsMessage.put("lessonId", lesson.getId());
+                    messages.add(obsMessage);
+                }
+
+                // Add teacher comment if present
+                if (lesson.getTeacherComment() != null && !lesson.getTeacherComment().isBlank()) {
+                    Map<String, Object> commentMessage = new HashMap<>();
+                    commentMessage.put("id", lesson.getId() * 10 + 2);
+                    commentMessage.put("type", "COMMENTAIRE_COACH");
+                    commentMessage.put("from", lesson.getTeacher().getFullName());
+                    commentMessage.put("fromId", lesson.getTeacher().getId());
+                    commentMessage.put("fromRole", "TEACHER");
+                    commentMessage.put("to", lesson.getStudent().getFullName());
+                    commentMessage.put("toId", lesson.getStudent().getId());
+                    commentMessage.put("toRole", "STUDENT");
+                    commentMessage.put("content", lesson.getTeacherComment());
+                    commentMessage.put("date", lesson.getTeacherCommentAt() != null ? lesson.getTeacherCommentAt().format(formatter) : lesson.getCreatedAt().format(formatter));
+                    commentMessage.put("lessonDate", lesson.getScheduledAt().format(formatter));
+                    commentMessage.put("lessonId", lesson.getId());
+                    messages.add(commentMessage);
+                }
+            }
+
+            // Sort by date descending
+            messages.sort((a, b) -> ((String) b.get("date")).compareTo((String) a.get("date")));
+
+            return ResponseEntity.ok(Map.of(
+                "messages", messages,
+                "total", messages.size(),
+                "filters", Map.of(
+                    "dateFrom", dateFrom != null ? dateFrom : "",
+                    "dateTo", dateTo != null ? dateTo : "",
+                    "teacherId", teacherId != null ? teacherId : "",
+                    "studentId", studentId != null ? studentId : ""
+                )
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                "success", false,
+                "message", e.getMessage()
+            ));
+        }
+    }
+
+    /**
+     * Get list of teachers for filter dropdown.
+     */
+    @GetMapping("/messages/teachers")
+    public ResponseEntity<?> getTeachersForFilter() {
+        List<User> teachers = userRepository.findByRole(UserRole.TEACHER);
+        return ResponseEntity.ok(teachers.stream()
+            .map(t -> Map.of("id", t.getId(), "name", t.getFullName()))
+            .toList()
+        );
+    }
+
+    /**
+     * Get list of students for filter dropdown.
+     */
+    @GetMapping("/messages/students")
+    public ResponseEntity<?> getStudentsForFilter() {
+        List<User> students = userRepository.findByRole(UserRole.STUDENT);
+        return ResponseEntity.ok(students.stream()
+            .map(s -> Map.of("id", s.getId(), "name", s.getFullName()))
+            .toList()
+        );
     }
 }

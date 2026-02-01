@@ -941,6 +941,9 @@ $sidebar-collapsed-width: 95px;
     input[type="checkbox"] {
       width: 18px;
       height: 18px;
+      min-width: 18px;
+      min-height: 18px;
+      flex-shrink: 0;
       accent-color: var(--gold-400);
       cursor: pointer;
     }

@@ -42,6 +42,16 @@ export const adminRoutes: Routes = [
         path: 'blog',
         loadComponent: () => import('./articles/admin-articles.component')
           .then(m => m.AdminArticlesComponent)
+      },
+      {
+        path: 'stripe-connect',
+        loadComponent: () => import('./stripe-connect/stripe-connect.component')
+          .then(m => m.StripeConnectComponent)
+      },
+      {
+        path: 'messages',
+        loadComponent: () => import('./messages/admin-messages.component')
+          .then(m => m.AdminMessagesComponent)
       }
     ]
   }

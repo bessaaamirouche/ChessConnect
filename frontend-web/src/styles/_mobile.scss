@@ -50,9 +50,17 @@
     -webkit-overflow-scrolling: touch;
   }
 
+  // Ensure checkboxes maintain square proportions on mobile
+  input[type="checkbox"] {
+    flex-shrink: 0 !important;
+    min-width: 16px;
+    min-height: 16px;
+    aspect-ratio: 1 / 1;
+  }
+
   // Touch-friendly height for interactive elements (not width)
   button,
-  input,
+  input:not([type="checkbox"]):not([type="radio"]),
   select,
   textarea,
   [role="button"] {

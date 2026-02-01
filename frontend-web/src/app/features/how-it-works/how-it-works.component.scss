@@ -410,16 +410,18 @@ $premium-color: #f59e0b;
   display: inline-block;
   padding: 14px 32px;
   background: linear-gradient(135deg, $gold 0%, $gold-dark 100%);
-  color: $bg-dark;
+  color: $bg-dark !important;
   font-weight: 600;
   font-size: 1rem;
   border-radius: 50px;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   box-shadow: 0 4px 20px rgba($gold, 0.3);
+  text-decoration: none !important;
 
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 30px rgba($gold, 0.4);
+    color: $bg-dark !important;
   }
 }
 

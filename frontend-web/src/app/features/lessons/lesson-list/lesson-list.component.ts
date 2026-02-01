@@ -20,6 +20,7 @@ import { StudentEvaluationModalComponent } from '../../../shared/student-evaluat
 import { RatingModalComponent } from '../../../shared/rating-modal/rating-modal.component';
 import { VideoCallComponent } from '../../../shared/video-call/video-call.component';
 import { ExerciseButtonComponent } from '../../../shared/components/exercise-button/exercise-button.component';
+import { VideoPlayerComponent } from '../../../shared/components/video-player/video-player.component';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   heroCalendarDays,
@@ -66,7 +67,7 @@ export interface PendingValidation {
 @Component({
   selector: 'app-lesson-list',
   standalone: true,
-  imports: [RouterLink, DatePipe, FormsModule, ConfirmDialogComponent, NgIconComponent, StudentProfileModalComponent, StudentEvaluationModalComponent, RatingModalComponent, VideoCallComponent, ExerciseButtonComponent],
+  imports: [RouterLink, DatePipe, FormsModule, ConfirmDialogComponent, NgIconComponent, StudentProfileModalComponent, StudentEvaluationModalComponent, RatingModalComponent, VideoCallComponent, ExerciseButtonComponent, VideoPlayerComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({
     heroCalendarDays,
@@ -124,16 +125,16 @@ export class LessonListComponent implements OnInit, OnDestroy {
   // Video player
   showVideoPlayer = signal(false);
   videoPlayerUrl = signal('');
+  videoPlayerLessonId = signal<number | null>(null);
+  videoPlayerTitle = signal('');
 
   // Video call (iframe)
   showVideoCall = signal(false);
   videoCallRoomName = signal('');
   videoCallToken = signal('');
   videoCallTitle = signal('');
-  videoCallIsFreeTrial = signal(false);
   videoCallDurationMinutes = signal(60);
   videoCallLessonId = signal<number | null>(null);
-  videoCallFreeTrialStartedAt = signal<string | null>(null);
 
   // History filters
   historyFilterPerson = signal<string>('');
@@ -510,19 +511,13 @@ export class LessonListComponent implements OnInit, OnDestroy {
       ? `Cours avec ${lesson.teacherName}`
       : `Cours avec ${lesson.studentName}`;
 
-    // Set free trial flag (15 min for discovery lessons, 60 min for regular)
-    const isFreeTrial = lesson.isFreeTrial === true;
-    const durationMinutes = isFreeTrial ? 15 : lesson.durationMinutes;
+    const durationMinutes = lesson.durationMinutes;
 
     // Si c'est un prof, marquer qu'il a rejoint l'appel
     if (this.authService.isTeacher()) {
       this.lessonService.markTeacherJoined(lesson.id).subscribe({
-        next: (updatedLesson) => {
+        next: () => {
           console.log('Teacher marked as joined');
-          // Mettre à jour freeTrialStartedAt si c'est un cours découverte
-          if (updatedLesson.freeTrialStartedAt) {
-            this.videoCallFreeTrialStartedAt.set(updatedLesson.freeTrialStartedAt);
-          }
         },
         error: (err) => console.warn('Could not mark teacher as joined:', err)
       });
@@ -534,10 +529,8 @@ export class LessonListComponent implements OnInit, OnDestroy {
         this.videoCallRoomName.set(roomName);
         this.videoCallToken.set(response.token);
         this.videoCallTitle.set(title);
-        this.videoCallIsFreeTrial.set(isFreeTrial);
         this.videoCallDurationMinutes.set(durationMinutes);
         this.videoCallLessonId.set(lesson.id);
-        this.videoCallFreeTrialStartedAt.set(lesson.freeTrialStartedAt || null);
         this.showVideoCall.set(true);
 
         // Start polling for lesson status (students only) to auto-hang up when coach ends
@@ -551,10 +544,8 @@ export class LessonListComponent implements OnInit, OnDestroy {
         this.videoCallRoomName.set(roomName);
         this.videoCallToken.set('');
         this.videoCallTitle.set(title);
-        this.videoCallIsFreeTrial.set(isFreeTrial);
         this.videoCallDurationMinutes.set(durationMinutes);
         this.videoCallLessonId.set(lesson.id);
-        this.videoCallFreeTrialStartedAt.set(lesson.freeTrialStartedAt || null);
         this.showVideoCall.set(true);
 
         // Start polling for lesson status (students only) to auto-hang up when coach ends
@@ -582,10 +573,8 @@ export class LessonListComponent implements OnInit, OnDestroy {
     this.videoCallRoomName.set('');
     this.videoCallToken.set('');
     this.videoCallTitle.set('');
-    this.videoCallIsFreeTrial.set(false);
     this.videoCallDurationMinutes.set(60);
     this.videoCallLessonId.set(null);
-    this.videoCallFreeTrialStartedAt.set(null);
   }
 
   // Start polling to check if lesson was completed (for students to auto-hang up)
@@ -618,6 +607,11 @@ export class LessonListComponent implements OnInit, OnDestroy {
   openRecording(lesson: Lesson): void {
     if (lesson.recordingUrl) {
       this.videoPlayerUrl.set(lesson.recordingUrl);
+      this.videoPlayerLessonId.set(lesson.id);
+      // Build title: course title (teacher name) or fallback
+      const courseTitle = lesson.courseTitle || 'Cours';
+      const teacherName = lesson.teacherName || '';
+      this.videoPlayerTitle.set(teacherName ? `${courseTitle} (${teacherName})` : courseTitle);
       this.showVideoPlayer.set(true);
     }
   }
@@ -625,6 +619,8 @@ export class LessonListComponent implements OnInit, OnDestroy {
   closeVideoPlayer(): void {
     this.showVideoPlayer.set(false);
     this.videoPlayerUrl.set('');
+    this.videoPlayerLessonId.set(null);
+    this.videoPlayerTitle.set('');
   }
 
   // Check if it's time to join the lesson (15 min before until end)

@@ -4,9 +4,11 @@ import com.chessconnect.model.User;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Account;
 import com.stripe.model.AccountLink;
+import com.stripe.model.LoginLink;
 import com.stripe.model.Transfer;
 import com.stripe.param.AccountCreateParams;
 import com.stripe.param.AccountLinkCreateParams;
+import com.stripe.param.LoginLinkCreateOnAccountParams;
 import com.stripe.param.TransferCreateParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -181,5 +183,69 @@ public class StripeConnectService {
             boolean chargesEnabled,
             boolean payoutsEnabled,
             String pendingReason
+    ) {}
+
+    /**
+     * Create a login link for Express Dashboard.
+     * This allows viewing the coach's Stripe dashboard.
+     */
+    public String createExpressDashboardLink(String accountId) throws StripeException {
+        if (accountId == null || accountId.isBlank()) {
+            throw new IllegalArgumentException("Account ID is required");
+        }
+
+        LoginLinkCreateOnAccountParams params = LoginLinkCreateOnAccountParams.builder().build();
+        LoginLink loginLink = LoginLink.createOnAccount(accountId, params, null);
+
+        log.info("Created Express Dashboard login link for account {}", accountId);
+        return loginLink.getUrl();
+    }
+
+    /**
+     * Get detailed account information for admin view.
+     */
+    public ConnectAccountDetails getAccountDetails(String accountId) throws StripeException {
+        if (accountId == null || accountId.isBlank()) {
+            return null;
+        }
+
+        Account account = Account.retrieve(accountId);
+
+        String email = account.getEmail();
+        String businessName = account.getBusinessProfile() != null ?
+            account.getBusinessProfile().getName() : null;
+        boolean chargesEnabled = account.getChargesEnabled() != null && account.getChargesEnabled();
+        boolean payoutsEnabled = account.getPayoutsEnabled() != null && account.getPayoutsEnabled();
+        boolean detailsSubmitted = account.getDetailsSubmitted() != null && account.getDetailsSubmitted();
+
+        String pendingRequirements = null;
+        if (account.getRequirements() != null &&
+            account.getRequirements().getCurrentlyDue() != null &&
+            !account.getRequirements().getCurrentlyDue().isEmpty()) {
+            pendingRequirements = String.join(", ", account.getRequirements().getCurrentlyDue());
+        }
+
+        return new ConnectAccountDetails(
+            accountId,
+            email,
+            businessName,
+            chargesEnabled,
+            payoutsEnabled,
+            detailsSubmitted,
+            pendingRequirements
+        );
+    }
+
+    /**
+     * Detailed account information record.
+     */
+    public record ConnectAccountDetails(
+            String accountId,
+            String email,
+            String businessName,
+            boolean chargesEnabled,
+            boolean payoutsEnabled,
+            boolean detailsSubmitted,
+            String pendingRequirements
     ) {}
 }

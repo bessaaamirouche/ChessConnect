@@ -6,6 +6,84 @@
       </div>
     </header>
 
+    <!-- Active Free Trial Section -->
+    @if (paymentService.hasActiveTrial() && !paymentService.activeSubscription()) {
+      <section class="section">
+        <div class="section__header">
+          <h2 class="section__title">Essai Premium Gratuit</h2>
+        </div>
+
+        <div class="active-subscription-card active-subscription-card--trial">
+          <div class="active-subscription-card__badge active-subscription-card__badge--trial">
+            <ng-icon name="heroClock" size="16"></ng-icon>
+            Essai gratuit
+          </div>
+          <div class="active-subscription-card__content">
+            <div class="active-subscription-card__plan">
+              <span class="active-subscription-card__plan-icon"><ng-icon name="heroSparkles" size="32"></ng-icon></span>
+              <div>
+                <h3>Premium Trial</h3>
+                <p class="active-subscription-card__price">
+                  Gratuit pendant 14 jours
+                </p>
+              </div>
+            </div>
+
+            <div class="active-subscription-card__trial-info">
+              <ng-icon name="heroInformationCircle" size="18"></ng-icon>
+              <span>
+                Il vous reste <strong>{{ paymentService.freeTrialStatus()?.daysRemaining }} jour(s)</strong>.
+                Fin de l'essai le <strong>{{ paymentService.freeTrialStatus()?.trialEndDate | date:'dd/MM/yyyy' }}</strong>.
+              </span>
+            </div>
+
+            <div class="active-subscription-card__row">
+              <div class="active-subscription-card__features">
+                <h4>Vos avantages Premium</h4>
+                <ul class="premium-features-list">
+                  <li><ng-icon name="heroCheck" size="18"></ng-icon> Revisionnage des cours</li>
+                  <li><ng-icon name="heroCheck" size="18"></ng-icon> Reprise automatique</li>
+                  <li><ng-icon name="heroCheck" size="18"></ng-icon> Notifications prioritaires</li>
+                  <li><ng-icon name="heroCheck" size="18"></ng-icon> Badge Premium</li>
+                  <li><ng-icon name="heroCheck" size="18"></ng-icon> Entraînement myChessBot</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="active-subscription-card__cta">
+              <p class="text-muted">Aimez votre essai ? Passez à Premium pour garder l'accès.</p>
+              @for (plan of paymentService.plans(); track plan.code) {
+                <button
+                  class="btn btn--primary btn--lg"
+                  (click)="subscribeToPlan(plan.code)"
+                  [disabled]="processingPlan() !== null"
+                >
+                  @if (processingPlan() === plan.code) {
+                    <span class="spinner spinner--sm"></span>
+                    Redirection...
+                  } @else {
+                    Passer à Premium - {{ formatPrice(plan.priceCents) }}/mois
+                  }
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+      </section>
+    }
+
+    <!-- Trial Success Message -->
+    @if (trialSuccess()) {
+      <div class="trial-success-banner">
+        <ng-icon name="heroCheck" size="24"></ng-icon>
+        <div>
+          <strong>Essai gratuit activé !</strong>
+          <p>Profitez de toutes les fonctionnalités Premium pendant 14 jours.</p>
+        </div>
+        <a routerLink="/teachers" class="btn btn--primary">Réserver un cours</a>
+      </div>
+    }
+
     <!-- Active Subscription Section -->
     @if (paymentService.activeSubscription()) {
       <section class="section">
@@ -51,8 +129,10 @@
                 <h4>Vos avantages Premium</h4>
                 <ul class="premium-features-list">
                   <li><ng-icon name="heroCheck" size="18"></ng-icon> Revisionnage des cours</li>
+                  <li><ng-icon name="heroCheck" size="18"></ng-icon> Reprise automatique</li>
                   <li><ng-icon name="heroCheck" size="18"></ng-icon> Notifications prioritaires</li>
                   <li><ng-icon name="heroCheck" size="18"></ng-icon> Badge Premium</li>
+                  <li><ng-icon name="heroCheck" size="18"></ng-icon> Entraînement myChessBot</li>
                 </ul>
               </div>
 
@@ -114,7 +194,32 @@
     }
 
     <!-- Plans Section -->
-    @if (!paymentService.activeSubscription()) {
+    @if (!paymentService.activeSubscription() && !paymentService.hasActiveTrial()) {
+      <!-- Free Trial Banner (without card) -->
+      @if (paymentService.canStartFreeTrial()) {
+        <div class="trial-banner trial-banner--free">
+          <div class="trial-banner__icon">
+            <ng-icon name="heroSparkles" size="24"></ng-icon>
+          </div>
+          <div class="trial-banner__content">
+            <strong>Essayez Premium gratuitement pendant 14 jours !</strong>
+            <p>Aucune carte bancaire requise. Découvrez toutes les fonctionnalités exclusives sans engagement.</p>
+          </div>
+          <button
+            class="btn btn--gold trial-banner__btn"
+            (click)="startFreeTrial()"
+            [disabled]="startingTrial()"
+          >
+            @if (startingTrial()) {
+              <span class="spinner spinner--sm"></span>
+              Activation...
+            } @else {
+              Démarrer l'essai gratuit
+            }
+          </button>
+        </div>
+      }
+
       <section class="section">
         <div class="section__header">
           <h2 class="section__title">Passez Premium</h2>
@@ -165,7 +270,9 @@
                   }
                 </button>
 
-                <p class="plan-card__note">Sans engagement - Annulez à tout moment</p>
+                <p class="plan-card__note">
+                  Sans engagement - Annulez à tout moment
+                </p>
               </div>
             }
           </div>
@@ -185,9 +292,19 @@
             <p>Accédez aux enregistrements de tous vos cours passés pour réviser</p>
           </div>
           <div class="benefit-card">
+            <div class="benefit-card__icon"><ng-icon name="heroPlayPause" size="32"></ng-icon></div>
+            <h4>Reprise automatique</h4>
+            <p>Reprenez le visionnage de vos cours où vous les avez laissés</p>
+          </div>
+          <div class="benefit-card">
             <div class="benefit-card__icon"><ng-icon name="heroBell" size="32"></ng-icon></div>
             <h4>Notifications prioritaires</h4>
             <p>Soyez alerté quand vos coachs favoris publient de nouveaux créneaux</p>
+          </div>
+          <div class="benefit-card">
+            <div class="benefit-card__icon"><ng-icon name="heroPuzzlePiece" size="32"></ng-icon></div>
+            <h4>Entraînement myChessBot</h4>
+            <p>Exercez-vous contre notre IA après chaque cours pour progresser</p>
           </div>
         </div>
       </section>

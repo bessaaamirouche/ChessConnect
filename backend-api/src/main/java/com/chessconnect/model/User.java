@@ -96,14 +96,6 @@ public class User {
     @Column(name = "stripe_connect_onboarding_complete")
     private Boolean stripeConnectOnboardingComplete = false;
 
-    // Teacher accepts free trial lessons (discovery lessons, not paid)
-    @Column(name = "accepts_free_trial")
-    private Boolean acceptsFreeTrial = false;
-
-    // First free trial lesson tracking
-    @Column(name = "has_used_free_trial")
-    private Boolean hasUsedFreeTrial = false;
-
     // Current course tracking for students (programme pedagogique)
     @Column(name = "current_course_id")
     private Integer currentCourseId = 1;
@@ -114,6 +106,10 @@ public class User {
     // Online presence tracking (updated every 30 seconds by heartbeat)
     @Column(name = "last_active_at")
     private LocalDateTime lastActiveAt;
+
+    // Premium trial without credit card (14 days free)
+    @Column(name = "premium_trial_end")
+    private LocalDate premiumTrialEnd;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -241,17 +237,11 @@ public class User {
     public String getCompanyName() { return companyName; }
     public void setCompanyName(String companyName) { this.companyName = companyName; }
 
-    public Boolean getHasUsedFreeTrial() { return hasUsedFreeTrial; }
-    public void setHasUsedFreeTrial(Boolean hasUsedFreeTrial) { this.hasUsedFreeTrial = hasUsedFreeTrial; }
-
     public String getStripeConnectAccountId() { return stripeConnectAccountId; }
     public void setStripeConnectAccountId(String stripeConnectAccountId) { this.stripeConnectAccountId = stripeConnectAccountId; }
 
     public Boolean getStripeConnectOnboardingComplete() { return stripeConnectOnboardingComplete; }
     public void setStripeConnectOnboardingComplete(Boolean stripeConnectOnboardingComplete) { this.stripeConnectOnboardingComplete = stripeConnectOnboardingComplete; }
-
-    public Boolean getAcceptsFreeTrial() { return acceptsFreeTrial; }
-    public void setAcceptsFreeTrial(Boolean acceptsFreeTrial) { this.acceptsFreeTrial = acceptsFreeTrial; }
 
     public Integer getCurrentCourseId() { return currentCourseId; }
     public void setCurrentCourseId(Integer currentCourseId) { this.currentCourseId = currentCourseId; }
@@ -261,6 +251,16 @@ public class User {
 
     public LocalDateTime getLastActiveAt() { return lastActiveAt; }
     public void setLastActiveAt(LocalDateTime lastActiveAt) { this.lastActiveAt = lastActiveAt; }
+
+    public LocalDate getPremiumTrialEnd() { return premiumTrialEnd; }
+    public void setPremiumTrialEnd(LocalDate premiumTrialEnd) { this.premiumTrialEnd = premiumTrialEnd; }
+
+    /**
+     * Check if user has an active premium trial (not expired)
+     */
+    public boolean hasActivePremiumTrial() {
+        return premiumTrialEnd != null && !LocalDate.now().isAfter(premiumTrialEnd);
+    }
 
     // Check if user was active in the last minute
     public boolean isOnline() {

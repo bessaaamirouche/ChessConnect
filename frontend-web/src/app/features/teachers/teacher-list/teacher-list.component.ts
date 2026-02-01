@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { TeacherService } from '../../../core/services/teacher.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { FavoriteService } from '../../../core/services/favorite.service';
-import { LessonService } from '../../../core/services/lesson.service';
 import { SeoService } from '../../../core/services/seo.service';
 import { AppSidebarComponent, SidebarSection } from '../../../shared/components/app-sidebar/app-sidebar.component';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
@@ -144,34 +143,21 @@ export class TeacherListComponent implements OnInit {
     return this.favoriteTeachers().length + this.filteredTeachers().length;
   });
 
-  // Free trial eligibility signal
-  freeTrialEligible = this.lessonService.freeTrialEligible;
-
   constructor(
     public teacherService: TeacherService,
     public authService: AuthService,
-    public favoriteService: FavoriteService,
-    private lessonService: LessonService
+    public favoriteService: FavoriteService
   ) {}
 
   ngOnInit(): void {
     this.seoService.setTeachersListPage();
 
-    // If user is a student, check free trial eligibility first
+    // Load all teachers
+    this.teacherService.loadTeachers().subscribe();
+
+    // Load favorites if user is a student
     if (this.authService.isStudent()) {
-      this.lessonService.checkFreeTrialEligibility().subscribe(eligible => {
-        if (eligible) {
-          // Student is eligible for free trial, only show teachers accepting free trials
-          this.teacherService.loadTeachersAcceptingFreeTrial().subscribe();
-        } else {
-          // Student already used free trial, show all teachers
-          this.teacherService.loadTeachers().subscribe();
-        }
-      });
       this.favoriteService.loadFavorites().subscribe();
-    } else {
-      // Not a student (or not logged in), show all teachers
-      this.teacherService.loadTeachers().subscribe();
     }
   }
 

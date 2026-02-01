@@ -101,10 +101,10 @@
                     <button
                       class="student-profile-btn"
                       (click)="openStudentProfile(lesson.studentId)"
-                      title="Voir le profil complet et la progression"
+                      title="Voir la progression et les niveaux de l'élève"
                     >
                       <ng-icon name="heroUserCircle" size="14"></ng-icon>
-                      Voir le profil
+                      Progression & Niveaux
                     </button>
                   </div>
                   @if (lesson.courseTitle) {
@@ -127,9 +127,6 @@
                   </span>
                   @if (lesson.isFromSubscription) {
                     <span class="badge badge--gold">Abo</span>
-                  }
-                  @if (lesson.isFreeTrial) {
-                    <span class="badge badge--info" title="Cours découverte gratuit - 15 min (non rémunéré)">Découverte</span>
                   }
                 </div>
               </div>
@@ -278,14 +275,7 @@
                     @if (authService.isStudent()) {
                       {{ lesson.teacherName }}
                     } @else {
-                      <button
-                        class="history-card__student-link"
-                        (click)="openStudentProfile(lesson.studentId)"
-                        title="Voir le profil et évaluer"
-                      >
-                        {{ lesson.studentName }}
-                        <ng-icon name="heroUserCircle" size="16"></ng-icon>
-                      </button>
+                      {{ lesson.studentName }}
                     }
                   </div>
                   <div class="history-card__time">{{ lesson.scheduledAt | date:'HH:mm' }} - {{ lesson.scheduledAt | date:'yyyy' }}</div>
@@ -307,6 +297,12 @@
                   @if (openDropdownId() === lesson.id) {
                     <div class="history-card__dropdown-backdrop" (click)="closeDropdown()"></div>
                     <div class="history-card__dropdown-menu">
+                      @if (authService.isTeacher()) {
+                        <button class="history-card__dropdown-item" (click)="openStudentProfile(lesson.studentId)">
+                          <ng-icon name="heroUserCircle" size="16"></ng-icon>
+                          Valider la progression
+                        </button>
+                      }
                       @if (lesson.status === 'CANCELLED' && lesson.cancellationReason) {
                         <button class="history-card__dropdown-item" (click)="toggleReason(lesson.id)">
                           <ng-icon name="heroInformationCircle" size="16"></ng-icon>
@@ -454,26 +450,12 @@
 
   <!-- Video Player Modal -->
   @if (showVideoPlayer()) {
-    <div class="video-player-overlay" (click)="closeVideoPlayer()">
-      <div class="video-player-modal" (click)="$event.stopPropagation()">
-        <div class="video-player-header">
-          <h3>Enregistrement du cours</h3>
-          <button class="video-player-close" (click)="closeVideoPlayer()">
-            <ng-icon name="heroXMark" size="24"></ng-icon>
-          </button>
-        </div>
-        <div class="video-player-content">
-          <video
-            [src]="videoPlayerUrl()"
-            controls
-            autoplay
-            class="video-player"
-          >
-            Votre navigateur ne supporte pas la lecture de vidéos.
-          </video>
-        </div>
-      </div>
-    </div>
+    <app-video-player
+      [url]="videoPlayerUrl()"
+      [videoId]="videoPlayerLessonId()"
+      [title]="videoPlayerTitle()"
+      (close)="closeVideoPlayer()"
+    ></app-video-player>
   }
 
   <!-- Video Call Modal (Jitsi iframe) -->
@@ -484,9 +466,7 @@
       [title]="videoCallTitle()"
       [isTeacher]="authService.isTeacher()"
       [jwtToken]="videoCallToken()"
-      [isFreeTrial]="videoCallIsFreeTrial()"
       [durationMinutes]="videoCallDurationMinutes()"
-      [freeTrialStartedAt]="videoCallFreeTrialStartedAt()"
       (closed)="closeVideoCall()"
     ></app-video-call>
   }

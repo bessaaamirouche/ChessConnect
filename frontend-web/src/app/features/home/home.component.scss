@@ -950,9 +950,8 @@ $text-muted: #6b6965;
 
     &--pion { background: linear-gradient(135deg, #78716c 0%, #57534e 100%); }
     &--cavalier { background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); }
-    &--fou { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
-    &--tour { background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%); }
-    &--dame { background: linear-gradient(135deg, $gold 0%, $gold-dark 100%); }
+    &--reine { background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%); }
+    &--roi { background: linear-gradient(135deg, $gold 0%, $gold-dark 100%); }
   }
 
   &__content {
@@ -1287,25 +1286,47 @@ $text-muted: #6b6965;
     display: flex !important;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
-    padding: 0 !important;
+    gap: var(--space-xs);
+    padding: var(--space-xs) !important;
     background: rgba($gold, 0.1);
-    border-radius: 50%;
+    border-radius: var(--radius-md);
     color: $gold !important;
     transition: all var(--transition-fast);
+    width: auto;
+    height: auto;
 
     &:hover {
-      background: $gold;
-      color: $bg-dark !important;
-      padding-left: 0 !important;
-      transform: scale(1.1);
+      background: rgba($gold, 0.2);
+      color: $gold !important;
+      padding-left: var(--space-xs) !important;
+      transform: translateY(-2px);
     }
 
     svg {
       width: 20px;
       height: 20px;
+      flex-shrink: 0;
     }
+
+    span {
+      font-size: 0.8125rem;
+      font-weight: 500;
+    }
+  }
+
+  &__instagram {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    margin-top: var(--space-sm);
+  }
+
+  &__qr-code {
+    width: 100px;
+    height: 100px;
+    border-radius: var(--radius-sm);
+    border: 2px solid rgba($gold, 0.3);
+    background: $bg-dark;
   }
 
   &__divider {

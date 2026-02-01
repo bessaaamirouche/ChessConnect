@@ -251,21 +251,24 @@
           </div>
 
           <div class="form-group">
-            <label class="checkbox">
-              <input type="checkbox" formControlName="acceptsFreeTrial">
-              <span>J'accepte de donner les cours d'initiation de 15 minutes gratuitement</span>
-            </label>
-          </div>
-
-          <div class="form-group">
-            <label class="form-group__label" for="bio">Bio</label>
+            <label class="form-group__label" for="bio">Biographie <span class="required">*</span></label>
             <textarea
               id="bio"
               formControlName="bio"
               class="textarea"
+              [class.input--error]="registerForm.get('bio')?.invalid && registerForm.get('bio')?.touched"
               rows="3"
-              placeholder="Présentez-vous en quelques lignes..."
+              placeholder="Présentez-vous en quelques lignes (20 caractères minimum)..."
             ></textarea>
+            @if (registerForm.get('bio')?.invalid && registerForm.get('bio')?.touched) {
+              <span class="form-group__error">
+                @if (registerForm.get('bio')?.errors?.['required']) {
+                  La biographie est obligatoire
+                } @else if (registerForm.get('bio')?.errors?.['minlength']) {
+                  Minimum 20 caractères
+                }
+              </span>
+            }
           </div>
 
           <div class="form-group">

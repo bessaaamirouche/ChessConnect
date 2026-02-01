@@ -13,13 +13,11 @@ export class LessonService {
   private lessonHistorySignal = signal<Lesson[]>([]);
   private loadingSignal = signal<boolean>(false);
   private errorSignal = signal<string | null>(null);
-  private freeTrialEligibleSignal = signal<boolean>(false);
 
   readonly upcomingLessons = this.upcomingLessonsSignal.asReadonly();
   readonly lessonHistory = this.lessonHistorySignal.asReadonly();
   readonly loading = this.loadingSignal.asReadonly();
   readonly error = this.errorSignal.asReadonly();
-  readonly freeTrialEligible = this.freeTrialEligibleSignal.asReadonly();
 
   readonly upcomingCount = computed(() =>
     this.upcomingLessonsSignal().filter(l => l.status !== 'CANCELLED' && l.status !== 'COMPLETED').length
@@ -156,38 +154,6 @@ export class LessonService {
 
   clearError(): void {
     this.errorSignal.set(null);
-  }
-
-  /**
-   * Check if current student is eligible for a free trial lesson
-   */
-  checkFreeTrialEligibility(): Observable<boolean> {
-    return this.http.get<{ eligible: boolean }>(`${this.apiUrl}/free-trial/eligible`).pipe(
-      tap(response => this.freeTrialEligibleSignal.set(response.eligible)),
-      map(response => response.eligible)
-    );
-  }
-
-  /**
-   * Book a free trial lesson (first lesson is free)
-   */
-  bookFreeTrialLesson(request: BookLessonRequest): Observable<Lesson> {
-    this.loadingSignal.set(true);
-    this.errorSignal.set(null);
-
-    return this.http.post<Lesson>(`${this.apiUrl}/free-trial/book`, request).pipe(
-      tap({
-        next: (lesson) => {
-          this.upcomingLessonsSignal.update(lessons => [lesson, ...lessons]);
-          this.freeTrialEligibleSignal.set(false); // No longer eligible after booking
-          this.loadingSignal.set(false);
-        },
-        error: (err) => {
-          this.errorSignal.set(err.error?.error || err.error?.message || 'Erreur lors de la réservation');
-          this.loadingSignal.set(false);
-        }
-      })
-    );
   }
 
   /**

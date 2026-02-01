@@ -54,6 +54,15 @@ services:
       JITSI_DOMAIN: ${JITSI_DOMAIN:-meet.mychess.fr}
       # Jibri Recording Webhook Secret (optional but recommended)
       JIBRI_WEBHOOK_SECRET: ${JIBRI_WEBHOOK_SECRET:-}
+      # Bunny Stream Configuration (for video streaming with transcoding)
+      BUNNY_STREAM_API_KEY: ${BUNNY_STREAM_API_KEY:-}
+      BUNNY_STREAM_LIBRARY_ID: ${BUNNY_STREAM_LIBRARY_ID:-590076}
+      BUNNY_STREAM_CDN_HOSTNAME: ${BUNNY_STREAM_CDN_HOSTNAME:-vz-34fe20be-093.b-cdn.net}
+      # Bunny Storage CDN Configuration (for direct file hosting)
+      BUNNY_STORAGE_ZONE: ${BUNNY_STORAGE_ZONE:-mychess}
+      BUNNY_STORAGE_API_KEY: ${BUNNY_STORAGE_API_KEY:-}
+      BUNNY_STORAGE_HOST: ${BUNNY_STORAGE_HOST:-storage.bunnycdn.com}
+      BUNNY_CDN_URL: ${BUNNY_CDN_URL:-https://mychess.b-cdn.net}
     ports:
       - "8282:8282"
     volumes:

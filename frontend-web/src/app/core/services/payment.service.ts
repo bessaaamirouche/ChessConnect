@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap, catchError } from 'rxjs';
+import { Observable, tap, catchError, of } from 'rxjs';
 import { Subscription, SubscriptionPlan, SubscriptionPlanDetails } from '../models/subscription.model';
 
 export interface CheckoutSessionResponse {
@@ -47,6 +47,13 @@ export interface LessonCheckoutRequest {
   courseId?: number;
 }
 
+export interface FreeTrialStatus {
+  hasActiveTrial: boolean;
+  eligible: boolean;
+  trialEndDate?: string;
+  daysRemaining?: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -58,14 +65,29 @@ export class PaymentService {
   private paymentHistorySignal = signal<Payment[]>([]);
   private loadingSignal = signal<boolean>(false);
   private errorSignal = signal<string | null>(null);
+  private trialEligibleSignal = signal<boolean>(false);
+  private freeTrialStatusSignal = signal<FreeTrialStatus | null>(null);
 
   readonly plans = this.plansSignal.asReadonly();
   readonly activeSubscription = this.activeSubscriptionSignal.asReadonly();
   readonly paymentHistory = this.paymentHistorySignal.asReadonly();
   readonly loading = this.loadingSignal.asReadonly();
   readonly error = this.errorSignal.asReadonly();
+  readonly trialEligible = this.trialEligibleSignal.asReadonly();
+  readonly freeTrialStatus = this.freeTrialStatusSignal.asReadonly();
 
-  readonly hasActiveSubscription = () => this.activeSubscriptionSignal() !== null;
+  // Check if user has premium access (subscription OR active trial)
+  readonly hasActiveSubscription = () => {
+    if (this.activeSubscriptionSignal() !== null) return true;
+    const trial = this.freeTrialStatusSignal();
+    return trial?.hasActiveTrial ?? false;
+  };
+
+  // Check if user has an active free trial
+  readonly hasActiveTrial = () => this.freeTrialStatusSignal()?.hasActiveTrial ?? false;
+
+  // Check if user is eligible for free trial
+  readonly canStartFreeTrial = () => this.freeTrialStatusSignal()?.eligible ?? false;
 
   constructor(private http: HttpClient) {}
 
@@ -192,5 +214,62 @@ export class PaymentService {
 
   clearError(): void {
     this.errorSignal.set(null);
+  }
+
+  /**
+   * Check if the user is eligible for the 14-day free trial (Stripe - requires card).
+   * First-time subscribers get a free trial.
+   */
+  checkTrialEligibility(): Observable<{ eligible: boolean }> {
+    return this.http.get<{ eligible: boolean }>(`${this.apiUrl}/subscription/trial-eligible`).pipe(
+      tap(response => this.trialEligibleSignal.set(response.eligible)),
+      catchError(() => {
+        this.trialEligibleSignal.set(false);
+        return [];
+      })
+    );
+  }
+
+  /**
+   * Get free trial status (without credit card).
+   */
+  loadFreeTrialStatus(): Observable<FreeTrialStatus> {
+    return this.http.get<FreeTrialStatus>(`${this.apiUrl}/subscription/free-trial`).pipe(
+      tap(status => this.freeTrialStatusSignal.set(status)),
+      catchError(() => {
+        this.freeTrialStatusSignal.set({ hasActiveTrial: false, eligible: false });
+        return of({ hasActiveTrial: false, eligible: false });
+      })
+    );
+  }
+
+  /**
+   * Start 14-day free premium trial (no credit card required).
+   */
+  startFreeTrial(): Observable<FreeTrialStatus & { success: boolean; message?: string; error?: string }> {
+    this.loadingSignal.set(true);
+    this.errorSignal.set(null);
+
+    return this.http.post<FreeTrialStatus & { success: boolean; message?: string; error?: string }>(
+      `${this.apiUrl}/subscription/free-trial/start`,
+      {}
+    ).pipe(
+      tap(response => {
+        this.loadingSignal.set(false);
+        if (response.success) {
+          this.freeTrialStatusSignal.set({
+            hasActiveTrial: response.hasActiveTrial,
+            eligible: response.eligible,
+            trialEndDate: response.trialEndDate,
+            daysRemaining: response.daysRemaining
+          });
+        }
+      }),
+      catchError(error => {
+        this.loadingSignal.set(false);
+        this.errorSignal.set('Erreur lors du démarrage de l\'essai gratuit');
+        throw error;
+      })
+    );
   }
 }

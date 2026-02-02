@@ -59,28 +59,48 @@
       "icon": "Pawn",
       "subtitle": "Level A — Beginner",
       "description": "Master the fundamentals: piece movement, basic tactics, and your first checkmates.",
-      "skills": ["Piece movement", "Basic captures", "Simple checkmates", "Opening principles"]
+      "skills": [
+        "Piece movement",
+        "Basic captures",
+        "Simple checkmates",
+        "Opening principles"
+      ]
     },
     "knight": {
       "name": "Knight",
       "icon": "Knight",
       "subtitle": "Level B — Intermediate",
       "description": "Develop tactical vision with forks, pins, and discovered attacks.",
-      "skills": ["Tactical patterns", "Piece coordination", "Pawn structures", "Middle game strategy"]
+      "skills": [
+        "Tactical patterns",
+        "Piece coordination",
+        "Pawn structures",
+        "Middle game strategy"
+      ]
     },
     "queen": {
       "name": "Queen",
       "icon": "Queen",
       "subtitle": "Level C — Advanced",
       "description": "Deepen your strategic understanding and master complex positions.",
-      "skills": ["Positional play", "Advanced tactics", "Endgame technique", "Opening repertoire"]
+      "skills": [
+        "Positional play",
+        "Advanced tactics",
+        "Endgame technique",
+        "Opening repertoire"
+      ]
     },
     "king": {
       "name": "King",
       "icon": "King",
       "subtitle": "Level D — Expert",
       "description": "Refine your play with grandmaster concepts and competitive preparation.",
-      "skills": ["Deep calculation", "Strategic mastery", "Tournament prep", "Game analysis"]
+      "skills": [
+        "Deep calculation",
+        "Strategic mastery",
+        "Tournament prep",
+        "Game analysis"
+      ]
     }
   },
   "howItWorks": {
@@ -117,135 +137,135 @@
       }
     },
     "cta": "Get Started Now",
-    "premiumFeature": "Premium Feature",
-    "premiumAdvantage": "Premium Advantage",
+    "premiumFeature": "Premium feature",
+    "premiumAdvantage": "Premium advantage",
     "tip": "Tip",
     "player": {
       "badge": "Player",
-      "title": "Guide for Players",
+      "title": "For players",
       "step1": {
-        "title": "1. Find a Coach",
-        "description": "Browse our list of qualified coaches on the Our Coaches page. Each profile displays:",
-        "item1": "The coach's hourly rate",
-        "item2": "Average rating and reviews from other students",
-        "item3": "Level and specialty",
-        "item4": "Availability (green dot = online)"
+        "title": "Create your account",
+        "description": "Sign up for free in seconds",
+        "item1": "Fill in your information",
+        "item2": "Verify your email",
+        "item3": "Complete your profile",
+        "item4": "Let's go!"
       },
       "step2": {
-        "title": "2. Add a Coach to Favorites",
-        "description": "When you find a coach you like:",
-        "item1": "Click the \"Add to favorites\" button on their profile",
-        "item2": "Enable \"Notify me of new slots\"",
-        "item3": "Find your favorite coaches in your profile"
+        "title": "Take the assessment quiz",
+        "description": "Determine your current level",
+        "item1": "20 adapted questions",
+        "item2": "5 minutes maximum",
+        "item3": "Suggested level at the end"
       },
       "step3": {
-        "title": "3. Receive Notifications",
-        "premiumNote": "Email notifications for new slots from your favorite coaches are reserved for Premium subscribers (4.99 EUR/month).",
-        "description": "As a Premium subscriber, when one of your favorite coaches publishes a new availability, you immediately receive an email with:",
-        "item1": "The coach's name",
-        "item2": "Slot details (day, time)",
-        "item3": "A direct booking link"
+        "title": "Find your coach",
+        "premiumNote": "Premium: new slot notifications",
+        "description": "Browse coach profiles",
+        "item1": "Filter by rate and availability",
+        "item2": "Read reviews",
+        "item3": "Add to favorites"
       },
       "step4": {
-        "title": "4. Early Access to Slots",
-        "premiumNote": "Premium subscribers see new slots 24 hours before other players."
+        "title": "Book your first lesson",
+        "premiumNote": "Premium: priority access to slots"
       },
       "step5": {
-        "title": "5. Book a Lesson",
-        "description": "To book:",
-        "item1": "Go to the coach's profile or click \"Book\" from the email",
-        "item2": "Select an available slot",
-        "item3": "Pay via Stripe or use your wallet balance",
-        "item4": "The coach receives your request and confirms the lesson"
+        "title": "Track your progress",
+        "description": "Visualize your advancement",
+        "item1": "Detailed statistics",
+        "item2": "Validated courses",
+        "item3": "Current level",
+        "item4": "Goals to achieve"
       },
       "step6": {
-        "title": "6. First Lesson Free",
-        "description": "New to mychess? Your first lesson is 100% free! Book without paying to discover the platform."
+        "title": "Keep progressing",
+        "description": "Book more lessons to advance"
       }
     },
     "coach": {
       "badge": "Coach",
-      "title": "Guide for Coaches",
+      "title": "For coaches",
       "step1": {
-        "title": "1. Create Your Availability",
-        "description": "From your My Availability page:",
-        "item1": "Click \"Add availability\"",
-        "item2": "Choose the day and times (minimum 1 hour)",
-        "item3": "Choose a one-time or recurring slot (weekly)",
-        "item4": "Save: your slots are immediately visible"
+        "title": "Create your coach profile",
+        "description": "Introduce yourself to students",
+        "item1": "Add your photo",
+        "item2": "Describe your experience",
+        "item3": "List your specialties",
+        "item4": "Set your rate"
       },
       "step2": {
-        "title": "2. Automatic Student Notifications",
-        "description": "When you publish a new availability:",
-        "item1": "All players who have you as a favorite with notifications enabled",
-        "item2": "And who are Premium subscribers",
-        "item3": "Automatically receive an email about the new slot",
-        "tip": "Publish your availability regularly to retain your Premium students. They'll be the first to know!"
+        "title": "Set up your availability",
+        "description": "Manage your schedule",
+        "item1": "Recurring slots",
+        "item2": "One-time slots",
+        "item3": "Total flexibility",
+        "tip": "Post regularly to appear at the top of the list"
       },
       "step3": {
-        "title": "3. Manage Bookings",
-        "description": "When a student books:",
-        "item1": "You receive a notification",
-        "item2": "You have 24 hours to confirm the lesson",
-        "item3": "If you don't confirm, the lesson is cancelled and the student refunded"
+        "title": "Receive bookings",
+        "description": "Students book you",
+        "item1": "Email notifications",
+        "item2": "Confirm or decline",
+        "item3": "24h to respond"
       },
       "step4": {
-        "title": "4. Give the Lesson",
-        "description": "At lesson time:",
-        "item1": "Click \"Join lesson\" in My Lessons",
-        "item2": "Jitsi video conference starts automatically",
-        "item3": "At the end, mark the lesson as completed"
+        "title": "Give your lessons",
+        "description": "Teach in HD video",
+        "item1": "Integrated Jitsi Meet",
+        "item2": "Screen sharing",
+        "item3": "Automatic recording"
       },
       "step5": {
-        "title": "5. Receive Your Payments",
-        "description": "Set up your Stripe Connect account in settings to receive earnings directly to your bank account."
+        "title": "Receive your payments",
+        "description": "Secure Stripe Connect"
       }
     },
     "notifications": {
-      "title": "Notifications Summary",
+      "title": "Notification system",
       "event": "Event",
-      "whoNotified": "Who is Notified",
+      "whoNotified": "Who is notified",
       "condition": "Condition",
-      "newSlot": "New slot published",
-      "favoritePlayers": "Players with coach as favorite",
-      "premiumAndNotify": "Premium subscription + Notifications enabled",
-      "booking": "Lesson booked",
+      "newSlot": "New slot",
+      "favoritePlayers": "Favorite players",
+      "premiumAndNotify": "Premium + notifs enabled",
+      "booking": "Booking",
       "theCoach": "The coach",
       "none": "None",
-      "confirmation": "Lesson confirmed",
+      "confirmation": "Confirmation",
       "thePlayer": "The player",
-      "reminder": "1h before lesson reminder",
-      "bothParties": "Player and Coach",
-      "emailRemindersEnabled": "Email reminders enabled in settings",
-      "cancellation": "Lesson cancelled",
+      "reminder": "Reminder (1h before)",
+      "bothParties": "Both parties",
+      "emailRemindersEnabled": "Email reminders enabled",
+      "cancellation": "Cancellation",
       "otherParty": "The other party"
     },
     "premium": {
-      "title": "Premium Benefits",
-      "description": "Premium subscription at 4.99 EUR/month offers you:",
-      "notifications": "Priority notifications: receive an email when a favorite coach posts a slot",
-      "earlyAccess": "Early access: see new slots 24h before others",
-      "recordings": "Replay: access video recordings of your lessons",
-      "training": "Training: play against myChessBot after your lessons",
-      "badge": "Premium badge: a golden badge on your profile",
+      "title": "Premium benefits",
+      "description": "Unlock all features for €4.99/month",
+      "notifications": "Priority alerts",
+      "earlyAccess": "Early access",
+      "recordings": "Lesson replay",
+      "training": "myChessBot",
+      "badge": "Premium",
       "cta": "Discover Premium"
     },
     "faq": {
       "noNotifications": {
-        "question": "Why am I not receiving notifications?",
-        "intro": "Check that:",
-        "item1": "You have added the coach to favorites",
-        "item2": "You have enabled \"Notify me of new slots\"",
-        "item3": "You are a Premium subscriber",
-        "item4": "Your email is valid and emails are not in spam"
+        "question": "I'm not receiving notifications, what should I do?",
+        "intro": "Check the following:",
+        "item1": "Check your spam folder",
+        "item2": "Enable notifications in settings",
+        "item3": "For slot alerts: be Premium and enable notifs on the coach",
+        "item4": "Contact support if the problem persists"
       },
       "enableNotifications": {
-        "question": "How do I enable notifications for a coach?",
-        "answer": "Go to the coach's profile, click \"Add to favorites\", then enable the notification option."
+        "question": "How to enable notifications?",
+        "answer": "Go to Settings > Notifications to enable email reminders and slot alerts."
       },
       "freeNotifications": {
         "question": "Are notifications free?",
-        "answer": "Email notifications for new slots are reserved for Premium subscribers. Confirmation and reminder notifications are free for everyone."
+        "answer": "Basic notifications (bookings, confirmations) are free. Priority slot alerts are reserved for Premium."
       }
     }
   },
@@ -253,14 +273,14 @@
     "title": "Simple, Transparent Pricing",
     "subtitle": "Pay per lesson. Upgrade for extra perks.",
     "hero": {
-      "title": "Level Up Your Game",
-      "subtitle": "Unlock exclusive features to accelerate your chess improvement"
+      "title": "Simple and transparent pricing",
+      "subtitle": "Pay only for lessons, upgrade to Premium for more benefits"
     },
-    "freeTrial": "Free trial",
-    "noCommitment": "No commitment - Cancel anytime",
+    "freeTrial": "14 days free trial",
+    "noCommitment": "No commitment",
     "startTrial": "Start free trial",
-    "signupAndTry": "Sign up and try for free",
-    "premiumPlayersOnly": "Premium subscription is for players only",
+    "signupAndTry": "Sign up and try",
+    "premiumPlayersOnly": "For players only",
     "free": {
       "title": "Free",
       "price": "0",
@@ -292,71 +312,71 @@
       "trial": "<strong>14 days free trial</strong> - No credit card required"
     },
     "benefits": {
-      "title": "Premium Benefits",
-      "subtitle": "Everything you need to progress quickly",
+      "title": "Premium benefits in detail",
+      "subtitle": "Discover everything Premium offers",
       "replay": {
-        "title": "Unlimited Replay",
-        "description": "Access video recordings of all your past lessons. Review analyzed games, openings, and endgames at your own pace, as many times as you need.",
-        "feature1": "Automatic lesson recording",
-        "feature2": "Auto-resume playback",
-        "feature3": "Accessible from history"
+        "title": "Lesson replay",
+        "description": "Rewatch your lessons as many times as needed",
+        "feature1": "Automatic recording",
+        "feature2": "HD quality",
+        "feature3": "Download available"
       },
       "alerts": {
-        "title": "Favorite Coach Alerts",
-        "description": "Be the first to know when your favorite coaches publish new slots. Never miss an opportunity to book with your preferred coach.",
-        "feature1": "Instant email alerts",
-        "feature2": "Unlimited favorite coaches",
-        "feature3": "Customizable alerts"
+        "title": "Priority alerts",
+        "description": "Be the first to know about new slots",
+        "feature1": "Instant notifications",
+        "feature2": "24h head start over non-Premium",
+        "feature3": "Favorite coaches first"
       },
       "bot": {
-        "title": "myChessBot Training",
-        "description": "Practice against our integrated chess engine after each lesson. 5 difficulty levels adapted to your progression for continuous improvement.",
+        "title": "myChessBot",
+        "description": "Train against our AI",
         "feature1": "5 difficulty levels",
-        "feature2": "Lesson-linked exercises",
-        "feature3": "Real-time evaluation"
+        "feature2": "Game analysis",
+        "feature3": "Personalized exercises"
       },
       "badge": {
-        "title": "Premium Badge",
-        "description": "Show your commitment with a golden badge visible on your profile. Show coaches that you're a serious and motivated player.",
+        "title": "Premium badge",
+        "description": "Proudly display your status",
         "feature1": "Golden profile badge",
-        "feature2": "Coach visibility",
-        "feature3": "Premium status displayed"
+        "feature2": "Community recognition",
+        "feature3": "Queue priority"
       }
     },
     "comparison": {
-      "title": "Free vs Premium",
+      "title": "Plan comparison",
       "feature": "Feature",
       "bookLessons": "Book lessons",
-      "videoJitsi": "Jitsi video calls",
+      "videoJitsi": "Jitsi video lessons",
       "progressTracking": "Progress tracking",
       "lessonReplay": "Lesson replay",
-      "favoriteAlerts": "Favorite coach alerts",
+      "favoriteAlerts": "Favorite alerts",
       "botTraining": "myChessBot training",
       "premiumBadge": "Premium badge"
     },
     "faq": {
       "trial": {
         "question": "How does the free trial work?",
-        "answer": "The free trial gives you access to all Premium features for 14 days, without entering a credit card. At the end of the trial, you can choose to subscribe or not."
+        "answer": "You have 14 days to test all Premium features. No credit card required."
       },
       "cancel": {
         "question": "Can I cancel anytime?",
-        "answer": "Yes, the subscription has no commitment. You can cancel anytime from your subscription page. You'll keep Premium access until the end of the paid period."
+        "answer": "Yes, you can cancel your subscription anytime. You keep access until the end of the paid period."
       },
       "secure": {
-        "question": "Is payment secure?",
-        "answer": "Absolutely. We use Stripe, the world leader in online payments. Your banking details are encrypted and never stored on our servers."
+        "question": "Is the payment secure?",
+        "answer": "Yes, all payments are secured by Stripe, the world leader in online payments."
       },
       "freeLessons": {
-        "question": "Does Premium include free lessons?",
-        "answer": "No, Premium subscription gives you access to exclusive features (replay, notifications, etc.). Lessons are paid separately at each coach's rate (30-80 EUR/hour)."
+        "question": "Are lessons included in Premium?",
+        "answer": "No, Premium gives access to exclusive features. Lessons are paid separately at the coach's rate."
       }
     },
     "cta": {
-      "title": "Ready to progress faster?",
-      "subtitle": "Join Premium players and accelerate your chess learning",
-      "startTrial": "Start my free trial",
-      "createAccount": "Create my free account"
+      "title": "Ready to level up?",
+      "subtitle": "Join Premium players and progress faster",
+      "startTrial": "Start free trial",
+      "createAccount": "Create a free account"
     },
     "lessonPricing": {
       "title": "Lesson Rates",
@@ -374,9 +394,9 @@
     "title": "Frequently Asked Questions",
     "subtitle": "Everything you need to know",
     "contact": {
-      "title": "Didn't find your answer?",
-      "subtitle": "Our team is here to help",
-      "cta": "Contact Us"
+      "title": "Have another question?",
+      "subtitle": "Contact us and we'll get back to you quickly",
+      "cta": "Contact us"
     },
     "categories": {
       "general": "General",
@@ -696,19 +716,19 @@
       "level": "Level",
       "topic": "Topic"
     },
-    "subtitle": "Manage your chess lessons",
-    "emailReminders": "Email reminders (1h before)",
-    "coursesToValidate": "courses to validate",
+    "subtitle": "Manage your upcoming and past lessons",
+    "emailReminders": "Email reminders",
+    "coursesToValidate": "Courses to validate",
     "viewStudents": "View students",
-    "progressAndLevels": "Progress & Levels",
-    "viewStudentProgress": "View student progress and levels",
+    "progressAndLevels": "Progress and levels",
+    "viewStudentProgress": "View progress",
     "complete": "Complete",
     "viewReason": "View reason",
     "reason": "Reason",
     "coursesCount": "courses",
-    "filterCoach": "Coach",
-    "filterStudent": "Student",
-    "filterMonth": "Month",
+    "filterCoach": "Filter by coach",
+    "filterStudent": "Filter by student",
+    "filterMonth": "Filter by month",
     "withRecording": "With recording",
     "noMatchingFilters": "No lessons match the filters",
     "clearFilters": "Clear filters",
@@ -720,12 +740,12 @@
     "coachMessage": "Coach message",
     "coachObservations": "Coach observations",
     "completeLesson": "Complete lesson",
-    "observationsLabel": "Observations for student (optional)",
-    "observationsPlaceholder": "E.g.: Good work on openings, continue practicing pawn endgames...",
-    "observationsHint": "These observations will be visible to the student in their lesson history.",
-    "commentVisibleHint": "This message will be visible to the student in their lesson history.",
+    "observationsLabel": "Observations",
+    "observationsPlaceholder": "Your observations on this lesson...",
+    "observationsHint": "These observations will be visible to the student",
+    "commentVisibleHint": "This comment will be visible to the student",
     "yourMessageFor": "Your message for",
-    "commentPlaceholder": "E.g.: Great progress! Don't forget to review rook endgames for our next lesson...",
+    "commentPlaceholder": "Your comment...",
     "messageFrom": "Message from"
   },
   "booking": {
@@ -761,7 +781,31 @@
       "slotTaken": "This slot is no longer available",
       "paymentFailed": "Payment failed. Please try again.",
       "generic": "Something went wrong. Please try again."
-    }
+    },
+    "backToCoaches": "Back to coaches",
+    "selectSlotPlaceholder": "Select a slot",
+    "course": "Course",
+    "sessionCourse": "Session course",
+    "courseAutoIncrement": "The course will be automatically selected based on your progress",
+    "noCourseSet": "No course set",
+    "consultProgram": "Check the program to see the courses",
+    "viewProgram": "View program",
+    "level": "Level",
+    "lessonRate": "Lesson rate",
+    "notes": "Notes for the coach",
+    "notesPlaceholder": "Points to work on, questions...",
+    "useWallet": "Use my wallet",
+    "pay": "Pay",
+    "payWithCredit": "Pay with my credit",
+    "taken": "Slot taken",
+    "confirmingPayment": "Confirming payment...",
+    "pleaseWait": "Please wait...",
+    "paymentConfirmed": "Payment confirmed!",
+    "goToDashboard": "Go to dashboard",
+    "redirectingToDashboard": "Redirecting to dashboard...",
+    "premiumBookFirst": "Premium members book first",
+    "priorityAccess": "Priority access to new slots",
+    "discover": "Discover Premium"
   },
   "wallet": {
     "title": "My Wallet",
@@ -818,7 +862,15 @@
       "notifications": "Priority booking alerts",
       "badge": "Premium profile badge",
       "bot": "Practice vs myChessBot",
-      "support": "Priority support"
+      "support": "Priority support",
+      "replay": "Lesson replay",
+      "replayDesc": "Access your lesson recordings",
+      "resume": "Resume playback",
+      "resumeDesc": "Continue your videos where you left off",
+      "alerts": "Priority alerts",
+      "alertsDesc": "Be the first to know about new slots",
+      "badgeDesc": "A golden badge on your profile",
+      "botDesc": "Train against myChessBot AI"
     },
     "upgrade": "Upgrade to Premium",
     "manage": "Manage Subscription",
@@ -827,10 +879,56 @@
       "title": "Cancel Subscription?",
       "message": "You'll lose access to Premium features at the end of your billing period.",
       "confirm": "Yes, Cancel",
-      "keep": "Keep Premium"
+      "keep": "Keep Premium",
+      "warning": "You will lose access to Premium features"
     },
     "renewsOn": "Renews on",
-    "expiresOn": "Expires on"
+    "expiresOn": "Expires on",
+    "subtitle": "Manage your Premium subscription",
+    "active": "Active",
+    "activeUntil": "Active until",
+    "memberSince": "Member since",
+    "cancelled": "Cancelled",
+    "cancelling": "Cancelling...",
+    "noCommitment": "No commitment",
+    "allFeatures": "All features",
+    "becomePremium": "Become Premium",
+    "recommended": "Recommended",
+    "paymentTitle": "Payment",
+    "bookLesson": "Book a lesson",
+    "benefitCards": {
+      "replay": {
+        "title": "Lesson replay",
+        "description": "Rewatch your recorded lessons"
+      },
+      "resume": {
+        "title": "Smart resume",
+        "description": "Continue where you left off"
+      },
+      "alerts": {
+        "title": "Priority alerts",
+        "description": "Book before everyone else"
+      },
+      "bot": {
+        "title": "myChessBot",
+        "description": "Train against AI"
+      }
+    },
+    "trial": {
+      "title": "Free trial",
+      "badge": "Free trial",
+      "planName": "Premium - Trial",
+      "duration": "14 days",
+      "daysRemaining": "days remaining",
+      "endsOn": "Ends on",
+      "start": "Start free trial",
+      "activating": "Activating...",
+      "bannerTitle": "Try Premium for free!",
+      "bannerMessage": "14 days free trial, no commitment",
+      "ctaMessage": "Enjoy all Premium features",
+      "successTitle": "Trial activated!",
+      "successMessage": "Enjoy 14 days of free Premium"
+    }
   },
   "progress": {
     "title": "My Progress",
@@ -936,7 +1034,13 @@
       "noAccount": "Don't have an account?",
       "signup": "Sign up",
       "or": "or",
-      "googleLogin": "Continue with Google"
+      "googleLogin": "Continue with Google",
+      "emailPlaceholder": "your@email.com",
+      "passwordPlaceholder": "Your password",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "submitting": "Logging in...",
+      "createAccount": "Create account"
     },
     "signup": {
       "title": "Create Account",
@@ -956,7 +1060,34 @@
       "privacyLink": "Privacy Policy",
       "submit": "Create Account",
       "hasAccount": "Already have an account?",
-      "login": "Log in"
+      "login": "Log in",
+      "accountType": "Account type",
+      "playerLabel": "Player",
+      "playerDesc": "I want to learn chess",
+      "coachLabel": "Coach",
+      "coachDesc": "I want to teach chess",
+      "firstNamePlaceholder": "John",
+      "firstNameRequired": "First name is required",
+      "lastNamePlaceholder": "Doe",
+      "lastNameRequired": "Last name is required",
+      "emailPlaceholder": "john@email.com",
+      "passwordPlaceholder": "Minimum 8 characters",
+      "minChars": "Minimum 8 characters",
+      "minChars20": "Minimum 20 characters",
+      "specialCharsNotAllowed": "Special characters not allowed",
+      "birthDate": "Birth date",
+      "eloRating": "ELO rating",
+      "eloPlaceholder": "Ex: 1500",
+      "eloHint": "Optional - your current ELO rating",
+      "knowsElo": "I know my ELO",
+      "bio": "Biography",
+      "bioPlaceholder": "Introduce yourself...",
+      "bioRequiredError": "Biography is required for coaches",
+      "hourlyRate": "Hourly rate",
+      "hourlyRateUnit": "EUR/hour",
+      "languages": "Languages spoken",
+      "languagesHint": "Select the languages you speak",
+      "submitting": "Creating account..."
     },
     "forgotPassword": {
       "title": "Reset Password",
@@ -987,7 +1118,9 @@
         "message": "This reset link is invalid or has expired.",
         "requestNew": "Request a new link"
       },
-      "validating": "Validating link..."
+      "validating": "Validating link...",
+      "newPasswordPlaceholder": "New password",
+      "confirmPasswordPlaceholder": "Confirm password"
     },
     "errors": {
       "invalidEmail": "Please enter a valid email",
@@ -997,16 +1130,71 @@
       "emailInUse": "This email is already registered",
       "required": "This field is required"
     },
-    "verificationEmailResent": "Verification email resent!"
+    "verificationEmailResent": "Verification email resent!",
+    "adminLogin": {
+      "title": "Administration",
+      "username": "Username",
+      "usernamePlaceholder": "Enter your username",
+      "usernameRequired": "Username is required",
+      "password": "Password",
+      "passwordPlaceholder": "Enter your password",
+      "passwordRequired": "Password is required",
+      "submit": "Login",
+      "submitting": "Logging in..."
+    },
+    "contact": {
+      "title": "Contact us",
+      "name": "Name",
+      "namePlaceholder": "Your name",
+      "nameRequired": "Name is required",
+      "email": "Email",
+      "emailPlaceholder": "your@email.com",
+      "emailInvalid": "Invalid email",
+      "subject": "Subject",
+      "subjectPlaceholder": "Subject of your message",
+      "subjectRequired": "Subject is required",
+      "message": "Message",
+      "messagePlaceholder": "Your message...",
+      "messageRequired": "Message is required",
+      "submit": "Send",
+      "sending": "Sending...",
+      "cancel": "Cancel",
+      "backToLogin": "Back to login",
+      "successTitle": "Message sent!",
+      "successMessage": "We will get back to you shortly."
+    },
+    "emailVerification": {
+      "title": "Email verification",
+      "notVerifiedTitle": "Email not verified",
+      "subtitle": "A verification email has been sent",
+      "instructions": "Please check your inbox",
+      "checkInbox": "Check your inbox",
+      "checkSpam": "Also check your spam folder",
+      "clickLink": "Click the verification link",
+      "linkExpires": "Link expires in 24 hours",
+      "resendButton": "Resend email",
+      "resending": "Sending...",
+      "resendSuccess": "Email resent successfully!",
+      "newEmailSent": "A new email has been sent",
+      "backToLogin": "Back to login",
+      "goToLogin": "Go to login"
+    },
+    "suspended": {
+      "title": "Account suspended",
+      "message": "Your account has been suspended.",
+      "help": "If you think this is an error, contact us.",
+      "contactAdmin": "Contact administration",
+      "backToLogin": "Back to login"
+    }
   },
   "settings": {
     "title": "Settings",
-    "subtitle": "Manage your information and preferences",
+    "subtitle": "Manage your account and preferences",
     "profile": {
       "title": "Personal Information",
       "avatar": "Profile Photo",
       "changeAvatar": "Choose a photo",
-      "avatarHint": "JPG, PNG. Max 5 MB.",
+      "avatarHint": "JPG or PNG, max 5 MB",
       "firstName": "First Name",
       "lastName": "Last Name",
       "email": "Email",
@@ -1014,11 +1202,11 @@
       "bioPlaceholder": "Describe your experience...",
       "save": "Save Changes",
       "saving": "Saving...",
-      "success": "Profile updated successfully!"
+      "success": "Profile updated successfully"
     },
     "player": {
-      "birthDate": "Date of Birth",
-      "eloRating": "ELO Rating",
+      "birthDate": "Birth date",
+      "eloRating": "ELO rating",
       "known": "Known"
     },
     "coachProfile": {
@@ -1027,22 +1215,22 @@
       "experience": "Years of Experience",
       "specialties": "Specialties",
       "languages": "Languages Spoken",
-      "languagesHint": "Select at least one language",
+      "languagesHint": "Languages spoken during lessons",
       "elo": "ELO Rating",
       "fide": "FIDE Title"
     },
     "professional": {
-      "title": "Professional Information",
-      "description": "This information is displayed on your invoices.",
-      "companyName": "Company Name (optional)",
-      "companyPlaceholder": "My company",
-      "siret": "SIRET (optional)"
+      "title": "Professional information",
+      "description": "For self-employed coaches",
+      "companyName": "Company name",
+      "companyPlaceholder": "Your company",
+      "siret": "SIRET"
     },
     "notifications": {
       "title": "Notifications",
       "email": "Email Notifications",
       "emailReminders": "Receive email reminders",
-      "emailRemindersDesc": "Receive an email reminder 1 hour before each lesson",
+      "emailRemindersDesc": "Receive a reminder 1 hour before each lesson",
       "emailBookings": "New bookings",
       "emailFavorites": "Favorite coach availability",
       "push": "Push Notifications",
@@ -1064,16 +1252,16 @@
     "stripe": {
       "title": "Receive My Payments",
       "description": "Configure your bank account to receive your payments directly.",
-      "connecting": "Connecting to Stripe...",
+      "connecting": "Connecting...",
       "connected": "Account configured",
-      "readyMessage": "Your account is configured and ready to receive payments.",
+      "readyMessage": "Your Stripe account is ready to receive payments",
       "pending": "Incomplete configuration",
-      "pendingMessage": "Your account requires additional information.",
-      "complete": "Complete configuration",
-      "setupMessage": "Configure your account to automatically receive your payments after each lesson.",
+      "pendingMessage": "Your account is being verified",
+      "complete": "Complete setup",
+      "setupMessage": "Set up Stripe Connect to receive payments",
       "benefit1": "Secure payments",
-      "benefit2": "Automatic transfers to your account",
-      "benefit3": "Real-time payment tracking",
+      "benefit2": "Weekly transfers",
+      "benefit3": "Stripe dashboard",
       "connect": "Configure my account",
       "disconnect": "Disconnect",
       "status": "Account Status",
@@ -1089,12 +1277,12 @@
       "balanceRecalculatedSuccess": "Balance recalculated successfully!"
     },
     "earnings": {
-      "title": "My Earnings",
-      "available": "Available Credit",
-      "totalEarned": "Total Earned",
-      "totalWithdrawn": "Total Withdrawn",
-      "inconsistency": "An inconsistency has been detected in your balance.",
-      "recalculate": "Recalculate balance"
+      "title": "My earnings",
+      "available": "Available",
+      "totalEarned": "Total earned",
+      "totalWithdrawn": "Total withdrawn",
+      "inconsistency": "Inconsistency detected",
+      "recalculate": "Recalculate"
     },
     "password": {
       "title": "Change Password",
@@ -1388,7 +1576,8 @@
     "disconnect": "Disconnect",
     "withdraw": "Withdraw",
     "continue": "Continue",
-    "password": "Password"
+    "password": "Password",
+    "redirecting": "Redirecting..."
   },
   "status": {
     "success": "Success",

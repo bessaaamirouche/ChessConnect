@@ -59,28 +59,48 @@
       "icon": "Pion",
       "subtitle": "Niveau A — Débutant",
       "description": "Maîtrisez les fondamentaux : mouvement des pièces, tactiques de base et vos premiers mats.",
-      "skills": ["Mouvement des pièces", "Captures de base", "Mats simples", "Principes d'ouverture"]
+      "skills": [
+        "Mouvement des pièces",
+        "Captures de base",
+        "Mats simples",
+        "Principes d'ouverture"
+      ]
     },
     "knight": {
       "name": "Cavalier",
       "icon": "Cavalier",
       "subtitle": "Niveau B — Intermédiaire",
       "description": "Développez votre vision tactique avec fourchettes, clouages et attaques à la découverte.",
-      "skills": ["Motifs tactiques", "Coordination des pièces", "Structures de pions", "Stratégie du milieu de partie"]
+      "skills": [
+        "Motifs tactiques",
+        "Coordination des pièces",
+        "Structures de pions",
+        "Stratégie du milieu de partie"
+      ]
     },
     "queen": {
       "name": "Fou",
       "icon": "Fou",
       "subtitle": "Niveau C — Avancé",
       "description": "Approfondissez votre compréhension stratégique et maîtrisez les positions complexes.",
-      "skills": ["Jeu positionnel", "Tactiques avancées", "Technique de finale", "Répertoire d'ouvertures"]
+      "skills": [
+        "Jeu positionnel",
+        "Tactiques avancées",
+        "Technique de finale",
+        "Répertoire d'ouvertures"
+      ]
     },
     "king": {
       "name": "Tour",
       "icon": "Tour",
       "subtitle": "Niveau D — Expert",
       "description": "Perfectionnez votre jeu avec des concepts de grand maître et la préparation compétitive.",
-      "skills": ["Calcul profond", "Maîtrise stratégique", "Préparation tournoi", "Analyse de parties"]
+      "skills": [
+        "Calcul profond",
+        "Maîtrise stratégique",
+        "Préparation tournoi",
+        "Analyse de parties"
+      ]
     }
   },
   "howItWorks": {
@@ -116,7 +136,138 @@
         "description": "Donnez vos cours en vidéo HD. Recevez vos paiements chaque semaine via Stripe Connect."
       }
     },
-    "cta": "Commencer maintenant"
+    "cta": "Commencer maintenant",
+    "tip": "Conseil",
+    "premiumFeature": "Fonctionnalité Premium",
+    "premiumAdvantage": "Avantage Premium",
+    "player": {
+      "title": "Pour les joueurs",
+      "badge": "Joueur",
+      "step1": {
+        "title": "Créez votre compte",
+        "description": "Inscrivez-vous gratuitement en quelques secondes",
+        "item1": "Remplissez vos informations",
+        "item2": "Vérifiez votre email",
+        "item3": "Complétez votre profil",
+        "item4": "C'est parti !"
+      },
+      "step2": {
+        "title": "Passez le quiz d'évaluation",
+        "description": "Déterminez votre niveau actuel",
+        "item1": "20 questions adaptées",
+        "item2": "5 minutes maximum",
+        "item3": "Niveau suggéré à la fin"
+      },
+      "step3": {
+        "title": "Trouvez votre coach",
+        "description": "Parcourez les profils des coachs",
+        "item1": "Filtrez par tarif et disponibilité",
+        "item2": "Lisez les avis",
+        "item3": "Ajoutez en favoris",
+        "premiumNote": "Premium : notifications des nouveaux créneaux"
+      },
+      "step4": {
+        "title": "Réservez votre premier cours",
+        "premiumNote": "Premium : accès prioritaire aux créneaux"
+      },
+      "step5": {
+        "title": "Suivez votre progression",
+        "description": "Visualisez votre avancement",
+        "item1": "Statistiques détaillées",
+        "item2": "Cours validés",
+        "item3": "Niveau actuel",
+        "item4": "Objectifs à atteindre"
+      },
+      "step6": {
+        "title": "Continuez à progresser",
+        "description": "Réservez d'autres cours pour avancer"
+      }
+    },
+    "coach": {
+      "title": "Pour les coachs",
+      "badge": "Coach",
+      "step1": {
+        "title": "Créez votre profil coach",
+        "description": "Présentez-vous aux élèves",
+        "item1": "Ajoutez votre photo",
+        "item2": "Décrivez votre expérience",
+        "item3": "Indiquez vos spécialités",
+        "item4": "Définissez votre tarif"
+      },
+      "step2": {
+        "title": "Configurez vos disponibilités",
+        "description": "Gérez votre emploi du temps",
+        "item1": "Créneaux récurrents",
+        "item2": "Créneaux ponctuels",
+        "item3": "Flexibilité totale",
+        "tip": "Publiez régulièrement pour apparaître en tête de liste"
+      },
+      "step3": {
+        "title": "Recevez des réservations",
+        "description": "Les élèves vous réservent",
+        "item1": "Notifications par email",
+        "item2": "Confirmez ou refusez",
+        "item3": "24h pour répondre"
+      },
+      "step4": {
+        "title": "Donnez vos cours",
+        "description": "Enseignez en vidéo HD",
+        "item1": "Jitsi Meet intégré",
+        "item2": "Partage d'écran",
+        "item3": "Enregistrement automatique"
+      },
+      "step5": {
+        "title": "Recevez vos paiements",
+        "description": "Stripe Connect sécurisé"
+      }
+    },
+    "premium": {
+      "title": "Avantages Premium",
+      "badge": "Premium",
+      "description": "Débloquez toutes les fonctionnalités pour 4,99€/mois",
+      "recordings": "Replay des cours",
+      "notifications": "Alertes prioritaires",
+      "training": "myChessBot",
+      "earlyAccess": "Accès anticipé",
+      "cta": "Découvrir Premium"
+    },
+    "notifications": {
+      "title": "Système de notifications",
+      "event": "Événement",
+      "whoNotified": "Qui est notifié",
+      "condition": "Condition",
+      "newSlot": "Nouveau créneau",
+      "favoritePlayers": "Joueurs favoris",
+      "premiumAndNotify": "Premium + notifs activées",
+      "booking": "Réservation",
+      "theCoach": "Le coach",
+      "none": "Aucune",
+      "confirmation": "Confirmation",
+      "thePlayer": "Le joueur",
+      "cancellation": "Annulation",
+      "bothParties": "Les deux parties",
+      "otherParty": "L'autre partie",
+      "reminder": "Rappel (1h avant)",
+      "emailRemindersEnabled": "Rappels email activés"
+    },
+    "faq": {
+      "freeNotifications": {
+        "question": "Les notifications sont-elles gratuites ?",
+        "answer": "Les notifications de base (réservations, confirmations) sont gratuites. Les alertes prioritaires de créneaux sont réservées aux Premium."
+      },
+      "enableNotifications": {
+        "question": "Comment activer les notifications ?",
+        "answer": "Allez dans Paramètres > Notifications pour activer les rappels email et les alertes de créneaux."
+      },
+      "noNotifications": {
+        "question": "Je ne reçois pas de notifications, que faire ?",
+        "intro": "Vérifiez les points suivants :",
+        "item1": "Vérifiez vos spams",
+        "item2": "Activez les notifications dans les paramètres",
+        "item3": "Pour les alertes créneaux : soyez Premium et activez les notifs sur le coach",
+        "item4": "Contactez le support si le problème persiste"
+      }
+    }
   },
   "pricing": {
     "title": "Tarification simple et transparente",
@@ -161,6 +312,82 @@
     "guarantee": {
       "title": "Garantie satisfaction",
       "description": "Pas satisfait de votre premier cours payant ? Nous vous remboursons. Sans condition."
+    },
+    "hero": {
+      "title": "Tarification simple et transparente",
+      "subtitle": "Payez uniquement pour les cours, passez à Premium pour plus d'avantages"
+    },
+    "freeTrial": "14 jours d'essai gratuit",
+    "noCommitment": "Sans engagement",
+    "startTrial": "Commencer l'essai gratuit",
+    "signupAndTry": "S'inscrire et essayer",
+    "premiumPlayersOnly": "Réservé aux joueurs",
+    "benefits": {
+      "title": "Avantages Premium en détail",
+      "subtitle": "Découvrez tout ce que Premium vous offre",
+      "replay": {
+        "title": "Replay des cours",
+        "description": "Revisionnez vos cours autant de fois que nécessaire",
+        "feature1": "Enregistrement automatique",
+        "feature2": "Qualité HD",
+        "feature3": "Téléchargement disponible"
+      },
+      "alerts": {
+        "title": "Alertes prioritaires",
+        "description": "Soyez le premier informé des nouveaux créneaux",
+        "feature1": "Notifications instantanées",
+        "feature2": "24h d'avance sur les non-Premium",
+        "feature3": "Coachs favoris en priorité"
+      },
+      "badge": {
+        "title": "Badge Premium",
+        "description": "Affichez fièrement votre statut",
+        "feature1": "Badge doré sur le profil",
+        "feature2": "Reconnaissance de la communauté",
+        "feature3": "Priorité dans les files d'attente"
+      },
+      "bot": {
+        "title": "myChessBot",
+        "description": "Entraînez-vous contre notre IA",
+        "feature1": "5 niveaux de difficulté",
+        "feature2": "Analyse des parties",
+        "feature3": "Exercices personnalisés"
+      }
+    },
+    "comparison": {
+      "title": "Comparaison des plans",
+      "feature": "Fonctionnalité",
+      "bookLessons": "Réserver des cours",
+      "progressTracking": "Suivi de progression",
+      "videoJitsi": "Cours vidéo Jitsi",
+      "lessonReplay": "Replay des cours",
+      "favoriteAlerts": "Alertes favoris",
+      "premiumBadge": "Badge Premium",
+      "botTraining": "Entraînement myChessBot"
+    },
+    "faq": {
+      "trial": {
+        "question": "Comment fonctionne l'essai gratuit ?",
+        "answer": "Vous avez 14 jours pour tester toutes les fonctionnalités Premium. Aucune carte bancaire requise."
+      },
+      "cancel": {
+        "question": "Puis-je annuler à tout moment ?",
+        "answer": "Oui, vous pouvez annuler votre abonnement à tout moment. Vous gardez l'accès jusqu'à la fin de la période payée."
+      },
+      "freeLessons": {
+        "question": "Les cours sont-ils inclus dans Premium ?",
+        "answer": "Non, Premium donne accès aux fonctionnalités exclusives. Les cours sont payés séparément au tarif du coach."
+      },
+      "secure": {
+        "question": "Le paiement est-il sécurisé ?",
+        "answer": "Oui, tous les paiements sont sécurisés par Stripe, leader mondial du paiement en ligne."
+      }
+    },
+    "cta": {
+      "title": "Prêt à passer au niveau supérieur ?",
+      "subtitle": "Rejoignez les joueurs Premium et progressez plus vite",
+      "createAccount": "Créer un compte gratuit",
+      "startTrial": "Démarrer l'essai gratuit"
     }
   },
   "faq": {
@@ -238,6 +465,11 @@
         "q": "Mes données sont-elles sécurisées ?",
         "a": "Oui. Nous utilisons un chiffrement standard de l'industrie, ne stockons jamais les numéros de carte et sommes conformes au RGPD. Consultez notre Politique de confidentialité pour plus de détails."
       }
+    },
+    "contact": {
+      "title": "Une autre question ?",
+      "subtitle": "Contactez-nous et nous vous répondrons rapidement",
+      "cta": "Nous contacter"
     }
   },
   "sidebar": {
@@ -483,7 +715,38 @@
       "price": "Prix",
       "level": "Niveau",
       "topic": "Sujet"
-    }
+    },
+    "subtitle": "Gérez vos cours à venir et passés",
+    "filterCoach": "Filtrer par coach",
+    "filterStudent": "Filtrer par élève",
+    "filterMonth": "Filtrer par mois",
+    "clearFilters": "Effacer les filtres",
+    "noMatchingFilters": "Aucun cours ne correspond aux filtres",
+    "complete": "Terminer",
+    "completeLesson": "Terminer le cours",
+    "emailReminders": "Rappels email",
+    "cancellationReason": "Raison de l'annulation",
+    "reason": "Raison",
+    "viewReason": "Voir la raison",
+    "withRecording": "Avec enregistrement",
+    "coursesToValidate": "Cours à valider",
+    "coursesCount": "cours",
+    "viewStudentProgress": "Voir la progression",
+    "viewStudents": "Voir les élèves",
+    "validateProgress": "Valider la progression",
+    "progressAndLevels": "Progression et niveaux",
+    "coachNotes": "Notes du coach",
+    "coachObservations": "Observations du coach",
+    "coachMessage": "Message du coach",
+    "messageFrom": "Message de",
+    "yourMessageFor": "Votre message pour",
+    "observationsLabel": "Observations",
+    "observationsPlaceholder": "Vos observations sur ce cours...",
+    "observationsHint": "Ces observations seront visibles par l'élève",
+    "addComment": "Ajouter un commentaire",
+    "editComment": "Modifier le commentaire",
+    "commentPlaceholder": "Votre commentaire...",
+    "commentVisibleHint": "Ce commentaire sera visible par l'élève"
   },
   "booking": {
     "title": "Réserver un cours",
@@ -518,7 +781,31 @@
       "slotTaken": "Ce créneau n'est plus disponible",
       "paymentFailed": "Échec du paiement. Veuillez réessayer.",
       "generic": "Une erreur s'est produite. Veuillez réessayer."
-    }
+    },
+    "backToCoaches": "Retour aux coachs",
+    "selectSlotPlaceholder": "Sélectionnez un créneau",
+    "course": "Cours",
+    "sessionCourse": "Cours de la session",
+    "courseAutoIncrement": "Le cours sera automatiquement sélectionné selon votre progression",
+    "noCourseSet": "Aucun cours défini",
+    "consultProgram": "Consultez le programme pour voir les cours",
+    "viewProgram": "Voir le programme",
+    "level": "Niveau",
+    "lessonRate": "Tarif du cours",
+    "notes": "Notes pour le coach",
+    "notesPlaceholder": "Points à travailler, questions...",
+    "useWallet": "Utiliser mon portefeuille",
+    "pay": "Payer",
+    "payWithCredit": "Payer avec mon crédit",
+    "taken": "Créneau pris",
+    "confirmingPayment": "Confirmation du paiement...",
+    "pleaseWait": "Veuillez patienter...",
+    "paymentConfirmed": "Paiement confirmé !",
+    "goToDashboard": "Retour au tableau de bord",
+    "redirectingToDashboard": "Redirection vers le tableau de bord...",
+    "premiumBookFirst": "Les membres Premium réservent en premier",
+    "priorityAccess": "Accès prioritaire aux nouveaux créneaux",
+    "discover": "Découvrir Premium"
   },
   "wallet": {
     "title": "Mon Portefeuille",
@@ -575,7 +862,15 @@
       "notifications": "Alertes de réservation prioritaires",
       "badge": "Badge Premium sur le profil",
       "bot": "Entraînement contre myChessBot",
-      "support": "Support prioritaire"
+      "support": "Support prioritaire",
+      "replay": "Replay des cours",
+      "replayDesc": "Accédez aux enregistrements de vos cours",
+      "resume": "Reprise à la position",
+      "resumeDesc": "Reprenez vos vidéos là où vous les avez arrêtées",
+      "alerts": "Alertes prioritaires",
+      "alertsDesc": "Soyez notifié en premier des nouveaux créneaux",
+      "badgeDesc": "Un badge doré sur votre profil",
+      "botDesc": "Entraînez-vous contre l'IA myChessBot"
     },
     "upgrade": "Passer à Premium",
     "manage": "Gérer l'abonnement",
@@ -584,10 +879,56 @@
       "title": "Annuler l'abonnement ?",
       "message": "Vous perdrez l'accès aux fonctionnalités Premium à la fin de votre période de facturation.",
       "confirm": "Oui, annuler",
-      "keep": "Garder Premium"
+      "keep": "Garder Premium",
+      "warning": "Vous perdrez l'accès aux fonctionnalités Premium"
     },
     "renewsOn": "Renouvellement le",
-    "expiresOn": "Expire le"
+    "expiresOn": "Expire le",
+    "subtitle": "Gérez votre abonnement Premium",
+    "active": "Actif",
+    "activeUntil": "Actif jusqu'au",
+    "memberSince": "Membre depuis",
+    "cancelled": "Annulé",
+    "cancelling": "Annulation...",
+    "noCommitment": "Sans engagement",
+    "allFeatures": "Toutes les fonctionnalités",
+    "becomePremium": "Devenir Premium",
+    "recommended": "Recommandé",
+    "paymentTitle": "Paiement",
+    "bookLesson": "Réserver un cours",
+    "benefitCards": {
+      "replay": {
+        "title": "Replay des cours",
+        "description": "Revisionnez vos cours enregistrés"
+      },
+      "resume": {
+        "title": "Reprise intelligente",
+        "description": "Reprenez là où vous vous êtes arrêté"
+      },
+      "alerts": {
+        "title": "Alertes prioritaires",
+        "description": "Réservez avant tout le monde"
+      },
+      "bot": {
+        "title": "myChessBot",
+        "description": "Entraînez-vous contre l'IA"
+      }
+    },
+    "trial": {
+      "title": "Essai gratuit",
+      "badge": "Essai gratuit",
+      "planName": "Premium - Essai",
+      "duration": "14 jours",
+      "daysRemaining": "jours restants",
+      "endsOn": "Se termine le",
+      "start": "Démarrer l'essai gratuit",
+      "activating": "Activation...",
+      "bannerTitle": "Essayez Premium gratuitement !",
+      "bannerMessage": "14 jours d'essai sans engagement",
+      "ctaMessage": "Profitez de toutes les fonctionnalités Premium",
+      "successTitle": "Essai activé !",
+      "successMessage": "Profitez de 14 jours de Premium gratuit"
+    }
   },
   "progress": {
     "title": "Ma Progression",
@@ -693,7 +1034,13 @@
       "noAccount": "Pas encore de compte ?",
       "signup": "S'inscrire",
       "or": "ou",
-      "googleLogin": "Continuer avec Google"
+      "googleLogin": "Continuer avec Google",
+      "emailPlaceholder": "votre@email.com",
+      "passwordPlaceholder": "Votre mot de passe",
+      "showPassword": "Afficher le mot de passe",
+      "hidePassword": "Masquer le mot de passe",
+      "submitting": "Connexion...",
+      "createAccount": "Créer un compte"
     },
     "signup": {
       "title": "Créer un compte",
@@ -713,7 +1060,34 @@
       "privacyLink": "Politique de confidentialité",
       "submit": "Créer mon compte",
       "hasAccount": "Déjà inscrit ?",
-      "login": "Se connecter"
+      "login": "Se connecter",
+      "accountType": "Type de compte",
+      "playerLabel": "Joueur",
+      "playerDesc": "Je veux apprendre les échecs",
+      "coachLabel": "Coach",
+      "coachDesc": "Je veux enseigner les échecs",
+      "firstNamePlaceholder": "Jean",
+      "firstNameRequired": "Le prénom est requis",
+      "lastNamePlaceholder": "Dupont",
+      "lastNameRequired": "Le nom est requis",
+      "emailPlaceholder": "jean@email.com",
+      "passwordPlaceholder": "Minimum 8 caractères",
+      "minChars": "Minimum 8 caractères",
+      "minChars20": "Minimum 20 caractères",
+      "specialCharsNotAllowed": "Caractères spéciaux non autorisés",
+      "birthDate": "Date de naissance",
+      "eloRating": "Classement ELO",
+      "eloPlaceholder": "Ex: 1500",
+      "eloHint": "Optionnel - votre classement ELO actuel",
+      "knowsElo": "Je connais mon ELO",
+      "bio": "Biographie",
+      "bioPlaceholder": "Présentez-vous en quelques mots...",
+      "bioRequiredError": "La biographie est requise pour les coachs",
+      "hourlyRate": "Tarif horaire",
+      "hourlyRateUnit": "EUR/heure",
+      "languages": "Langues parlées",
+      "languagesHint": "Sélectionnez les langues que vous parlez",
+      "submitting": "Création du compte..."
     },
     "forgotPassword": {
       "title": "Mot de passe oublié",
@@ -744,7 +1118,9 @@
         "message": "Ce lien de réinitialisation est invalide ou a expiré.",
         "requestNew": "Demander un nouveau lien"
       },
-      "validating": "Vérification du lien…"
+      "validating": "Vérification du lien…",
+      "newPasswordPlaceholder": "Nouveau mot de passe",
+      "confirmPasswordPlaceholder": "Confirmer le mot de passe"
     },
     "errors": {
       "invalidEmail": "Veuillez entrer un email valide",
@@ -754,7 +1130,62 @@
       "emailInUse": "Cet email est déjà utilisé",
       "required": "Ce champ est requis"
     },
-    "verificationEmailResent": "Email de vérification renvoyé !"
+    "verificationEmailResent": "Email de vérification renvoyé !",
+    "adminLogin": {
+      "title": "Administration",
+      "username": "Identifiant",
+      "usernamePlaceholder": "Entrez votre identifiant",
+      "usernameRequired": "L'identifiant est requis",
+      "password": "Mot de passe",
+      "passwordPlaceholder": "Entrez votre mot de passe",
+      "passwordRequired": "Le mot de passe est requis",
+      "submit": "Se connecter",
+      "submitting": "Connexion..."
+    },
+    "contact": {
+      "title": "Nous contacter",
+      "name": "Nom",
+      "namePlaceholder": "Votre nom",
+      "nameRequired": "Le nom est requis",
+      "email": "Email",
+      "emailPlaceholder": "votre@email.com",
+      "emailInvalid": "Email invalide",
+      "subject": "Sujet",
+      "subjectPlaceholder": "Sujet de votre message",
+      "subjectRequired": "Le sujet est requis",
+      "message": "Message",
+      "messagePlaceholder": "Votre message...",
+      "messageRequired": "Le message est requis",
+      "submit": "Envoyer",
+      "sending": "Envoi en cours...",
+      "cancel": "Annuler",
+      "backToLogin": "Retour à la connexion",
+      "successTitle": "Message envoyé !",
+      "successMessage": "Nous vous répondrons dans les plus brefs délais."
+    },
+    "emailVerification": {
+      "title": "Vérification de l'email",
+      "notVerifiedTitle": "Email non vérifié",
+      "subtitle": "Un email de vérification a été envoyé",
+      "instructions": "Veuillez vérifier votre boîte de réception",
+      "checkInbox": "Consultez votre boîte de réception",
+      "checkSpam": "Vérifiez également vos spams",
+      "clickLink": "Cliquez sur le lien de vérification",
+      "linkExpires": "Le lien expire dans 24 heures",
+      "resendButton": "Renvoyer l'email",
+      "resending": "Envoi en cours...",
+      "resendSuccess": "Email renvoyé avec succès !",
+      "newEmailSent": "Un nouvel email a été envoyé",
+      "backToLogin": "Retour à la connexion",
+      "goToLogin": "Aller à la connexion"
+    },
+    "suspended": {
+      "title": "Compte suspendu",
+      "message": "Votre compte a été suspendu.",
+      "help": "Si vous pensez qu'il s'agit d'une erreur, contactez-nous.",
+      "contactAdmin": "Contacter l'administration",
+      "backToLogin": "Retour à la connexion"
+    }
   },
   "settings": {
     "title": "Paramètres",
@@ -768,7 +1199,9 @@
       "bio": "Bio",
       "bioPlaceholder": "Décrivez votre expérience…",
       "save": "Enregistrer",
-      "saving": "Enregistrement…"
+      "saving": "Enregistrement…",
+      "avatarHint": "JPG ou PNG, max 5 Mo",
+      "success": "Profil mis à jour avec succès"
     },
     "coachProfile": {
       "title": "Profil coach",
@@ -777,7 +1210,8 @@
       "specialties": "Spécialités",
       "languages": "Langues",
       "elo": "Classement ELO",
-      "fide": "Titre FIDE"
+      "fide": "Titre FIDE",
+      "languagesHint": "Langues parlées pendant les cours"
     },
     "notifications": {
       "title": "Notifications",
@@ -787,7 +1221,8 @@
       "emailFavorites": "Disponibilités des coachs favoris",
       "push": "Notifications push",
       "pushReminders": "Rappels de cours",
-      "pushBookings": "Mises à jour des réservations"
+      "pushBookings": "Mises à jour des réservations",
+      "emailRemindersDesc": "Recevez un rappel 1 heure avant chaque cours"
     },
     "language": {
       "title": "Langue",
@@ -818,7 +1253,15 @@
       "withdrawConfirmMessage": "Voulez-vous retirer {{amount}} EUR vers votre compte bancaire ?",
       "withdrawTitle": "Retirer mes gains",
       "withdrawSuccess": "Retrait de {{amount}} effectué !",
-      "balanceRecalculatedSuccess": "Balance recalculée avec succès !"
+      "balanceRecalculatedSuccess": "Balance recalculée avec succès !",
+      "connecting": "Connexion en cours...",
+      "setupMessage": "Configurez Stripe Connect pour recevoir vos paiements",
+      "readyMessage": "Votre compte Stripe est prêt à recevoir des paiements",
+      "pendingMessage": "Votre compte est en cours de vérification",
+      "complete": "Terminer la configuration",
+      "benefit1": "Paiements sécurisés",
+      "benefit2": "Virements hebdomadaires",
+      "benefit3": "Tableau de bord Stripe"
     },
     "password": {
       "title": "Modifier le mot de passe",
@@ -840,6 +1283,27 @@
       "confirmationRequired": "Confirmation requise",
       "deletePermanently": "Supprimer définitivement",
       "success": "Votre compte a été supprimé avec succès"
+    },
+    "subtitle": "Gérez votre compte et vos préférences",
+    "player": {
+      "birthDate": "Date de naissance",
+      "eloRating": "Classement ELO",
+      "known": "Connu"
+    },
+    "professional": {
+      "title": "Informations professionnelles",
+      "description": "Pour les coachs auto-entrepreneurs",
+      "companyName": "Nom de l'entreprise",
+      "companyPlaceholder": "Votre entreprise",
+      "siret": "SIRET"
+    },
+    "earnings": {
+      "title": "Mes revenus",
+      "available": "Disponible",
+      "totalEarned": "Total gagné",
+      "totalWithdrawn": "Total retiré",
+      "inconsistency": "Incohérence détectée",
+      "recalculate": "Recalculer"
     }
   },
   "exercise": {
@@ -1112,7 +1576,8 @@
     "disconnect": "Déconnecter",
     "withdraw": "Retirer",
     "continue": "Continuer",
-    "password": "Mot de passe"
+    "password": "Mot de passe",
+    "redirecting": "Redirection..."
   },
   "status": {
     "success": "Succès",

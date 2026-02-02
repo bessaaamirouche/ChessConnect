@@ -62,7 +62,7 @@ export class ProgrammeComponent implements OnInit {
   private programmeService = inject(ProgrammeService);
   private toastService = inject(ToastService);
 
-  expandedLevels = signal<Set<string>>(new Set(['A']));
+  expandedLevels = signal<Set<string>>(new Set());
   expandedCourses = signal<Set<number>>(new Set());
   currentCourseId = signal<number>(1);
   loading = signal(false);

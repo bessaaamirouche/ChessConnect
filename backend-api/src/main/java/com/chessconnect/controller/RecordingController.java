@@ -6,6 +6,7 @@ import com.chessconnect.repository.LessonRepository;
 import com.chessconnect.repository.UserRepository;
 import com.chessconnect.service.BunnyStorageService;
 import com.chessconnect.service.BunnyStreamService;
+import com.chessconnect.service.ThumbnailService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -58,16 +59,19 @@ public class RecordingController {
     private final UserRepository userRepository;
     private final BunnyStreamService bunnyStreamService;
     private final BunnyStorageService bunnyStorageService;
+    private final ThumbnailService thumbnailService;
 
     @Value("${jibri.webhook-secret:}")
     private String webhookSecret;
 
     public RecordingController(LessonRepository lessonRepository, UserRepository userRepository,
-                               BunnyStreamService bunnyStreamService, BunnyStorageService bunnyStorageService) {
+                               BunnyStreamService bunnyStreamService, BunnyStorageService bunnyStorageService,
+                               ThumbnailService thumbnailService) {
         this.lessonRepository = lessonRepository;
         this.userRepository = userRepository;
         this.bunnyStreamService = bunnyStreamService;
         this.bunnyStorageService = bunnyStorageService;
+        this.thumbnailService = thumbnailService;
     }
 
     /**
@@ -157,6 +161,9 @@ public class RecordingController {
                         lesson.setRecordingUrl(cdnUrl);
                         lessonRepository.save(lesson);
                         log.info("Recording uploaded to Bunny CDN for lesson {}: {}", finalLessonId, cdnUrl);
+
+                        // Generate thumbnail from local file before deleting it
+                        thumbnailService.generateThumbnailFromLocalFile(finalLessonId, finalLocalFile);
 
                         // Delete local file after successful upload
                         try {

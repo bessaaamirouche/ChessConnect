@@ -11,11 +11,15 @@ RUN mvn clean package -DskipTests
 FROM eclipse-temurin:17-jre
 WORKDIR /app
 
+# Install FFmpeg for video thumbnail generation
+RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
+
 # Add a non-root user for security
 RUN groupadd -r spring && useradd -r -g spring spring
 
 # Create uploads directory with proper permissions BEFORE switching user
-RUN mkdir -p /app/uploads/avatars && chown -R spring:spring /app/uploads
+RUN mkdir -p /app/uploads/avatars /app/uploads/thumbnails && chown -R spring:spring /app/uploads
 
 # Copy default teacher avatars
 COPY --chown=spring:spring uploads/avatars/*.jpg /app/uploads/avatars/

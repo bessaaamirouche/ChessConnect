@@ -1568,8 +1568,12 @@ public class ExerciseService {
 
         DifficultyLevel difficulty = mapChessLevelToDifficulty(studentLevel);
 
-        // Get current course (IN_PROGRESS or last COMPLETED) for the student
-        Optional<Course> currentCourse = getCurrentCourseForStudent(userId, studentLevel);
+        // First, use the course directly attached to the lesson (set by teacher during booking)
+        // Fallback to learning path course if no course is attached
+        Course lessonCourse = lesson.getCourse();
+        Optional<Course> currentCourse = lessonCourse != null
+            ? Optional.of(lessonCourse)
+            : getCurrentCourseForStudent(userId, studentLevel);
 
         // Find matching exercise config based on course title
         ExerciseConfig config = null;

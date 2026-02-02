@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 public class UpdateTeacherProfileRequest {
-    @Min(value = 1000, message = "Le tarif minimum est de 10€")
+    @Min(value = 50, message = "Le tarif minimum est de 0.50€ (limite Stripe)")
     private Integer hourlyRateCents;
 
     private String bio;

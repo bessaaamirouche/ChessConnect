@@ -13,6 +13,7 @@ import com.chessconnect.service.AdminService;
 import com.chessconnect.service.AnalyticsService;
 import com.chessconnect.service.StripeConnectService;
 import com.chessconnect.service.StripeService;
+import com.chessconnect.service.ThumbnailService;
 import com.chessconnect.service.WalletService;
 import com.stripe.exception.StripeException;
 import java.time.LocalDate;
@@ -40,6 +41,7 @@ public class AdminController {
     private final StripeConnectService stripeConnectService;
     private final AnalyticsService analyticsService;
     private final WalletService walletService;
+    private final ThumbnailService thumbnailService;
     private final UserRepository userRepository;
     private final LessonRepository lessonRepository;
 
@@ -49,6 +51,7 @@ public class AdminController {
             StripeConnectService stripeConnectService,
             AnalyticsService analyticsService,
             WalletService walletService,
+            ThumbnailService thumbnailService,
             UserRepository userRepository,
             LessonRepository lessonRepository
     ) {
@@ -57,6 +60,7 @@ public class AdminController {
         this.stripeConnectService = stripeConnectService;
         this.analyticsService = analyticsService;
         this.walletService = walletService;
+        this.thumbnailService = thumbnailService;
         this.userRepository = userRepository;
         this.lessonRepository = lessonRepository;
     }
@@ -607,5 +611,72 @@ public class AdminController {
             .map(s -> Map.of("id", s.getId(), "name", s.getFullName()))
             .toList()
         );
+    }
+
+    // ============= THUMBNAILS =============
+
+    /**
+     * Generate thumbnails for all lessons that have recordings but no thumbnails.
+     */
+    @PostMapping("/thumbnails/generate-missing")
+    public ResponseEntity<?> generateMissingThumbnails() {
+        if (!thumbnailService.isFfmpegAvailable()) {
+            return ResponseEntity.badRequest().body(Map.of(
+                "success", false,
+                "message", "FFmpeg n'est pas disponible sur le serveur"
+            ));
+        }
+
+        // Count lessons needing thumbnails
+        long count = lessonRepository.findAll().stream()
+            .filter(l -> l.getRecordingUrl() != null && l.getThumbnailUrl() == null)
+            .count();
+
+        if (count == 0) {
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "Toutes les lecons ont deja des miniatures"
+            ));
+        }
+
+        // Trigger async generation
+        thumbnailService.generateMissingThumbnails();
+
+        return ResponseEntity.ok(Map.of(
+            "success", true,
+            "message", count + " miniature(s) en cours de generation"
+        ));
+    }
+
+    /**
+     * Generate thumbnail for a specific lesson.
+     */
+    @PostMapping("/thumbnails/generate/{lessonId}")
+    public ResponseEntity<?> generateThumbnail(@PathVariable Long lessonId) {
+        if (!thumbnailService.isFfmpegAvailable()) {
+            return ResponseEntity.badRequest().body(Map.of(
+                "success", false,
+                "message", "FFmpeg n'est pas disponible sur le serveur"
+            ));
+        }
+
+        Lesson lesson = lessonRepository.findById(lessonId).orElse(null);
+        if (lesson == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (lesson.getRecordingUrl() == null) {
+            return ResponseEntity.badRequest().body(Map.of(
+                "success", false,
+                "message", "Cette lecon n'a pas d'enregistrement video"
+            ));
+        }
+
+        thumbnailService.generateThumbnailAsync(lessonId);
+
+        return ResponseEntity.ok(Map.of(
+            "success", true,
+            "message", "Generation de la miniature en cours pour la lecon " + lessonId
+        ));
     }
 }

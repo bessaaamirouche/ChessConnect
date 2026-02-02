@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/video-progress")
+@RequestMapping("/video-progress")
 public class VideoProgressController {
 
     private final VideoWatchProgressRepository progressRepository;

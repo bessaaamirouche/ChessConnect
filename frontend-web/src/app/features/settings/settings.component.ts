@@ -19,6 +19,7 @@ import { DialogService } from '../../core/services/dialog.service';
 import { ToastService } from '../../core/services/toast.service';
 import { HttpClient } from '@angular/common/http';
 import { StripeConnectService, StripeConnectStatus } from '../../core/services/stripe-connect.service';
+import { PushNotificationService } from '../../core/services/push-notification.service';
 import { AVAILABLE_LANGUAGES, User, UpdateUserRequest } from '../../core/models/user.model';
 import { DateInputComponent } from '../../shared/components/date-input/date-input.component';
 import { LanguageSelectorComponent } from '../../shared/components/language-selector/language-selector.component';
@@ -69,6 +70,11 @@ export class SettingsComponent implements OnInit {
   preferencesError = signal<string | null>(null);
 
   emailRemindersEnabled = signal(true);
+
+  // Push notifications
+  pushNotificationService = inject(PushNotificationService);
+  pushNotificationsEnabled = signal(true);
+  savingPushPreferences = signal(false);
 
   // Languages
   availableLanguages = AVAILABLE_LANGUAGES;
@@ -192,6 +198,8 @@ export class SettingsComponent implements OnInit {
       });
       // Load email reminder preference
       this.emailRemindersEnabled.set(user.emailRemindersEnabled !== false);
+      // Load push notification preference
+      this.pushNotificationsEnabled.set(user.pushNotificationsEnabled !== false);
       // Load languages for teachers
       if (user.languages && user.languages.length > 0) {
         this.selectedLanguages.set(user.languages);
@@ -369,6 +377,63 @@ export class SettingsComponent implements OnInit {
         this.preferencesError.set(err.error?.message || this.translateService.instant('errors.save'));
       }
     });
+  }
+
+  async togglePushNotifications(): Promise<void> {
+    if (this.savingPushPreferences()) return;
+
+    const newValue = !this.pushNotificationsEnabled();
+    this.savingPushPreferences.set(true);
+    this.preferencesError.set(null);
+
+    try {
+      // If enabling, subscribe to push notifications
+      if (newValue) {
+        const subscribed = await this.pushNotificationService.subscribe();
+        if (!subscribed) {
+          // Permission denied or subscription failed
+          this.savingPushPreferences.set(false);
+          this.preferencesError.set(this.pushNotificationService.error() || this.translateService.instant('errors.pushPermissionDenied'));
+          return;
+        }
+      } else {
+        // Unsubscribe from push notifications
+        await this.pushNotificationService.unsubscribe();
+      }
+
+      // Update server preference
+      await this.pushNotificationService.updatePreference(newValue);
+      this.pushNotificationsEnabled.set(newValue);
+      this.preferencesSuccess.set(true);
+      setTimeout(() => this.preferencesSuccess.set(false), 3000);
+    } catch (err) {
+      this.preferencesError.set(this.translateService.instant('errors.save'));
+    } finally {
+      this.savingPushPreferences.set(false);
+    }
+  }
+
+  async enablePushNotifications(): Promise<void> {
+    if (this.savingPushPreferences()) return;
+
+    this.savingPushPreferences.set(true);
+    this.preferencesError.set(null);
+
+    try {
+      const subscribed = await this.pushNotificationService.subscribe();
+      if (subscribed) {
+        await this.pushNotificationService.updatePreference(true);
+        this.pushNotificationsEnabled.set(true);
+        this.preferencesSuccess.set(true);
+        setTimeout(() => this.preferencesSuccess.set(false), 3000);
+      } else {
+        this.preferencesError.set(this.pushNotificationService.error() || this.translateService.instant('errors.pushPermissionDenied'));
+      }
+    } catch (err) {
+      this.preferencesError.set(this.translateService.instant('errors.save'));
+    } finally {
+      this.savingPushPreferences.set(false);
+    }
   }
 
   logout(): void {

@@ -109,6 +109,7 @@ export interface User {
   eloRating?: number;
   // Settings
   emailRemindersEnabled?: boolean;
+  pushNotificationsEnabled?: boolean;
   // Admin
   isSuspended?: boolean;
   createdAt?: string;
@@ -125,6 +126,7 @@ export interface UpdateUserRequest {
   birthDate?: string;
   eloRating?: number;
   emailRemindersEnabled?: boolean;
+  pushNotificationsEnabled?: boolean;
 }
 
 export interface ChangePasswordRequest {

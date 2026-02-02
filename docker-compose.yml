@@ -63,6 +63,10 @@ services:
       BUNNY_STORAGE_API_KEY: ${BUNNY_STORAGE_API_KEY:-}
       BUNNY_STORAGE_HOST: ${BUNNY_STORAGE_HOST:-storage.bunnycdn.com}
       BUNNY_CDN_URL: ${BUNNY_CDN_URL:-https://mychess.b-cdn.net}
+      # Web Push Notifications (VAPID keys - optional, auto-generated if not set)
+      VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:-}
+      VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY:-}
+      VAPID_SUBJECT: ${VAPID_SUBJECT:-mailto:contact@mychess.fr}
     ports:
       - "8282:8282"
     volumes:

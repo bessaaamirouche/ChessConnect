@@ -1235,7 +1235,11 @@
       "emailFavorites": "Favorite coach availability",
       "push": "Push Notifications",
       "pushReminders": "Lesson reminders",
-      "pushBookings": "Booking updates"
+      "pushBookings": "Booking updates",
+      "pushNotifications": "Push notifications",
+      "pushDesc": "Receive notifications even when the app is closed",
+      "enablePush": "Enable push notifications",
+      "pushBlocked": "Notifications are blocked. Allow them in your browser settings."
     },
     "language": {
       "title": "Language",
@@ -1673,6 +1677,7 @@
     "checkoutCreate": "Error creating checkout session",
     "sendEmail": "Error sending email. Please try again.",
     "sendMessage": "Error sending message. Please try again.",
+    "pushPermissionDenied": "Permission denied. Allow notifications in your browser settings.",
     "subscriptionCancel": "Error canceling subscription",
     "freeTrialStart": "Error starting free trial",
     "invalidLink": "Invalid link",

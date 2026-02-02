@@ -36,6 +36,7 @@ public class TeacherProfileResponse {
 
     // Preferences
     private Boolean emailRemindersEnabled;
+    private Boolean pushNotificationsEnabled;
 
     public static List<String> parseLanguages(String languages) {
         if (languages == null || languages.isBlank()) {

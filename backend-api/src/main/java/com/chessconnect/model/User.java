@@ -65,6 +65,10 @@ public class User {
     @Column(name = "email_reminders_enabled")
     private Boolean emailRemindersEnabled = true;
 
+    // Push notification preference
+    @Column(name = "push_notifications_enabled")
+    private Boolean pushNotificationsEnabled = true;
+
     // Admin suspension
     @Column(name = "is_suspended")
     private Boolean isSuspended = false;
@@ -215,6 +219,9 @@ public class User {
 
     public Boolean getEmailRemindersEnabled() { return emailRemindersEnabled; }
     public void setEmailRemindersEnabled(Boolean emailRemindersEnabled) { this.emailRemindersEnabled = emailRemindersEnabled; }
+
+    public Boolean getPushNotificationsEnabled() { return pushNotificationsEnabled; }
+    public void setPushNotificationsEnabled(Boolean pushNotificationsEnabled) { this.pushNotificationsEnabled = pushNotificationsEnabled; }
 
     public Boolean getIsSuspended() { return isSuspended; }
     public void setIsSuspended(Boolean isSuspended) { this.isSuspended = isSuspended; }

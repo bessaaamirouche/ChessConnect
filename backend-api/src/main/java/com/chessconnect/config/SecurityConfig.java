@@ -62,6 +62,7 @@ public class SecurityConfig {
                         .requestMatchers("/payments/admin/**").permitAll()
                         .requestMatchers("/contact/**").permitAll()
                         .requestMatchers("/recordings/webhook").permitAll()
+                        .requestMatchers("/push/vapid-key").permitAll()
                         .requestMatchers(HttpMethod.GET, "/articles/**").permitAll()
                         .requestMatchers("/sitemap.xml").permitAll()
                         .requestMatchers("/robots.txt").permitAll()

@@ -57,7 +57,8 @@
               "src/assets",
               "src/robots.txt",
               "src/sitemap.xml",
-              "src/manifest.webmanifest"
+              "src/manifest.webmanifest",
+              "src/sw-push.js"
             ],
             "styles": [
               "src/styles.scss"

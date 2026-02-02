@@ -70,17 +70,61 @@
               </div>
             </div>
 
-            <div class="email-reminder-option">
-              <label class="toggle">
-                <input type="checkbox" [checked]="emailRemindersEnabled()" (change)="toggleEmailReminders()" [disabled]="savingPreferences()">
-                <span class="toggle__slider"></span>
-              </label>
-              <div class="email-reminder-option__text">
-                <span class="email-reminder-option__label">{{ 'settings.notifications.emailReminders' | translate }}</span>
-                <small class="email-reminder-option__description">{{ 'settings.notifications.emailRemindersDesc' | translate }}</small>
+            <div class="notification-options">
+              <div class="notification-option">
+                <label class="toggle">
+                  <input type="checkbox" [checked]="emailRemindersEnabled()" (change)="toggleEmailReminders()" [disabled]="savingPreferences()">
+                  <span class="toggle__slider"></span>
+                </label>
+                <div class="notification-option__text">
+                  <span class="notification-option__label">{{ 'settings.notifications.emailReminders' | translate }}</span>
+                  <small class="notification-option__description">{{ 'settings.notifications.emailRemindersDesc' | translate }}</small>
+                </div>
+                @if (savingPreferences()) {
+                  <span class="spinner spinner--sm"></span>
+                }
               </div>
-              @if (savingPreferences()) {
-                <span class="spinner spinner--sm"></span>
+
+              <!-- Push Notifications -->
+              @if (pushNotificationService.supported()) {
+                <div class="notification-option">
+                  @if (pushNotificationService.isPermissionDenied()) {
+                    <div class="notification-option__blocked">
+                      <span class="notification-option__label">{{ 'settings.notifications.pushNotifications' | translate }}</span>
+                      <small class="notification-option__description notification-option__description--warning">
+                        {{ 'settings.notifications.pushBlocked' | translate }}
+                      </small>
+                    </div>
+                  } @else if (pushNotificationService.permission() === 'default' && !pushNotificationService.subscribed()) {
+                    <button
+                      class="btn btn--primary btn--sm"
+                      (click)="enablePushNotifications()"
+                      [disabled]="savingPushPreferences()"
+                    >
+                      @if (savingPushPreferences()) {
+                        <span class="spinner spinner--sm"></span>
+                      } @else {
+                        {{ 'settings.notifications.enablePush' | translate }}
+                      }
+                    </button>
+                    <div class="notification-option__text">
+                      <span class="notification-option__label">{{ 'settings.notifications.pushNotifications' | translate }}</span>
+                      <small class="notification-option__description">{{ 'settings.notifications.pushDesc' | translate }}</small>
+                    </div>
+                  } @else {
+                    <label class="toggle">
+                      <input type="checkbox" [checked]="pushNotificationsEnabled() && pushNotificationService.subscribed()" (change)="togglePushNotifications()" [disabled]="savingPushPreferences()">
+                      <span class="toggle__slider"></span>
+                    </label>
+                    <div class="notification-option__text">
+                      <span class="notification-option__label">{{ 'settings.notifications.pushNotifications' | translate }}</span>
+                      <small class="notification-option__description">{{ 'settings.notifications.pushDesc' | translate }}</small>
+                    </div>
+                    @if (savingPushPreferences()) {
+                      <span class="spinner spinner--sm"></span>
+                    }
+                  }
+                </div>
               }
             </div>
           }

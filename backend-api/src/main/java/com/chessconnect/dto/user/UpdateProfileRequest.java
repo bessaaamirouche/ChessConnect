@@ -36,4 +36,5 @@ public class UpdateProfileRequest {
 
     // Preferences
     private Boolean emailRemindersEnabled;
+    private Boolean pushNotificationsEnabled;
 }

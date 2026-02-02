@@ -25,15 +25,18 @@ public class UserNotificationService {
     private final UserNotificationRepository notificationRepository;
     private final UserRepository userRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final WebPushService webPushService;
 
     public UserNotificationService(
             UserNotificationRepository notificationRepository,
             UserRepository userRepository,
-            ApplicationEventPublisher eventPublisher
+            ApplicationEventPublisher eventPublisher,
+            WebPushService webPushService
     ) {
         this.notificationRepository = notificationRepository;
         this.userRepository = userRepository;
         this.eventPublisher = eventPublisher;
+        this.webPushService = webPushService;
     }
 
     /**
@@ -52,7 +55,22 @@ public class UserNotificationService {
         // Publish SSE event for real-time notification
         publishNotificationEvent(notification);
 
+        // Send Web Push notification (async, only if user not connected via SSE)
+        sendWebPushNotification(userId, title, message, link);
+
         return notification;
+    }
+
+    /**
+     * Send Web Push notification to user.
+     * Only sends if user has push notifications enabled and is not connected via SSE.
+     */
+    private void sendWebPushNotification(Long userId, String title, String message, String link) {
+        try {
+            webPushService.sendToUser(userId, title, message, link);
+        } catch (Exception e) {
+            log.warn("Failed to send Web Push notification to user {}: {}", userId, e.getMessage());
+        }
     }
 
     /**

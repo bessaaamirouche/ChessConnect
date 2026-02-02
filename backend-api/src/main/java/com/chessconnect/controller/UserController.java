@@ -112,6 +112,9 @@ public class UserController {
         if (request.getEmailRemindersEnabled() != null) {
             user.setEmailRemindersEnabled(request.getEmailRemindersEnabled());
         }
+        if (request.getPushNotificationsEnabled() != null) {
+            user.setPushNotificationsEnabled(request.getPushNotificationsEnabled());
+        }
 
         user = userRepository.save(user);
 
@@ -248,6 +251,7 @@ public class UserController {
                 .birthDate(user.getBirthDate())
                 .eloRating(user.getEloRating())
                 .emailRemindersEnabled(user.getEmailRemindersEnabled())
+                .pushNotificationsEnabled(user.getPushNotificationsEnabled())
                 .build();
     }
 }

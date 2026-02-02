@@ -115,7 +115,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--space-lg);
+  padding: var(--space-md);
   background: var(--bg-secondary);
   border: none;
   cursor: pointer;
@@ -354,10 +354,9 @@
   display: flex;
   align-items: center;
   gap: var(--space-lg);
-  padding: var(--space-lg);
+  padding: 0.5em;
   margin-bottom: var(--space-xl);
   background: linear-gradient(135deg, rgba(212, 168, 75, 0.15), rgba(212, 168, 75, 0.05));
-  border: 2px solid var(--gold-400);
   border-radius: var(--radius-lg);
 
   &__icon {

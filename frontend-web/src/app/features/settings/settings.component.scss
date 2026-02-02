@@ -743,12 +743,19 @@ input[type="date"] {
   }
 }
 
-// Email reminder option (students)
-.email-reminder-option {
+// Notification options container
+.notification-options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+}
+
+// Notification option (email, push)
+.notification-option {
   display: flex;
   align-items: center;
   gap: var(--space-md);
-  margin-top: var(--space-md);
   padding: var(--space-md);
   background: var(--bg-tertiary);
   border-radius: var(--radius-md);
@@ -771,7 +778,23 @@ input[type="date"] {
     color: var(--text-muted);
     font-size: 0.75rem;
     line-height: 1.4;
+
+    &--warning {
+      color: #fbbf24;
+    }
   }
+
+  &__blocked {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    flex: 1;
+  }
+}
+
+// Backward compatibility - alias for email-reminder-option
+.email-reminder-option {
+  @extend .notification-option;
 }
 
 // Balance grid

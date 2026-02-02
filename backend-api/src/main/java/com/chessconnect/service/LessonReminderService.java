@@ -24,10 +24,16 @@ public class LessonReminderService {
 
     private final LessonRepository lessonRepository;
     private final EmailService emailService;
+    private final WebPushService webPushService;
 
-    public LessonReminderService(LessonRepository lessonRepository, EmailService emailService) {
+    public LessonReminderService(
+            LessonRepository lessonRepository,
+            EmailService emailService,
+            WebPushService webPushService
+    ) {
         this.lessonRepository = lessonRepository;
         this.emailService = emailService;
+        this.webPushService = webPushService;
     }
 
     /**
@@ -52,19 +58,27 @@ public class LessonReminderService {
                 continue;
             }
 
-            // Send reminder to student if they have reminders enabled
+            // Send reminder to student
             User student = lesson.getStudent();
+            User teacher = lesson.getTeacher();
+
+            // Email reminder if enabled
             if (Boolean.TRUE.equals(student.getEmailRemindersEnabled())) {
                 sendReminderToStudent(lesson);
                 remindersSent++;
             }
 
+            // Push notification reminder (always send if push enabled, as it's less intrusive)
+            sendPushReminderToStudent(lesson, student, teacher);
+
             // Send reminder to teacher if they have reminders enabled
-            User teacher = lesson.getTeacher();
             if (Boolean.TRUE.equals(teacher.getEmailRemindersEnabled())) {
                 sendReminderToTeacher(lesson);
                 remindersSent++;
             }
+
+            // Push notification reminder for teacher
+            sendPushReminderToTeacher(lesson, student, teacher);
 
             // Mark as sent
             lesson.setReminderSent(true);
@@ -116,5 +130,41 @@ public class LessonReminderService {
         );
 
         log.debug("Sent reminder to teacher {} for lesson {}", teacher.getEmail(), lesson.getId());
+    }
+
+    private void sendPushReminderToStudent(Lesson lesson, User student, User teacher) {
+        try {
+            String teacherName = teacher.getFirstName() + " " + teacher.getLastName();
+            String lessonTime = lesson.getScheduledAt().format(TIME_FORMATTER);
+
+            webPushService.sendToUser(
+                    student.getId(),
+                    "Rappel : Cours dans 1 heure",
+                    String.format("Votre cours avec %s commence a %s", teacherName, lessonTime),
+                    "/lessons",
+                    "/assets/icons/icon-192x192.png",
+                    true // Force send even if connected via SSE (reminder is important)
+            );
+        } catch (Exception e) {
+            log.warn("Failed to send push reminder to student {}: {}", student.getId(), e.getMessage());
+        }
+    }
+
+    private void sendPushReminderToTeacher(Lesson lesson, User student, User teacher) {
+        try {
+            String studentName = student.getFirstName() + " " + student.getLastName();
+            String lessonTime = lesson.getScheduledAt().format(TIME_FORMATTER);
+
+            webPushService.sendToUser(
+                    teacher.getId(),
+                    "Rappel : Cours dans 1 heure",
+                    String.format("Votre cours avec %s commence a %s", studentName, lessonTime),
+                    "/lessons",
+                    "/assets/icons/icon-192x192.png",
+                    true // Force send even if connected via SSE (reminder is important)
+            );
+        } catch (Exception e) {
+            log.warn("Failed to send push reminder to teacher {}: {}", teacher.getId(), e.getMessage());
+        }
     }
 }

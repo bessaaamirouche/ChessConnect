@@ -1222,7 +1222,11 @@
       "push": "Notifications push",
       "pushReminders": "Rappels de cours",
       "pushBookings": "Mises à jour des réservations",
-      "emailRemindersDesc": "Recevez un rappel 1 heure avant chaque cours"
+      "emailRemindersDesc": "Recevez un rappel 1 heure avant chaque cours",
+      "pushNotifications": "Notifications push",
+      "pushDesc": "Recevez des notifications meme quand l'application est fermee",
+      "enablePush": "Activer les notifications push",
+      "pushBlocked": "Les notifications sont bloquees. Autorisez-les dans les parametres de votre navigateur."
     },
     "language": {
       "title": "Langue",
@@ -1673,6 +1677,7 @@
     "checkoutCreate": "Erreur lors de la création de la session de paiement",
     "sendEmail": "Erreur lors de l'envoi. Veuillez réessayer.",
     "sendMessage": "Erreur lors de l'envoi du message. Veuillez réessayer.",
+    "pushPermissionDenied": "Permission refusee. Autorisez les notifications dans votre navigateur.",
     "subscriptionCancel": "Erreur lors de l'annulation de l'abonnement",
     "freeTrialStart": "Erreur lors du démarrage de l'essai gratuit",
     "invalidLink": "Lien invalide",

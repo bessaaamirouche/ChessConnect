@@ -1,12 +1,13 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-reset-password',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, TranslateModule],
   templateUrl: './reset-password.component.html',
   styleUrl: './reset-password.component.scss'
 })
@@ -18,6 +19,8 @@ export class ResetPasswordComponent implements OnInit {
   tokenValid = signal(false);
   success = signal(false);
   error = signal<string | null>(null);
+
+  private translateService = inject(TranslateService);
 
   constructor(
     private fb: FormBuilder,
@@ -36,7 +39,7 @@ export class ResetPasswordComponent implements OnInit {
 
     if (!this.token) {
       this.validating.set(false);
-      this.error.set('Token invalide');
+      this.error.set(this.translateService.instant('errors.tokenInvalid'));
       return;
     }
 
@@ -47,12 +50,12 @@ export class ResetPasswordComponent implements OnInit {
           this.validating.set(false);
           this.tokenValid.set(response.valid);
           if (!response.valid) {
-            this.error.set('Le lien de réinitialisation est invalide ou a expiré.');
+            this.error.set(this.translateService.instant('errors.resetLinkInvalid'));
           }
         },
         error: () => {
           this.validating.set(false);
-          this.error.set('Une erreur est survenue lors de la validation du lien.');
+          this.error.set(this.translateService.instant('errors.linkValidation'));
         }
       });
   }
@@ -64,7 +67,7 @@ export class ResetPasswordComponent implements OnInit {
     }
 
     if (this.form.value.newPassword !== this.form.value.confirmPassword) {
-      this.error.set('Les mots de passe ne correspondent pas');
+      this.error.set(this.translateService.instant('auth.errors.passwordMismatch'));
       return;
     }
 
@@ -81,7 +84,7 @@ export class ResetPasswordComponent implements OnInit {
       },
       error: (err) => {
         this.loading.set(false);
-        this.error.set(err.error?.error || err.error?.message || 'Une erreur est survenue');
+        this.error.set(err.error?.error || err.error?.message || this.translateService.instant('errors.generic'));
       }
     });
   }

@@ -12,29 +12,29 @@
             <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
           </svg>
         </div>
-        <h1 class="heading-3">Vérifiez votre email</h1>
+        <h1 class="heading-3">{{ 'auth.emailVerification.title' | translate }}</h1>
         <p class="text-secondary">
-          Un email de vérification a été envoyé à<br>
+          {{ 'auth.emailVerification.subtitle' | translate }}<br>
           <strong class="text-gold">{{ registeredEmail() }}</strong>
         </p>
 
         <div class="register-success__info">
-          <p>Cliquez sur le lien dans l'email pour activer votre compte et accéder à la plateforme.</p>
+          <p>{{ 'auth.emailVerification.instructions' | translate }}</p>
           <p class="text-warning-subtle">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-right: 4px;">
               <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
               <path d="M12 9v4"/>
               <path d="M12 17h.01"/>
             </svg>
-            Pensez à vérifier vos spams si vous ne recevez pas l'email.
+            {{ 'auth.emailVerification.checkSpam' | translate }}
           </p>
-          <small class="text-muted">Le lien expire dans 24 heures.</small>
+          <small class="text-muted">{{ 'auth.emailVerification.linkExpires' | translate }}</small>
         </div>
 
         <div class="register-success__actions">
           @if (resendSuccess()) {
             <div class="alert alert--success">
-              Email renvoyé ! Vérifiez votre boîte de réception.
+              {{ 'auth.emailVerification.resendSuccess' | translate }}
             </div>
           }
           <button
@@ -45,23 +45,23 @@
           >
             @if (resendLoading()) {
               <span class="spinner spinner--sm"></span>
-              Envoi en cours...
+              {{ 'auth.emailVerification.resending' | translate }}
             } @else {
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
               </svg>
-              Renvoyer l'email de vérification
+              {{ 'auth.emailVerification.resendButton' | translate }}
             }
           </button>
           <a routerLink="/login" class="btn btn--primary btn--block">
             <ng-icon name="heroArrowRight"></ng-icon>
-            Aller à la page de connexion
+            {{ 'auth.emailVerification.goToLogin' | translate }}
           </a>
         </div>
       </div>
     } @else {
     <div class="auth-card__header">
-      <h1 class="heading-3">Créer un compte</h1>
+      <h1 class="heading-3">{{ 'auth.signup.title' | translate }}</h1>
     </div>
 
     <div class="alert-inline-container">
@@ -71,7 +71,7 @@
     </div>
 
     <!-- Role Selection -->
-    <div class="role-selector" role="radiogroup" aria-label="Type de compte">
+    <div class="role-selector" role="radiogroup" [attr.aria-label]="'auth.signup.accountType' | translate">
       <button
         type="button"
         class="role-btn"
@@ -81,8 +81,8 @@
         (click)="selectRole('STUDENT')"
       >
         <span class="role-btn__icon" aria-hidden="true"><ng-icon name="heroUserGroup" size="28"></ng-icon></span>
-        <span class="role-btn__label">Joueur</span>
-        <span class="role-btn__desc">Je veux apprendre</span>
+        <span class="role-btn__label">{{ 'auth.signup.playerLabel' | translate }}</span>
+        <span class="role-btn__desc">{{ 'auth.signup.playerDesc' | translate }}</span>
       </button>
       <button
         type="button"
@@ -93,53 +93,53 @@
         (click)="selectRole('TEACHER')"
       >
         <span class="role-btn__icon" aria-hidden="true"><ng-icon name="heroAcademicCap" size="28"></ng-icon></span>
-        <span class="role-btn__label">Coach</span>
-        <span class="role-btn__desc">Je veux enseigner</span>
+        <span class="role-btn__label">{{ 'auth.signup.coachLabel' | translate }}</span>
+        <span class="role-btn__desc">{{ 'auth.signup.coachDesc' | translate }}</span>
       </button>
     </div>
 
     <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form">
       <div class="form-row">
         <div class="form-group">
-          <label class="form-group__label" for="firstName">Prénom</label>
+          <label class="form-group__label" for="firstName">{{ 'auth.signup.firstName' | translate }}</label>
           <input
             type="text"
             id="firstName"
             formControlName="firstName"
             class="input"
             [class.input--error]="registerForm.get('firstName')?.invalid && registerForm.get('firstName')?.touched"
-            placeholder="Jean"
+            [placeholder]="'auth.signup.firstNamePlaceholder' | translate"
           >
           @if (registerForm.get('firstName')?.invalid && registerForm.get('firstName')?.touched) {
             <span class="form-group__error">
               @if (registerForm.get('firstName')?.errors?.['required']) {
-                Prénom requis
+                {{ 'auth.signup.firstNameRequired' | translate }}
               } @else if (registerForm.get('firstName')?.errors?.['minlength']) {
-                Minimum 2 caractères
+                {{ 'auth.signup.minChars' | translate }}
               } @else if (registerForm.get('firstName')?.errors?.['invalidName']) {
-                Caractères spéciaux non autorisés
+                {{ 'auth.signup.specialCharsNotAllowed' | translate }}
               }
             </span>
           }
         </div>
         <div class="form-group">
-          <label class="form-group__label" for="lastName">Nom</label>
+          <label class="form-group__label" for="lastName">{{ 'auth.signup.lastName' | translate }}</label>
           <input
             type="text"
             id="lastName"
             formControlName="lastName"
             class="input"
             [class.input--error]="registerForm.get('lastName')?.invalid && registerForm.get('lastName')?.touched"
-            placeholder="Dupont"
+            [placeholder]="'auth.signup.lastNamePlaceholder' | translate"
           >
           @if (registerForm.get('lastName')?.invalid && registerForm.get('lastName')?.touched) {
             <span class="form-group__error">
               @if (registerForm.get('lastName')?.errors?.['required']) {
-                Nom requis
+                {{ 'auth.signup.lastNameRequired' | translate }}
               } @else if (registerForm.get('lastName')?.errors?.['minlength']) {
-                Minimum 2 caractères
+                {{ 'auth.signup.minChars' | translate }}
               } @else if (registerForm.get('lastName')?.errors?.['invalidName']) {
-                Caractères spéciaux non autorisés
+                {{ 'auth.signup.specialCharsNotAllowed' | translate }}
               }
             </span>
           }
@@ -147,22 +147,22 @@
       </div>
 
       <div class="form-group">
-        <label class="form-group__label" for="email">Email</label>
+        <label class="form-group__label" for="email">{{ 'auth.signup.email' | translate }}</label>
         <input
           type="email"
           id="email"
           formControlName="email"
           class="input"
           [class.input--error]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched"
-          placeholder="jean.dupont@email.com"
+          [placeholder]="'auth.signup.emailPlaceholder' | translate"
         >
         @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
-          <span class="form-group__error">Email invalide</span>
+          <span class="form-group__error">{{ 'auth.errors.invalidEmail' | translate }}</span>
         }
       </div>
 
       <div class="form-group">
-        <label class="form-group__label" for="password">Mot de passe</label>
+        <label class="form-group__label" for="password">{{ 'auth.signup.password' | translate }}</label>
         <div class="input-password-wrapper">
           <input
             [type]="showPassword() ? 'text' : 'password'"
@@ -170,13 +170,13 @@
             formControlName="password"
             class="input"
             [class.input--error]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched"
-            placeholder="8 caractères minimum"
+            [placeholder]="'auth.signup.passwordPlaceholder' | translate"
           >
           <button
             type="button"
             class="password-toggle"
             (click)="togglePassword()"
-            [attr.aria-label]="showPassword() ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
+            [attr.aria-label]="showPassword() ? ('auth.login.hidePassword' | translate) : ('auth.login.showPassword' | translate)"
             [attr.aria-pressed]="showPassword()"
           >
             @if (showPassword()) {
@@ -193,14 +193,14 @@
           </button>
         </div>
         @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
-          <span class="form-group__error">Minimum 8 caractères</span>
+          <span class="form-group__error">{{ 'auth.errors.passwordTooShort' | translate }}</span>
         }
       </div>
 
       @if (selectedRole() === 'STUDENT') {
         <div class="student-fields">
           <div class="form-group">
-            <label class="form-group__label" for="birthDate">Date de naissance</label>
+            <label class="form-group__label" for="birthDate">{{ 'auth.signup.birthDate' | translate }}</label>
             <app-date-input
               formControlName="birthDate"
               [min]="'1920-01-01'"
@@ -211,14 +211,14 @@
           <div class="form-group">
             <label class="checkbox">
               <input type="checkbox" formControlName="knowsElo">
-              <span>Je connais mon classement ELO</span>
+              <span>{{ 'auth.signup.knowsElo' | translate }}</span>
             </label>
           </div>
 
           <div class="elo-field-container">
             @if (registerForm.get('knowsElo')?.value) {
               <div class="form-group elo-field">
-                <label class="form-group__label" for="eloRating">Classement ELO</label>
+                <label class="form-group__label" for="eloRating">{{ 'auth.signup.eloRating' | translate }}</label>
                 <input
                   type="number"
                   id="eloRating"
@@ -226,9 +226,9 @@
                   class="input"
                   min="100"
                   max="3000"
-                  placeholder="Ex: 1200"
+                  [placeholder]="'auth.signup.eloPlaceholder' | translate"
                 >
-                <small class="form-hint">Votre classement FIDE ou FFE</small>
+                <small class="form-hint">{{ 'auth.signup.eloHint' | translate }}</small>
               </div>
             }
           </div>
@@ -238,7 +238,7 @@
       @if (selectedRole() === 'TEACHER') {
         <div class="teacher-fields">
           <div class="form-group">
-            <label class="form-group__label" for="hourlyRate">Tarif horaire (€)</label>
+            <label class="form-group__label" for="hourlyRate">{{ 'auth.signup.hourlyRate' | translate }} ({{ 'auth.signup.hourlyRateUnit' | translate }})</label>
             <input
               type="number"
               id="hourlyRate"
@@ -251,28 +251,28 @@
           </div>
 
           <div class="form-group">
-            <label class="form-group__label" for="bio">Biographie <span class="required">*</span></label>
+            <label class="form-group__label" for="bio">{{ 'auth.signup.bio' | translate }} <span class="required">*</span></label>
             <textarea
               id="bio"
               formControlName="bio"
               class="textarea"
               [class.input--error]="registerForm.get('bio')?.invalid && registerForm.get('bio')?.touched"
               rows="3"
-              placeholder="Présentez-vous en quelques lignes (20 caractères minimum)..."
+              [placeholder]="'auth.signup.bioPlaceholder' | translate"
             ></textarea>
             @if (registerForm.get('bio')?.invalid && registerForm.get('bio')?.touched) {
               <span class="form-group__error">
                 @if (registerForm.get('bio')?.errors?.['required']) {
-                  La biographie est obligatoire
+                  {{ 'auth.signup.bioRequiredError' | translate }}
                 } @else if (registerForm.get('bio')?.errors?.['minlength']) {
-                  Minimum 20 caractères
+                  {{ 'auth.signup.minChars20' | translate }}
                 }
               </span>
             }
           </div>
 
           <div class="form-group">
-            <label class="form-group__label" id="languages-label">Langues parlées</label>
+            <label class="form-group__label" id="languages-label">{{ 'auth.signup.languages' | translate }}</label>
             <div class="language-selector" role="group" aria-labelledby="languages-label">
               @for (lang of availableLanguages; track lang.code) {
                 <button
@@ -286,7 +286,7 @@
                 </button>
               }
             </div>
-            <small class="form-hint">Sélectionnez au moins une langue</small>
+            <small class="form-hint">{{ 'auth.signup.languagesHint' | translate }}</small>
           </div>
         </div>
       }
@@ -298,17 +298,17 @@
       >
         @if (loading()) {
           <span class="spinner spinner--sm"></span>
-          Création...
+          {{ 'auth.signup.submitting' | translate }}
         } @else {
-          Créer mon compte
+          {{ 'auth.signup.submit' | translate }}
         }
       </button>
     </form>
 
     <div class="auth-card__footer">
       <p>
-        Déjà un compte ?
-        <a routerLink="/login" class="text-gold">Se connecter</a>
+        {{ 'auth.signup.hasAccount' | translate }}
+        <a routerLink="/login" class="text-gold">{{ 'auth.signup.login' | translate }}</a>
       </p>
     </div>
     }

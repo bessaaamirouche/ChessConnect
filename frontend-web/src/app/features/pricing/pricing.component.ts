@@ -1,5 +1,6 @@
 import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../core/services/auth.service';
 import { SeoService } from '../../core/services/seo.service';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
@@ -21,7 +22,7 @@ import {
 @Component({
   selector: 'app-pricing',
   standalone: true,
-  imports: [RouterLink, NgIconComponent],
+  imports: [RouterLink, NgIconComponent, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({
     heroCheck,

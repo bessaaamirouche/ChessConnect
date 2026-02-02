@@ -18,31 +18,31 @@
 
       <!-- Desktop Pill Tabs Navigation -->
       <div class="nav__pills">
-        <a routerLink="/" class="nav__pill">Accueil</a>
-        <a routerLink="/teachers" class="nav__pill">Nos coachs</a>
-        <a routerLink="/how-it-works" class="nav__pill">Comment ca marche ?</a>
-        <a routerLink="/blog" class="nav__pill">Blog</a>
+        <a routerLink="/" class="nav__pill">{{ 'nav.home' | translate }}</a>
+        <a routerLink="/teachers" class="nav__pill">{{ 'teachers.title' | translate }}</a>
+        <a routerLink="/how-it-works" class="nav__pill">{{ 'nav.howItWorks' | translate }}</a>
+        <a routerLink="/blog" class="nav__pill">{{ 'nav.blog' | translate }}</a>
         @if (authService.isAuthenticated()) {
-          <a routerLink="/dashboard" class="nav__pill">Mon Espace</a>
+          <a routerLink="/dashboard" class="nav__pill">{{ 'sidebar.dashboard' | translate }}</a>
         } @else {
-          <a routerLink="/login" class="nav__pill">S'identifier</a>
-          <a routerLink="/register" class="nav__pill">S'inscrire</a>
+          <a routerLink="/login" class="nav__pill">{{ 'nav.login' | translate }}</a>
+          <a routerLink="/register" class="nav__pill">{{ 'nav.signup' | translate }}</a>
         }
       </div>
 
       <!-- Mobile Drawer Menu -->
       <div class="nav__links" [class.active]="mobileMenuOpen()">
-        <a routerLink="/" (click)="closeMobileMenu()">Accueil</a>
-        <a routerLink="/teachers" (click)="closeMobileMenu()">Nos coachs</a>
-        <a routerLink="/how-it-works" (click)="closeMobileMenu()">Comment ca marche ?</a>
-        <a routerLink="/blog" (click)="closeMobileMenu()">Blog</a>
+        <a routerLink="/" (click)="closeMobileMenu()">{{ 'nav.home' | translate }}</a>
+        <a routerLink="/teachers" (click)="closeMobileMenu()">{{ 'teachers.title' | translate }}</a>
+        <a routerLink="/how-it-works" (click)="closeMobileMenu()">{{ 'nav.howItWorks' | translate }}</a>
+        <a routerLink="/blog" (click)="closeMobileMenu()">{{ 'nav.blog' | translate }}</a>
 
         <div class="nav__mobile-actions">
           @if (authService.isAuthenticated()) {
-            <a routerLink="/dashboard" class="nav__btn nav__btn--primary" (click)="closeMobileMenu()">Mon Espace</a>
+            <a routerLink="/dashboard" class="nav__btn nav__btn--primary" (click)="closeMobileMenu()">{{ 'sidebar.dashboard' | translate }}</a>
           } @else {
-            <a routerLink="/login" class="nav__btn nav__btn--ghost" (click)="closeMobileMenu()">S'identifier</a>
-            <a routerLink="/register" class="nav__btn nav__btn--primary" (click)="closeMobileMenu()">S'inscrire</a>
+            <a routerLink="/login" class="nav__btn nav__btn--ghost" (click)="closeMobileMenu()">{{ 'nav.login' | translate }}</a>
+            <a routerLink="/register" class="nav__btn nav__btn--primary" (click)="closeMobileMenu()">{{ 'nav.signup' | translate }}</a>
           }
         </div>
       </div>
@@ -53,8 +53,8 @@
   <main class="faq-page">
     <header class="faq-header">
       <ng-icon name="heroQuestionMarkCircle" size="48"></ng-icon>
-      <h1>Questions frequentes</h1>
-      <p>Trouvez rapidement les reponses a vos questions</p>
+      <h1>{{ 'faq.title' | translate }}</h1>
+      <p>{{ 'faq.subtitle' | translate }}</p>
     </header>
 
     <nav class="faq-categories">
@@ -64,16 +64,16 @@
           [class.faq-category--active]="activeCategory() === cat.id"
           (click)="setCategory(cat.id)"
         >
-          {{ cat.label }}
+          {{ cat.labelKey | translate }}
         </button>
       }
     </nav>
 
     <div class="faq-list">
-      @for (faq of filteredFaqs; track faq.question; let i = $index) {
+      @for (faq of filteredFaqs; track faq.questionKey; let i = $index) {
         <div class="faq-item" [class.faq-item--open]="openIndex() === i">
           <button class="faq-item__question" (click)="toggleFaq(i)">
-            <span>{{ faq.question }}</span>
+            <span>{{ faq.questionKey | translate }}</span>
             <ng-icon
               [name]="openIndex() === i ? 'heroChevronUp' : 'heroChevronDown'"
               size="20"
@@ -81,7 +81,7 @@
           </button>
           @if (openIndex() === i) {
             <div class="faq-item__answer">
-              <p>{{ faq.answer }}</p>
+              <p>{{ faq.answerKey | translate }}</p>
             </div>
           }
         </div>
@@ -89,10 +89,10 @@
     </div>
 
     <section class="faq-contact">
-      <h2>Vous n'avez pas trouve votre reponse ?</h2>
-      <p>Notre equipe est la pour vous aider</p>
+      <h2>{{ 'faq.contact.title' | translate }}</h2>
+      <p>{{ 'faq.contact.subtitle' | translate }}</p>
       <a href="mailto:support@mychess.fr" class="btn btn--primary">
-        Contactez-nous
+        {{ 'faq.contact.cta' | translate }}
       </a>
     </section>
   </main>
@@ -100,11 +100,11 @@
   <!-- Footer -->
   <footer class="faq-footer">
     <div class="faq-footer__container">
-      <p>&copy; 2026 mychess. Tous droits reserves.</p>
+      <p>&copy; 2026 mychess. {{ 'footer.copyright' | translate }}</p>
       <div class="faq-footer__links">
-        <a routerLink="/terms">CGU</a>
-        <a routerLink="/privacy">Confidentialite</a>
-        <a routerLink="/legal-notice">Mentions legales</a>
+        <a routerLink="/terms">{{ 'footer.terms' | translate }}</a>
+        <a routerLink="/privacy">{{ 'footer.privacy' | translate }}</a>
+        <a routerLink="/legal-notice">{{ 'footer.legal' | translate }}</a>
       </div>
     </div>
   </footer>

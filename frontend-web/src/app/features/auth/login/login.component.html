@@ -4,7 +4,7 @@
   </a>
   <div class="auth-card card">
     <div class="auth-card__header">
-      <h1 class="heading-3">Connexion</h1>
+      <h1 class="heading-3">{{ 'auth.login.title' | translate }}</h1>
     </div>
 
     <div class="alert-inline-container">
@@ -21,9 +21,9 @@
             <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
           </svg>
         </div>
-        <h2 class="verification-notice__title">Vérifiez votre email</h2>
+        <h2 class="verification-notice__title">{{ 'auth.emailVerification.title' | translate }}</h2>
         <p class="verification-notice__message">
-          Votre adresse email n'a pas encore été vérifiée.
+          {{ 'auth.emailVerification.notVerifiedTitle' | translate }}
         </p>
         <p class="verification-notice__email">
           <strong class="text-gold">{{ unverifiedEmail() }}</strong>
@@ -31,8 +31,8 @@
 
         @if (resendSuccess()) {
           <div class="alert alert--success">
-            <p>Un nouvel email de vérification a été envoyé !</p>
-            <p class="text-muted text-sm">Vérifiez votre boîte de réception et vos spams.</p>
+            <p>{{ 'auth.emailVerification.newEmailSent' | translate }}</p>
+            <p class="text-muted text-sm">{{ 'auth.emailVerification.checkInbox' | translate }}</p>
           </div>
         } @else {
           <div class="alert-inline-container">
@@ -42,7 +42,7 @@
           </div>
 
           <p class="verification-notice__help">
-            Cliquez sur le lien dans l'email que vous avez reçu pour activer votre compte.
+            {{ 'auth.emailVerification.clickLink' | translate }}
           </p>
 
           <button
@@ -53,9 +53,9 @@
           >
             @if (resendingEmail()) {
               <span class="spinner spinner--sm"></span>
-              Envoi en cours...
+              {{ 'auth.emailVerification.resending' | translate }}
             } @else {
-              Renvoyer l'email de vérification
+              {{ 'auth.emailVerification.resendButton' | translate }}
             }
           </button>
         }
@@ -65,7 +65,7 @@
           class="btn btn--ghost btn--block"
           (click)="emailNotVerified.set(false)"
         >
-          Retour à la connexion
+          {{ 'auth.emailVerification.backToLogin' | translate }}
         </button>
       </div>
     } @else if (isSuspended() && !showContactForm()) {
@@ -77,44 +77,43 @@
             <line x1="12" y1="16" x2="12.01" y2="16"/>
           </svg>
         </div>
-        <h2 class="suspension-notice__title">Compte suspendu</h2>
+        <h2 class="suspension-notice__title">{{ 'auth.suspended.title' | translate }}</h2>
         <p class="suspension-notice__message">
-          Votre compte a été suspendu par l'administrateur du site.
+          {{ 'auth.suspended.message' | translate }}
         </p>
         <p class="suspension-notice__help">
-          Si vous pensez qu'il s'agit d'une erreur ou si vous souhaitez contester cette décision,
-          vous pouvez contacter l'administrateur.
+          {{ 'auth.suspended.help' | translate }}
         </p>
         <button
           type="button"
           class="btn btn--primary btn--block"
           (click)="openContactForm()"
         >
-          Contacter l'administrateur
+          {{ 'auth.suspended.contactAdmin' | translate }}
         </button>
         <button
           type="button"
           class="btn btn--ghost btn--block"
           (click)="isSuspended.set(false)"
         >
-          Retour à la connexion
+          {{ 'auth.suspended.backToLogin' | translate }}
         </button>
       </div>
     } @else if (showContactForm()) {
       <div class="contact-form-container">
-        <h2 class="contact-form__title">Contacter l'administrateur</h2>
+        <h2 class="contact-form__title">{{ 'auth.contact.title' | translate }}</h2>
 
         @if (contactSuccess()) {
           <div class="alert alert--success">
-            <p><strong>Message envoyé !</strong></p>
-            <p>L'administrateur vous répondra dans les plus brefs délais.</p>
+            <p><strong>{{ 'auth.contact.successTitle' | translate }}</strong></p>
+            <p>{{ 'auth.contact.successMessage' | translate }}</p>
           </div>
           <button
             type="button"
             class="btn btn--ghost btn--block"
             (click)="closeContactForm(); isSuspended.set(false)"
           >
-            Retour à la connexion
+            {{ 'auth.contact.backToLogin' | translate }}
           </button>
         } @else {
           <div class="alert-inline-container">
@@ -125,62 +124,62 @@
 
           <form [formGroup]="contactForm" (ngSubmit)="submitContact()" class="auth-form">
             <div class="form-group">
-              <label class="form-group__label" for="contact-name">Votre nom</label>
+              <label class="form-group__label" for="contact-name">{{ 'auth.contact.name' | translate }}</label>
               <input
                 type="text"
                 id="contact-name"
                 formControlName="name"
                 class="input"
                 [class.input--error]="contactForm.get('name')?.invalid && contactForm.get('name')?.touched"
-                placeholder="Jean Dupont"
+                [placeholder]="'auth.contact.namePlaceholder' | translate"
               >
               @if (contactForm.get('name')?.invalid && contactForm.get('name')?.touched) {
-                <span class="form-group__error">Nom requis (min. 2 caractères)</span>
+                <span class="form-group__error">{{ 'auth.contact.nameRequired' | translate }}</span>
               }
             </div>
 
             <div class="form-group">
-              <label class="form-group__label" for="contact-email">Votre email</label>
+              <label class="form-group__label" for="contact-email">{{ 'auth.contact.email' | translate }}</label>
               <input
                 type="email"
                 id="contact-email"
                 formControlName="email"
                 class="input"
                 [class.input--error]="contactForm.get('email')?.invalid && contactForm.get('email')?.touched"
-                placeholder="votre@email.com"
+                [placeholder]="'auth.contact.emailPlaceholder' | translate"
               >
               @if (contactForm.get('email')?.invalid && contactForm.get('email')?.touched) {
-                <span class="form-group__error">Email invalide</span>
+                <span class="form-group__error">{{ 'auth.contact.emailInvalid' | translate }}</span>
               }
             </div>
 
             <div class="form-group">
-              <label class="form-group__label" for="contact-subject">Sujet</label>
+              <label class="form-group__label" for="contact-subject">{{ 'auth.contact.subject' | translate }}</label>
               <input
                 type="text"
                 id="contact-subject"
                 formControlName="subject"
                 class="input"
                 [class.input--error]="contactForm.get('subject')?.invalid && contactForm.get('subject')?.touched"
-                placeholder="Contestation de suspension"
+                [placeholder]="'auth.contact.subjectPlaceholder' | translate"
               >
               @if (contactForm.get('subject')?.invalid && contactForm.get('subject')?.touched) {
-                <span class="form-group__error">Sujet requis (min. 5 caractères)</span>
+                <span class="form-group__error">{{ 'auth.contact.subjectRequired' | translate }}</span>
               }
             </div>
 
             <div class="form-group">
-              <label class="form-group__label" for="contact-message">Votre message</label>
+              <label class="form-group__label" for="contact-message">{{ 'auth.contact.message' | translate }}</label>
               <textarea
                 id="contact-message"
                 formControlName="message"
                 class="input textarea"
                 [class.input--error]="contactForm.get('message')?.invalid && contactForm.get('message')?.touched"
-                placeholder="Expliquez votre situation..."
+                [placeholder]="'auth.contact.messagePlaceholder' | translate"
                 rows="5"
               ></textarea>
               @if (contactForm.get('message')?.invalid && contactForm.get('message')?.touched) {
-                <span class="form-group__error">Message requis (min. 10 caractères)</span>
+                <span class="form-group__error">{{ 'auth.contact.messageRequired' | translate }}</span>
               }
             </div>
 
@@ -191,9 +190,9 @@
             >
               @if (contactLoading()) {
                 <span class="spinner spinner--sm"></span>
-                Envoi en cours...
+                {{ 'auth.contact.sending' | translate }}
               } @else {
-                Envoyer le message
+                {{ 'auth.contact.submit' | translate }}
               }
             </button>
 
@@ -202,7 +201,7 @@
               class="btn btn--ghost btn--block"
               (click)="closeContactForm()"
             >
-              Annuler
+              {{ 'auth.contact.cancel' | translate }}
             </button>
           </form>
         }
@@ -210,22 +209,22 @@
     } @else {
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
         <div class="form-group">
-          <label class="form-group__label" for="email">Email</label>
+          <label class="form-group__label" for="email">{{ 'auth.login.email' | translate }}</label>
           <input
             type="email"
             id="email"
             formControlName="email"
             class="input"
             [class.input--error]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
-            placeholder="votre@email.com"
+            [placeholder]="'auth.login.emailPlaceholder' | translate"
           >
           @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
-            <span class="form-group__error">Email invalide</span>
+            <span class="form-group__error">{{ 'auth.errors.invalidEmail' | translate }}</span>
           }
         </div>
 
         <div class="form-group">
-          <label class="form-group__label" for="password">Mot de passe</label>
+          <label class="form-group__label" for="password">{{ 'auth.login.password' | translate }}</label>
           <div class="input-password-wrapper">
             <input
               [type]="showPassword() ? 'text' : 'password'"
@@ -233,13 +232,13 @@
               formControlName="password"
               class="input"
               [class.input--error]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
-              placeholder="••••••••"
+              [placeholder]="'auth.login.passwordPlaceholder' | translate"
             >
             <button
               type="button"
               class="password-toggle"
               (click)="togglePassword()"
-              [attr.aria-label]="showPassword() ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
+              [attr.aria-label]="showPassword() ? ('auth.login.hidePassword' | translate) : ('auth.login.showPassword' | translate)"
               [attr.aria-pressed]="showPassword()"
             >
               @if (showPassword()) {
@@ -256,9 +255,9 @@
             </button>
           </div>
           @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
-            <span class="form-group__error">8 caractères minimum</span>
+            <span class="form-group__error">{{ 'auth.errors.passwordTooShort' | translate }}</span>
           }
-          <a routerLink="/forgot-password" class="forgot-password-link">Mot de passe oublié ?</a>
+          <a routerLink="/forgot-password" class="forgot-password-link">{{ 'auth.login.forgotPassword' | translate }}</a>
         </div>
 
         <button
@@ -268,17 +267,17 @@
         >
           @if (loading()) {
             <span class="spinner spinner--sm"></span>
-            Connexion...
+            {{ 'auth.login.submitting' | translate }}
           } @else {
-            Se connecter
+            {{ 'auth.login.submit' | translate }}
           }
         </button>
       </form>
 
       <div class="auth-card__footer">
         <p>
-          Pas encore de compte ?
-          <a routerLink="/register" class="text-gold">Créer un compte</a>
+          {{ 'auth.login.noAccount' | translate }}
+          <a routerLink="/register" class="text-gold">{{ 'auth.login.createAccount' | translate }}</a>
         </p>
       </div>
     }

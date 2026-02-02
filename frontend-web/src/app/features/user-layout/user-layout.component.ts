@@ -1,6 +1,8 @@
-import { Component, computed, inject, signal, OnInit } from '@angular/core';
+import { Component, computed, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { Subscription } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
 import { WalletService } from '../../core/services/wallet.service';
 import { AppSidebarComponent, SidebarSection, SidebarItem } from '../../shared/components/app-sidebar/app-sidebar.component';
@@ -8,15 +10,18 @@ import { AppSidebarComponent, SidebarSection, SidebarItem } from '../../shared/c
 @Component({
   selector: 'app-user-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, AppSidebarComponent],
+  imports: [CommonModule, RouterOutlet, AppSidebarComponent, TranslateModule],
   templateUrl: './user-layout.component.html',
   styleUrl: './user-layout.component.scss'
 })
-export class UserLayoutComponent implements OnInit {
+export class UserLayoutComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private walletService = inject(WalletService);
+  private translate = inject(TranslateService);
+  private langSubscription?: Subscription;
 
   sidebarCollapsed = signal(false);
+  private currentLang = signal(this.translate.currentLang || this.translate.defaultLang);
 
   onSidebarCollapsedChange(collapsed: boolean): void {
     this.sidebarCollapsed.set(collapsed);
@@ -27,21 +32,33 @@ export class UserLayoutComponent implements OnInit {
     if (this.authService.isStudent()) {
       this.walletService.loadBalance().subscribe();
     }
+
+    // Subscribe to language changes to trigger sidebar recomputation
+    this.langSubscription = this.translate.onLangChange.subscribe(event => {
+      this.currentLang.set(event.lang);
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.langSubscription?.unsubscribe();
   }
 
   sidebarSections = computed<SidebarSection[]>(() => {
+    // Access currentLang signal to trigger recomputation on language change
+    this.currentLang();
+
     const sections: SidebarSection[] = [];
 
     // Admin menu
     if (this.authService.isAdmin()) {
       sections.push({
-        title: 'Administration',
+        title: this.translate.instant('sidebar.admin'),
         items: [
-          { label: 'Vue d\'ensemble', icon: 'heroChartBarSquare', route: '/admin/dashboard' },
-          { label: 'Utilisateurs', icon: 'heroUsers', route: '/admin/users' },
-          { label: 'Cours', icon: 'heroCalendarDays', route: '/admin/lessons' },
-          { label: 'Comptabilite', icon: 'heroBanknotes', route: '/admin/accounting' },
-          { label: 'Factures', icon: 'heroDocumentText', route: '/admin/invoices' }
+          { label: this.translate.instant('sidebar.overview'), icon: 'heroChartBarSquare', route: '/admin/dashboard' },
+          { label: this.translate.instant('sidebar.users'), icon: 'heroUsers', route: '/admin/users' },
+          { label: this.translate.instant('sidebar.lessons'), icon: 'heroCalendarDays', route: '/admin/lessons' },
+          { label: this.translate.instant('sidebar.accounting'), icon: 'heroBanknotes', route: '/admin/accounting' },
+          { label: this.translate.instant('sidebar.invoices'), icon: 'heroDocumentText', route: '/admin/invoices' }
         ]
       });
     }
@@ -49,38 +66,34 @@ export class UserLayoutComponent implements OnInit {
     // Menu section for non-admin users
     if (!this.authService.isAdmin()) {
       const menuItems: SidebarItem[] = [
-        { label: 'Mon Espace', icon: 'heroChartBarSquare', route: '/dashboard' },
-        { label: 'Mes Cours', icon: 'heroCalendarDays', route: '/lessons' }
+        { label: this.translate.instant('sidebar.dashboard'), icon: 'heroChartBarSquare', route: '/dashboard' },
+        { label: this.translate.instant('sidebar.myLessons'), icon: 'heroCalendarDays', route: '/lessons' }
       ];
 
       if (this.authService.isTeacher()) {
-        menuItems.push({ label: 'Mes Disponibilites', icon: 'heroClipboardDocumentList', route: '/availability' });
-        menuItems.push({ label: 'Programme', icon: 'heroBookOpen', route: '/programme' });
+        menuItems.push({ label: this.translate.instant('sidebar.myAvailability'), icon: 'heroClipboardDocumentList', route: '/availability' });
+        menuItems.push({ label: this.translate.instant('sidebar.programme'), icon: 'heroBookOpen', route: '/programme' });
       }
 
       if (this.authService.isStudent()) {
-        menuItems.push({ label: 'Ma Progression', icon: 'heroBookOpen', route: '/programme' });
-        menuItems.push({ label: 'Trouver un Coach', icon: 'heroAcademicCap', route: '/teachers' });
+        menuItems.push({ label: this.translate.instant('sidebar.myProgress'), icon: 'heroBookOpen', route: '/programme' });
+        menuItems.push({ label: this.translate.instant('sidebar.myLibrary'), icon: 'heroFilm', route: '/library' });
+        menuItems.push({ label: this.translate.instant('sidebar.findCoach'), icon: 'heroAcademicCap', route: '/teachers' });
       }
 
-      sections.push({ title: 'Menu', items: menuItems });
+      sections.push({ title: this.translate.instant('sidebar.menu'), items: menuItems });
     }
 
     // Compte section
     const compteItems: SidebarItem[] = [
-      { label: 'Parametres', icon: 'heroCog6Tooth', route: '/settings' }
+      { label: this.translate.instant('sidebar.profile'), icon: 'heroUserCircle', route: '/settings' }
     ];
 
-    if (this.authService.isStudent()) {
-      compteItems.push({ label: 'Mon Solde', icon: 'heroWallet', route: '/wallet' });
-      compteItems.push({ label: 'Abonnement', icon: 'heroCreditCard', route: '/subscription' });
-    }
-
-    compteItems.push({ label: 'Mes Factures', icon: 'heroDocumentText', route: '/invoices' });
-    compteItems.push({ label: 'Deconnexion', icon: 'heroArrowRightOnRectangle', action: () => this.logout() });
+    compteItems.push({ label: this.translate.instant('sidebar.invoices'), icon: 'heroDocumentText', route: '/invoices' });
+    compteItems.push({ label: this.translate.instant('sidebar.logout'), icon: 'heroArrowRightOnRectangle', action: () => this.logout() });
 
     sections.push({
-      title: 'Compte',
+      title: this.translate.instant('sidebar.account'),
       items: compteItems
     });
 

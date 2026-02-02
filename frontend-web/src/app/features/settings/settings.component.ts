@@ -21,6 +21,9 @@ import { HttpClient } from '@angular/common/http';
 import { StripeConnectService, StripeConnectStatus } from '../../core/services/stripe-connect.service';
 import { AVAILABLE_LANGUAGES, User, UpdateUserRequest } from '../../core/models/user.model';
 import { DateInputComponent } from '../../shared/components/date-input/date-input.component';
+import { LanguageSelectorComponent } from '../../shared/components/language-selector/language-selector.component';
+import { LanguageService } from '../../core/services/language.service';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   heroChartBarSquare,
@@ -38,7 +41,7 @@ import {
 @Component({
   selector: 'app-settings',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, NgIconComponent, DateInputComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, NgIconComponent, DateInputComponent, LanguageSelectorComponent, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({
     heroChartBarSquare,
@@ -109,6 +112,8 @@ export class SettingsComponent implements OnInit {
   private dialogService = inject(DialogService);
   private toastService = inject(ToastService);
   private router = inject(Router);
+  private translateService = inject(TranslateService);
+  languageService = inject(LanguageService);
 
   constructor(
     private fb: FormBuilder,
@@ -154,7 +159,7 @@ export class SettingsComponent implements OnInit {
     this.route.queryParams.subscribe(params => {
       // Handle Stripe Connect return
       if (params['stripe_connect'] === 'return') {
-        this.stripeConnectSuccess.set('Configuration terminée !');
+        this.stripeConnectSuccess.set(this.translateService.instant('settings.stripe.configurationComplete'));
         this.loadStripeConnectStatus();
         window.history.replaceState({}, '', '/settings');
         setTimeout(() => this.stripeConnectSuccess.set(null), 3000);
@@ -162,7 +167,7 @@ export class SettingsComponent implements OnInit {
 
       // Handle Stripe Connect refresh (incomplete onboarding)
       if (params['stripe_connect'] === 'refresh') {
-        this.stripeConnectError.set('Configuration incomplète. Veuillez reprendre le processus.');
+        this.stripeConnectError.set(this.translateService.instant('settings.stripe.configurationIncomplete'));
         window.history.replaceState({}, '', '/settings');
       }
     });
@@ -243,13 +248,13 @@ export class SettingsComponent implements OnInit {
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
-      this.avatarError.set('Le fichier doit être une image');
+      this.avatarError.set(this.translateService.instant('errors.fileMustBeImage'));
       return;
     }
 
     // Validate file size (5MB max)
     if (file.size > 5 * 1024 * 1024) {
-      this.avatarError.set('L\'image ne doit pas dépasser 5 Mo');
+      this.avatarError.set(this.translateService.instant('errors.imageTooLarge'));
       return;
     }
 
@@ -273,7 +278,7 @@ export class SettingsComponent implements OnInit {
       },
       error: (err) => {
         this.uploadingAvatar.set(false);
-        this.avatarError.set(err.error?.message || 'Erreur lors de l\'upload');
+        this.avatarError.set(err.error?.message || this.translateService.instant('errors.upload'));
       }
     });
   }
@@ -290,7 +295,7 @@ export class SettingsComponent implements OnInit {
       },
       error: (err) => {
         this.uploadingAvatar.set(false);
-        this.avatarError.set(err.error?.message || 'Erreur lors de la suppression');
+        this.avatarError.set(err.error?.message || this.translateService.instant('errors.delete'));
       }
     });
   }
@@ -338,7 +343,7 @@ export class SettingsComponent implements OnInit {
       },
       error: (err) => {
         this.savingProfile.set(false);
-        this.profileError.set(err.error?.message || 'Erreur lors de la sauvegarde');
+        this.profileError.set(err.error?.message || this.translateService.instant('errors.save'));
       }
     });
   }
@@ -361,7 +366,7 @@ export class SettingsComponent implements OnInit {
       },
       error: (err) => {
         this.savingPreferences.set(false);
-        this.preferencesError.set(err.error?.message || 'Erreur lors de la sauvegarde');
+        this.preferencesError.set(err.error?.message || this.translateService.instant('errors.save'));
       }
     });
   }
@@ -386,13 +391,13 @@ export class SettingsComponent implements OnInit {
       next: (response) => {
         this.stripeConnectLoading.set(false);
         if (!response.success) {
-          this.stripeConnectError.set(response.message || 'Erreur lors de la configuration');
+          this.stripeConnectError.set(response.message || this.translateService.instant('errors.stripeConfig'));
         }
         // If success, the service will redirect to Stripe
       },
       error: (err) => {
         this.stripeConnectLoading.set(false);
-        this.stripeConnectError.set(err.error?.message || 'Erreur de connexion');
+        this.stripeConnectError.set(err.error?.message || this.translateService.instant('errors.connection'));
       }
     });
   }
@@ -405,21 +410,21 @@ export class SettingsComponent implements OnInit {
       next: (response) => {
         this.stripeConnectLoading.set(false);
         if (!response.success) {
-          this.stripeConnectError.set(response.message || 'Erreur lors de la reprise');
+          this.stripeConnectError.set(response.message || this.translateService.instant('errors.stripeResume'));
         }
       },
       error: (err) => {
         this.stripeConnectLoading.set(false);
-        this.stripeConnectError.set(err.error?.message || 'Erreur de connexion');
+        this.stripeConnectError.set(err.error?.message || this.translateService.instant('errors.connection'));
       }
     });
   }
 
   async disconnectStripeConnect(): Promise<void> {
     const confirmed = await this.dialogService.confirm(
-      'Êtes-vous sûr de vouloir déconnecter votre compte ? Vous ne pourrez plus recevoir de paiements.',
-      'Déconnexion Stripe',
-      { confirmText: 'Déconnecter', cancelText: 'Annuler', variant: 'danger' }
+      this.translateService.instant('settings.stripe.disconnectConfirmMessage'),
+      this.translateService.instant('settings.stripe.disconnectTitle'),
+      { confirmText: this.translateService.instant('common.disconnect'), cancelText: this.translateService.instant('common.cancel'), variant: 'danger' }
     );
     if (!confirmed) return;
 
@@ -429,13 +434,13 @@ export class SettingsComponent implements OnInit {
     this.stripeConnectService.disconnect().subscribe({
       next: () => {
         this.stripeConnectLoading.set(false);
-        this.stripeConnectSuccess.set('Compte déconnecté');
+        this.stripeConnectSuccess.set(this.translateService.instant('settings.stripe.accountDisconnected'));
         this.loadStripeConnectStatus();
         setTimeout(() => this.stripeConnectSuccess.set(null), 3000);
       },
       error: (err) => {
         this.stripeConnectLoading.set(false);
-        this.stripeConnectError.set(err.error?.message || 'Erreur lors de la déconnexion');
+        this.stripeConnectError.set(err.error?.message || this.translateService.instant('errors.stripeDisconnect'));
       }
     });
   }
@@ -471,14 +476,14 @@ export class SettingsComponent implements OnInit {
 
     const amountCents = amount * 100;
     if (amountCents > balance.availableBalanceCents) {
-      this.stripeConnectError.set('Le montant dépasse votre solde disponible');
+      this.stripeConnectError.set(this.translateService.instant('errors.amountExceedsBalance'));
       return;
     }
 
     const confirmed = await this.dialogService.confirm(
-      `Voulez-vous retirer ${amount} EUR vers votre compte bancaire ?`,
-      'Retirer mes gains',
-      { confirmText: 'Retirer', cancelText: 'Annuler', variant: 'info' }
+      this.translateService.instant('settings.stripe.withdrawConfirmMessage', { amount }),
+      this.translateService.instant('settings.stripe.withdrawTitle'),
+      { confirmText: this.translateService.instant('common.withdraw'), cancelText: this.translateService.instant('common.cancel'), variant: 'info' }
     );
     if (!confirmed) return;
 
@@ -489,16 +494,16 @@ export class SettingsComponent implements OnInit {
       next: (response) => {
         this.withdrawing.set(false);
         if (response.success) {
-          this.stripeConnectSuccess.set(`Retrait de ${this.formatCents(response.amountCents || 0)} effectué !`);
+          this.stripeConnectSuccess.set(this.translateService.instant('settings.stripe.withdrawSuccess', { amount: this.formatCents(response.amountCents || 0) }));
           this.loadTeacherBalance();
           setTimeout(() => this.stripeConnectSuccess.set(null), 5000);
         } else {
-          this.stripeConnectError.set(response.message || 'Erreur lors du retrait');
+          this.stripeConnectError.set(response.message || this.translateService.instant('errors.withdrawal'));
         }
       },
       error: (err) => {
         this.withdrawing.set(false);
-        this.stripeConnectError.set(err.error?.message || 'Erreur lors du retrait');
+        this.stripeConnectError.set(err.error?.message || this.translateService.instant('errors.withdrawal'));
       }
     });
   }
@@ -511,16 +516,16 @@ export class SettingsComponent implements OnInit {
       next: (response) => {
         this.recalculatingBalance.set(false);
         if (response.success) {
-          this.stripeConnectSuccess.set('Balance recalculée avec succès !');
+          this.stripeConnectSuccess.set(this.translateService.instant('settings.stripe.balanceRecalculatedSuccess'));
           this.loadTeacherBalance();
           setTimeout(() => this.stripeConnectSuccess.set(null), 3000);
         } else {
-          this.stripeConnectError.set(response.message || 'Erreur lors du recalcul');
+          this.stripeConnectError.set(response.message || this.translateService.instant('errors.recalculate'));
         }
       },
       error: (err) => {
         this.recalculatingBalance.set(false);
-        this.stripeConnectError.set(err.error?.message || 'Erreur lors du recalcul');
+        this.stripeConnectError.set(err.error?.message || this.translateService.instant('errors.recalculate'));
       }
     });
   }
@@ -529,17 +534,17 @@ export class SettingsComponent implements OnInit {
   async deleteAccount(): Promise<void> {
     // First confirmation
     const firstConfirm = await this.dialogService.confirm(
-      'Cette action est irréversible. Toutes vos données seront supprimées définitivement.',
-      'Supprimer mon compte',
-      { confirmText: 'Continuer', cancelText: 'Annuler', variant: 'danger' }
+      this.translateService.instant('settings.deleteAccount.confirmMessage'),
+      this.translateService.instant('settings.deleteAccount.title'),
+      { confirmText: this.translateService.instant('common.continue'), cancelText: this.translateService.instant('common.cancel'), variant: 'danger' }
     );
     if (!firstConfirm) return;
 
     // Ask for password
     const password = await this.dialogService.prompt(
-      'Entrez votre mot de passe pour confirmer',
-      'Confirmation requise',
-      { confirmText: 'Supprimer définitivement', cancelText: 'Annuler', inputLabel: 'Mot de passe', inputType: 'password', variant: 'danger' }
+      this.translateService.instant('settings.deleteAccount.passwordPrompt'),
+      this.translateService.instant('settings.deleteAccount.confirmationRequired'),
+      { confirmText: this.translateService.instant('settings.deleteAccount.deletePermanently'), cancelText: this.translateService.instant('common.cancel'), inputLabel: this.translateService.instant('common.password'), inputType: 'password', variant: 'danger' }
     );
     if (!password) return;
 
@@ -551,13 +556,13 @@ export class SettingsComponent implements OnInit {
     }).subscribe({
       next: () => {
         this.deletingAccount.set(false);
-        this.toastService.success('Votre compte a été supprimé avec succès');
+        this.toastService.success(this.translateService.instant('settings.deleteAccount.success'));
         this.authService.logout();
         this.router.navigate(['/']);
       },
       error: (err) => {
         this.deletingAccount.set(false);
-        this.deleteAccountError.set(err.error?.message || 'Erreur lors de la suppression du compte');
+        this.deleteAccountError.set(err.error?.message || this.translateService.instant('errors.deleteAccount'));
       }
     });
   }

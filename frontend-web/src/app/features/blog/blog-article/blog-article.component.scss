@@ -14,6 +14,7 @@ $text-muted: #6b6965;
   min-height: 100vh;
   background: $bg-dark;
   color: $ivory;
+  overflow-x: hidden;
 }
 
 // === Navigation ===
@@ -24,12 +25,14 @@ $text-muted: #6b6965;
   right: 0;
   z-index: 1000;
   padding: var(--space-md) var(--space-lg);
-  background: rgba($bg-dark, 0.8);
-  backdrop-filter: blur(20px);
+  background: $bg-dark;
   border-bottom: 1px solid rgba($gold, 0.1);
 
   @include respond-to(lg) {
     padding: var(--space-lg) var(--space-xl);
+    background: rgba($bg-dark, 0.8);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
   }
 
   &__container {
@@ -167,7 +170,7 @@ $text-muted: #6b6965;
 
     &.active {
       transform: translateX(0);
-      opacity: 0.95;
+      opacity: 1;
     }
 
     @include respond-to(lg) {
@@ -261,7 +264,7 @@ $text-muted: #6b6965;
     white-space: nowrap;
 
     &:hover {
-      color: $ivory;
+      color: $gold;
     }
 
     &--active {

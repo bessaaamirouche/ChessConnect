@@ -21,12 +21,14 @@ $text-muted: #6b6965;
   right: 0;
   z-index: 1000;
   padding: var(--space-md) var(--space-lg);
-  background: rgba($bg-dark, 0.8);
-  backdrop-filter: blur(20px);
+  background: $bg-dark;
   border-bottom: 1px solid rgba($gold, 0.1);
 
   @include respond-to(lg) {
     padding: var(--space-lg) var(--space-xl);
+    background: rgba($bg-dark, 0.8);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
   }
 
   &__container {
@@ -79,6 +81,7 @@ $text-muted: #6b6965;
     cursor: pointer;
     z-index: 9999;
     backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 
     @include respond-to(lg) {
@@ -157,10 +160,11 @@ $text-muted: #6b6965;
     z-index: 1002;
     overflow-y: auto;
     backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
 
     &.active {
       transform: translateX(0);
-      opacity: 0.95;
+      opacity: 1;
     }
 
     @include respond-to(lg) {
@@ -252,7 +256,7 @@ $text-muted: #6b6965;
     white-space: nowrap;
 
     &:hover {
-      color: $ivory;
+      color: $gold;
     }
 
     &--active {
@@ -371,9 +375,12 @@ $text-muted: #6b6965;
   display: flex;
   justify-content: center;
   margin-bottom: var(--space-xl);
+  padding-top: var(--space-md);
+  overflow: visible;
 }
 
 .pricing-card {
+  position: relative;
   max-width: 450px;
   width: 100%;
   background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(212, 168, 75, 0.05) 100%);
@@ -381,6 +388,31 @@ $text-muted: #6b6965;
   border-radius: var(--radius-lg);
   padding: var(--space-xl);
   box-shadow: 0 0 40px rgba(212, 168, 75, 0.15);
+  overflow: visible;
+
+  &__trial-badge {
+    position: absolute;
+    top: 0;
+    right: var(--space-lg);
+    transform: translateY(-50%);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: white;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: var(--radius-full);
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+    z-index: 1;
+
+    ng-icon {
+      flex-shrink: 0;
+    }
+  }
 
   &__header {
     text-align: center;
@@ -415,7 +447,7 @@ $text-muted: #6b6965;
     margin: 0;
   }
 
-  &__trial {
+  &__trial-info {
     display: flex;
     align-items: center;
     justify-content: center;

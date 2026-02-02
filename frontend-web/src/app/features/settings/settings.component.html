@@ -2,7 +2,7 @@
   <div class="loading-overlay">
     <div class="loading-overlay__content">
       <div class="spinner spinner--lg"></div>
-      <p>Connexion a Stripe en cours...</p>
+      <p>{{ 'settings.stripe.connecting' | translate }}</p>
     </div>
   </div>
 }
@@ -10,52 +10,52 @@
 <div class="settings-page">
     <header class="page-header">
       <div>
-        <h1 class="page-header__title">Parametres</h1>
-        <p class="page-header__subtitle">Gerez vos informations et preferences</p>
+        <h1 class="page-header__title">{{ 'settings.title' | translate }}</h1>
+        <p class="page-header__subtitle">{{ 'settings.subtitle' | translate }}</p>
       </div>
     </header>
 
     <div class="alert-inline-container">
       <div class="alert-inline" [class.alert-inline--visible]="profileSuccess() || profileError()" [class.alert-inline--success]="profileSuccess()" [class.alert-inline--error]="profileError()">
-        <span>{{ profileSuccess() ? 'Profil mis à jour avec succès !' : profileError() }}</span>
+        <span>{{ profileSuccess() ? ('settings.profile.success' | translate) : profileError() }}</span>
       </div>
     </div>
 
     <div class="profile-grid">
       <!-- Profile Form -->
       <div class="card">
-        <h3 class="card__title">Informations personnelles</h3>
+        <h3 class="card__title">{{ 'settings.profile.title' | translate }}</h3>
         <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" class="compact-form">
           <div class="form-grid">
             <div class="form-group">
-              <label class="form-group__label">Prénom</label>
+              <label class="form-group__label">{{ 'settings.profile.firstName' | translate }}</label>
               <input type="text" formControlName="firstName" class="input input--sm">
             </div>
             <div class="form-group">
-              <label class="form-group__label">Nom</label>
+              <label class="form-group__label">{{ 'settings.profile.lastName' | translate }}</label>
               <input type="text" formControlName="lastName" class="input input--sm">
             </div>
           </div>
 
           <div class="form-group">
-            <label class="form-group__label">Email</label>
+            <label class="form-group__label">{{ 'settings.profile.email' | translate }}</label>
             <input type="email" formControlName="email" class="input input--sm input--disabled" [disabled]="true">
           </div>
 
           @if (isStudent()) {
             <div class="form-grid">
               <div class="form-group">
-                <label class="form-group__label">Date de naissance</label>
+                <label class="form-group__label">{{ 'settings.player.birthDate' | translate }}</label>
                 <app-date-input formControlName="birthDate" size="sm" [min]="'1920-01-01'" [max]="maxBirthDate"></app-date-input>
               </div>
               <div class="form-group">
-                <label class="form-group__label">Classement ELO</label>
+                <label class="form-group__label">{{ 'settings.player.eloRating' | translate }}</label>
                 <div class="elo-input">
                   <label class="toggle">
                     <input type="checkbox" formControlName="knowsElo">
                     <span class="toggle__slider"></span>
                   </label>
-                  <span class="elo-input__label">Connu</span>
+                  <span class="elo-input__label">{{ 'settings.player.known' | translate }}</span>
                   @if (profileForm.get('knowsElo')?.value) {
                     <input
                       type="number"
@@ -76,8 +76,8 @@
                 <span class="toggle__slider"></span>
               </label>
               <div class="email-reminder-option__text">
-                <span class="email-reminder-option__label">Recevoir les rappels par email</span>
-                <small class="email-reminder-option__description">Recevez un email de rappel 1 heure avant chaque cours</small>
+                <span class="email-reminder-option__label">{{ 'settings.notifications.emailReminders' | translate }}</span>
+                <small class="email-reminder-option__description">{{ 'settings.notifications.emailRemindersDesc' | translate }}</small>
               </div>
               @if (savingPreferences()) {
                 <span class="spinner spinner--sm"></span>
@@ -90,7 +90,7 @@
               <div class="avatar-upload">
                 <div class="avatar-preview">
                   @if (avatarUrl()) {
-                    <img [src]="avatarUrl()" alt="Photo de profil" class="avatar-image">
+                    <img [src]="avatarUrl()" alt="{{ 'settings.profile.avatar' | translate }}" class="avatar-image">
                   } @else {
                     <div class="avatar-placeholder">
                       <ng-icon name="heroUserCircle" size="48"></ng-icon>
@@ -101,7 +101,7 @@
                   @if (uploadingAvatar()) {
                     <span class="spinner spinner--sm"></span>
                   } @else {
-                    Choisir une photo
+                    {{ 'settings.profile.changeAvatar' | translate }}
                   }
                   <input
                     type="file"
@@ -118,38 +118,38 @@
                     (click)="deleteAvatar()"
                     [disabled]="uploadingAvatar()"
                   >
-                    Supprimer
+                    {{ 'common.delete' | translate }}
                   </button>
                 }
                 @if (avatarError()) {
                   <p class="avatar-error">{{ avatarError() }}</p>
                 }
-                <small class="form-hint">JPG, PNG. Max 5 Mo.</small>
+                <small class="form-hint">{{ 'settings.profile.avatarHint' | translate }}</small>
               </div>
 
               <div class="teacher-fields">
                 <div class="form-group">
-                  <label class="form-group__label">Tarif horaire</label>
+                  <label class="form-group__label">{{ 'settings.coachProfile.hourlyRate' | translate }}</label>
                   <div class="input-with-suffix">
-                    <input type="number" formControlName="hourlyRate" class="input input--sm" min="10" step="5" placeholder="50">
-                    <span class="input-suffix">€/h</span>
+                    <input type="number" formControlName="hourlyRate" class="input input--sm" min="0.5" step="0.1" placeholder="50">
+                    <span class="input-suffix">{{ 'common.perHour' | translate }}</span>
                   </div>
                 </div>
               </div>
             </div>
 
             <div class="form-group">
-              <label class="form-group__label">Biographie</label>
+              <label class="form-group__label">{{ 'settings.profile.bio' | translate }}</label>
               <textarea
                 formControlName="bio"
                 class="textarea textarea--sm"
                 rows="3"
-                placeholder="Décrivez votre expérience..."
+                [placeholder]="'settings.profile.bioPlaceholder' | translate"
               ></textarea>
             </div>
 
             <div class="form-group">
-              <label class="form-group__label">Langues parlées</label>
+              <label class="form-group__label">{{ 'settings.coachProfile.languages' | translate }}</label>
               <div class="language-selector">
                 @for (lang of availableLanguages; track lang.code) {
                   <button
@@ -162,19 +162,19 @@
                   </button>
                 }
               </div>
-              <small class="form-hint">Sélectionnez au moins une langue</small>
+              <small class="form-hint">{{ 'settings.coachProfile.languagesHint' | translate }}</small>
             </div>
 
-            <h4 class="section-title">Informations professionnelles</h4>
-            <p class="section-description">Ces informations sont affichées sur vos factures.</p>
+            <h4 class="section-title">{{ 'settings.professional.title' | translate }}</h4>
+            <p class="section-description">{{ 'settings.professional.description' | translate }}</p>
 
             <div class="form-group">
-              <label class="form-group__label">Nom de l'entreprise (optionnel)</label>
-              <input type="text" formControlName="companyName" class="input input--sm" placeholder="Mon entreprise">
+              <label class="form-group__label">{{ 'settings.professional.companyName' | translate }}</label>
+              <input type="text" formControlName="companyName" class="input input--sm" [placeholder]="'settings.professional.companyPlaceholder' | translate">
             </div>
 
             <div class="form-group">
-              <label class="form-group__label">SIRET (optionnel)</label>
+              <label class="form-group__label">{{ 'settings.professional.siret' | translate }}</label>
               <input type="text" formControlName="siret" class="input input--sm" placeholder="123 456 789 00001">
             </div>
           }
@@ -183,17 +183,26 @@
             @if (savingProfile()) {
               <span class="spinner spinner--sm"></span>
             } @else {
-              Enregistrer
+              {{ 'common.save' | translate }}
             }
           </button>
         </form>
       </div>
 
+      <!-- Language Preferences -->
+      <div class="card card--compact">
+        <h3 class="card__title">{{ 'settings.language.title' | translate }}</h3>
+        <p class="card__description">{{ 'settings.language.description' | translate }}</p>
+        <div class="language-preference">
+          <app-language-selector></app-language-selector>
+        </div>
+      </div>
+
       <!-- Paiements (teachers only) -->
       @if (isTeacher()) {
         <div class="card">
-          <h3 class="card__title">Recevoir mes paiements</h3>
-          <p class="card__description">Configurez votre compte bancaire pour recevoir vos paiements directement.</p>
+          <h3 class="card__title">{{ 'settings.stripe.title' | translate }}</h3>
+          <p class="card__description">{{ 'settings.stripe.description' | translate }}</p>
 
           <div class="alert-inline-container">
             <div class="alert-inline" [class.alert-inline--visible]="stripeConnectSuccess() || stripeConnectError()" [class.alert-inline--success]="stripeConnectSuccess()" [class.alert-inline--error]="stripeConnectError()">
@@ -205,8 +214,8 @@
             <!-- Account is ready -->
             <div class="stripe-status stripe-status--ready">
               <div class="stripe-status__info">
-                <span class="stripe-status__badge stripe-status__badge--success">Compte configuré</span>
-                <p class="text-muted">Votre compte est configuré et prêt à recevoir des paiements.</p>
+                <span class="stripe-status__badge stripe-status__badge--success">{{ 'settings.stripe.connected' | translate }}</span>
+                <p class="text-muted">{{ 'settings.stripe.readyMessage' | translate }}</p>
               </div>
               <button
                 class="btn btn--ghost btn--sm"
@@ -216,7 +225,7 @@
                 @if (stripeConnectLoading()) {
                   <span class="spinner spinner--sm"></span>
                 } @else {
-                  Déconnecter
+                  {{ 'settings.stripe.disconnect' | translate }}
                 }
               </button>
             </div>
@@ -224,8 +233,8 @@
             <!-- Account exists but onboarding incomplete -->
             <div class="stripe-status stripe-status--pending">
               <div class="stripe-status__info">
-                <span class="stripe-status__badge stripe-status__badge--warning">Configuration incomplète</span>
-                <p class="text-muted">Votre compte nécessite des informations supplémentaires.</p>
+                <span class="stripe-status__badge stripe-status__badge--warning">{{ 'settings.stripe.pending' | translate }}</span>
+                <p class="text-muted">{{ 'settings.stripe.pendingMessage' | translate }}</p>
                 @if (stripeConnectStatus().pendingReason) {
                   <p class="text-muted text-sm">{{ stripeConnectStatus().pendingReason }}</p>
                 }
@@ -238,19 +247,19 @@
                 @if (stripeConnectLoading()) {
                   <span class="spinner spinner--sm"></span>
                 } @else {
-                  Compléter la configuration
+                  {{ 'settings.stripe.complete' | translate }}
                 }
               </button>
             </div>
           } @else {
             <!-- No account yet -->
             <div class="stripe-status">
-              <p class="text-muted">Configurez votre compte pour recevoir automatiquement vos paiements après chaque cours.</p>
+              <p class="text-muted">{{ 'settings.stripe.setupMessage' | translate }}</p>
               <div class="stripe-benefits">
                 <ul>
-                  <li>Paiements sécurisés</li>
-                  <li>Virements automatiques sur votre compte</li>
-                  <li>Suivi des paiements en temps reel</li>
+                  <li>{{ 'settings.stripe.benefit1' | translate }}</li>
+                  <li>{{ 'settings.stripe.benefit2' | translate }}</li>
+                  <li>{{ 'settings.stripe.benefit3' | translate }}</li>
                 </ul>
               </div>
               <button
@@ -261,7 +270,7 @@
                 @if (stripeConnectLoading()) {
                   <span class="spinner spinner--sm"></span>
                 } @else {
-                  Configurer mon compte
+                  {{ 'settings.stripe.connect' | translate }}
                 }
               </button>
             </div>
@@ -271,26 +280,26 @@
         <!-- Teacher Balance -->
         @if (teacherBalance(); as balance) {
           <div class="card">
-            <h3 class="card__title">Mes gains</h3>
+            <h3 class="card__title">{{ 'settings.earnings.title' | translate }}</h3>
 
             <div class="balance-grid">
               <div class="balance-item">
-                <span class="balance-item__label">Crédit disponible</span>
+                <span class="balance-item__label">{{ 'settings.earnings.available' | translate }}</span>
                 <span class="balance-item__value">{{ formatCents(balance.availableBalanceCents) }}</span>
               </div>
               <div class="balance-item">
-                <span class="balance-item__label">Total gagné</span>
+                <span class="balance-item__label">{{ 'settings.earnings.totalEarned' | translate }}</span>
                 <span class="balance-item__value">{{ formatCents(balance.totalEarnedCents) }}</span>
               </div>
               <div class="balance-item">
-                <span class="balance-item__label">Total retiré</span>
+                <span class="balance-item__label">{{ 'settings.earnings.totalWithdrawn' | translate }}</span>
                 <span class="balance-item__value">{{ formatCents(balance.totalWithdrawnCents) }}</span>
               </div>
             </div>
 
             @if (balance.availableBalanceCents !== balance.totalEarnedCents - balance.totalWithdrawnCents) {
               <div class="balance-warning">
-                <p class="text-muted text-sm">Une incohérence a été détectée dans votre balance.</p>
+                <p class="text-muted text-sm">{{ 'settings.earnings.inconsistency' | translate }}</p>
                 <button
                   class="btn btn--ghost btn--sm"
                   (click)="recalculateBalance()"
@@ -299,7 +308,7 @@
                   @if (recalculatingBalance()) {
                     <span class="spinner spinner--sm"></span>
                   } @else {
-                    Recalculer la balance
+                    {{ 'settings.earnings.recalculate' | translate }}
                   }
                 </button>
               </div>
@@ -312,7 +321,7 @@
       <div class="card card--danger card--compact">
         <div class="danger-header">
           <ng-icon name="heroExclamationTriangle" size="16"></ng-icon>
-          <span>Zone de danger</span>
+          <span>{{ 'settings.danger.title' | translate }}</span>
         </div>
 
         @if (deleteAccountError()) {
@@ -323,8 +332,8 @@
 
         <div class="danger-row">
           <div class="danger-row__text">
-            <span class="danger-row__title">Supprimer mon compte</span>
-            <span class="danger-row__desc">Action irréversible. Toutes vos données seront supprimées.</span>
+            <span class="danger-row__title">{{ 'settings.danger.deleteAccount' | translate }}</span>
+            <span class="danger-row__desc">{{ 'settings.danger.deleteWarning' | translate }}</span>
           </div>
           <button
             class="btn btn--danger btn--sm"
@@ -334,7 +343,7 @@
             @if (deletingAccount()) {
               <span class="spinner spinner--sm"></span>
             } @else {
-              Supprimer mon compte
+              {{ 'settings.danger.deleteAccount' | translate }}
             }
           </button>
         </div>

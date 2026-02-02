@@ -5,28 +5,28 @@
         <div class="status-card__icon">
           <span class="spinner spinner--lg"></span>
         </div>
-        <h2 class="heading-3">Confirmation en cours...</h2>
-        <p class="text-secondary">Veuillez patienter pendant que nous confirmons votre paiement.</p>
+        <h2 class="heading-3">{{ 'booking.confirmingPayment' | translate }}</h2>
+        <p class="text-secondary">{{ 'booking.pleaseWait' | translate }}</p>
       </div>
     } @else if (success()) {
       <div class="status-card status-card--success card">
         <div class="status-card__icon status-card__icon--success">
           &#10004;
         </div>
-        <h2 class="heading-3">Paiement confirmé !</h2>
-        <p class="text-secondary">Votre cours a été réservé avec succès.</p>
-        <p class="text-muted">Redirection vers Mon Espace...</p>
+        <h2 class="heading-3">{{ 'booking.paymentConfirmed' | translate }}</h2>
+        <p class="text-secondary">{{ 'booking.success.message' | translate }}</p>
+        <p class="text-muted">{{ 'booking.redirectingToDashboard' | translate }}</p>
       </div>
     } @else if (error()) {
       <div class="status-card status-card--error card">
         <div class="status-card__icon status-card__icon--error">
           &#10006;
         </div>
-        <h2 class="heading-3">Erreur</h2>
+        <h2 class="heading-3">{{ 'status.error' | translate }}</h2>
         <p class="text-secondary">{{ error() }}</p>
         <div class="status-card__actions">
-          <a routerLink="/dashboard" class="btn btn--primary">Aller à Mon Espace</a>
-          <a routerLink="/teachers" class="btn btn--ghost">Réessayer</a>
+          <a routerLink="/dashboard" class="btn btn--primary">{{ 'booking.goToDashboard' | translate }}</a>
+          <a routerLink="/teachers" class="btn btn--ghost">{{ 'common.retry' | translate }}</a>
         </div>
       </div>
     }

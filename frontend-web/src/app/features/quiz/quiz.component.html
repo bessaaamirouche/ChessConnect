@@ -4,29 +4,28 @@
       @if (step() === 'intro') {
         <div class="quiz-intro">
           <div class="quiz-intro__icon">♟</div>
-          <h1 class="quiz-intro__title">Testez vos connaissances</h1>
+          <h1 class="quiz-intro__title">{{ 'quiz.intro.title' | translate }}</h1>
           <p class="quiz-intro__description">
-            Ce quiz est indicatif et vous permet de tester vos connaissances aux échecs.
-            Votre niveau officiel sera déterminé par votre coach lors de votre premier cours.
+            {{ 'quiz.intro.description' | translate }}
           </p>
 
           <div class="quiz-intro__info">
             <div class="quiz-intro__info-item">
               <span class="quiz-intro__info-value">30</span>
-              <span class="quiz-intro__info-label">Questions</span>
+              <span class="quiz-intro__info-label">{{ 'quiz.intro.questions' | translate }}</span>
             </div>
             <div class="quiz-intro__info-item">
               <span class="quiz-intro__info-value">6</span>
-              <span class="quiz-intro__info-label">Niveaux</span>
+              <span class="quiz-intro__info-label">{{ 'quiz.intro.levels' | translate }}</span>
             </div>
             <div class="quiz-intro__info-item">
               <span class="quiz-intro__info-value">70%</span>
-              <span class="quiz-intro__info-label">Pour passer</span>
+              <span class="quiz-intro__info-label">{{ 'quiz.intro.toPass' | translate }}</span>
             </div>
           </div>
 
           <div class="quiz-intro__levels">
-            <h3>Niveaux évalués</h3>
+            <h3>{{ 'quiz.intro.evaluatedLevels' | translate }}</h3>
             <div class="quiz-intro__levels-list">
               @for (level of levels; track level) {
                 <div class="quiz-intro__level">
@@ -41,15 +40,15 @@
           <button class="btn btn--primary btn--lg quiz-intro__start" (click)="startQuiz()" [disabled]="quizService.loading()">
             @if (quizService.loading()) {
               <span class="spinner spinner--sm"></span>
-              Chargement...
+              {{ 'common.loading' | translate }}
             } @else {
               <ng-icon name="heroPlayCircle"></ng-icon>
-              Commencer le quiz
+              {{ 'quiz.start' | translate }}
             }
           </button>
 
           <a routerLink="/progress" class="quiz-intro__skip">
-            Passer et commencer au niveau Pion
+            {{ 'quiz.intro.skipToPawn' | translate }}
           </a>
         </div>
       }
@@ -61,10 +60,10 @@
           <div class="quiz-progress">
             <div class="quiz-progress__info">
               <span class="quiz-progress__current">
-                Question {{ quizService.currentIndex() + 1 }} / {{ quizService.totalQuestions() }}
+                {{ 'quiz.question' | translate }} {{ quizService.currentIndex() + 1 }} / {{ quizService.totalQuestions() }}
               </span>
               <span class="quiz-progress__level">
-                Niveau {{ quizService.currentQuestion()!.level }}
+                {{ 'quiz.progress.level' | translate }} {{ quizService.currentQuestion()!.level }}
               </span>
             </div>
             <div class="quiz-progress__bar">
@@ -133,11 +132,11 @@
               [disabled]="quizService.isFirstQuestion()"
             >
               <ng-icon name="heroArrowLeft"></ng-icon>
-              Précédent
+              {{ 'quiz.previous' | translate }}
             </button>
 
             <span class="quiz-nav__answered">
-              {{ quizService.answeredCount() }} / {{ quizService.totalQuestions() }} répondues
+              {{ quizService.answeredCount() }} / {{ quizService.totalQuestions() }} {{ 'quiz.answered' | translate }}
             </span>
 
             <div class="quiz-nav__right">
@@ -147,7 +146,7 @@
                   (click)="skipQuestion()"
                   [disabled]="quizService.submitting()"
                 >
-                  Passer
+                  {{ 'quiz.skip' | translate }}
                 </button>
               }
 
@@ -158,12 +157,12 @@
               >
                 @if (quizService.submitting()) {
                   <span class="spinner spinner--sm"></span>
-                  Envoi...
+                  {{ 'quiz.sending' | translate }}
                 } @else if (quizService.isLastQuestion()) {
-                  Terminer
+                  {{ 'quiz.finish' | translate }}
                   <ng-icon name="heroCheckCircle"></ng-icon>
                 } @else {
-                  Suivant
+                  {{ 'quiz.next' | translate }}
                   <ng-icon name="heroArrowRight"></ng-icon>
                 }
               </button>
@@ -178,19 +177,19 @@
           <div class="quiz-result">
             <div class="quiz-result__header">
               <div class="quiz-result__icon">{{ getLevelIcon(result.determinedLevel) }}</div>
-              <h1 class="quiz-result__title">Niveau suggéré : {{ result.levelDisplayName }}</h1>
+              <h1 class="quiz-result__title">{{ 'quiz.results.suggestedLevel' | translate }} : {{ result.levelDisplayName }}</h1>
               <p class="quiz-result__subtitle">{{ result.levelDescription }}</p>
             </div>
 
             <p class="quiz-result__message">{{ result.message }}</p>
 
             <div class="quiz-result__notice">
-              <strong>Note :</strong> Ce résultat est indicatif. Votre coach évaluera officiellement votre niveau lors de votre premier cours avec des exercices pratiques.
+              {{ 'quiz.results.notice' | translate }}
             </div>
 
             <!-- Scores by Level -->
             <div class="quiz-result__scores">
-              <h3>Résultats par niveau</h3>
+              <h3>{{ 'quiz.results.resultsByLevel' | translate }}</h3>
               <div class="quiz-result__scores-list">
                 @for (level of levels; track level) {
                   <div class="quiz-result__score" [class.quiz-result__score--passed]="isLevelPassed(level)" [class.quiz-result__score--failed]="isLevelEvaluated(level) && !isLevelPassed(level)" [class.quiz-result__score--not-evaluated]="!isLevelEvaluated(level)">
@@ -212,7 +211,7 @@
                           <ng-icon name="heroXCircle" class="text-error"></ng-icon>
                         }
                       } @else {
-                        <span class="text-muted">Non évalué</span>
+                        <span class="text-muted">{{ 'quiz.results.notEvaluated' | translate }}</span>
                       }
                     </span>
                   </div>
@@ -223,11 +222,11 @@
             <!-- Actions -->
             <div class="quiz-result__actions">
               <button class="btn btn--primary btn--lg" (click)="goToProgress()">
-                Voir mon parcours
+                {{ 'quiz.results.viewProgress' | translate }}
                 <ng-icon name="heroArrowRight"></ng-icon>
               </button>
               <button class="btn btn--secondary" (click)="retakeQuiz()">
-                Refaire le quiz
+                {{ 'quiz.results.retake' | translate }}
               </button>
             </div>
           </div>
@@ -238,7 +237,7 @@
       @if (quizService.error()) {
         <div class="quiz-error">
           <p>{{ quizService.error() }}</p>
-          <button class="btn btn--secondary" (click)="quizService.clearError()">Fermer</button>
+          <button class="btn btn--secondary" (click)="quizService.clearError()">{{ 'common.close' | translate }}</button>
         </div>
       }
     </div>

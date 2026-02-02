@@ -6,6 +6,7 @@ import { SeoService } from '../../core/services/seo.service';
 import { Course, GradeWithCourses } from '../../core/models/learning-path.model';
 import { ChessLevel, CHESS_LEVELS } from '../../core/models/user.model';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
+import { TranslateModule } from '@ngx-translate/core';
 import {
   heroCheckCircle,
   heroChevronDown,
@@ -30,7 +31,7 @@ interface LevelGroup {
 @Component({
   selector: 'app-progress',
   standalone: true,
-  imports: [RouterLink, NgIconComponent],
+  imports: [RouterLink, NgIconComponent, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({
     heroCheckCircle,

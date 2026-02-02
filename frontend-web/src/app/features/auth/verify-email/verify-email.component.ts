@@ -1,6 +1,7 @@
 import { Component, OnInit, signal, inject, ChangeDetectionStrategy, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth.service';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { heroCheckCircle, heroXCircle, heroArrowRight } from '@ng-icons/heroicons/outline';
@@ -8,7 +9,7 @@ import { heroCheckCircle, heroXCircle, heroArrowRight } from '@ng-icons/heroicon
 @Component({
   selector: 'app-verify-email',
   standalone: true,
-  imports: [RouterLink, NgIconComponent],
+  imports: [RouterLink, NgIconComponent, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({ heroCheckCircle, heroXCircle, heroArrowRight })],
   template: `
@@ -137,10 +138,11 @@ export class VerifyEmailComponent implements OnInit {
   private router = inject(Router);
   private authService = inject(AuthService);
   private platformId = inject(PLATFORM_ID);
+  private translateService = inject(TranslateService);
 
   loading = signal(true);
   success = signal(false);
-  errorMessage = signal('Le lien de vérification est invalide ou a expiré.');
+  errorMessage = signal('');
 
   ngOnInit(): void {
     // Only run verification in browser (not during SSR)
@@ -153,7 +155,7 @@ export class VerifyEmailComponent implements OnInit {
 
     if (!token) {
       this.loading.set(false);
-      this.errorMessage.set('Token de verification manquant.');
+      this.errorMessage.set(this.translateService.instant('errors.tokenInvalid'));
       return;
     }
 
@@ -168,7 +170,7 @@ export class VerifyEmailComponent implements OnInit {
       error: (err) => {
         this.loading.set(false);
         this.success.set(false);
-        this.errorMessage.set(err.error?.message || 'Le lien de vérification est invalide ou a expiré.');
+        this.errorMessage.set(err.error?.message || this.translateService.instant('errors.linkExpired'));
       }
     });
   }

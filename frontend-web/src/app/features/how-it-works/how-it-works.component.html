@@ -18,29 +18,29 @@
 
       <!-- Desktop Pill Tabs Navigation -->
       <div class="nav__pills">
-        <a routerLink="/" class="nav__pill">Accueil</a>
-        <a routerLink="/teachers" class="nav__pill">Nos coachs</a>
-        <a routerLink="/blog" class="nav__pill">Blog</a>
+        <a routerLink="/" class="nav__pill">{{ 'nav.home' | translate }}</a>
+        <a routerLink="/teachers" class="nav__pill">{{ 'teachers.title' | translate }}</a>
+        <a routerLink="/blog" class="nav__pill">{{ 'nav.blog' | translate }}</a>
         @if (authService.isAuthenticated()) {
-          <a routerLink="/dashboard" class="nav__pill">Mon Espace</a>
+          <a routerLink="/dashboard" class="nav__pill">{{ 'sidebar.dashboard' | translate }}</a>
         } @else {
-          <a routerLink="/login" class="nav__pill">S'identifier</a>
-          <a routerLink="/register" class="nav__pill">S'inscrire</a>
+          <a routerLink="/login" class="nav__pill">{{ 'nav.login' | translate }}</a>
+          <a routerLink="/register" class="nav__pill">{{ 'nav.signup' | translate }}</a>
         }
       </div>
 
       <!-- Mobile Drawer Menu -->
       <div class="nav__links" [class.active]="mobileMenuOpen()">
-        <a routerLink="/" (click)="closeMobileMenu()">Accueil</a>
-        <a routerLink="/teachers" (click)="closeMobileMenu()">Nos coachs</a>
-        <a routerLink="/blog" (click)="closeMobileMenu()">Blog</a>
+        <a routerLink="/" (click)="closeMobileMenu()">{{ 'nav.home' | translate }}</a>
+        <a routerLink="/teachers" (click)="closeMobileMenu()">{{ 'teachers.title' | translate }}</a>
+        <a routerLink="/blog" (click)="closeMobileMenu()">{{ 'nav.blog' | translate }}</a>
 
         <div class="nav__mobile-actions">
           @if (authService.isAuthenticated()) {
-            <a routerLink="/dashboard" class="nav__btn nav__btn--primary" (click)="closeMobileMenu()">Mon Espace</a>
+            <a routerLink="/dashboard" class="nav__btn nav__btn--primary" (click)="closeMobileMenu()">{{ 'sidebar.dashboard' | translate }}</a>
           } @else {
-            <a routerLink="/login" class="nav__btn nav__btn--ghost" (click)="closeMobileMenu()">S'identifier</a>
-            <a routerLink="/register" class="nav__btn nav__btn--primary" (click)="closeMobileMenu()">S'inscrire</a>
+            <a routerLink="/login" class="nav__btn nav__btn--ghost" (click)="closeMobileMenu()">{{ 'nav.login' | translate }}</a>
+            <a routerLink="/register" class="nav__btn nav__btn--primary" (click)="closeMobileMenu()">{{ 'nav.signup' | translate }}</a>
           }
         </div>
       </div>
@@ -50,8 +50,8 @@
   <!-- Header -->
   <header class="legal-header">
     <div class="legal-header__content">
-      <h1 class="legal-header__title">Comment ca marche ?</h1>
-      <p class="legal-header__subtitle">Tout ce que vous devez savoir pour profiter pleinement de mychess</p>
+      <h1 class="legal-header__title">{{ 'howItWorks.title' | translate }}</h1>
+      <p class="legal-header__subtitle">{{ 'howItWorks.subtitle' | translate }}</p>
     </div>
   </header>
 
@@ -60,189 +60,189 @@
     <div class="legal-content__container">
       <article class="prose">
 
-        <!-- Section Joueurs -->
+        <!-- Section Players -->
         <section class="role-section">
-          <div class="role-badge role-badge--player">Joueur</div>
-          <h2>Guide pour les joueurs</h2>
+          <div class="role-badge role-badge--player">{{ 'howItWorks.player.badge' | translate }}</div>
+          <h2>{{ 'howItWorks.player.title' | translate }}</h2>
 
-          <h3>1. Trouver un coach</h3>
-          <p>Parcourez notre liste de coachs qualifies sur la page <a routerLink="/teachers">Nos coachs</a>. Chaque profil affiche :</p>
+          <h3>{{ 'howItWorks.player.step1.title' | translate }}</h3>
+          <p>{{ 'howItWorks.player.step1.description' | translate }}</p>
           <ul>
-            <li>Le tarif horaire du coach</li>
-            <li>Sa note moyenne et les avis des autres eleves</li>
-            <li>Son niveau et sa specialite</li>
-            <li>Sa disponibilite (pastille verte = en ligne)</li>
+            <li>{{ 'howItWorks.player.step1.item1' | translate }}</li>
+            <li>{{ 'howItWorks.player.step1.item2' | translate }}</li>
+            <li>{{ 'howItWorks.player.step1.item3' | translate }}</li>
+            <li>{{ 'howItWorks.player.step1.item4' | translate }}</li>
           </ul>
 
-          <h3>2. Ajouter un coach en favori</h3>
-          <p>Lorsque vous trouvez un coach qui vous plait :</p>
+          <h3>{{ 'howItWorks.player.step2.title' | translate }}</h3>
+          <p>{{ 'howItWorks.player.step2.description' | translate }}</p>
           <ul>
-            <li>Cliquez sur le bouton <strong>"Ajouter aux favoris"</strong> sur son profil</li>
-            <li>Activez l'option <strong>"Me notifier des nouveaux creneaux"</strong></li>
-            <li>Vous retrouverez vos coachs favoris dans votre profil</li>
+            <li>{{ 'howItWorks.player.step2.item1' | translate }}</li>
+            <li>{{ 'howItWorks.player.step2.item2' | translate }}</li>
+            <li>{{ 'howItWorks.player.step2.item3' | translate }}</li>
           </ul>
 
-          <h3>3. Recevoir les notifications</h3>
+          <h3>{{ 'howItWorks.player.step3.title' | translate }}</h3>
           <div class="info-box info-box--premium">
             <div class="info-box__icon">&#9733;</div>
             <div class="info-box__content">
-              <strong>Fonctionnalite Premium</strong>
-              <p>Les notifications par email pour les nouveaux creneaux de vos coachs favoris sont reservees aux abonnes Premium (4,99&#8364;/mois).</p>
+              <strong>{{ 'howItWorks.premiumFeature' | translate }}</strong>
+              <p>{{ 'howItWorks.player.step3.premiumNote' | translate }}</p>
             </div>
           </div>
-          <p>En tant qu'abonne Premium, des qu'un de vos coachs favoris publie une nouvelle disponibilite, vous recevez immediatement un email avec :</p>
+          <p>{{ 'howItWorks.player.step3.description' | translate }}</p>
           <ul>
-            <li>Le nom du coach</li>
-            <li>Les details du creneau (jour, heure)</li>
-            <li>Un lien direct pour reserver</li>
+            <li>{{ 'howItWorks.player.step3.item1' | translate }}</li>
+            <li>{{ 'howItWorks.player.step3.item2' | translate }}</li>
+            <li>{{ 'howItWorks.player.step3.item3' | translate }}</li>
           </ul>
 
-          <h3>4. Acces prioritaire aux creneaux</h3>
+          <h3>{{ 'howItWorks.player.step4.title' | translate }}</h3>
           <div class="info-box info-box--premium">
             <div class="info-box__icon">&#9733;</div>
             <div class="info-box__content">
-              <strong>Avantage Premium</strong>
-              <p>Les abonnes Premium voient les nouveaux creneaux <strong>24 heures avant</strong> les autres joueurs.</p>
+              <strong>{{ 'howItWorks.premiumAdvantage' | translate }}</strong>
+              <p>{{ 'howItWorks.player.step4.premiumNote' | translate }}</p>
             </div>
           </div>
 
-          <h3>5. Reserver un cours</h3>
-          <p>Pour reserver :</p>
+          <h3>{{ 'howItWorks.player.step5.title' | translate }}</h3>
+          <p>{{ 'howItWorks.player.step5.description' | translate }}</p>
           <ul>
-            <li>Allez sur le profil du coach ou cliquez sur "Reserver" depuis l'email</li>
-            <li>Selectionnez un creneau disponible</li>
-            <li>Payez via Stripe ou utilisez votre solde portefeuille</li>
-            <li>Le coach recoit votre demande et confirme le cours</li>
+            <li>{{ 'howItWorks.player.step5.item1' | translate }}</li>
+            <li>{{ 'howItWorks.player.step5.item2' | translate }}</li>
+            <li>{{ 'howItWorks.player.step5.item3' | translate }}</li>
+            <li>{{ 'howItWorks.player.step5.item4' | translate }}</li>
           </ul>
 
-          <h3>6. Premier cours offert</h3>
-          <p>Nouveau sur mychess ? Votre premier cours est <strong>100% gratuit</strong> ! Reservez sans payer pour decouvrir la plateforme.</p>
+          <h3>{{ 'howItWorks.player.step6.title' | translate }}</h3>
+          <p>{{ 'howItWorks.player.step6.description' | translate }}</p>
         </section>
 
-        <!-- Section Coachs -->
+        <!-- Section Coaches -->
         <section class="role-section">
-          <div class="role-badge role-badge--coach">Coach</div>
-          <h2>Guide pour les coachs</h2>
+          <div class="role-badge role-badge--coach">{{ 'howItWorks.coach.badge' | translate }}</div>
+          <h2>{{ 'howItWorks.coach.title' | translate }}</h2>
 
-          <h3>1. Creer vos disponibilites</h3>
-          <p>Depuis votre espace <a routerLink="/availability">Mes Disponibilites</a> :</p>
+          <h3>{{ 'howItWorks.coach.step1.title' | translate }}</h3>
+          <p>{{ 'howItWorks.coach.step1.description' | translate }}</p>
           <ul>
-            <li>Cliquez sur <strong>"Ajouter une disponibilite"</strong></li>
-            <li>Choisissez le jour et les horaires (minimum 1 heure)</li>
-            <li>Optez pour un creneau <strong>ponctuel</strong> ou <strong>recurrent</strong> (chaque semaine)</li>
-            <li>Enregistrez : vos creneaux sont immediatement visibles</li>
+            <li>{{ 'howItWorks.coach.step1.item1' | translate }}</li>
+            <li>{{ 'howItWorks.coach.step1.item2' | translate }}</li>
+            <li>{{ 'howItWorks.coach.step1.item3' | translate }}</li>
+            <li>{{ 'howItWorks.coach.step1.item4' | translate }}</li>
           </ul>
 
-          <h3>2. Notification automatique de vos eleves</h3>
-          <p>Des que vous publiez une nouvelle disponibilite :</p>
+          <h3>{{ 'howItWorks.coach.step2.title' | translate }}</h3>
+          <p>{{ 'howItWorks.coach.step2.description' | translate }}</p>
           <ul>
-            <li>Tous les joueurs qui vous ont en <strong>favori</strong> avec les notifications activees</li>
-            <li>Et qui sont abonnes <strong>Premium</strong></li>
-            <li>Recoivent automatiquement un email les informant du nouveau creneau</li>
+            <li>{{ 'howItWorks.coach.step2.item1' | translate }}</li>
+            <li>{{ 'howItWorks.coach.step2.item2' | translate }}</li>
+            <li>{{ 'howItWorks.coach.step2.item3' | translate }}</li>
           </ul>
           <div class="info-box info-box--tip">
             <div class="info-box__icon">&#128161;</div>
             <div class="info-box__content">
-              <strong>Conseil</strong>
-              <p>Publiez vos disponibilites regulierement pour fideliser vos eleves Premium. Ils seront les premiers informes !</p>
+              <strong>{{ 'howItWorks.tip' | translate }}</strong>
+              <p>{{ 'howItWorks.coach.step2.tip' | translate }}</p>
             </div>
           </div>
 
-          <h3>3. Gerer les reservations</h3>
-          <p>Quand un eleve reserve :</p>
+          <h3>{{ 'howItWorks.coach.step3.title' | translate }}</h3>
+          <p>{{ 'howItWorks.coach.step3.description' | translate }}</p>
           <ul>
-            <li>Vous recevez une notification</li>
-            <li>Vous avez <strong>24 heures</strong> pour confirmer le cours</li>
-            <li>Si vous ne confirmez pas, le cours est annule et l'eleve rembourse</li>
+            <li>{{ 'howItWorks.coach.step3.item1' | translate }}</li>
+            <li>{{ 'howItWorks.coach.step3.item2' | translate }}</li>
+            <li>{{ 'howItWorks.coach.step3.item3' | translate }}</li>
           </ul>
 
-          <h3>4. Donner le cours</h3>
-          <p>A l'heure du cours :</p>
+          <h3>{{ 'howItWorks.coach.step4.title' | translate }}</h3>
+          <p>{{ 'howItWorks.coach.step4.description' | translate }}</p>
           <ul>
-            <li>Cliquez sur <strong>"Rejoindre le cours"</strong> dans Mes Cours</li>
-            <li>La visioconference Jitsi demarre automatiquement</li>
-            <li>A la fin, marquez le cours comme <strong>termine</strong></li>
+            <li>{{ 'howItWorks.coach.step4.item1' | translate }}</li>
+            <li>{{ 'howItWorks.coach.step4.item2' | translate }}</li>
+            <li>{{ 'howItWorks.coach.step4.item3' | translate }}</li>
           </ul>
 
-          <h3>5. Recevoir vos paiements</h3>
-          <p>Configurez votre compte Stripe Connect dans les parametres pour recevoir vos gains directement sur votre compte bancaire.</p>
+          <h3>{{ 'howItWorks.coach.step5.title' | translate }}</h3>
+          <p>{{ 'howItWorks.coach.step5.description' | translate }}</p>
         </section>
 
-        <!-- Section Recapitulatif -->
+        <!-- Notifications Summary Section -->
         <section>
-          <h2>Recapitulatif des notifications</h2>
+          <h2>{{ 'howItWorks.notifications.title' | translate }}</h2>
           <table>
             <thead>
               <tr>
-                <th>Evenement</th>
-                <th>Qui est notifie</th>
-                <th>Condition</th>
+                <th>{{ 'howItWorks.notifications.event' | translate }}</th>
+                <th>{{ 'howItWorks.notifications.whoNotified' | translate }}</th>
+                <th>{{ 'howItWorks.notifications.condition' | translate }}</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td>Nouveau creneau publie</td>
-                <td>Joueurs ayant le coach en favori</td>
-                <td>Abonnement Premium + Notifications activees</td>
+                <td>{{ 'howItWorks.notifications.newSlot' | translate }}</td>
+                <td>{{ 'howItWorks.notifications.favoritePlayers' | translate }}</td>
+                <td>{{ 'howItWorks.notifications.premiumAndNotify' | translate }}</td>
               </tr>
               <tr>
-                <td>Reservation d'un cours</td>
-                <td>Le coach</td>
-                <td>Aucune</td>
+                <td>{{ 'howItWorks.notifications.booking' | translate }}</td>
+                <td>{{ 'howItWorks.notifications.theCoach' | translate }}</td>
+                <td>{{ 'howItWorks.notifications.none' | translate }}</td>
               </tr>
               <tr>
-                <td>Confirmation du cours</td>
-                <td>Le joueur</td>
-                <td>Aucune</td>
+                <td>{{ 'howItWorks.notifications.confirmation' | translate }}</td>
+                <td>{{ 'howItWorks.notifications.thePlayer' | translate }}</td>
+                <td>{{ 'howItWorks.notifications.none' | translate }}</td>
               </tr>
               <tr>
-                <td>Rappel 1h avant le cours</td>
-                <td>Joueur et Coach</td>
-                <td>Rappels email actives dans les parametres</td>
+                <td>{{ 'howItWorks.notifications.reminder' | translate }}</td>
+                <td>{{ 'howItWorks.notifications.bothParties' | translate }}</td>
+                <td>{{ 'howItWorks.notifications.emailRemindersEnabled' | translate }}</td>
               </tr>
               <tr>
-                <td>Annulation d'un cours</td>
-                <td>L'autre partie</td>
-                <td>Aucune</td>
+                <td>{{ 'howItWorks.notifications.cancellation' | translate }}</td>
+                <td>{{ 'howItWorks.notifications.otherParty' | translate }}</td>
+                <td>{{ 'howItWorks.notifications.none' | translate }}</td>
               </tr>
             </tbody>
           </table>
         </section>
 
-        <!-- Section Abonnement Premium -->
+        <!-- Premium Benefits Section -->
         <section>
-          <h2>Avantages Premium</h2>
-          <p>L'abonnement Premium a <strong>4,99&#8364;/mois</strong> vous offre :</p>
+          <h2>{{ 'howItWorks.premium.title' | translate }}</h2>
+          <p>{{ 'howItWorks.premium.description' | translate }}</p>
           <ul>
-            <li><strong>Notifications prioritaires</strong> : recevez un email des qu'un coach favori publie un creneau</li>
-            <li><strong>Acces anticipe</strong> : voyez les nouveaux creneaux 24h avant les autres</li>
-            <li><strong>Revisionnage</strong> : acces aux enregistrements video de vos cours</li>
-            <li><strong>Entrainement</strong> : jouez contre myChessBot apres vos cours</li>
-            <li><strong>Badge Premium</strong> : un badge dore sur votre profil</li>
+            <li><strong>{{ 'howItWorks.premium.notifications' | translate }}</strong></li>
+            <li><strong>{{ 'howItWorks.premium.earlyAccess' | translate }}</strong></li>
+            <li><strong>{{ 'howItWorks.premium.recordings' | translate }}</strong></li>
+            <li><strong>{{ 'howItWorks.premium.training' | translate }}</strong></li>
+            <li><strong>{{ 'howItWorks.premium.badge' | translate }}</strong></li>
           </ul>
           <div class="cta-box">
-            <a routerLink="/subscription" class="cta-button">Decouvrir Premium</a>
+            <a routerLink="/subscription" class="cta-button">{{ 'howItWorks.premium.cta' | translate }}</a>
           </div>
         </section>
 
-        <!-- Section Questions -->
+        <!-- FAQ Section -->
         <section>
-          <h2>Questions frequentes</h2>
+          <h2>{{ 'faq.title' | translate }}</h2>
 
-          <h3>Pourquoi je ne recois pas de notifications ?</h3>
-          <p>Verifiez que :</p>
+          <h3>{{ 'howItWorks.faq.noNotifications.question' | translate }}</h3>
+          <p>{{ 'howItWorks.faq.noNotifications.intro' | translate }}</p>
           <ul>
-            <li>Vous avez ajoute le coach en <strong>favori</strong></li>
-            <li>Vous avez active <strong>"Me notifier des nouveaux creneaux"</strong></li>
-            <li>Vous etes abonne <strong>Premium</strong></li>
-            <li>Votre adresse email est valide et les emails ne sont pas en spam</li>
+            <li>{{ 'howItWorks.faq.noNotifications.item1' | translate }}</li>
+            <li>{{ 'howItWorks.faq.noNotifications.item2' | translate }}</li>
+            <li>{{ 'howItWorks.faq.noNotifications.item3' | translate }}</li>
+            <li>{{ 'howItWorks.faq.noNotifications.item4' | translate }}</li>
           </ul>
 
-          <h3>Comment activer les notifications pour un coach ?</h3>
-          <p>Allez sur le profil du coach, cliquez sur "Ajouter aux favoris", puis activez l'option de notification.</p>
+          <h3>{{ 'howItWorks.faq.enableNotifications.question' | translate }}</h3>
+          <p>{{ 'howItWorks.faq.enableNotifications.answer' | translate }}</p>
 
-          <h3>Les notifications sont-elles gratuites ?</h3>
-          <p>Les notifications par email pour les nouveaux creneaux sont reservees aux abonnes Premium. Les notifications de confirmation et de rappel sont gratuites pour tous.</p>
+          <h3>{{ 'howItWorks.faq.freeNotifications.question' | translate }}</h3>
+          <p>{{ 'howItWorks.faq.freeNotifications.answer' | translate }}</p>
         </section>
 
       </article>
@@ -252,11 +252,11 @@
   <!-- Footer -->
   <footer class="legal-footer">
     <div class="legal-footer__container">
-      <p>&copy; 2026 mychess. Tous droits reserves.</p>
+      <p>&copy; 2026 mychess. {{ 'footer.copyright' | translate }}</p>
       <div class="legal-footer__links">
-        <a routerLink="/terms">CGU</a>
-        <a routerLink="/privacy">Confidentialite</a>
-        <a routerLink="/legal-notice">Mentions legales</a>
+        <a routerLink="/terms">{{ 'footer.terms' | translate }}</a>
+        <a routerLink="/privacy">{{ 'footer.privacy' | translate }}</a>
+        <a routerLink="/legal-notice">{{ 'footer.legal' | translate }}</a>
       </div>
     </div>
   </footer>

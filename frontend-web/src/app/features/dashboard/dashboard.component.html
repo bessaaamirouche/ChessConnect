@@ -1,16 +1,15 @@
 <div class="dashboard">
   <!-- Main Content -->
-    @if (activeView() === 'dashboard') {
-      <header class="page-header">
+  <header class="page-header">
         <div>
           <h1 class="page-header__title page-header__title--sm">
-            Bonjour, {{ authService.currentUser()?.firstName }}
+            {{ 'dashboard.hello' | translate }}, {{ authService.currentUser()?.firstName }}
           </h1>
           <p class="page-header__subtitle">
             @if (authService.isStudent()) {
-              Continuez votre progression aux échecs
+              {{ 'dashboard.continueProgress' | translate }}
             } @else {
-              Gérez vos cours et suivez vos revenus
+              {{ 'dashboard.manageCoursesRevenue' | translate }}
             }
           </p>
         </div>
@@ -22,42 +21,42 @@
         <div class="stats-card">
           <div class="stats-card__icon"><ng-icon name="heroCalendarDays" size="20"></ng-icon></div>
           <div class="stats-card__value">{{ lessonService.upcomingCount() }}</div>
-          <div class="stats-card__label">Cours à venir</div>
+          <div class="stats-card__label">{{ 'dashboard.stats.upcomingLessons' | translate }}</div>
         </div>
         <div class="stats-card">
           <div class="stats-card__icon"><ng-icon name="heroCheckCircle" size="20"></ng-icon></div>
           <div class="stats-card__value">{{ authService.isTeacher() ? (teacherService.balance()?.lessonsCompleted || 0) : lessonService.completedCount() }}</div>
-          <div class="stats-card__label">Cours terminés</div>
+          <div class="stats-card__label">{{ 'dashboard.stats.completedLessons' | translate }}</div>
         </div>
         @if (authService.isStudent()) {
           @if (paymentService.activeSubscription()) {
             <a routerLink="/subscription" class="stats-card stats-card--link stats-card--gold">
               <div class="stats-card__icon"><ng-icon name="heroSparkles" size="20"></ng-icon></div>
-              <div class="stats-card__value">Premium</div>
-              <div class="stats-card__label">Abonnement actif</div>
+              <div class="stats-card__value">{{ 'common.premium' | translate }}</div>
+              <div class="stats-card__label">{{ 'dashboard.stats.activeSubscription' | translate }}</div>
             </a>
           } @else {
             <a routerLink="/subscription" class="stats-card stats-card--link">
               <div class="stats-card__icon"><ng-icon name="heroCreditCard" size="20"></ng-icon></div>
               <div class="stats-card__value">-</div>
-              <div class="stats-card__label">Passer Premium</div>
+              <div class="stats-card__label">{{ 'dashboard.stats.goPremium' | translate }}</div>
             </a>
           }
           <a routerLink="/progress" class="stats-card stats-card--link">
             <div class="stats-card__icon"><ng-icon name="heroTrophy" size="20"></ng-icon></div>
             <div class="stats-card__value">{{ progressService.currentLevelInfo()?.label || '-' }}</div>
-            <div class="stats-card__label">Niveau actuel</div>
+            <div class="stats-card__label">{{ 'dashboard.currentLevel' | translate }}</div>
           </a>
         } @else {
           <div class="stats-card stats-card--success">
             <div class="stats-card__icon"><ng-icon name="heroBanknotes" size="20"></ng-icon></div>
             <div class="stats-card__value">{{ teacherService.balance()?.availableBalanceCents ? (teacherService.balance()!.availableBalanceCents / 100 | number:'1.2-2') + '€' : '0€' }}</div>
-            <div class="stats-card__label">Solde disponible</div>
+            <div class="stats-card__label">{{ 'dashboard.stats.availableBalance' | translate }}</div>
           </div>
           <div class="stats-card">
             <div class="stats-card__icon"><ng-icon name="heroArrowTrendingUp" size="20"></ng-icon></div>
             <div class="stats-card__value">{{ teacherService.balance()?.totalEarnedCents ? (teacherService.balance()!.totalEarnedCents / 100 | number:'1.2-2') + '€' : '0€' }}</div>
-            <div class="stats-card__label">Total gagné</div>
+            <div class="stats-card__label">{{ 'dashboard.stats.totalEarned' | translate }}</div>
           </div>
         }
       </div>
@@ -67,8 +66,8 @@
     @if (authService.isTeacher()) {
       <section class="section">
         <div class="section__header">
-          <h2 class="section__title">Mes Revenus</h2>
-          <a routerLink="/settings" class="btn btn--ghost btn--sm">Configurer paiements</a>
+          <h2 class="section__title">{{ 'dashboard.earnings.title' | translate }}</h2>
+          <a routerLink="/settings" class="btn btn--ghost btn--sm">{{ 'dashboard.earnings.configurePayments' | translate }}</a>
         </div>
 
         <div class="alert-inline-container">
@@ -79,23 +78,23 @@
         @if (!stripeConnectReady()) {
           <div class="alert alert--warning">
             <ng-icon name="heroExclamationTriangle" size="18"></ng-icon>
-            <span>Pour pouvoir retirer votre argent, veuillez aller dans <a routerLink="/settings" class="link">Profil</a> et renseigner vos coordonnées bancaires.</span>
+            <span>{{ 'dashboard.earnings.stripeWarning' | translate }} <a routerLink="/settings" class="link">{{ 'settings.profile.title' | translate }}</a></span>
           </div>
         }
 
         <div class="earnings-card">
-          <p class="earnings-note">Montants nets après commission (12.5%)</p>
+          <p class="earnings-note">{{ 'dashboard.earnings.netAmountsNote' | translate }}</p>
           <div class="earnings-summary">
             <div class="earnings-item earnings-item--main">
-              <span class="earnings-item__label">Solde disponible</span>
+              <span class="earnings-item__label">{{ 'dashboard.earnings.availableBalance' | translate }}</span>
               <span class="earnings-item__value">{{ formatCents(teacherService.balance()?.availableBalanceCents || 0) }}</span>
             </div>
             <div class="earnings-item">
-              <span class="earnings-item__label">Total gagné (net)</span>
+              <span class="earnings-item__label">{{ 'dashboard.earnings.totalEarnedNet' | translate }}</span>
               <span class="earnings-item__value">{{ formatCents(teacherService.balance()?.totalEarnedCents || 0) }}</span>
             </div>
             <div class="earnings-item">
-              <span class="earnings-item__label">Déjà retiré</span>
+              <span class="earnings-item__label">{{ 'dashboard.earnings.alreadyWithdrawn' | translate }}</span>
               <span class="earnings-item__value">{{ formatCents(teacherService.balance()?.totalWithdrawnCents || 0) }}</span>
             </div>
           </div>
@@ -103,7 +102,7 @@
           @if (teacherService.balance() && teacherService.balance()!.availableBalanceCents >= 10000 && stripeConnectReady()) {
             <div class="withdraw-form">
               <div class="withdraw-input-group">
-                <label class="form-label">Montant à retirer</label>
+                <label class="form-label">{{ 'dashboard.earnings.amountToWithdraw' | translate }}</label>
                 <div class="input-with-addon">
                   <input
                     type="number"
@@ -117,7 +116,7 @@
                   >
                   <span class="input-addon">EUR</span>
                 </div>
-                <small class="form-hint">Minimum 100 EUR - Maximum {{ formatCents(teacherService.balance()!.availableBalanceCents) }}</small>
+                <small class="form-hint">{{ 'dashboard.earnings.minimumMaximum' | translate }} {{ formatCents(teacherService.balance()!.availableBalanceCents) }}</small>
               </div>
               <button
                 class="btn btn--primary"
@@ -125,357 +124,135 @@
                 [disabled]="withdrawing() || withdrawAmount() < 100 || withdrawAmount() * 100 > teacherService.balance()!.availableBalanceCents"
               >
                 @if (withdrawing()) {
-                  <span class="spinner"></span> Retrait en cours...
+                  <span class="spinner"></span> {{ 'dashboard.earnings.withdrawalInProgress' | translate }}
                 } @else {
-                  Retirer {{ withdrawAmount() }} EUR
+                  {{ 'dashboard.earnings.withdraw' | translate }} {{ withdrawAmount() }} EUR
                 }
               </button>
             </div>
           } @else if (teacherService.balance() && teacherService.balance()!.availableBalanceCents > 0 && teacherService.balance()!.availableBalanceCents < 10000 && stripeConnectReady()) {
-            <p class="earnings-hint">Solde minimum de 100 EUR requis pour effectuer un retrait. Il vous manque {{ formatCents(10000 - teacherService.balance()!.availableBalanceCents) }}.</p>
+            <p class="earnings-hint">{{ 'dashboard.earnings.minimumRequired' | translate }} {{ formatCents(10000 - teacherService.balance()!.availableBalanceCents) }}.</p>
           } @else if (teacherService.balance() && teacherService.balance()!.availableBalanceCents > 0 && !stripeConnectReady()) {
             <p class="earnings-hint">
-              <a routerLink="/settings" class="link">Configurez votre compte bancaire</a> pour pouvoir retirer vos gains.
+              <a routerLink="/settings" class="link">{{ 'dashboard.earnings.configureBank' | translate }}</a>
             </p>
           } @else {
-            <p class="earnings-hint">Aucun gain disponible pour le moment. Terminez des cours pour commencer à gagner !</p>
+            <p class="earnings-hint">{{ 'dashboard.earnings.noEarningsYet' | translate }}</p>
           }
         </div>
       </section>
     }
 
-    <!-- Premium Status for Students -->
-    @if (authService.isStudent() && paymentService.activeSubscription()) {
+    <!-- Wallet & Subscription for Students -->
+    @if (authService.isStudent()) {
+      <div class="student-sections">
+        <!-- Wallet Section -->
+        <section class="section wallet-section">
+          <div class="section__header">
+            <h2 class="section__title">{{ 'dashboard.wallet.title' | translate }}</h2>
+            <a routerLink="/wallet" class="btn btn--ghost btn--sm">{{ 'dashboard.wallet.viewAll' | translate }}</a>
+          </div>
+          <div class="wallet-card">
+            <div class="wallet-card__balance">
+              <span class="wallet-card__balance-label">{{ 'dashboard.wallet.availableBalance' | translate }}</span>
+              <span class="wallet-card__balance-value">{{ (walletService.balance() / 100) | number:'1.2-2' }} €</span>
+            </div>
+            <div class="wallet-card__actions">
+              <a routerLink="/wallet" class="btn btn--primary btn--sm">{{ 'dashboard.wallet.credit' | translate }}</a>
+              <a routerLink="/teachers" class="btn btn--secondary btn--sm">{{ 'dashboard.wallet.bookLesson' | translate }}</a>
+            </div>
+          </div>
+        </section>
+
+        <!-- Subscription Section -->
+        <section class="section subscription-section">
+          <div class="section__header">
+            <h2 class="section__title">{{ 'dashboard.subscription.title' | translate }}</h2>
+            <a routerLink="/subscription" class="btn btn--ghost btn--sm">{{ 'dashboard.subscription.manage' | translate }}</a>
+          </div>
+          @if (paymentService.activeSubscription()) {
+            <div class="subscription-card subscription-card--active">
+              <div class="subscription-card__badge">
+                <ng-icon name="heroSparkles" size="14"></ng-icon> {{ 'dashboard.subscription.premium' | translate }}
+              </div>
+              <div class="subscription-card__content">
+                <div class="subscription-card__price">{{ formatPrice(paymentService.activeSubscription()!.priceCents) }}/{{ 'common.perMonth' | translate }}</div>
+                <div class="subscription-card__features">
+                  <span><ng-icon name="heroCheck" size="14"></ng-icon> {{ 'dashboard.subscription.replay' | translate }}</span>
+                  <span><ng-icon name="heroCheck" size="14"></ng-icon> {{ 'dashboard.subscription.notifications' | translate }}</span>
+                </div>
+                <div class="subscription-card__since">
+                  {{ 'dashboard.subscription.since' | translate }} {{ paymentService.activeSubscription()!.startDate | date:'dd/MM/yyyy' }}
+                </div>
+              </div>
+            </div>
+          } @else {
+            <div class="subscription-card subscription-card--inactive">
+              <div class="subscription-card__content">
+                <div class="subscription-card__title">{{ 'dashboard.subscription.goPremium' | translate }}</div>
+                <div class="subscription-card__desc">{{ 'dashboard.subscription.accessReplays' | translate }}</div>
+                <a routerLink="/subscription" class="btn btn--primary btn--sm">{{ 'dashboard.subscription.discover' | translate }}</a>
+              </div>
+            </div>
+          }
+        </section>
+      </div>
+    }
+
+    <!-- Upcoming Lessons (Teachers only) -->
+    @if (authService.isTeacher()) {
       <section class="section">
         <div class="section__header">
-          <h2 class="section__title">Mon abonnement Premium</h2>
-          <a routerLink="/subscription" class="btn btn--ghost btn--sm">Gérer</a>
+          <h2 class="section__title">{{ 'dashboard.teacherLessons.title' | translate }}</h2>
         </div>
-        <div class="subscription-status-card subscription-status-card--premium">
-          <div class="subscription-status-card__badge subscription-status-card__badge--premium">
-            <ng-icon name="heroSparkles" size="14"></ng-icon> Premium
+
+        @if (lessonService.loading()) {
+          <div class="loading-state">
+            <span class="spinner spinner--lg"></span>
           </div>
-          <div class="subscription-status-card__content">
-            <div class="subscription-status-card__plan">
-              <span class="subscription-status-card__plan-icon"><ng-icon name="heroTrophy" size="24"></ng-icon></span>
-              <div>
-                <h3>{{ paymentService.activeSubscription()!.planName || 'Premium' }}</h3>
-                <p class="subscription-status-card__price">
-                  {{ formatPrice(paymentService.activeSubscription()!.priceCents) }}/mois
-                </p>
-              </div>
-            </div>
-            <div class="subscription-status-card__row">
-              <div class="subscription-status-card__features">
-                <div class="subscription-status-card__feature">
-                  <ng-icon name="heroCheck" size="16"></ng-icon> Revisionnage des cours
+        } @else if (lessonService.upcomingLessons().length === 0) {
+          <div class="empty-state">
+            <div class="empty-state__icon"><ng-icon name="heroCalendarDays" size="48"></ng-icon></div>
+            <h3 class="empty-state__title">{{ 'dashboard.noUpcoming' | translate }}</h3>
+            <p class="empty-state__description">{{ 'dashboard.noUpcomingDescription' | translate }}</p>
+          </div>
+        } @else {
+          <div class="lessons-list">
+            @for (lesson of lessonService.upcomingLessons(); track lesson.id) {
+              <div class="lesson-card">
+                <div class="lesson-card__time">
+                  <span class="lesson-card__time-day">{{ lesson.scheduledAt | date:'EEE' }}</span>
+                  <span class="lesson-card__time-date">{{ lesson.scheduledAt | date:'dd' }}</span>
+                  <span class="lesson-card__time-hour">{{ lesson.scheduledAt | date:'HH:mm' }}</span>
                 </div>
-                <div class="subscription-status-card__feature">
-                  <ng-icon name="heroCheck" size="16"></ng-icon> Notifications prioritaires
-                </div>
-                <div class="subscription-status-card__feature">
-                  <ng-icon name="heroCheck" size="16"></ng-icon> Badge Premium
-                </div>
-              </div>
-              <div class="subscription-status-card__details">
-                <div class="subscription-status-card__detail">
-                  <span class="subscription-status-card__detail-label">Membre depuis</span>
-                  <span class="subscription-status-card__detail-value">
-                    {{ paymentService.activeSubscription()!.startDate | date:'dd/MM/yyyy' }}
+                <div class="lesson-card__content">
+                  <h4>{{ 'dashboard.teacherLessons.lessonWith' | translate }} {{ lesson.studentName }}</h4>
+                  <span class="badge" [class]="statusLabels[lesson.status].cssClass">
+                    {{ statusLabels[lesson.status].label }}
                   </span>
                 </div>
+                <div class="lesson-card__actions">
+                  @if (lesson.status === 'PENDING') {
+                    <button class="btn btn--primary btn--sm" (click)="confirmLesson(lesson.id)">{{ 'dashboard.teacherLessons.confirm' | translate }}</button>
+                    <button class="btn btn--ghost btn--sm" (click)="cancelLesson(lesson.id)">{{ 'dashboard.teacherLessons.decline' | translate }}</button>
+                  }
+                  @if (lesson.status === 'CONFIRMED' && lesson.zoomLink) {
+                    @if (canJoinLesson(lesson)) {
+                      <a [href]="lesson.zoomLink" target="_blank" class="btn btn--primary btn--sm">{{ 'dashboard.teacherLessons.join' | translate }}</a>
+                    } @else {
+                      <span class="time-badge">{{ getTimeUntilJoin(lesson) }}</span>
+                    }
+                  }
+                  @if (lesson.status === 'CONFIRMED') {
+                    <button class="btn btn--ghost btn--sm" (click)="completeLesson(lesson.id)">{{ 'dashboard.teacherLessons.complete' | translate }}</button>
+                  }
+                </div>
               </div>
-            </div>
+            }
           </div>
-        </div>
+        }
       </section>
     }
-
-    <!-- Upcoming Lessons -->
-    <section class="section">
-      <div class="section__header">
-        <h2 class="section__title">Prochains cours</h2>
-        @if (authService.isStudent()) {
-          <a routerLink="/teachers" class="btn btn--primary btn--sm">Réserver un cours</a>
-        }
-      </div>
-
-      @if (lessonService.loading()) {
-        <div class="loading-state">
-          <span class="spinner spinner--lg"></span>
-        </div>
-      } @else if (lessonService.upcomingLessons().length === 0) {
-        <div class="empty-state">
-          <div class="empty-state__icon"><ng-icon name="heroCalendarDays" size="48"></ng-icon></div>
-          <h3 class="empty-state__title">Aucun cours prévu</h3>
-          <p class="empty-state__description">
-            @if (authService.isStudent()) {
-              Trouvez un coach et réservez votre premier cours !
-            } @else {
-              Vos prochains cours apparaîtront ici
-            }
-          </p>
-          @if (authService.isStudent()) {
-            <a routerLink="/teachers" class="btn btn--primary">Trouver un coach</a>
-          }
-        </div>
-      } @else {
-        <div class="lessons-list">
-          @for (lesson of lessonService.upcomingLessons(); track lesson.id) {
-            <div class="lesson-card">
-              <div class="lesson-card__time">
-                <span class="lesson-card__time-day">
-                  {{ lesson.scheduledAt | date:'EEE' }}
-                </span>
-                <span class="lesson-card__time-date">
-                  {{ lesson.scheduledAt | date:'dd' }}
-                </span>
-                <span class="lesson-card__time-hour">
-                  {{ lesson.scheduledAt | date:'HH:mm' }}
-                </span>
-              </div>
-              <div class="lesson-card__content">
-                <h4>
-                  @if (authService.isStudent()) {
-                    Cours avec {{ lesson.teacherName }}
-                  } @else {
-                    Cours avec {{ lesson.studentName }}
-                  }
-                </h4>
-                <span class="badge" [class]="statusLabels[lesson.status].cssClass">
-                  {{ statusLabels[lesson.status].label }}
-                </span>
-                @if (lesson.isFromSubscription) {
-                  <span class="badge badge--gold">Abonnement</span>
-                }
-              </div>
-              <div class="lesson-card__actions">
-                @if (authService.isTeacher() && lesson.status === 'PENDING') {
-                  <button class="btn btn--primary btn--sm" (click)="confirmLesson(lesson.id)">
-                    Confirmer
-                  </button>
-                  <button class="btn btn--ghost btn--sm" (click)="cancelLesson(lesson.id)">
-                    Refuser
-                  </button>
-                }
-                @if (lesson.status === 'CONFIRMED' && lesson.zoomLink) {
-                  @if (canJoinLesson(lesson)) {
-                    <a [href]="lesson.zoomLink" target="_blank" class="btn btn--primary btn--sm">
-                      Accéder
-                    </a>
-                  } @else {
-                    <span class="time-badge">{{ getTimeUntilJoin(lesson) }}</span>
-                  }
-                }
-                @if (authService.isTeacher() && lesson.status === 'CONFIRMED') {
-                  <button class="btn btn--ghost btn--sm" (click)="completeLesson(lesson.id)">
-                    Terminer
-                  </button>
-                }
-              </div>
-            </div>
-          }
-        </div>
-      }
-    </section>
-    } @else {
-      <!-- Profile View -->
-      <header class="page-header">
-        <div>
-          <h1 class="page-header__title">Mon profil</h1>
-          <p class="page-header__subtitle">Gérez vos informations et vos paramètres</p>
-        </div>
-      </header>
-
-      <div class="profile-layout">
-        <!-- Informations personnelles -->
-        <section class="profile-section profile-section--main">
-          <div class="profile-section__header">
-            <h2 class="profile-section__title">Informations personnelles</h2>
-          </div>
-
-          <div class="alert-inline-container">
-            <div class="alert-inline" [class.alert-inline--visible]="profileSuccess() || profileError()" [class.alert-inline--success]="profileSuccess()" [class.alert-inline--error]="profileError()">
-              <span>{{ profileSuccess() ? 'Profil mis à jour avec succès !' : profileError() }}</span>
-            </div>
-          </div>
-
-          <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" class="profile-form">
-            <div class="form-grid">
-              <div class="form-group">
-                <label class="form-group__label">Prénom</label>
-                <input type="text" formControlName="firstName" class="input">
-              </div>
-              <div class="form-group">
-                <label class="form-group__label">Nom</label>
-                <input type="text" formControlName="lastName" class="input">
-              </div>
-              <div class="form-group">
-                <label class="form-group__label">Tarif horaire</label>
-                <div class="input-group">
-                  <input type="number" formControlName="hourlyRate" class="input" min="10" step="5">
-                  <span class="input-group__addon">€/h</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="form-group form-group--full">
-              <label class="form-group__label">Bio</label>
-              <textarea
-                formControlName="bio"
-                class="textarea"
-                rows="5"
-                placeholder="Décrivez votre expérience et votre approche pédagogique..."
-              ></textarea>
-            </div>
-
-            <div class="form-actions">
-              <button type="submit" class="btn btn--primary btn--lg" [disabled]="profileForm.invalid || savingProfile()">
-                @if (savingProfile()) {
-                  <span class="spinner spinner--sm"></span>
-                  Enregistrement...
-                } @else {
-                  Enregistrer les modifications
-                }
-              </button>
-            </div>
-          </form>
-        </section>
-
-        <!-- Sécurité -->
-        <section class="profile-section profile-section--security">
-          <div class="profile-section__header">
-            <h2 class="profile-section__title">Sécurité</h2>
-          </div>
-
-          <div class="alert-inline-container">
-            <div class="alert-inline" [class.alert-inline--visible]="passwordSuccess() || passwordError()" [class.alert-inline--success]="passwordSuccess()" [class.alert-inline--error]="passwordError()">
-              <span>{{ passwordSuccess() ? 'Mot de passe modifié avec succès !' : passwordError() }}</span>
-            </div>
-          </div>
-
-          <form [formGroup]="passwordForm" (ngSubmit)="changePassword()" class="profile-form">
-            <div class="form-group">
-              <label class="form-group__label">Mot de passe actuel</label>
-              <input type="password" formControlName="currentPassword" class="input">
-            </div>
-            <div class="form-group">
-              <label class="form-group__label">Nouveau mot de passe</label>
-              <input type="password" formControlName="newPassword" class="input">
-            </div>
-            <div class="form-group">
-              <label class="form-group__label">Confirmer le nouveau mot de passe</label>
-              <input type="password" formControlName="confirmPassword" class="input">
-            </div>
-
-            <div class="form-actions">
-              <button type="submit" class="btn btn--ghost" [disabled]="passwordForm.invalid || savingPassword()">
-                @if (savingPassword()) {
-                  <span class="spinner spinner--sm"></span>
-                  Modification...
-                } @else {
-                  Changer le mot de passe
-                }
-              </button>
-            </div>
-          </form>
-        </section>
-      </div>
-    }
-
-  <!-- Settings Panel -->
-  @if (showSettings()) {
-    <div class="settings-overlay" (click)="closeSettings()"></div>
-    <aside class="settings-panel">
-      <div class="settings-panel__header">
-        <h2>Paramètres</h2>
-        <button class="settings-panel__close" (click)="closeSettings()">✕</button>
-      </div>
-
-      <div class="settings-panel__content">
-        <!-- Profile Section -->
-        <section class="settings-section">
-          <h3>Informations du profil</h3>
-
-          <div class="alert-inline-container">
-            <div class="alert-inline" [class.alert-inline--visible]="settingsSuccess() || settingsError()" [class.alert-inline--success]="settingsSuccess()" [class.alert-inline--error]="settingsError()">
-              <span>{{ settingsSuccess() ? 'Profil mis à jour !' : settingsError() }}</span>
-            </div>
-          </div>
-
-          <form [formGroup]="settingsForm" (ngSubmit)="saveSettings()">
-            <div class="settings-form-row">
-              <div class="form-group">
-                <label class="form-group__label">Prénom</label>
-                <input type="text" formControlName="firstName" class="input">
-              </div>
-              <div class="form-group">
-                <label class="form-group__label">Nom</label>
-                <input type="text" formControlName="lastName" class="input">
-              </div>
-            </div>
-
-            @if (authService.isTeacher()) {
-              <div class="form-group">
-                <label class="form-group__label">Tarif horaire (EUR)</label>
-                <div class="input-group">
-                  <input type="number" formControlName="hourlyRate" class="input" min="10" step="5">
-                  <span class="input-group__addon">EUR/h</span>
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label class="form-group__label">Bio</label>
-                <textarea formControlName="bio" class="textarea" rows="3" placeholder="Votre expérience..."></textarea>
-              </div>
-            }
-
-            <button type="submit" class="btn btn--primary btn--block" [disabled]="settingsForm.invalid || savingSettings()">
-              @if (savingSettings()) {
-                <span class="spinner spinner--sm"></span> Enregistrement...
-              } @else {
-                Enregistrer
-              }
-            </button>
-          </form>
-        </section>
-
-        <!-- Password Section -->
-        <section class="settings-section">
-          <h3>Changer le mot de passe</h3>
-
-          <div class="alert-inline-container">
-            <div class="alert-inline" [class.alert-inline--visible]="passwordSuccess() || passwordError()" [class.alert-inline--success]="passwordSuccess()" [class.alert-inline--error]="passwordError()">
-              <span>{{ passwordSuccess() ? 'Mot de passe modifié !' : passwordError() }}</span>
-            </div>
-          </div>
-
-          <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
-            <div class="form-group">
-              <label class="form-group__label">Mot de passe actuel</label>
-              <input type="password" formControlName="currentPassword" class="input">
-            </div>
-            <div class="form-group">
-              <label class="form-group__label">Nouveau mot de passe</label>
-              <input type="password" formControlName="newPassword" class="input">
-            </div>
-            <div class="form-group">
-              <label class="form-group__label">Confirmer</label>
-              <input type="password" formControlName="confirmPassword" class="input">
-            </div>
-
-            <button type="submit" class="btn btn--ghost btn--block" [disabled]="passwordForm.invalid || savingPassword()">
-              @if (savingPassword()) {
-                <span class="spinner spinner--sm"></span> Modification...
-              } @else {
-                Changer le mot de passe
-              }
-            </button>
-          </form>
-        </section>
-      </div>
-    </aside>
-  }
 
   <!-- Confirm Dialog -->
   <app-confirm-dialog #confirmDialog></app-confirm-dialog>

@@ -1,6 +1,7 @@
 import { Component, signal, ChangeDetectionStrategy, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth.service';
 import { SeoService } from '../../../core/services/seo.service';
 import { ContactService } from '../../../core/services/contact.service';
@@ -8,7 +9,7 @@ import { ContactService } from '../../../core/services/contact.service';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
@@ -16,6 +17,7 @@ import { ContactService } from '../../../core/services/contact.service';
 export class LoginComponent {
   private seoService = inject(SeoService);
   private contactService = inject(ContactService);
+  private translateService = inject(TranslateService);
 
   loginForm: FormGroup;
   contactForm: FormGroup;
@@ -72,7 +74,7 @@ export class LoginComponent {
         // Bloquer l'accès admin depuis la page de connexion publique
         if (this.authService.isAdmin()) {
           this.authService.logout();
-          this.error.set('Accès non autorisé');
+          this.error.set(this.translateService.instant('errors.forbidden'));
           this.loading.set(false);
           return;
         }
@@ -89,7 +91,7 @@ export class LoginComponent {
           this.unverifiedEmail.set(err.error?.email || this.loginForm.value.email);
           this.error.set(null);
         } else {
-          this.error.set(err.error?.error || err.error?.message || 'Email ou mot de passe incorrect');
+          this.error.set(err.error?.error || err.error?.message || this.translateService.instant('auth.errors.invalidCredentials'));
         }
         this.loading.set(false);
       }
@@ -115,7 +117,7 @@ export class LoginComponent {
       },
       error: (err) => {
         this.resendingEmail.set(false);
-        this.resendError.set(err.error?.message || 'Erreur lors de l\'envoi. Veuillez réessayer.');
+        this.resendError.set(err.error?.message || this.translateService.instant('errors.sendEmail'));
       }
     });
   }
@@ -142,7 +144,7 @@ export class LoginComponent {
         this.contactLoading.set(false);
       },
       error: (err) => {
-        this.contactError.set(err.error?.error || 'Erreur lors de l\'envoi du message. Veuillez réessayer.');
+        this.contactError.set(err.error?.error || this.translateService.instant('errors.sendMessage'));
         this.contactLoading.set(false);
       }
     });

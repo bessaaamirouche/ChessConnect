@@ -1,29 +1,29 @@
 <div class="lessons-page">
     <header class="page-header">
       <div>
-        <div class="page-header__title-row">
-          <h1 class="page-header__title">Mes Cours</h1>
-          <div class="email-reminder-toggle">
-            <label class="toggle toggle--sm" [class.toggle--loading]="savingEmailReminders()">
+        <h1 class="page-header__title">{{ 'lessons.title' | translate }}</h1>
+        <p class="page-header__subtitle">{{ 'lessons.subtitle' | translate }}</p>
+        @if (authService.isStudent()) {
+          <div class="email-reminder-toggle" [class.email-reminder-toggle--loading]="savingEmailReminders()">
+            <label class="toggle">
               <input
                 type="checkbox"
                 [checked]="emailRemindersEnabled()"
                 (change)="toggleEmailReminders()"
                 [disabled]="savingEmailReminders()"
               >
-              <span class="toggle__slider"></span>
+              <span class="toggle__switch"></span>
             </label>
             <span class="email-reminder-toggle__label">
-              <ng-icon name="heroBellAlert" size="14"></ng-icon>
-              rappels email
+              <ng-icon name="heroBellAlert" size="16"></ng-icon>
+              {{ 'lessons.emailReminders' | translate }}
             </span>
           </div>
-        </div>
-        <p class="page-header__subtitle">Gérez vos leçons d'échecs</p>
+        }
       </div>
       @if (authService.isStudent()) {
         <a routerLink="/teachers" class="btn btn--primary">
-          <ng-icon name="heroPlus" size="16"></ng-icon> Réserver un cours
+          <ng-icon name="heroPlus" size="16"></ng-icon> {{ 'booking.bookNow' | translate }}
         </a>
       }
     </header>
@@ -36,32 +36,29 @@
         </div>
         <div class="pending-validation-banner__content">
           <strong>{{ pendingValidations().length }}</strong>
-          @if (pendingValidations().length === 1) {
-            cours à valider
-          } @else {
-            cours à valider
-          }
+          {{ 'lessons.coursesToValidate' | translate }}
         </div>
         <button class="btn btn--secondary btn--sm" (click)="openFirstPendingValidation()">
-          Voir les joueurs
+          {{ 'lessons.viewStudents' | translate }}
         </button>
       </div>
     }
 
-    <!-- Upcoming Lessons -->
-    <section class="section">
-      <div class="section__header">
-        <h2 class="section__title">Cours à venir</h2>
-      </div>
-      <p class="section__desc">Vos prochaines leçons programmées</p>
-
-      @if (lessonService.upcomingLessons().length === 0) {
-        <div class="empty-state">
-          <div class="empty-state__icon"><ng-icon name="heroCalendarDays" size="48"></ng-icon></div>
-          <p class="empty-state__description">Aucun cours prévu</p>
+    <div class="sections-container">
+      <!-- Upcoming Lessons -->
+      <section class="section upcoming-section">
+        <div class="section-header">
+          <h2 class="section__title">{{ 'lessons.upcoming.title' | translate }}</h2>
         </div>
-      } @else {
-        <div class="lessons-list">
+
+        <div class="section-content">
+          @if (lessonService.upcomingLessons().length === 0) {
+            <div class="empty-state">
+              <div class="empty-state__icon"><ng-icon name="heroCalendarDays" size="48"></ng-icon></div>
+              <p class="empty-state__description">{{ 'lessons.upcoming.empty' | translate }}</p>
+            </div>
+          } @else {
+            <div class="lessons-list">
           @for (lesson of lessonService.upcomingLessons(); track lesson.id) {
             <div class="lesson-card">
               <div class="lesson-card__time">
@@ -73,9 +70,9 @@
               <div class="lesson-card__content">
                 <h4>
                   @if (authService.isStudent()) {
-                    Cours avec {{ lesson.teacherName }}
+                    {{ 'lessons.details.with' | translate }} {{ lesson.teacherName }}
                   } @else {
-                    Cours avec {{ lesson.studentName }}
+                    {{ 'lessons.details.with' | translate }} {{ lesson.studentName }}
                   }
                 </h4>
                 @if (authService.isTeacher()) {
@@ -101,10 +98,10 @@
                     <button
                       class="student-profile-btn"
                       (click)="openStudentProfile(lesson.studentId)"
-                      title="Voir la progression et les niveaux de l'élève"
+                      [title]="'lessons.viewStudentProgress' | translate"
                     >
                       <ng-icon name="heroUserCircle" size="14"></ng-icon>
-                      Progression & Niveaux
+                      {{ 'lessons.progressAndLevels' | translate }}
                     </button>
                   </div>
                   @if (lesson.courseTitle) {
@@ -134,13 +131,13 @@
               <div class="lesson-card__actions">
                 @if (lesson.status === 'PENDING' && authService.isTeacher()) {
                   <button class="btn btn--primary btn--sm" (click)="confirmLesson(lesson.id)">
-                    Confirmer
+                    {{ 'common.confirm' | translate }}
                   </button>
                 }
                 @if (lesson.status === 'CONFIRMED' && lesson.zoomLink) {
                   @if (canJoinLesson(lesson)) {
                     <button class="btn btn--primary btn--sm" (click)="openVideoCall(lesson)">
-                      Accéder
+                      {{ 'lessons.upcoming.joinCall' | translate }}
                     </button>
                   } @else {
                     <span class="time-badge">{{ getTimeUntilJoin(lesson) }}</span>
@@ -148,12 +145,12 @@
                 }
                 @if (lesson.status === 'CONFIRMED' && authService.isTeacher() && canCompleteLesson(lesson)) {
                   <button class="btn btn--secondary btn--sm" (click)="openCompleteModal(lesson.id)">
-                    Terminer
+                    {{ 'lessons.complete' | translate }}
                   </button>
                 }
                 @if (lesson.status !== 'CANCELLED' && lesson.status !== 'COMPLETED') {
                   <button class="btn btn--ghost btn--sm" (click)="cancelLesson(lesson.id)">
-                    Annuler
+                    {{ 'common.cancel' | translate }}
                   </button>
                 }
                 @if (lesson.status === 'CANCELLED') {
@@ -161,7 +158,7 @@
                     <button
                       class="btn btn--ghost btn--sm"
                       (click)="toggleReason(lesson.id)"
-                      title="Voir la raison"
+                      [title]="'lessons.viewReason' | translate"
                     >
                       <ng-icon name="heroInformationCircle" size="16"></ng-icon>
                     </button>
@@ -175,36 +172,38 @@
             @if (lesson.status === 'CANCELLED' && lesson.cancellationReason && visibleReasonId() === lesson.id) {
               <div class="reason-banner">
                 <ng-icon name="heroInformationCircle" size="14"></ng-icon>
-                <span><strong>Raison :</strong> {{ lesson.cancellationReason }}</span>
+                <span><strong>{{ 'lessons.reason' | translate }}:</strong> {{ lesson.cancellationReason }}</span>
               </div>
             }
           }
+            </div>
+          }
         </div>
-      }
-    </section>
+      </section>
 
-    <!-- History -->
-    <section class="section">
-      <div class="section__header">
-        <h2 class="section__title">Historique</h2>
-        <span class="section__count">{{ filteredHistory().length }} cours</span>
-      </div>
+      <!-- History -->
+      <section class="section history-section">
+        <div class="section-header">
+          <div class="section-header__row">
+            <h2 class="section__title">{{ 'lessons.history.title' | translate }}</h2>
+            <span class="section__count">{{ filteredHistory().length }} {{ 'lessons.coursesCount' | translate }}</span>
+          </div>
 
-      <!-- Filters -->
-      @if (lessonService.lessonHistory().length > 0) {
-        <div class="history-filters">
+          <!-- Filters -->
+          @if (lessonService.lessonHistory().length > 0) {
+            <div class="history-filters">
           <div class="history-filters__row">
             <div class="filter-group">
               <label class="filter-label">
                 <ng-icon name="heroMagnifyingGlass" size="14"></ng-icon>
-                {{ authService.isStudent() ? 'Coach' : 'Joueur' }}
+                {{ authService.isStudent() ? ('lessons.filterCoach' | translate) : ('lessons.filterStudent' | translate) }}
               </label>
               <select
                 class="filter-select"
                 [ngModel]="historyFilterPerson()"
                 (ngModelChange)="historyFilterPerson.set($event)"
               >
-                <option value="">Tous</option>
+                <option value="">{{ 'common.all' | translate }}</option>
                 @for (person of uniquePersons(); track person) {
                   <option [value]="person">{{ person }}</option>
                 }
@@ -214,14 +213,14 @@
             <div class="filter-group">
               <label class="filter-label">
                 <ng-icon name="heroCalendarDays" size="14"></ng-icon>
-                Mois
+                {{ 'lessons.filterMonth' | translate }}
               </label>
               <select
                 class="filter-select"
                 [ngModel]="historyFilterMonth()"
                 (ngModelChange)="historyFilterMonth.set($event)"
               >
-                <option value="">Tous</option>
+                <option value="">{{ 'common.all' | translate }}</option>
                 @for (month of uniqueMonths(); track month) {
                   <option [value]="month">{{ formatMonth(month) }}</option>
                 }
@@ -236,33 +235,35 @@
                   (ngModelChange)="historyFilterHasRecording.set($event)"
                 >
                 <ng-icon name="heroPlayCircle" size="14"></ng-icon>
-                Avec enregistrement
+                {{ 'lessons.withRecording' | translate }}
               </label>
             </div>
 
             @if (historyFilterPerson() || historyFilterMonth() || historyFilterHasRecording()) {
               <button class="filter-clear" (click)="clearHistoryFilters()">
                 <ng-icon name="heroXMark" size="14"></ng-icon>
-                Effacer
+                {{ 'common.clear' | translate }}
               </button>
             }
+            </div>
           </div>
+          }
         </div>
-      }
 
-      @if (lessonService.lessonHistory().length === 0) {
-        <div class="empty-state">
-          <div class="empty-state__icon"><ng-icon name="heroBookOpen" size="48"></ng-icon></div>
-          <p class="empty-state__description">Aucun cours passé</p>
-        </div>
-      } @else if (filteredHistory().length === 0) {
-        <div class="empty-state">
-          <div class="empty-state__icon"><ng-icon name="heroFunnel" size="48"></ng-icon></div>
-          <p class="empty-state__description">Aucun cours ne correspond aux filtres</p>
-          <button class="btn btn--ghost btn--sm" (click)="clearHistoryFilters()">Effacer les filtres</button>
-        </div>
-      } @else {
-        <div class="history-grid">
+        <div class="section-content">
+          @if (lessonService.lessonHistory().length === 0) {
+            <div class="empty-state">
+              <div class="empty-state__icon"><ng-icon name="heroBookOpen" size="48"></ng-icon></div>
+              <p class="empty-state__description">{{ 'lessons.history.empty' | translate }}</p>
+            </div>
+          } @else if (filteredHistory().length === 0) {
+            <div class="empty-state">
+              <div class="empty-state__icon"><ng-icon name="heroFunnel" size="48"></ng-icon></div>
+              <p class="empty-state__description">{{ 'lessons.noMatchingFilters' | translate }}</p>
+              <button class="btn btn--ghost btn--sm" (click)="clearHistoryFilters()">{{ 'lessons.clearFilters' | translate }}</button>
+            </div>
+          } @else {
+            <div class="history-grid">
           @for (lesson of filteredHistory(); track lesson.id) {
             <div class="history-card" [class.history-card--has-recording]="lesson.recordingUrl">
               <div class="history-card__header">
@@ -300,62 +301,62 @@
                       @if (authService.isTeacher()) {
                         <button class="history-card__dropdown-item" (click)="openStudentProfile(lesson.studentId)">
                           <ng-icon name="heroUserCircle" size="16"></ng-icon>
-                          Valider la progression
+                          {{ 'lessons.validateProgress' | translate }}
                         </button>
                       }
                       @if (lesson.status === 'CANCELLED' && lesson.cancellationReason) {
                         <button class="history-card__dropdown-item" (click)="toggleReason(lesson.id)">
                           <ng-icon name="heroInformationCircle" size="16"></ng-icon>
-                          Raison de l'annulation
+                          {{ 'lessons.cancellationReason' | translate }}
                         </button>
                       }
                       @if (lesson.status === 'COMPLETED' && lesson.teacherObservations && authService.isStudent()) {
                         <button class="history-card__dropdown-item" (click)="toggleObservations(lesson.id)">
                           <ng-icon name="heroBookOpen" size="16"></ng-icon>
-                          Notes du coach
+                          {{ 'lessons.coachNotes' | translate }}
                         </button>
                       }
                       @if (lesson.status === 'COMPLETED' && authService.isTeacher()) {
                         <button class="history-card__dropdown-item" (click)="openCommentModal(lesson)">
                           <ng-icon name="heroChatBubbleLeftRight" size="16"></ng-icon>
-                          {{ lesson.teacherComment ? 'Modifier commentaire' : 'Ajouter commentaire' }}
+                          {{ lesson.teacherComment ? ('lessons.editComment' | translate) : ('lessons.addComment' | translate) }}
                         </button>
                       }
                       @if (lesson.status === 'COMPLETED' && lesson.teacherComment && authService.isStudent()) {
                         <button class="history-card__dropdown-item" (click)="openViewCommentModal(lesson)">
                           <ng-icon name="heroChatBubbleLeftRight" size="16"></ng-icon>
-                          Message du coach
+                          {{ 'lessons.coachMessage' | translate }}
                         </button>
                       }
                       @if (lesson.status === 'COMPLETED' && lesson.recordingUrl) {
                         <button class="history-card__dropdown-item" (click)="openRecording(lesson)">
                           <ng-icon name="heroPlayCircle" size="16"></ng-icon>
-                          Révisionner
+                          {{ 'lessons.history.viewRecording' | translate }}
                         </button>
                       }
                       @if (lesson.status === 'COMPLETED' && authService.isStudent()) {
                         @if (paymentService.hasActiveSubscription()) {
                           <a [routerLink]="['/exercise', lesson.id]" class="history-card__dropdown-item">
                             <ng-icon name="heroCpuChip" size="16"></ng-icon>
-                            M'exercer
+                            {{ 'lessons.history.practice' | translate }}
                           </a>
                         } @else {
                           <a routerLink="/subscription" [queryParams]="{ required: 'exercise' }" class="history-card__dropdown-item history-card__dropdown-item--locked">
                             <ng-icon name="heroLockClosed" size="16"></ng-icon>
-                            M'exercer (Premium)
+                            {{ 'lessons.history.practice' | translate }} ({{ 'common.premium' | translate }})
                           </a>
                         }
                       }
                       @if (canRateLesson(lesson)) {
                         <button class="history-card__dropdown-item history-card__dropdown-item--highlight" (click)="openRatingModal(lesson)">
                           <ng-icon name="heroStar" size="16"></ng-icon>
-                          Noter le cours
+                          {{ 'lessons.history.rateLesson' | translate }}
                         </button>
                       }
                       <div class="history-card__dropdown-divider"></div>
                       <button class="history-card__dropdown-item history-card__dropdown-item--danger" (click)="deleteLesson(lesson.id)">
                         <ng-icon name="heroTrash" size="16"></ng-icon>
-                        Supprimer
+                        {{ 'common.delete' | translate }}
                       </button>
                     </div>
                   }
@@ -364,21 +365,23 @@
 
               @if (visibleReasonId() === lesson.id) {
                 <div class="history-card__tooltip">
-                  <div class="history-card__tooltip-header">Raison de l'annulation</div>
+                  <div class="history-card__tooltip-header">{{ 'lessons.cancellationReason' | translate }}</div>
                   <div class="history-card__tooltip-content">{{ lesson.cancellationReason }}</div>
                 </div>
               }
               @if (visibleObservationsId() === lesson.id) {
                 <div class="history-card__tooltip history-card__tooltip--observations">
-                  <div class="history-card__tooltip-header">Observations du coach</div>
+                  <div class="history-card__tooltip-header">{{ 'lessons.coachObservations' | translate }}</div>
                   <div class="history-card__tooltip-content">{{ lesson.teacherObservations }}</div>
                 </div>
               }
             </div>
           }
+            </div>
+          }
         </div>
-      }
-    </section>
+      </section>
+    </div>
 
   <!-- Confirm Dialog -->
   <app-confirm-dialog #confirmDialog></app-confirm-dialog>
@@ -410,30 +413,30 @@
     <div class="modal-overlay" (click)="closeCompleteModal()"></div>
     <div class="complete-modal">
       <div class="complete-modal__header">
-        <h3>Terminer le cours</h3>
+        <h3>{{ 'lessons.completeLesson' | translate }}</h3>
         <button class="complete-modal__close" (click)="closeCompleteModal()">
           <ng-icon name="heroXMark" size="20"></ng-icon>
         </button>
       </div>
       <div class="complete-modal__content">
         <label class="complete-modal__label" for="observations">
-          Observations pour le joueur (optionnel)
+          {{ 'lessons.observationsLabel' | translate }}
         </label>
         <textarea
           id="observations"
           class="complete-modal__textarea"
           [ngModel]="observationsText()"
           (ngModelChange)="observationsText.set($event)"
-          placeholder="Ex: Bon travail sur les ouvertures, continuer à pratiquer les finales de pions..."
+          [placeholder]="'lessons.observationsPlaceholder' | translate"
           rows="4"
         ></textarea>
         <p class="complete-modal__hint">
-          Ces observations seront visibles par le joueur dans son historique de cours.
+          {{ 'lessons.observationsHint' | translate }}
         </p>
       </div>
       <div class="complete-modal__actions">
-        <button class="btn btn--ghost" (click)="closeCompleteModal()">Annuler</button>
-        <button class="btn btn--primary" (click)="submitCompleteLesson()">Terminer le cours</button>
+        <button class="btn btn--ghost" (click)="closeCompleteModal()">{{ 'common.cancel' | translate }}</button>
+        <button class="btn btn--primary" (click)="submitCompleteLesson()">{{ 'lessons.completeLesson' | translate }}</button>
       </div>
     </div>
   }
@@ -476,7 +479,7 @@
     <div class="modal-overlay" (click)="closeCommentModal()"></div>
     <div class="comment-modal">
       <div class="comment-modal__header">
-        <h3>{{ commentLessonId() && getCommentForLesson(commentLessonId()!) ? 'Modifier le commentaire' : 'Ajouter un commentaire' }}</h3>
+        <h3>{{ commentLessonId() && getCommentForLesson(commentLessonId()!) ? ('lessons.editComment' | translate) : ('lessons.addComment' | translate) }}</h3>
         <button class="comment-modal__close" (click)="closeCommentModal()">
           <ng-icon name="heroXMark" size="20"></ng-icon>
         </button>
@@ -484,22 +487,22 @@
       <div class="comment-modal__content">
         <p class="comment-modal__info">
           <ng-icon name="heroInformationCircle" size="16"></ng-icon>
-          Ce message sera visible par l'élève dans son historique de cours.
+          {{ 'lessons.commentVisibleHint' | translate }}
         </p>
         <label class="comment-modal__label" for="teacherComment">
-          Votre message pour {{ commentStudentName() }}
+          {{ 'lessons.yourMessageFor' | translate }} {{ commentStudentName() }}
         </label>
         <textarea
           id="teacherComment"
           class="comment-modal__textarea"
           [ngModel]="commentText()"
           (ngModelChange)="commentText.set($event)"
-          placeholder="Ex: Bravo pour ta progression ! N'oublie pas de réviser les finales de tours pour notre prochain cours..."
+          [placeholder]="'lessons.commentPlaceholder' | translate"
           rows="5"
         ></textarea>
       </div>
       <div class="comment-modal__actions">
-        <button class="btn btn--ghost" (click)="closeCommentModal()">Annuler</button>
+        <button class="btn btn--ghost" (click)="closeCommentModal()">{{ 'common.cancel' | translate }}</button>
         <button
           class="btn btn--primary"
           (click)="submitComment()"
@@ -508,7 +511,7 @@
           @if (savingComment()) {
             <span class="spinner spinner--sm"></span>
           } @else {
-            Enregistrer
+            {{ 'common.save' | translate }}
           }
         </button>
       </div>
@@ -520,7 +523,7 @@
     <div class="modal-overlay" (click)="closeViewCommentModal()"></div>
     <div class="view-comment-modal">
       <div class="view-comment-modal__header">
-        <h3>Message de {{ viewCommentTeacherName() }}</h3>
+        <h3>{{ 'lessons.messageFrom' | translate }} {{ viewCommentTeacherName() }}</h3>
         <button class="view-comment-modal__close" (click)="closeViewCommentModal()">
           <ng-icon name="heroXMark" size="20"></ng-icon>
         </button>
@@ -528,11 +531,11 @@
       <div class="view-comment-modal__content">
         <p class="view-comment-modal__text">{{ viewCommentText() }}</p>
         @if (viewCommentDate()) {
-          <p class="view-comment-modal__date">{{ viewCommentDate() | date:'d MMMM yyyy à HH:mm' }}</p>
+          <p class="view-comment-modal__date">{{ viewCommentDate() | date:'d MMMM yyyy' }}</p>
         }
       </div>
       <div class="view-comment-modal__actions">
-        <button class="btn btn--primary" (click)="closeViewCommentModal()">Fermer</button>
+        <button class="btn btn--primary" (click)="closeViewCommentModal()">{{ 'common.close' | translate }}</button>
       </div>
     </div>
   }

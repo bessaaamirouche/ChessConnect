@@ -1,5 +1,6 @@
 import { Component, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { QuizService } from '../../core/services/quiz.service';
 import { SeoService } from '../../core/services/seo.service';
 import { ProgressService } from '../../core/services/progress.service';
@@ -18,7 +19,7 @@ type QuizStep = 'intro' | 'questions' | 'result';
 @Component({
   selector: 'app-quiz',
   standalone: true,
-  imports: [RouterLink, NgIconComponent],
+  imports: [RouterLink, NgIconComponent, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({
     heroArrowLeft,

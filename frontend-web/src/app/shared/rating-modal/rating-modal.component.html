@@ -1,12 +1,12 @@
 <div class="modal-backdrop" (click)="onBackdropClick($event)">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="rating-modal-title" appFocusTrap>
     <div class="modal__header">
-      <h2 id="rating-modal-title">Évaluer votre cours</h2>
-      <button type="button" class="modal__close" (click)="onClose()" aria-label="Fermer">&times;</button>
+      <h2 id="rating-modal-title">{{ 'rating.title' | translate }}</h2>
+      <button type="button" class="modal__close" (click)="onClose()" [attr.aria-label]="'common.close' | translate">&times;</button>
     </div>
 
     <div class="modal__body">
-      <p class="teacher-name">Cours avec <strong>{{ teacherName }}</strong></p>
+      <p class="teacher-name">{{ 'rating.subtitle' | translate }} <strong>{{ teacherName }}</strong></p>
 
       <div class="alert-inline-container" aria-live="polite">
         <div class="alert-inline alert-inline--error" [class.alert-inline--visible]="error()" role="alert">
@@ -15,7 +15,7 @@
       </div>
 
       <div class="stars-container">
-        <p class="stars-label" id="stars-label">Votre note :</p>
+        <p class="stars-label" id="stars-label">{{ 'rating.yourRating' | translate }}</p>
         <div class="stars" role="radiogroup" aria-labelledby="stars-label" (mouseleave)="clearHoveredStars()">
           @for (star of [1, 2, 3, 4, 5]; track star) {
             <button
@@ -24,7 +24,7 @@
               role="radio"
               [class.star-btn--filled]="star <= getDisplayStars()"
               [attr.aria-checked]="selectedStars() === star"
-              [attr.aria-label]="star + ' étoile' + (star > 1 ? 's' : '')"
+              [attr.aria-label]="star + ' ' + ('rating.star' | translate) + (star > 1 ? 's' : '')"
               (mouseenter)="setHoveredStars(star)"
               (click)="selectStars(star)"
             >
@@ -34,30 +34,30 @@
         </div>
         <p class="stars-text" aria-live="polite">
           @switch (getDisplayStars()) {
-            @case (1) { Mauvais }
-            @case (2) { Passable }
-            @case (3) { Bien }
-            @case (4) { Très bien }
-            @case (5) { Excellent }
-            @default { Sélectionnez une note }
+            @case (1) { {{ 'rating.stars.1' | translate }} }
+            @case (2) { {{ 'rating.stars.2' | translate }} }
+            @case (3) { {{ 'rating.stars.3' | translate }} }
+            @case (4) { {{ 'rating.stars.4' | translate }} }
+            @case (5) { {{ 'rating.stars.5' | translate }} }
+            @default { {{ 'rating.selectRating' | translate }} }
           }
         </p>
       </div>
 
       <div class="form-group">
-        <label class="form-group__label" for="comment">Commentaire (optionnel)</label>
+        <label class="form-group__label" for="comment">{{ 'rating.comment' | translate }}</label>
         <textarea
           id="comment"
           [(ngModel)]="comment"
           class="textarea"
           rows="4"
-          placeholder="Partagez votre expérience avec ce coach..."
+          [placeholder]="'rating.commentPlaceholder' | translate"
         ></textarea>
       </div>
     </div>
 
     <div class="modal__footer">
-      <button type="button" class="btn btn--ghost" (click)="onClose()">Annuler</button>
+      <button type="button" class="btn btn--ghost" (click)="onClose()">{{ 'common.cancel' | translate }}</button>
       <button
         type="button"
         class="btn btn--primary"
@@ -66,9 +66,9 @@
       >
         @if (loading()) {
           <span class="spinner spinner--sm" aria-hidden="true"></span>
-          Envoi...
+          {{ 'rating.submitting' | translate }}
         } @else {
-          Envoyer mon avis
+          {{ 'rating.submit' | translate }}
         }
       </button>
     </div>

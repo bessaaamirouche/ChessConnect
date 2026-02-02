@@ -1,11 +1,12 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { PaymentService } from '../../core/services/payment.service';
 
 @Component({
   selector: 'app-subscription-success',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, TranslateModule],
   template: `
     <div class="result-page">
       <div class="result-card result-card--success">
@@ -158,6 +159,8 @@ export class SubscriptionSuccessComponent implements OnInit {
   planName = signal<string>('Premium');
   error = signal<string | null>(null);
 
+  private translateService = inject(TranslateService);
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -175,17 +178,17 @@ export class SubscriptionSuccessComponent implements OnInit {
             this.verified.set(true);
             this.planName.set(result.planName || 'Premium');
           } else {
-            this.error.set(result.error || 'Erreur inconnue');
+            this.error.set(result.error || this.translateService.instant('errors.unknownError'));
           }
           this.loading.set(false);
         },
         error: (err) => {
-          this.error.set(err.error?.error || 'Erreur lors de l\'activation');
+          this.error.set(err.error?.error || this.translateService.instant('errors.subscriptionActivate'));
           this.loading.set(false);
         }
       });
     } else {
-      this.error.set('Session de paiement invalide');
+      this.error.set(this.translateService.instant('errors.invalidSession'));
       this.loading.set(false);
     }
   }

@@ -1,17 +1,5 @@
 import { Component, OnInit, signal, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
-
-// Custom validator for names - allows only letters, spaces, hyphens, and apostrophes
-function nameValidator(control: AbstractControl): ValidationErrors | null {
-  const value = control.value;
-  if (!value) return null;
-  const namePattern = /^[a-zA-ZÀ-ÿ\u00C0-\u024F\u1E00-\u1EFF\s\-']+$/;
-  if (!namePattern.test(value)) {
-    return { invalidName: true };
-  }
-  return null;
-}
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../core/services/auth.service';
 import { LessonService } from '../../core/services/lesson.service';
@@ -23,34 +11,18 @@ import { StripeConnectService } from '../../core/services/stripe-connect.service
 import { DialogService } from '../../core/services/dialog.service';
 import { WalletService } from '../../core/services/wallet.service';
 import { LESSON_STATUS_LABELS, Lesson } from '../../core/models/lesson.model';
-import { CHESS_LEVELS, User, UpdateUserRequest } from '../../core/models/user.model';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
+import { TranslateModule } from '@ngx-translate/core';
 import {
-  heroChartBarSquare,
   heroCalendarDays,
-  heroClipboardDocumentList,
   heroTrophy,
   heroCreditCard,
-  heroAcademicCap,
-  heroUser,
-  heroUserCircle,
-  heroArrowRightOnRectangle,
   heroCheckCircle,
-  heroTicket,
   heroBanknotes,
   heroArrowTrendingUp,
-  heroInformationCircle,
-  heroClock,
-  heroXCircle,
-  heroVideoCamera,
   heroCheck,
-  heroXMark,
-  heroPlayCircle,
-  heroLockClosed,
-  heroEnvelope,
-  heroDocumentText,
   heroSparkles,
   heroExclamationTriangle
 } from '@ng-icons/heroicons/outline';
@@ -58,32 +30,16 @@ import {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [RouterLink, DatePipe, DecimalPipe, ReactiveFormsModule, ConfirmDialogComponent, NgIconComponent],
+  imports: [RouterLink, DatePipe, DecimalPipe, ConfirmDialogComponent, NgIconComponent, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({
-    heroChartBarSquare,
     heroCalendarDays,
-    heroClipboardDocumentList,
     heroTrophy,
     heroCreditCard,
-    heroAcademicCap,
-    heroUser,
-    heroUserCircle,
-    heroArrowRightOnRectangle,
     heroCheckCircle,
-    heroTicket,
     heroBanknotes,
     heroArrowTrendingUp,
-    heroInformationCircle,
-    heroClock,
-    heroXCircle,
-    heroVideoCamera,
     heroCheck,
-    heroXMark,
-    heroPlayCircle,
-    heroLockClosed,
-    heroEnvelope,
-    heroDocumentText,
     heroSparkles,
     heroExclamationTriangle
   })],
@@ -94,30 +50,6 @@ export class DashboardComponent implements OnInit {
   @ViewChild('confirmDialog') confirmDialog!: ConfirmDialogComponent;
 
   statusLabels = LESSON_STATUS_LABELS;
-  CHESS_LEVELS = CHESS_LEVELS;
-  settingsForm: FormGroup;
-  passwordForm: FormGroup;
-  profileForm: FormGroup;
-
-  // Active view for teacher profile
-  activeView = signal<'dashboard' | 'profile'>('dashboard');
-
-  // Mobile menu state
-  mobileMenuOpen = signal(false);
-
-  // Profile editing
-  savingProfile = signal(false);
-  profileSuccess = signal(false);
-  profileError = signal<string | null>(null);
-
-  // Settings panel
-  showSettings = signal(false);
-  savingSettings = signal(false);
-  settingsSuccess = signal(false);
-  settingsError = signal<string | null>(null);
-  savingPassword = signal(false);
-  passwordSuccess = signal(false);
-  passwordError = signal<string | null>(null);
 
   // Teacher earnings withdrawal
   withdrawing = signal(false);
@@ -132,33 +64,13 @@ export class DashboardComponent implements OnInit {
     public progressService: ProgressService,
     public paymentService: PaymentService,
     public teacherService: TeacherService,
-    private fb: FormBuilder,
     private http: HttpClient,
     private seoService: SeoService,
     private stripeConnectService: StripeConnectService,
     private dialogService: DialogService,
-    private walletService: WalletService
+    public walletService: WalletService
   ) {
     this.seoService.setDashboardPage();
-    this.settingsForm = this.fb.group({
-      firstName: ['', [Validators.required, nameValidator]],
-      lastName: ['', [Validators.required, nameValidator]],
-      hourlyRate: [50],
-      bio: ['']
-    });
-
-    this.passwordForm = this.fb.group({
-      currentPassword: ['', Validators.required],
-      newPassword: ['', [Validators.required, Validators.minLength(6)]],
-      confirmPassword: ['', Validators.required]
-    });
-
-    this.profileForm = this.fb.group({
-      firstName: ['', [Validators.required, nameValidator]],
-      lastName: ['', [Validators.required, nameValidator]],
-      hourlyRate: [50],
-      bio: ['']
-    });
   }
 
   ngOnInit(): void {
@@ -168,6 +80,7 @@ export class DashboardComponent implements OnInit {
     if (this.authService.isStudent()) {
       this.progressService.loadMyProgress().subscribe();
       this.paymentService.loadActiveSubscription().subscribe();
+      this.walletService.loadBalance().subscribe();
     }
 
     if (this.authService.isTeacher()) {
@@ -177,186 +90,12 @@ export class DashboardComponent implements OnInit {
           this.withdrawAmount.set(Math.max(100, maxAmount));
         }
       });
-      this.loadProfileForm();
       this.loadStripeConnectStatus();
     }
   }
 
-  loadProfileForm(): void {
-    const user = this.authService.currentUser();
-    if (user) {
-      this.profileForm.patchValue({
-        firstName: user.firstName,
-        lastName: user.lastName,
-        hourlyRate: user.hourlyRateCents ? user.hourlyRateCents / 100 : 50,
-        bio: user.bio || ''
-      });
-    }
-  }
-
-  showProfile(): void {
-    this.activeView.set('profile');
-    this.loadProfileForm();
-    this.profileSuccess.set(false);
-    this.profileError.set(null);
-  }
-
-  showDashboard(): void {
-    this.activeView.set('dashboard');
-  }
-
-  saveProfile(): void {
-    if (this.profileForm.invalid || this.savingProfile()) return;
-
-    this.savingProfile.set(true);
-    this.profileSuccess.set(false);
-    this.profileError.set(null);
-
-    const formValue = this.profileForm.value;
-    const payload: UpdateUserRequest = {
-      firstName: formValue.firstName,
-      lastName: formValue.lastName,
-      hourlyRateCents: formValue.hourlyRate * 100,
-      bio: formValue.bio
-    };
-
-    this.http.patch<User>('/api/users/me', payload).subscribe({
-      next: (updatedUser) => {
-        this.authService.updateCurrentUser(updatedUser);
-        this.savingProfile.set(false);
-        this.profileSuccess.set(true);
-        setTimeout(() => this.profileSuccess.set(false), 3000);
-      },
-      error: (err) => {
-        this.savingProfile.set(false);
-        this.profileError.set(err.error?.message || 'Erreur lors de la sauvegarde');
-      }
-    });
-  }
-
   formatPrice(cents: number): string {
     return (cents / 100).toFixed(0) + '€';
-  }
-
-  getNextRenewalDate(): Date {
-    const subscription = this.paymentService.activeSubscription();
-    if (!subscription?.startDate) {
-      return new Date();
-    }
-
-    // Calculate next month from start date
-    const startDate = new Date(subscription.startDate);
-    const today = new Date();
-
-    // Find the next renewal date (same day of month as start)
-    const nextRenewal = new Date(today.getFullYear(), today.getMonth() + 1, startDate.getDate());
-
-    // If we're past the renewal day this month, it's next month
-    if (today.getDate() >= startDate.getDate()) {
-      return nextRenewal;
-    }
-
-    // Otherwise it's this month
-    return new Date(today.getFullYear(), today.getMonth(), startDate.getDate());
-  }
-
-  // Settings Panel Methods
-  openSettings(): void {
-    const user = this.authService.currentUser();
-    if (user) {
-      this.settingsForm.patchValue({
-        firstName: user.firstName,
-        lastName: user.lastName,
-        hourlyRate: user.hourlyRateCents ? user.hourlyRateCents / 100 : 50,
-        bio: user.bio || ''
-      });
-    }
-    this.showSettings.set(true);
-    this.settingsSuccess.set(false);
-    this.settingsError.set(null);
-    this.passwordSuccess.set(false);
-    this.passwordError.set(null);
-    this.passwordForm.reset();
-  }
-
-  closeSettings(): void {
-    this.showSettings.set(false);
-  }
-
-  saveSettings(): void {
-    if (this.settingsForm.invalid || this.savingSettings()) return;
-
-    this.savingSettings.set(true);
-    this.settingsSuccess.set(false);
-    this.settingsError.set(null);
-
-    const formValue = this.settingsForm.value;
-    const payload: UpdateUserRequest = {
-      firstName: formValue.firstName,
-      lastName: formValue.lastName
-    };
-
-    if (this.authService.isTeacher()) {
-      payload.hourlyRateCents = formValue.hourlyRate * 100;
-      payload.bio = formValue.bio;
-    }
-
-    this.http.patch<User>('/api/users/me', payload).subscribe({
-      next: (updatedUser) => {
-        this.authService.updateCurrentUser(updatedUser);
-        this.savingSettings.set(false);
-        this.settingsSuccess.set(true);
-        setTimeout(() => this.settingsSuccess.set(false), 3000);
-      },
-      error: (err) => {
-        this.savingSettings.set(false);
-        this.settingsError.set(err.error?.message || 'Erreur lors de la sauvegarde');
-      }
-    });
-  }
-
-  changePassword(): void {
-    if (this.passwordForm.invalid || this.savingPassword()) return;
-
-    const { currentPassword, newPassword, confirmPassword } = this.passwordForm.value;
-
-    if (newPassword !== confirmPassword) {
-      this.passwordError.set('Les mots de passe ne correspondent pas');
-      return;
-    }
-
-    this.savingPassword.set(true);
-    this.passwordSuccess.set(false);
-    this.passwordError.set(null);
-
-    this.http.post('/api/users/me/password', {
-      currentPassword,
-      newPassword
-    }).subscribe({
-      next: () => {
-        this.savingPassword.set(false);
-        this.passwordSuccess.set(true);
-        this.passwordForm.reset();
-        setTimeout(() => this.passwordSuccess.set(false), 3000);
-      },
-      error: (err) => {
-        this.savingPassword.set(false);
-        this.passwordError.set(err.error?.message || 'Mot de passe actuel incorrect');
-      }
-    });
-  }
-
-  logout(): void {
-    this.authService.logout();
-  }
-
-  // Mobile menu methods
-  toggleMobileMenu(): void {
-    this.mobileMenuOpen.update(v => !v);
-  }
-
-  closeMobileMenu(): void {
-    this.mobileMenuOpen.set(false);
   }
 
   // Lesson actions for teachers
@@ -396,13 +135,6 @@ export class DashboardComponent implements OnInit {
         this.teacherService.getMyBalance().subscribe();
       }
     });
-  }
-
-  // Generate Google Meet link as Zoom alternative
-  generateMeetLink(lesson: Lesson): string {
-    const date = new Date(lesson.scheduledAt);
-    const title = encodeURIComponent(`Cours d'échecs - mychess`);
-    return `https://meet.google.com/new?hs=122&authuser=0`;
   }
 
   // Check if it's time to join the lesson (15 min before until end)

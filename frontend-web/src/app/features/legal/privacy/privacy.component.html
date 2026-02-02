@@ -18,29 +18,29 @@
 
       <!-- Desktop Pill Tabs Navigation -->
       <div class="nav__pills">
-        <a routerLink="/" class="nav__pill">Accueil</a>
-        <a routerLink="/teachers" class="nav__pill">Nos coachs</a>
-        <a routerLink="/blog" class="nav__pill">Blog</a>
+        <a routerLink="/" class="nav__pill">{{ 'legal.home' | translate }}</a>
+        <a routerLink="/teachers" class="nav__pill">{{ 'legal.ourCoaches' | translate }}</a>
+        <a routerLink="/blog" class="nav__pill">{{ 'nav.blog' | translate }}</a>
         @if (authService.isAuthenticated()) {
-          <a routerLink="/dashboard" class="nav__pill">Mon Espace</a>
+          <a routerLink="/dashboard" class="nav__pill">{{ 'legal.mySpace' | translate }}</a>
         } @else {
-          <a routerLink="/login" class="nav__pill">S'identifier</a>
-          <a routerLink="/register" class="nav__pill">S'inscrire</a>
+          <a routerLink="/login" class="nav__pill">{{ 'nav.login' | translate }}</a>
+          <a routerLink="/register" class="nav__pill">{{ 'nav.signup' | translate }}</a>
         }
       </div>
 
       <!-- Mobile Drawer Menu -->
       <div class="nav__links" [class.active]="mobileMenuOpen()">
-        <a routerLink="/" (click)="closeMobileMenu()">Accueil</a>
-        <a routerLink="/teachers" (click)="closeMobileMenu()">Nos coachs</a>
-        <a routerLink="/blog" (click)="closeMobileMenu()">Blog</a>
+        <a routerLink="/" (click)="closeMobileMenu()">{{ 'legal.home' | translate }}</a>
+        <a routerLink="/teachers" (click)="closeMobileMenu()">{{ 'legal.ourCoaches' | translate }}</a>
+        <a routerLink="/blog" (click)="closeMobileMenu()">{{ 'nav.blog' | translate }}</a>
 
         <div class="nav__mobile-actions">
           @if (authService.isAuthenticated()) {
-            <a routerLink="/dashboard" class="nav__btn nav__btn--primary" (click)="closeMobileMenu()">Mon Espace</a>
+            <a routerLink="/dashboard" class="nav__btn nav__btn--primary" (click)="closeMobileMenu()">{{ 'legal.mySpace' | translate }}</a>
           } @else {
-            <a routerLink="/login" class="nav__btn nav__btn--ghost" (click)="closeMobileMenu()">S'identifier</a>
-            <a routerLink="/register" class="nav__btn nav__btn--primary" (click)="closeMobileMenu()">S'inscrire</a>
+            <a routerLink="/login" class="nav__btn nav__btn--ghost" (click)="closeMobileMenu()">{{ 'nav.login' | translate }}</a>
+            <a routerLink="/register" class="nav__btn nav__btn--primary" (click)="closeMobileMenu()">{{ 'nav.signup' | translate }}</a>
           }
         </div>
       </div>
@@ -50,8 +50,8 @@
   <!-- Header -->
   <header class="legal-header">
     <div class="legal-header__content">
-      <h1 class="legal-header__title">Politique de Confidentialité</h1>
-      <p class="legal-header__date">Dernière mise à jour : {{ lastUpdate }}</p>
+      <h1 class="legal-header__title">{{ 'legal.privacy.title' | translate }}</h1>
+      <p class="legal-header__date">{{ 'legal.privacy.lastUpdate' | translate }} : {{ lastUpdate }}</p>
     </div>
   </header>
 
@@ -332,12 +332,12 @@
   <!-- Footer -->
   <footer class="legal-footer">
     <div class="legal-footer__container">
-      <p>&copy; 2026 mychess. Tous droits réservés.</p>
+      <p>&copy; 2026 mychess. {{ 'footer.copyright' | translate }}</p>
       <div class="legal-footer__links">
-        <a routerLink="/">Accueil</a>
-        <a routerLink="/privacy" class="active">Confidentialité</a>
-        <a routerLink="/terms">CGU</a>
-        <a routerLink="/legal-notice">Mentions légales</a>
+        <a routerLink="/">{{ 'legal.home' | translate }}</a>
+        <a routerLink="/privacy" class="active">{{ 'footer.privacy' | translate }}</a>
+        <a routerLink="/terms">{{ 'footer.terms' | translate }}</a>
+        <a routerLink="/legal-notice">{{ 'footer.legal' | translate }}</a>
       </div>
     </div>
   </footer>

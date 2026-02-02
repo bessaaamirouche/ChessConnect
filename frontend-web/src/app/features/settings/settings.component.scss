@@ -415,6 +415,13 @@ input[type="date"] {
   margin-bottom: var(--space-md);
 }
 
+// Language preference
+.language-preference {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
 // Stripe Connect status
 .stripe-status {
   display: flex;

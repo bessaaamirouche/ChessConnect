@@ -1,9 +1,9 @@
 <div class="progress-page">
   <header class="page-header">
     <div>
-      <h1 class="page-header__title">Ma Progression</h1>
+      <h1 class="page-header__title">{{ 'progress.title' | translate }}</h1>
       @if (!loading() && !error()) {
-        <p class="page-header__subtitle">{{ totalValidatedCourses() }} cours validés sur {{ totalCourses() }}</p>
+        <p class="page-header__subtitle">{{ totalValidatedCourses() }} {{ 'progress.coursesCompleted' | translate }} / {{ totalCourses() }}</p>
       }
     </div>
   </header>
@@ -11,15 +11,15 @@
   @if (loading()) {
     <div class="loading-state">
       <span class="spinner spinner--lg"></span>
-      <p>Chargement de votre progression...</p>
+      <p>{{ 'progress.loading' | translate }}</p>
     </div>
   } @else if (error()) {
     <div class="error-state">
       <div class="error-state__icon"><ng-icon name="heroExclamationTriangle" size="48"></ng-icon></div>
-      <h3>Erreur</h3>
+      <h3>{{ 'progress.error' | translate }}</h3>
       <p>{{ error() }}</p>
       <button class="btn btn--primary" (click)="learningPathService.loadLearningPath().subscribe()">
-        Réessayer
+        {{ 'common.retry' | translate }}
       </button>
     </div>
   } @else {
@@ -58,13 +58,13 @@
                   {{ level.name }}
                 </h4>
                 @if (isLevelInProgress(level)) {
-                  <span class="level-card__badge">En cours</span>
+                  <span class="level-card__badge">{{ 'progress.inProgress' | translate }}</span>
                 }
               </div>
 
               <div class="level-card__progress">
                 <span class="level-card__progress-text">
-                  {{ level.completedCourses }}/{{ level.totalCourses }} cours
+                  {{ level.completedCourses }}/{{ level.totalCourses }} {{ 'progress.courses' | translate }}
                 </span>
               </div>
 
@@ -101,7 +101,7 @@
                     </span>
                   </div>
                 } @empty {
-                  <p class="level-card__empty">Aucun cours disponible</p>
+                  <p class="level-card__empty">{{ 'progress.noCourses' | translate }}</p>
                 }
               </div>
             }
@@ -121,11 +121,11 @@
     <section class="section">
       <div class="cta-card">
         <div class="cta-card__content">
-          <h3>Continuez votre progression !</h3>
-          <p>Réservez un cours avec un coach pour valider vos connaissances.</p>
+          <h3>{{ 'progress.cta.title' | translate }}</h3>
+          <p>{{ 'progress.cta.description' | translate }}</p>
         </div>
         <a routerLink="/teachers" class="btn btn--primary btn--lg">
-          Trouver un coach
+          {{ 'progress.cta.findCoach' | translate }}
         </a>
       </div>
     </section>
@@ -135,11 +135,11 @@
       <div class="quiz-cta-card">
         <div class="quiz-cta-card__icon">♟</div>
         <div class="quiz-cta-card__content">
-          <h4>Réévaluez votre niveau</h4>
-          <p>Vous pensez avoir progressé ? Repassez le quiz pour mettre à jour votre niveau.</p>
+          <h4>{{ 'progress.quiz.title' | translate }}</h4>
+          <p>{{ 'progress.quiz.description' | translate }}</p>
         </div>
         <a routerLink="/quiz" class="btn btn--secondary">
-          Passer le quiz
+          {{ 'progress.quiz.takeQuiz' | translate }}
         </a>
       </div>
     </section>

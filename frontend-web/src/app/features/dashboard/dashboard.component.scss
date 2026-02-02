@@ -9,13 +9,27 @@
   .page-header__title--sm {
     font-size: 1.375rem;
   }
+
+  // Center page header for consistency
+  .page-header {
+    max-width: 500px;
+    margin: 0 auto var(--space-xl);
+    text-align: center;
+
+    @include respond-down(sm) {
+      max-width: 100%;
+      text-align: left;
+    }
+  }
 }
 
-// Compact Stats Grid - Linear.app style
+// Compact Stats Grid - 2x2 centered layout
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--space-sm);
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-md);
+  max-width: 500px;
+  margin: 0 auto;
 }
 
 .stats-card {
@@ -602,26 +616,27 @@
 }
 
 .stats-grid {
-  @include respond-down(lg) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
   @include respond-down(sm) {
-    grid-template-columns: 1fr;
-    gap: var(--space-xs);
+    max-width: 100%;
+    gap: var(--space-sm);
   }
 }
 
 .stats-card {
-  @include respond-down(md) {
+  @include respond-down(sm) {
     padding: var(--space-sm);
 
+    &__icon {
+      font-size: 1rem;
+    }
+
     &__value {
-      font-size: 1.125rem;
+      font-size: 1rem;
     }
 
     &__label {
       font-size: 0.625rem;
+      line-height: 1.2;
     }
   }
 }
@@ -857,6 +872,138 @@
     &:hover {
       color: var(--gold-hover);
     }
+  }
+}
+
+// Student sections stacked (wallet + subscription)
+.student-sections {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  max-width: 500px;
+  margin: 0 auto var(--space-xl);
+
+  @include respond-down(sm) {
+    max-width: 100%;
+  }
+
+  .section {
+    margin-bottom: 0;
+  }
+}
+
+// Wallet Card
+.wallet-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+
+  &__balance {
+    text-align: center;
+    margin-bottom: var(--space-md);
+
+    &-label {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: var(--space-xs);
+    }
+
+    &-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--gold-400);
+    }
+  }
+
+  &__actions {
+    display: flex;
+    gap: var(--space-sm);
+    justify-content: center;
+
+    .btn {
+      flex: 1;
+    }
+  }
+}
+
+// Subscription Card
+.subscription-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  position: relative;
+
+  &--active {
+    border-color: var(--gold-400);
+    background: linear-gradient(135deg, rgba(212, 168, 75, 0.1) 0%, var(--bg-secondary) 100%);
+  }
+
+  &__badge {
+    position: absolute;
+    top: var(--space-sm);
+    right: var(--space-sm);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    background: var(--gold-400);
+    color: var(--bg-primary);
+    font-size: 0.625rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    border-radius: var(--radius-sm);
+  }
+
+  &__content {
+    text-align: center;
+  }
+
+  &__price {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--gold-400);
+    margin-bottom: var(--space-sm);
+  }
+
+  &__features {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-md);
+    margin-bottom: var(--space-sm);
+
+    span {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+
+      ng-icon {
+        color: var(--success);
+      }
+    }
+  }
+
+  &__since {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  &__title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--space-xs);
+  }
+
+  &__desc {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: var(--space-md);
   }
 }
 

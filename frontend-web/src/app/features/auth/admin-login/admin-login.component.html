@@ -4,7 +4,7 @@
       <div class="auth-card__logo">
         <img src="assets/logo.png" alt="mychess" class="auth-card__logo-img">
       </div>
-      <h1 class="heading-3">Administration</h1>
+      <h1 class="heading-3">{{ 'auth.adminLogin.title' | translate }}</h1>
     </div>
 
     <div class="alert-inline-container">
@@ -15,34 +15,34 @@
 
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
       <div class="form-group">
-        <label class="form-group__label" for="username">Identifiant</label>
+        <label class="form-group__label" for="username">{{ 'auth.adminLogin.username' | translate }}</label>
         <input
           type="text"
           id="username"
           formControlName="username"
           class="input"
           [class.input--error]="loginForm.get('username')?.invalid && loginForm.get('username')?.touched"
-          placeholder="Identifiant"
+          [placeholder]="'auth.adminLogin.usernamePlaceholder' | translate"
           autocomplete="off"
         >
         @if (loginForm.get('username')?.invalid && loginForm.get('username')?.touched) {
-          <span class="form-group__error">Identifiant requis</span>
+          <span class="form-group__error">{{ 'auth.adminLogin.usernameRequired' | translate }}</span>
         }
       </div>
 
       <div class="form-group">
-        <label class="form-group__label" for="password">Mot de passe</label>
+        <label class="form-group__label" for="password">{{ 'auth.adminLogin.password' | translate }}</label>
         <input
           type="password"
           id="password"
           formControlName="password"
           class="input"
           [class.input--error]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
-          placeholder="••••••••"
+          [placeholder]="'auth.adminLogin.passwordPlaceholder' | translate"
           autocomplete="off"
         >
         @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
-          <span class="form-group__error">Mot de passe requis</span>
+          <span class="form-group__error">{{ 'auth.adminLogin.passwordRequired' | translate }}</span>
         }
       </div>
 
@@ -53,9 +53,9 @@
       >
         @if (loading()) {
           <span class="spinner spinner--sm"></span>
-          Connexion...
+          {{ 'auth.adminLogin.submitting' | translate }}
         } @else {
-          Se connecter
+          {{ 'auth.adminLogin.submit' | translate }}
         }
       </button>
     </form>

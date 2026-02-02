@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter, signal, OnInit } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 import { LearningPathService } from '../../core/services/learning-path.service';
 import { Course } from '../../core/models/learning-path.model';
 import { ChessLevel, CHESS_LEVELS } from '../../core/models/user.model';
@@ -19,7 +20,7 @@ import {
 @Component({
   selector: 'app-student-profile-modal',
   standalone: true,
-  imports: [NgIconComponent, DecimalPipe, FormsModule],
+  imports: [NgIconComponent, DecimalPipe, FormsModule, TranslateModule],
   viewProviders: [provideIcons({
     heroXMark,
     heroCheckCircle,

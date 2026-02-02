@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter, signal, computed, inject, OnIni
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {
   heroChartBarSquare,
   heroCalendarDays,
@@ -28,12 +29,14 @@ import {
   heroWallet,
   heroStar,
   heroBookOpen,
-  heroChatBubbleLeftRight
+  heroChatBubbleLeftRight,
+  heroFilm
 } from '@ng-icons/heroicons/outline';
 import { heroStarSolid } from '@ng-icons/heroicons/solid';
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationCenterService, AppNotification } from '../../../core/services/notification-center.service';
 import { PaymentService } from '../../../core/services/payment.service';
+import { LanguageSelectorComponent } from '../language-selector/language-selector.component';
 
 export interface SidebarItem {
   label: string;
@@ -52,7 +55,7 @@ export interface SidebarSection {
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule, RouterModule, NgIconComponent],
+  imports: [CommonModule, RouterModule, NgIconComponent, TranslateModule, LanguageSelectorComponent],
   providers: [
     provideIcons({
       heroChartBarSquare,
@@ -81,7 +84,8 @@ export interface SidebarSection {
       heroStar,
       heroStarSolid,
       heroBookOpen,
-      heroChatBubbleLeftRight
+      heroChatBubbleLeftRight,
+      heroFilm
     })
   ],
   template: `
@@ -94,7 +98,7 @@ export interface SidebarSection {
         class="mobile-header__hamburger"
         [class.active]="mobileOpen()"
         (click)="toggleMobile()"
-        aria-label="Menu"
+        [attr.aria-label]="'sidebar.menu' | translate"
         [attr.aria-expanded]="mobileOpen()">
         <span></span>
         <span></span>
@@ -109,19 +113,19 @@ export interface SidebarSection {
     <aside class="sidebar" [class.collapsed]="collapsed()" [class.mobile-active]="mobileOpen()">
       <!-- Header -->
       <div class="sidebar__header">
-        @if (!collapsed()) {
+        @if (!isCollapsed()) {
           <a routerLink="/" class="sidebar__logo">
             <img src="assets/logo.png" alt="mychess" class="sidebar__logo-img">
           </a>
         }
-        <button class="sidebar__collapse-btn" (click)="toggleCollapse()" [title]="collapsed() ? 'Ouvrir' : 'Fermer'">
-          @if (collapsed()) {
+        <button class="sidebar__collapse-btn" (click)="toggleCollapse()" [title]="isCollapsed() ? ('sidebar.open' | translate) : ('sidebar.close' | translate)">
+          @if (isCollapsed()) {
             <ng-icon name="heroChevronRight" size="18"></ng-icon>
           } @else {
             <ng-icon name="heroChevronLeft" size="18"></ng-icon>
           }
         </button>
-        <button class="sidebar__close-btn" (click)="closeMobile()" aria-label="Fermer le menu">
+        <button class="sidebar__close-btn" (click)="closeMobile()" [attr.aria-label]="'sidebar.closeMenu' | translate">
           <ng-icon name="heroXMark" size="20"></ng-icon>
         </button>
       </div>
@@ -139,14 +143,14 @@ export interface SidebarSection {
                   [routerLinkActiveOptions]="{ exact: item.route === '/dashboard' || item.route === '/admin/dashboard' }"
                   class="sidebar__link"
                   [class.active]="item.active"
-                  [title]="collapsed() ? item.label : ''"
+                  [title]="isCollapsed() ? item.label : ''"
                   (click)="closeMobile()"
                 >
                   <ng-icon [name]="item.icon" class="sidebar__icon"></ng-icon>
-                  @if (!collapsed()) {
+                  @if (!isCollapsed()) {
                     <span class="sidebar__link-text">{{ item.label }}</span>
                   }
-                  @if (item.badge && !collapsed()) {
+                  @if (item.badge && !isCollapsed()) {
                     <span class="sidebar__badge">{{ item.badge }}</span>
                   }
                 </a>
@@ -154,11 +158,11 @@ export interface SidebarSection {
                 <button
                   class="sidebar__link"
                   [class.active]="item.active"
-                  [title]="collapsed() ? item.label : ''"
+                  [title]="isCollapsed() ? item.label : ''"
                   (click)="item.action?.(); closeMobile()"
                 >
                   <ng-icon [name]="item.icon" class="sidebar__icon"></ng-icon>
-                  @if (!collapsed()) {
+                  @if (!isCollapsed()) {
                     <span class="sidebar__link-text">{{ item.label }}</span>
                   }
                 </button>
@@ -169,11 +173,11 @@ export interface SidebarSection {
       </nav>
 
       <!-- Notification Center -->
-      @if (!collapsed()) {
+      @if (!isCollapsed()) {
         <div class="notification-center">
           <button class="notification-center__toggle" (click)="toggleNotifications()">
             <ng-icon name="heroBell" class="notification-center__icon"></ng-icon>
-            <span>Notifications</span>
+            <span>{{ 'sidebar.notifications' | translate }}</span>
             @if (notificationCenter.unreadCount() > 0) {
               <span class="notification-center__badge">{{ notificationCenter.unreadCount() }}</span>
             }
@@ -183,9 +187,9 @@ export interface SidebarSection {
           @if (notificationsOpen()) {
             <div class="notification-center__panel">
               <div class="notification-center__header">
-                <span class="notification-center__title">Centre de notifications</span>
+                <span class="notification-center__title">{{ 'sidebar.notificationCenter' | translate }}</span>
                 @if (notificationCenter.hasNotifications()) {
-                  <button class="notification-center__clear" (click)="clearAllNotifications()" title="Tout effacer">
+                  <button class="notification-center__clear" (click)="clearAllNotifications()" [title]="'sidebar.clearAll' | translate">
                     <ng-icon name="heroTrash" size="16"></ng-icon>
                   </button>
                 }
@@ -195,7 +199,7 @@ export interface SidebarSection {
                 @if (!notificationCenter.hasNotifications()) {
                   <div class="notification-center__empty">
                     <ng-icon name="heroBell" class="empty-icon"></ng-icon>
-                    <p>Aucune notification</p>
+                    <p>{{ 'sidebar.noNotifications' | translate }}</p>
                   </div>
                 } @else {
                   @for (notification of notificationCenter.notifications(); track notification.id) {
@@ -235,7 +239,7 @@ export interface SidebarSection {
                       <button
                         class="notification-item__delete"
                         (click)="deleteNotification($event, notification.id)"
-                        title="Supprimer"
+                        [title]="'common.delete' | translate"
                       >
                         <ng-icon name="heroXMark" size="14"></ng-icon>
                       </button>
@@ -249,7 +253,7 @@ export interface SidebarSection {
       } @else {
         <!-- Collapsed: just icon with badge -->
         <div class="notification-center notification-center--collapsed">
-          <button class="notification-center__toggle notification-center__toggle--icon" (click)="toggleNotifications()" title="Notifications">
+          <button class="notification-center__toggle notification-center__toggle--icon" (click)="toggleNotifications()" [title]="'sidebar.notifications' | translate">
             <ng-icon name="heroBell"></ng-icon>
             @if (notificationCenter.unreadCount() > 0) {
               <span class="notification-center__badge notification-center__badge--small">{{ notificationCenter.unreadCount() > 9 ? '9+' : notificationCenter.unreadCount() }}</span>
@@ -258,9 +262,16 @@ export interface SidebarSection {
         </div>
       }
 
+      <!-- Language Selector -->
+      @if (!isCollapsed()) {
+        <div class="sidebar__language">
+          <app-language-selector></app-language-selector>
+        </div>
+      }
+
       <!-- Footer -->
       <div class="sidebar__footer">
-        @if (!collapsed()) {
+        @if (!isCollapsed()) {
           <div class="sidebar__user">
             <div class="sidebar__user-avatar" [class.premium]="isPremium()">
               {{ userInitials() }}
@@ -304,11 +315,16 @@ export class AppSidebarComponent implements OnInit {
   private router = inject(Router);
   private paymentService = inject(PaymentService);
   private platformId = inject(PLATFORM_ID);
+  private translateService = inject(TranslateService);
   notificationCenter = inject(NotificationCenterService);
 
   collapsed = signal(false);
   mobileOpen = signal(false);
   notificationsOpen = signal(false);
+  private isMobile = signal(false);
+
+  // On mobile, never show collapsed state (always show full sidebar)
+  isCollapsed = computed(() => this.isMobile() ? false : this.collapsed());
 
   userName = computed(() => {
     const user = this.authService.currentUser();
@@ -325,9 +341,9 @@ export class AppSidebarComponent implements OnInit {
     const user = this.authService.currentUser();
     if (!user) return '';
     switch (user.role) {
-      case 'ADMIN': return 'Administrateur';
-      case 'TEACHER': return 'Coach';
-      case 'STUDENT': return 'Joueur';
+      case 'ADMIN': return this.translateService.instant('sidebar.roles.admin');
+      case 'TEACHER': return this.translateService.instant('sidebar.roles.coach');
+      case 'STUDENT': return this.translateService.instant('sidebar.roles.player');
       default: return '';
     }
   });
@@ -355,6 +371,10 @@ export class AppSidebarComponent implements OnInit {
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
+      // Check if mobile
+      this.checkMobile();
+      window.addEventListener('resize', () => this.checkMobile());
+
       const saved = localStorage.getItem('sidebar_collapsed');
       if (saved === 'true') {
         this.collapsed.set(true);
@@ -362,9 +382,10 @@ export class AppSidebarComponent implements OnInit {
       }
     }
 
-    // Load subscription status for students
+    // Load subscription and free trial status for students
     if (this.authService.isStudent()) {
       this.paymentService.loadActiveSubscription().subscribe();
+      this.paymentService.loadFreeTrialStatus().subscribe();
     }
   }
 
@@ -388,5 +409,9 @@ export class AppSidebarComponent implements OnInit {
 
   clearAllNotifications(): void {
     this.notificationCenter.clearAll();
+  }
+
+  private checkMobile(): void {
+    this.isMobile.set(window.innerWidth <= 768);
   }
 }

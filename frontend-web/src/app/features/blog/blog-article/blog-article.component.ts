@@ -1,6 +1,7 @@
 import { Component, OnInit, signal, inject, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 import { ArticleService } from '../../../core/services/article.service';
 import { SeoService } from '../../../core/services/seo.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -13,7 +14,7 @@ import { heroClock, heroArrowLeft, heroArrowRight } from '@ng-icons/heroicons/ou
 @Component({
   selector: 'app-blog-article',
   standalone: true,
-  imports: [RouterLink, DatePipe, NgIconComponent, ScrollRevealDirective, MarkdownPipe],
+  imports: [RouterLink, DatePipe, NgIconComponent, ScrollRevealDirective, MarkdownPipe, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({ heroClock, heroArrowLeft, heroArrowRight })],
   templateUrl: './blog-article.component.html',

@@ -2,6 +2,7 @@ import { Component, OnInit, inject, ViewChild, ChangeDetectionStrategy, signal, 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AvailabilityService } from '../../core/services/availability.service';
 import { SeoService } from '../../core/services/seo.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -25,7 +26,7 @@ import {
 @Component({
   selector: 'app-availability-management',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, ConfirmDialogComponent, NgIconComponent, DateInputComponent],
+  imports: [CommonModule, FormsModule, RouterLink, ConfirmDialogComponent, NgIconComponent, DateInputComponent, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({
     heroChartBarSquare,
@@ -47,6 +48,7 @@ export class AvailabilityManagementComponent implements OnInit {
 
   private availabilityService = inject(AvailabilityService);
   private seoService = inject(SeoService);
+  private translateService = inject(TranslateService);
   authService = inject(AuthService);
 
   readonly daysOfWeek = DAYS_OF_WEEK;
@@ -150,10 +152,10 @@ export class AvailabilityManagementComponent implements OnInit {
 
   async deleteAvailability(id: number): Promise<void> {
     const confirmed = await this.confirmDialog.open({
-      title: 'Supprimer la disponibilité',
-      message: 'Êtes-vous sûr de vouloir supprimer cette disponibilité ?',
-      confirmText: 'Supprimer',
-      cancelText: 'Annuler',
+      title: this.translateService.instant('availability.confirmDelete.title'),
+      message: this.translateService.instant('availability.confirmDelete.message'),
+      confirmText: this.translateService.instant('availability.confirmDelete.confirm'),
+      cancelText: this.translateService.instant('availability.confirmDelete.cancel'),
       type: 'danger',
       icon: 'trash'
     });

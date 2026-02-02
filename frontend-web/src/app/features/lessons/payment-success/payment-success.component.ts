@@ -1,12 +1,13 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { PaymentService } from '../../../core/services/payment.service';
 
 @Component({
   selector: 'app-payment-success',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, TranslateModule],
   templateUrl: './payment-success.component.html',
   styleUrl: './payment-success.component.scss'
 })
@@ -14,6 +15,8 @@ export class PaymentSuccessComponent implements OnInit {
   loading = signal(true);
   success = signal(false);
   error = signal<string | null>(null);
+
+  private translateService = inject(TranslateService);
 
   constructor(
     private route: ActivatedRoute,
@@ -25,7 +28,7 @@ export class PaymentSuccessComponent implements OnInit {
     const sessionId = this.route.snapshot.queryParamMap.get('session_id');
 
     if (!sessionId) {
-      this.error.set('Session de paiement invalide');
+      this.error.set(this.translateService.instant('errors.invalidSession'));
       this.loading.set(false);
       return;
     }
@@ -44,12 +47,12 @@ export class PaymentSuccessComponent implements OnInit {
             this.router.navigate(['/dashboard']);
           }, 2000);
         } else {
-          this.error.set(response.error || 'Erreur lors de la confirmation');
+          this.error.set(response.error || this.translateService.instant('errors.paymentConfirm'));
           this.loading.set(false);
         }
       },
       error: (err) => {
-        this.error.set(err.error?.error || 'Erreur lors de la confirmation du paiement');
+        this.error.set(err.error?.error || this.translateService.instant('errors.paymentConfirm'));
         this.loading.set(false);
       }
     });

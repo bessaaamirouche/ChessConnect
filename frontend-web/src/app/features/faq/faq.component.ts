@@ -1,5 +1,6 @@
 import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../core/services/auth.service';
 import { SeoService } from '../../core/services/seo.service';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
@@ -17,15 +18,20 @@ import {
 } from '@ng-icons/heroicons/outline';
 
 interface FaqItem {
-  question: string;
-  answer: string;
+  questionKey: string;
+  answerKey: string;
   category: string;
+}
+
+interface FaqCategory {
+  id: string;
+  labelKey: string;
 }
 
 @Component({
   selector: 'app-faq',
   standalone: true,
-  imports: [RouterLink, NgIconComponent],
+  imports: [RouterLink, NgIconComponent, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({
     heroChevronDown,
@@ -50,100 +56,90 @@ export class FaqComponent {
   activeCategory = signal<string>('all');
   mobileMenuOpen = signal(false);
 
-  categories = [
-    { id: 'all', label: 'Toutes' },
-    { id: 'general', label: 'General' },
-    { id: 'lessons', label: 'Cours' },
-    { id: 'premium', label: 'Premium' },
-    { id: 'payment', label: 'Paiement' },
-    { id: 'coach', label: 'Coachs' }
+  categories: FaqCategory[] = [
+    { id: 'all', labelKey: 'common.all' },
+    { id: 'general', labelKey: 'faq.categories.general' },
+    { id: 'lessons', labelKey: 'faq.categories.lessons' },
+    { id: 'premium', labelKey: 'common.premium' },
+    { id: 'payment', labelKey: 'faq.categories.payments' },
+    { id: 'coach', labelKey: 'faq.categories.coaches' }
   ];
 
   faqs: FaqItem[] = [
     // General
     {
       category: 'general',
-      question: 'Qu\'est-ce que mychess ?',
-      answer: 'mychess est une plateforme de cours d\'echecs en ligne qui met en relation des joueurs avec des coachs qualifies. Vous pouvez reserver des cours en visioconference, suivre votre progression et ameliorer votre niveau aux echecs.'
+      questionKey: 'faq.questions.whatIsMychess.q',
+      answerKey: 'faq.questions.whatIsMychess.a'
     },
     {
       category: 'general',
-      question: 'Comment fonctionne la progression ?',
-      answer: 'mychess propose 4 niveaux de progression : Pion (debutant), Cavalier (intermediaire), Reine (avance) et Roi (expert). Chaque niveau comprend des cours structures que vous validez avec votre coach pour progresser.'
+      questionKey: 'faq.questions.howToStart.q',
+      answerKey: 'faq.questions.howToStart.a'
     },
     {
       category: 'general',
-      question: 'Dois-je installer un logiciel ?',
-      answer: 'Non, mychess fonctionne entierement dans votre navigateur. Les cours en visioconference utilisent Jitsi Meet, qui ne necessite aucune installation. Vous avez juste besoin d\'une webcam et d\'un micro.'
+      questionKey: 'faq.questions.technicalRequirements.q',
+      answerKey: 'faq.questions.technicalRequirements.a'
     },
     // Lessons
     {
       category: 'lessons',
-      question: 'Comment reserver un cours ?',
-      answer: 'Parcourez la liste des coachs, consultez leurs profils et disponibilites, puis selectionnez un creneau qui vous convient. Apres le paiement, le coach confirme la reservation et vous recevez un email avec le lien de la visioconference.'
+      questionKey: 'faq.questions.howBookLesson.q',
+      answerKey: 'faq.questions.howBookLesson.a'
     },
     {
       category: 'lessons',
-      question: 'Combien coute un cours ?',
-      answer: 'Chaque coach fixe librement son tarif, generalement entre 30 et 80 euros de l\'heure. Le prix est affiche sur le profil de chaque coach avant la reservation.'
+      questionKey: 'faq.questions.coachRates.q',
+      answerKey: 'faq.questions.coachRates.a'
     },
     {
       category: 'lessons',
-      question: 'Puis-je annuler un cours ?',
-      answer: 'Oui. Si vous annulez plus de 24h avant le cours, vous etes rembourse a 100%. Entre 2h et 24h avant, le remboursement est de 50%. Moins de 2h avant, aucun remboursement n\'est possible.'
+      questionKey: 'faq.questions.cancelLesson.q',
+      answerKey: 'faq.questions.cancelLesson.a'
     },
     {
       category: 'lessons',
-      question: 'Que se passe-t-il si le coach annule ?',
-      answer: 'Si le coach annule ou ne confirme pas votre reservation sous 24h, vous etes automatiquement rembourse a 100%.'
+      questionKey: 'faq.questions.firstLessonFree.q',
+      answerKey: 'faq.questions.firstLessonFree.a'
     },
     // Premium
     {
       category: 'premium',
-      question: 'Quels sont les avantages Premium ?',
-      answer: 'L\'abonnement Premium (4,99 euros/mois) inclut : le revisionnage illimite de vos cours, les notifications prioritaires quand vos coachs favoris publient des creneaux, un badge Premium sur votre profil, et l\'acces a l\'entrainement contre myChessBot.'
+      questionKey: 'faq.questions.premiumBenefits.q',
+      answerKey: 'faq.questions.premiumBenefits.a'
     },
     {
       category: 'premium',
-      question: 'Comment fonctionne l\'essai gratuit ?',
-      answer: 'Vous pouvez essayer Premium gratuitement pendant 14 jours, sans entrer de carte bancaire. A la fin de l\'essai, vous choisissez de vous abonner ou non. Aucun engagement.'
-    },
-    {
-      category: 'premium',
-      question: 'Puis-je annuler mon abonnement ?',
-      answer: 'Oui, l\'abonnement est sans engagement. Vous pouvez annuler a tout moment depuis votre espace abonnement. Vous conservez l\'acces Premium jusqu\'a la fin de la periode payee.'
+      questionKey: 'faq.questions.howLessonsWork.q',
+      answerKey: 'faq.questions.howLessonsWork.a'
     },
     // Payment
     {
       category: 'payment',
-      question: 'Quels moyens de paiement acceptez-vous ?',
-      answer: 'Nous acceptons les cartes bancaires (Visa, Mastercard, American Express) via Stripe, le leader mondial du paiement securise en ligne.'
+      questionKey: 'faq.questions.paymentMethods.q',
+      answerKey: 'faq.questions.paymentMethods.a'
     },
     {
       category: 'payment',
-      question: 'Comment fonctionne le portefeuille ?',
-      answer: 'Vous pouvez crediter votre portefeuille mychess (minimum 10 euros) et utiliser ce solde pour payer vos cours. Les remboursements sont automatiquement credites sur votre portefeuille.'
-    },
-    {
-      category: 'payment',
-      question: 'Puis-je obtenir une facture ?',
-      answer: 'Oui, une facture PDF est generee automatiquement pour chaque paiement. Vous pouvez les telecharger depuis votre espace "Mes factures".'
+      questionKey: 'faq.questions.dataPrivacy.q',
+      answerKey: 'faq.questions.dataPrivacy.a'
     },
     // Coach
     {
       category: 'coach',
-      question: 'Comment devenir coach sur mychess ?',
-      answer: 'Inscrivez-vous en tant que coach, completez votre profil avec votre experience et vos qualifications, puis configurez vos disponibilites et votre tarif horaire. Une fois votre compte Stripe Connect configure, vous pouvez recevoir des reservations.'
+      questionKey: 'faq.questions.becomeCoach.q',
+      answerKey: 'faq.questions.becomeCoach.a'
     },
     {
       category: 'coach',
-      question: 'Quelle commission preleve mychess ?',
-      answer: 'mychess preleve 12.5% sur chaque cours (10% pour la plateforme + 2.5% de frais Stripe). Vous recevez le reste directement sur votre compte bancaire.'
+      questionKey: 'faq.questions.coachPayments.q',
+      answerKey: 'faq.questions.coachPayments.a'
     },
     {
       category: 'coach',
-      question: 'Comment sont payes les coachs ?',
-      answer: 'Les paiements sont transferes via Stripe Connect directement sur votre compte bancaire. Vous devez configurer votre compte Stripe Connect dans les parametres pour recevoir vos paiements.'
+      questionKey: 'faq.questions.whoAreCoaches.q',
+      answerKey: 'faq.questions.whoAreCoaches.a'
     }
   ];
 
@@ -178,5 +174,9 @@ export class FaqComponent {
       return this.faqs;
     }
     return this.faqs.filter(faq => faq.category === category);
+  }
+
+  trackByQuestionKey(index: number, faq: FaqItem): string {
+    return faq.questionKey;
   }
 }

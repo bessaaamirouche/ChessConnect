@@ -1,12 +1,12 @@
 <div class="programme-page">
   <header class="page-header">
     <div>
-      <h1 class="page-header__title">Programme Pedagogique</h1>
-      <p class="page-header__subtitle">Progressez à votre rythme avec notre parcours structuré</p>
+      <h1 class="page-header__title">{{ 'programme.title' | translate }}</h1>
+      <p class="page-header__subtitle">{{ 'programme.subtitle' | translate }}</p>
     </div>
     @if (isStudent() && currentCourseId() > 1) {
       <button class="btn btn--ghost" (click)="goBackToPreviousCourse()">
-        <ng-icon name="heroArrowLeft" size="16"></ng-icon> Revenir au cours precedent
+        <ng-icon name="heroArrowLeft" size="16"></ng-icon> {{ 'programme.goBack' | translate }}
       </button>
     }
   </header>
@@ -18,9 +18,9 @@
         <ng-icon name="heroPlay" size="24"></ng-icon>
       </div>
       <div class="current-course-banner__content">
-        <span class="current-course-banner__label">Votre prochain cours</span>
+        <span class="current-course-banner__label">{{ 'programme.yourNextCourse' | translate }}</span>
         <span class="current-course-banner__title">{{ getCurrentCourseTitle() }}</span>
-        <span class="current-course-banner__level">Niveau {{ getCurrentLevelName() }}</span>
+        <span class="current-course-banner__level">{{ 'programme.level' | translate }} {{ getCurrentLevelName() }}</span>
       </div>
       <div class="current-course-banner__progress">
         <span class="current-course-banner__progress-text">{{ currentCourseId() }}/{{ getTotalCourses() }}</span>
@@ -31,7 +31,7 @@
   @if (isStudent()) {
     <div class="info-banner">
       <ng-icon name="heroBookOpen" size="20"></ng-icon>
-      <span>Cliquez sur un cours pour voir son contenu. Vous pouvez choisir de commencer à partir d'un cours différent en cliquant sur "Démarrer ici".</span>
+      <span>{{ 'programme.infoBanner' | translate }}</span>
     </div>
   }
 
@@ -54,7 +54,7 @@
             </div>
           </div>
           <div class="level-header__right">
-            <span class="level-count">{{ level.courses.length }} cours</span>
+            <span class="level-count">{{ level.courses.length }} {{ 'programme.courses' | translate }}</span>
             <ng-icon
               [name]="isLevelExpanded(level.code) ? 'heroChevronDown' : 'heroChevronRight'"
               size="24"
@@ -89,18 +89,18 @@
                     }
                     <span class="course-title">{{ course.title }}</span>
                     @if (isStudent() && isCurrent(course.id)) {
-                      <span class="course-badge course-badge--current">En cours</span>
+                      <span class="course-badge course-badge--current">{{ 'programme.inProgress' | translate }}</span>
                     }
                   </div>
                   <div class="course-header__right">
-                    <span class="sublesson-count">{{ course.subLessons.length }} lecons</span>
+                    <span class="sublesson-count">{{ course.subLessons.length }} {{ 'programme.lessons' | translate }}</span>
                     @if (isStudent() && !isCurrent(course.id)) {
                       <button
                         class="btn-start"
                         (click)="$event.stopPropagation(); selectStartingCourse(course.id)"
-                        title="Demarrer a partir de ce cours"
+                        [title]="'programme.startHere' | translate"
                       >
-                        Demarrer ici
+                        {{ 'programme.startHere' | translate }}
                       </button>
                     }
                     <ng-icon
@@ -131,15 +131,15 @@
   <div class="stats-bar stats-bar--small">
     <div class="stat-item">
       <span class="stat-value">4</span>
-      <span class="stat-label">Niveaux</span>
+      <span class="stat-label">{{ 'programme.stats.levels' | translate }}</span>
     </div>
     <div class="stat-item">
       <span class="stat-value">{{ getTotalCourses() }}</span>
-      <span class="stat-label">Cours</span>
+      <span class="stat-label">{{ 'programme.stats.courses' | translate }}</span>
     </div>
     <div class="stat-item">
       <span class="stat-value">{{ getTotalSubLessons() }}</span>
-      <span class="stat-label">Lecons</span>
+      <span class="stat-label">{{ 'programme.stats.lessons' | translate }}</span>
     </div>
   </div>
 </div>

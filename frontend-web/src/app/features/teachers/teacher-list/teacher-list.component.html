@@ -8,8 +8,8 @@
     <main class="main-content">
     <header class="page-header">
       <div>
-        <h1 class="page-header__title">Nos Coachs d'Échecs</h1>
-        <p class="page-header__subtitle">Trouvez le coach parfait pour progresser à votre rythme</p>
+        <h1 class="page-header__title">{{ 'teachers.pageTitle' | translate }}</h1>
+        <p class="page-header__subtitle">{{ 'teachers.pageSubtitle' | translate }}</p>
       </div>
     </header>
 
@@ -20,7 +20,7 @@
         <input
           type="text"
           class="search-bar__input"
-          placeholder="Rechercher par nom ou prénom..."
+          [placeholder]="'teachers.searchPlaceholder' | translate"
           [ngModel]="searchQuery()"
           (ngModelChange)="searchQuery.set($event)"
         >
@@ -33,7 +33,7 @@
 
       <div class="filters">
         <div class="filter-group">
-          <label class="filter-group__label">Tarif min</label>
+          <label class="filter-group__label">{{ 'teachers.filters.minRate' | translate }}</label>
           <div class="filter-group__input">
             <input
               type="number"
@@ -46,7 +46,7 @@
           </div>
         </div>
         <div class="filter-group">
-          <label class="filter-group__label">Tarif max</label>
+          <label class="filter-group__label">{{ 'teachers.filters.maxRate' | translate }}</label>
           <div class="filter-group__input">
             <input
               type="number"
@@ -60,13 +60,13 @@
         </div>
         @if (hasActiveFilters()) {
           <button class="btn btn--ghost btn--sm" (click)="clearFilters()">
-            Réinitialiser
+            {{ 'common.reset' | translate }}
           </button>
         }
       </div>
 
       <div class="search-results">
-        {{ totalFilteredCount() }} coach{{ totalFilteredCount() > 1 ? 's' : '' }} trouvé{{ totalFilteredCount() > 1 ? 's' : '' }}
+        {{ totalFilteredCount() }} {{ totalFilteredCount() > 1 ? ('teachers.coachesFound' | translate) : ('teachers.coachFound' | translate) }}
       </div>
     </div>
 
@@ -78,15 +78,15 @@
       <div class="empty-state">
         <div class="empty-state__icon"><ng-icon name="heroAcademicCap" size="48"></ng-icon></div>
         @if (hasActiveFilters()) {
-          <h3 class="empty-state__title">Aucun résultat</h3>
+          <h3 class="empty-state__title">{{ 'teachers.empty.title' | translate }}</h3>
           <p class="empty-state__description">
-            Essayez de modifier vos critères de recherche
+            {{ 'teachers.empty.description' | translate }}
           </p>
-          <button class="btn btn--primary" (click)="clearFilters()">Réinitialiser les filtres</button>
+          <button class="btn btn--primary" (click)="clearFilters()">{{ 'teachers.filters.clearAll' | translate }}</button>
         } @else {
-          <h3 class="empty-state__title">Aucun coach disponible</h3>
+          <h3 class="empty-state__title">{{ 'teachers.empty.noCoaches' | translate }}</h3>
           <p class="empty-state__description">
-            Revenez bientôt, de nouveaux coachs rejoignent la plateforme régulièrement !
+            {{ 'teachers.empty.noCoachesDescription' | translate }}
           </p>
         }
       </div>
@@ -96,7 +96,7 @@
         <div class="section-header">
           <h2 class="section-header__title">
             <span class="section-header__icon">&#9733;</span>
-            Mes Favoris
+            {{ 'teachers.myFavorites' | translate }}
           </h2>
           <span class="section-header__count">{{ favoriteTeachers().length }}</span>
         </div>
@@ -113,7 +113,7 @@
                     }
                   </div>
                   @if (teacher.isOnline) {
-                    <span class="online-indicator" title="En ligne"></span>
+                    <span class="online-indicator" [title]="'teachers.card.online' | translate"></span>
                   }
                 </div>
                 <div class="teacher-card__info">
@@ -134,10 +134,10 @@
 
               <div class="teacher-card__actions">
                 <a [routerLink]="['/teachers', teacher.id]" class="btn btn--ghost btn--sm">
-                  Voir le profil
+                  {{ 'teachers.card.viewProfile' | translate }}
                 </a>
                 <a [routerLink]="['/book', teacher.id]" class="btn btn--primary btn--sm">
-                  Réserver
+                  {{ 'teachers.card.bookNow' | translate }}
                 </a>
               </div>
             </div>
@@ -149,7 +149,7 @@
       @if (filteredTeachers().length > 0) {
         @if (authService.isStudent() && favoriteTeachers().length > 0) {
           <div class="section-header">
-            <h2 class="section-header__title">Tous les Coachs</h2>
+            <h2 class="section-header__title">{{ 'teachers.allCoaches' | translate }}</h2>
             <span class="section-header__count">{{ filteredTeachers().length }}</span>
           </div>
         }
@@ -166,7 +166,7 @@
                     }
                   </div>
                   @if (teacher.isOnline) {
-                    <span class="online-indicator" title="En ligne"></span>
+                    <span class="online-indicator" [title]="'teachers.card.online' | translate"></span>
                   }
                 </div>
                 <div class="teacher-card__info">
@@ -193,11 +193,11 @@
 
               <div class="teacher-card__actions">
                 <a [routerLink]="['/teachers', teacher.id]" class="btn btn--ghost btn--sm">
-                  Voir le profil
+                  {{ 'teachers.card.viewProfile' | translate }}
                 </a>
                 @if (authService.isStudent()) {
                   <a [routerLink]="['/book', teacher.id]" class="btn btn--primary btn--sm">
-                    Réserver
+                    {{ 'teachers.card.bookNow' | translate }}
                   </a>
                 }
               </div>
@@ -218,13 +218,13 @@
           <img src="assets/logo.png" alt="mychess" class="public-nav__logo-img">
         </a>
         <div class="public-nav__links">
-          <a routerLink="/" class="public-nav__link">Accueil</a>
-          <a routerLink="/pricing" class="public-nav__link">Tarifs</a>
-          <a routerLink="/blog" class="public-nav__link">Blog</a>
+          <a routerLink="/" class="public-nav__link">{{ 'nav.home' | translate }}</a>
+          <a routerLink="/pricing" class="public-nav__link">{{ 'nav.pricing' | translate }}</a>
+          <a routerLink="/blog" class="public-nav__link">{{ 'nav.blog' | translate }}</a>
         </div>
         <div class="public-nav__actions">
-          <a routerLink="/login" class="btn btn--ghost btn--sm">Connexion</a>
-          <a routerLink="/register" class="btn btn--primary btn--sm">S'inscrire</a>
+          <a routerLink="/login" class="btn btn--ghost btn--sm">{{ 'nav.login' | translate }}</a>
+          <a routerLink="/register" class="btn btn--primary btn--sm">{{ 'nav.signup' | translate }}</a>
         </div>
       </div>
     </nav>
@@ -232,8 +232,8 @@
     <!-- Main Content -->
     <main class="public-content">
       <header class="public-header">
-        <h1 class="public-header__title">Nos Coachs d'Échecs</h1>
-        <p class="public-header__subtitle">Trouvez le coach parfait pour progresser à votre rythme</p>
+        <h1 class="public-header__title">{{ 'teachers.pageTitle' | translate }}</h1>
+        <p class="public-header__subtitle">{{ 'teachers.pageSubtitle' | translate }}</p>
       </header>
 
       <!-- Search & Filters -->
@@ -243,7 +243,7 @@
           <input
             type="text"
             class="search-bar__input"
-            placeholder="Rechercher par nom ou prénom..."
+            [placeholder]="'teachers.searchPlaceholder' | translate"
             [ngModel]="searchQuery()"
             (ngModelChange)="searchQuery.set($event)"
           >
@@ -256,7 +256,7 @@
 
         <div class="filters">
           <div class="filter-group">
-            <label class="filter-group__label">Tarif min</label>
+            <label class="filter-group__label">{{ 'teachers.filters.minRate' | translate }}</label>
             <div class="filter-group__input">
               <input
                 type="number"
@@ -269,7 +269,7 @@
             </div>
           </div>
           <div class="filter-group">
-            <label class="filter-group__label">Tarif max</label>
+            <label class="filter-group__label">{{ 'teachers.filters.maxRate' | translate }}</label>
             <div class="filter-group__input">
               <input
                 type="number"
@@ -283,13 +283,13 @@
           </div>
           @if (hasActiveFilters()) {
             <button class="btn btn--ghost btn--sm" (click)="clearFilters()">
-              Réinitialiser
+              {{ 'common.reset' | translate }}
             </button>
           }
         </div>
 
         <div class="search-results">
-          {{ filteredTeachers().length }} coach{{ filteredTeachers().length > 1 ? 's' : '' }} trouvé{{ filteredTeachers().length > 1 ? 's' : '' }}
+          {{ filteredTeachers().length }} {{ filteredTeachers().length > 1 ? ('teachers.coachesFound' | translate) : ('teachers.coachFound' | translate) }}
         </div>
       </div>
 
@@ -301,15 +301,15 @@
         <div class="empty-state">
           <div class="empty-state__icon"><ng-icon name="heroAcademicCap" size="48"></ng-icon></div>
           @if (hasActiveFilters()) {
-            <h3 class="empty-state__title">Aucun résultat</h3>
+            <h3 class="empty-state__title">{{ 'teachers.empty.title' | translate }}</h3>
             <p class="empty-state__description">
-              Essayez de modifier vos critères de recherche
+              {{ 'teachers.empty.description' | translate }}
             </p>
-            <button class="btn btn--primary" (click)="clearFilters()">Réinitialiser les filtres</button>
+            <button class="btn btn--primary" (click)="clearFilters()">{{ 'teachers.filters.clearAll' | translate }}</button>
           } @else {
-            <h3 class="empty-state__title">Aucun coach disponible</h3>
+            <h3 class="empty-state__title">{{ 'teachers.empty.noCoaches' | translate }}</h3>
             <p class="empty-state__description">
-              Revenez bientôt, de nouveaux coachs rejoignent la plateforme régulièrement !
+              {{ 'teachers.empty.noCoachesDescription' | translate }}
             </p>
           }
         </div>
@@ -349,10 +349,10 @@
 
               <div class="teacher-card__actions">
                 <a [routerLink]="['/teachers', teacher.id]" class="btn btn--ghost btn--sm">
-                  Voir le profil
+                  {{ 'teachers.card.viewProfile' | translate }}
                 </a>
                 <a routerLink="/register" class="btn btn--primary btn--sm">
-                  Réserver
+                  {{ 'teachers.card.bookNow' | translate }}
                 </a>
               </div>
             </div>
@@ -362,9 +362,9 @@
 
       <!-- CTA Section -->
       <div class="public-cta">
-        <h2>Prêt à progresser aux échecs ?</h2>
-        <p>Inscrivez-vous gratuitement et réservez votre premier cours offert</p>
-        <a routerLink="/register" class="btn btn--primary btn--lg">Commencer maintenant</a>
+        <h2>{{ 'teachers.cta.title' | translate }}</h2>
+        <p>{{ 'teachers.cta.description' | translate }}</p>
+        <a routerLink="/register" class="btn btn--primary btn--lg">{{ 'teachers.cta.button' | translate }}</a>
       </div>
     </main>
 
@@ -373,15 +373,15 @@
       <div class="public-footer__container">
         <div class="public-footer__brand">
           <img src="assets/logo.png" alt="mychess" class="public-footer__logo">
-          <p>La plateforme de cours d'échecs en ligne n°1 en France.</p>
+          <p>{{ 'footer.tagline' | translate }}</p>
         </div>
         <div class="public-footer__links">
-          <a routerLink="/">Accueil</a>
-          <a routerLink="/pricing">Tarifs</a>
-          <a routerLink="/blog">Blog</a>
-          <a routerLink="/register">S'inscrire</a>
+          <a routerLink="/">{{ 'nav.home' | translate }}</a>
+          <a routerLink="/pricing">{{ 'nav.pricing' | translate }}</a>
+          <a routerLink="/blog">{{ 'nav.blog' | translate }}</a>
+          <a routerLink="/register">{{ 'nav.signup' | translate }}</a>
         </div>
-        <p class="public-footer__copyright">© 2026 mychess. Tous droits réservés.</p>
+        <p class="public-footer__copyright">© 2026 mychess. {{ 'footer.copyright' | translate }}</p>
       </div>
     </footer>
   </div>

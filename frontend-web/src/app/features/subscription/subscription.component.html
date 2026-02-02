@@ -1,8 +1,8 @@
 <div class="subscription-page">
     <header class="page-header">
       <div>
-        <h1 class="page-header__title">Abonnement Premium</h1>
-        <p class="page-header__subtitle">Débloquez toutes les fonctionnalités exclusives pour 4,99€/mois</p>
+        <h1 class="page-header__title">{{ 'subscription.title' | translate }}</h1>
+        <p class="page-header__subtitle">{{ 'subscription.subtitle' | translate }}</p>
       </div>
     </header>
 
@@ -10,21 +10,21 @@
     @if (paymentService.hasActiveTrial() && !paymentService.activeSubscription()) {
       <section class="section">
         <div class="section__header">
-          <h2 class="section__title">Essai Premium Gratuit</h2>
+          <h2 class="section__title">{{ 'subscription.trial.title' | translate }}</h2>
         </div>
 
         <div class="active-subscription-card active-subscription-card--trial">
           <div class="active-subscription-card__badge active-subscription-card__badge--trial">
             <ng-icon name="heroClock" size="16"></ng-icon>
-            Essai gratuit
+            {{ 'subscription.trial.badge' | translate }}
           </div>
           <div class="active-subscription-card__content">
             <div class="active-subscription-card__plan">
               <span class="active-subscription-card__plan-icon"><ng-icon name="heroSparkles" size="32"></ng-icon></span>
               <div>
-                <h3>Premium Trial</h3>
+                <h3>{{ 'subscription.trial.planName' | translate }}</h3>
                 <p class="active-subscription-card__price">
-                  Gratuit pendant 14 jours
+                  {{ 'subscription.trial.duration' | translate }}
                 </p>
               </div>
             </div>
@@ -32,26 +32,26 @@
             <div class="active-subscription-card__trial-info">
               <ng-icon name="heroInformationCircle" size="18"></ng-icon>
               <span>
-                Il vous reste <strong>{{ paymentService.freeTrialStatus()?.daysRemaining }} jour(s)</strong>.
-                Fin de l'essai le <strong>{{ paymentService.freeTrialStatus()?.trialEndDate | date:'dd/MM/yyyy' }}</strong>.
+                {{ 'subscription.trial.daysRemaining' | translate: { days: paymentService.freeTrialStatus()?.daysRemaining } }}
+                {{ 'subscription.trial.endsOn' | translate: { date: (paymentService.freeTrialStatus()?.trialEndDate | date:'dd/MM/yyyy') } }}
               </span>
             </div>
 
             <div class="active-subscription-card__row">
               <div class="active-subscription-card__features">
-                <h4>Vos avantages Premium</h4>
+                <h4>{{ 'subscription.benefits.title' | translate }}</h4>
                 <ul class="premium-features-list">
-                  <li><ng-icon name="heroCheck" size="18"></ng-icon> Revisionnage des cours</li>
-                  <li><ng-icon name="heroCheck" size="18"></ng-icon> Reprise automatique</li>
-                  <li><ng-icon name="heroCheck" size="18"></ng-icon> Notifications prioritaires</li>
-                  <li><ng-icon name="heroCheck" size="18"></ng-icon> Badge Premium</li>
-                  <li><ng-icon name="heroCheck" size="18"></ng-icon> Entraînement myChessBot</li>
+                  <li><ng-icon name="heroPlayCircle" size="18"></ng-icon> <strong>{{ 'subscription.benefits.replay' | translate }}</strong> {{ 'subscription.benefits.replayDesc' | translate }}</li>
+                  <li><ng-icon name="heroArrowPath" size="18"></ng-icon> <strong>{{ 'subscription.benefits.resume' | translate }}</strong> {{ 'subscription.benefits.resumeDesc' | translate }}</li>
+                  <li><ng-icon name="heroBellAlert" size="18"></ng-icon> <strong>{{ 'subscription.benefits.alerts' | translate }}</strong> {{ 'subscription.benefits.alertsDesc' | translate }}</li>
+                  <li><ng-icon name="heroCpuChip" size="18"></ng-icon> <strong>{{ 'subscription.benefits.bot' | translate }}</strong> {{ 'subscription.benefits.botDesc' | translate }}</li>
+                  <li><ng-icon name="heroSparkles" size="18"></ng-icon> <strong>{{ 'subscription.benefits.badge' | translate }}</strong> {{ 'subscription.benefits.badgeDesc' | translate }}</li>
                 </ul>
               </div>
             </div>
 
             <div class="active-subscription-card__cta">
-              <p class="text-muted">Aimez votre essai ? Passez à Premium pour garder l'accès.</p>
+              <p class="text-muted">{{ 'subscription.trial.ctaMessage' | translate }}</p>
               @for (plan of paymentService.plans(); track plan.code) {
                 <button
                   class="btn btn--primary btn--lg"
@@ -60,9 +60,9 @@
                 >
                   @if (processingPlan() === plan.code) {
                     <span class="spinner spinner--sm"></span>
-                    Redirection...
+                    {{ 'common.redirecting' | translate }}
                   } @else {
-                    Passer à Premium - {{ formatPrice(plan.priceCents) }}/mois
+                    {{ 'subscription.upgrade' | translate }} - {{ formatPrice(plan.priceCents) }}{{ 'common.perMonth' | translate }}
                   }
                 </button>
               }
@@ -77,10 +77,10 @@
       <div class="trial-success-banner">
         <ng-icon name="heroCheck" size="24"></ng-icon>
         <div>
-          <strong>Essai gratuit activé !</strong>
-          <p>Profitez de toutes les fonctionnalités Premium pendant 14 jours.</p>
+          <strong>{{ 'subscription.trial.successTitle' | translate }}</strong>
+          <p>{{ 'subscription.trial.successMessage' | translate }}</p>
         </div>
-        <a routerLink="/teachers" class="btn btn--primary">Réserver un cours</a>
+        <a routerLink="/teachers" class="btn btn--primary">{{ 'subscription.bookLesson' | translate }}</a>
       </div>
     }
 
@@ -90,29 +90,29 @@
         <div class="section__header">
           <h2 class="section__title">
             @if (paymentService.activeSubscription()!.cancelledAt) {
-              Abonnement annulé
+              {{ 'subscription.cancelled' | translate }}
             } @else {
-              Vous êtes Premium !
+              {{ 'subscription.active' | translate }}
             }
           </h2>
         </div>
 
         <div class="active-subscription-card" [class.active-subscription-card--cancelled]="paymentService.activeSubscription()!.cancelledAt">
           @if (paymentService.activeSubscription()!.cancelledAt) {
-            <div class="active-subscription-card__badge active-subscription-card__badge--cancelled">Annulé</div>
+            <div class="active-subscription-card__badge active-subscription-card__badge--cancelled">{{ 'status.cancelled' | translate }}</div>
           } @else {
             <div class="active-subscription-card__badge active-subscription-card__badge--premium">
               <ng-icon name="heroSparkles" size="16"></ng-icon>
-              Premium
+              {{ 'common.premium' | translate }}
             </div>
           }
           <div class="active-subscription-card__content">
             <div class="active-subscription-card__plan">
               <span class="active-subscription-card__plan-icon"><ng-icon name="heroTrophy" size="32"></ng-icon></span>
               <div>
-                <h3>{{ paymentService.activeSubscription()!.planName || 'Premium' }}</h3>
+                <h3>{{ paymentService.activeSubscription()!.planName || ('common.premium' | translate) }}</h3>
                 <p class="active-subscription-card__price">
-                  {{ formatPrice(paymentService.activeSubscription()!.priceCents) }}/mois
+                  {{ formatPrice(paymentService.activeSubscription()!.priceCents) }}{{ 'common.perMonth' | translate }}
                 </p>
               </div>
             </div>
@@ -120,41 +120,41 @@
             @if (paymentService.activeSubscription()!.cancelledAt && paymentService.activeSubscription()!.endDate) {
               <div class="active-subscription-card__cancelled-info">
                 <ng-icon name="heroInformationCircle" size="18"></ng-icon>
-                <span>Votre abonnement reste actif jusqu'au <strong>{{ paymentService.activeSubscription()!.endDate | date:'dd/MM/yyyy' }}</strong>.</span>
+                <span>{{ 'subscription.activeUntil' | translate: { date: (paymentService.activeSubscription()!.endDate | date:'dd/MM/yyyy') } }}</span>
               </div>
             }
 
             <div class="active-subscription-card__row">
               <div class="active-subscription-card__features">
-                <h4>Vos avantages Premium</h4>
+                <h4>{{ 'subscription.benefits.title' | translate }}</h4>
                 <ul class="premium-features-list">
-                  <li><ng-icon name="heroCheck" size="18"></ng-icon> Revisionnage des cours</li>
-                  <li><ng-icon name="heroCheck" size="18"></ng-icon> Reprise automatique</li>
-                  <li><ng-icon name="heroCheck" size="18"></ng-icon> Notifications prioritaires</li>
-                  <li><ng-icon name="heroCheck" size="18"></ng-icon> Badge Premium</li>
-                  <li><ng-icon name="heroCheck" size="18"></ng-icon> Entraînement myChessBot</li>
+                  <li><ng-icon name="heroPlayCircle" size="18"></ng-icon> <strong>{{ 'subscription.benefits.replay' | translate }}</strong> {{ 'subscription.benefits.replayDesc' | translate }}</li>
+                  <li><ng-icon name="heroArrowPath" size="18"></ng-icon> <strong>{{ 'subscription.benefits.resume' | translate }}</strong> {{ 'subscription.benefits.resumeDesc' | translate }}</li>
+                  <li><ng-icon name="heroBellAlert" size="18"></ng-icon> <strong>{{ 'subscription.benefits.alerts' | translate }}</strong> {{ 'subscription.benefits.alertsDesc' | translate }}</li>
+                  <li><ng-icon name="heroCpuChip" size="18"></ng-icon> <strong>{{ 'subscription.benefits.bot' | translate }}</strong> {{ 'subscription.benefits.botDesc' | translate }}</li>
+                  <li><ng-icon name="heroSparkles" size="18"></ng-icon> <strong>{{ 'subscription.benefits.badge' | translate }}</strong> {{ 'subscription.benefits.badgeDesc' | translate }}</li>
                 </ul>
               </div>
 
               <div class="active-subscription-card__stats">
                 <div class="stat-item">
                   <span class="stat-item__value">{{ paymentService.activeSubscription()!.startDate | date:'dd/MM/yyyy' }}</span>
-                  <span class="stat-item__label">Membre depuis</span>
+                  <span class="stat-item__label">{{ 'subscription.memberSince' | translate }}</span>
                 </div>
                 @if (paymentService.activeSubscription()!.cancelledAt && paymentService.activeSubscription()!.endDate) {
                   <div class="stat-item">
                     <span class="stat-item__value">{{ paymentService.activeSubscription()!.endDate | date:'dd/MM/yyyy' }}</span>
-                    <span class="stat-item__label">Fin le</span>
+                    <span class="stat-item__label">{{ 'subscription.expiresOn' | translate }}</span>
                   </div>
                 }
               </div>
             </div>
 
             <div class="active-subscription-card__actions">
-              <a routerLink="/teachers" class="btn btn--primary">Réserver un cours</a>
+              <a routerLink="/teachers" class="btn btn--primary">{{ 'subscription.bookLesson' | translate }}</a>
               @if (!paymentService.activeSubscription()!.cancelledAt) {
                 <button class="btn btn--ghost btn--danger" (click)="confirmCancel()">
-                  Annuler l'abonnement
+                  {{ 'subscription.cancel' | translate }}
                 </button>
               }
             </div>
@@ -168,14 +168,14 @@
       <div class="modal-overlay" (click)="dismissCancelConfirm()">
         <div class="modal" (click)="$event.stopPropagation()">
           <div class="modal__header">
-            <h3>Confirmer l'annulation</h3>
+            <h3>{{ 'subscription.cancelConfirm.title' | translate }}</h3>
           </div>
           <div class="modal__body">
-            <p>Êtes-vous sûr de vouloir annuler votre abonnement Premium ?</p>
-            <p class="text-muted">Vous perdrez l'accès aux fonctionnalités exclusives à la fin de la période en cours.</p>
+            <p>{{ 'subscription.cancelConfirm.message' | translate }}</p>
+            <p class="text-muted">{{ 'subscription.cancelConfirm.warning' | translate }}</p>
           </div>
           <div class="modal__footer">
-            <button class="btn btn--ghost" (click)="dismissCancelConfirm()">Annuler</button>
+            <button class="btn btn--ghost" (click)="dismissCancelConfirm()">{{ 'subscription.cancelConfirm.keep' | translate }}</button>
             <button
               class="btn btn--danger"
               (click)="cancelSubscription()"
@@ -183,9 +183,9 @@
             >
               @if (cancelling()) {
                 <span class="spinner spinner--sm"></span>
-                Annulation...
+                {{ 'subscription.cancelling' | translate }}
               } @else {
-                Confirmer l'annulation
+                {{ 'subscription.cancelConfirm.confirm' | translate }}
               }
             </button>
           </div>
@@ -202,8 +202,8 @@
             <ng-icon name="heroSparkles" size="24"></ng-icon>
           </div>
           <div class="trial-banner__content">
-            <strong>Essayez Premium gratuitement pendant 14 jours !</strong>
-            <p>Aucune carte bancaire requise. Découvrez toutes les fonctionnalités exclusives sans engagement.</p>
+            <strong>{{ 'subscription.trial.bannerTitle' | translate }}</strong>
+            <p>{{ 'subscription.trial.bannerMessage' | translate }}</p>
           </div>
           <button
             class="btn btn--gold trial-banner__btn"
@@ -212,9 +212,9 @@
           >
             @if (startingTrial()) {
               <span class="spinner spinner--sm"></span>
-              Activation...
+              {{ 'subscription.trial.activating' | translate }}
             } @else {
-              Démarrer l'essai gratuit
+              {{ 'subscription.trial.start' | translate }}
             }
           </button>
         </div>
@@ -222,7 +222,7 @@
 
       <section class="section">
         <div class="section__header">
-          <h2 class="section__title">Passez Premium</h2>
+          <h2 class="section__title">{{ 'subscription.upgrade' | translate }}</h2>
         </div>
 
         @if (paymentService.loading()) {
@@ -235,16 +235,16 @@
               <div class="plan-card plan-card--premium">
                 <div class="plan-card__badge plan-card__badge--gold">
                   <ng-icon name="heroSparkles" size="14"></ng-icon>
-                  Recommandé
+                  {{ 'subscription.recommended' | translate }}
                 </div>
 
                 <div class="plan-card__header">
                   <h3 class="plan-card__name">{{ plan.name }}</h3>
                   <div class="plan-card__price">
                     <span class="plan-card__price-amount">{{ formatPrice(plan.priceCents) }}</span>
-                    <span class="plan-card__price-period">/mois</span>
+                    <span class="plan-card__price-period">{{ 'common.perMonth' | translate }}</span>
                   </div>
-                  <p class="plan-card__tagline">Accès à toutes les fonctionnalités exclusives</p>
+                  <p class="plan-card__tagline">{{ 'subscription.allFeatures' | translate }}</p>
                 </div>
 
                 <ul class="plan-card__features">
@@ -263,15 +263,15 @@
                 >
                   @if (processingPlan() === plan.code) {
                     <span class="spinner spinner--sm"></span>
-                    Redirection...
+                    {{ 'common.redirecting' | translate }}
                   } @else {
                     <ng-icon name="heroSparkles" size="18"></ng-icon>
-                    Devenir Premium
+                    {{ 'subscription.becomePremium' | translate }}
                   }
                 </button>
 
                 <p class="plan-card__note">
-                  Sans engagement - Annulez à tout moment
+                  {{ 'subscription.noCommitment' | translate }}
                 </p>
               </div>
             }
@@ -279,32 +279,35 @@
         }
       </section>
 
-      <!-- Benefits Section -->
+    }
+
+    <!-- Benefits Section (visible for non-subscribers) -->
+    @if (!paymentService.activeSubscription()) {
       <section class="section">
         <div class="section__header">
-          <h2 class="section__title">Les avantages Premium</h2>
+          <h2 class="section__title">{{ 'subscription.benefits.title' | translate }}</h2>
         </div>
 
         <div class="benefits-grid">
           <div class="benefit-card">
             <div class="benefit-card__icon"><ng-icon name="heroVideoCamera" size="32"></ng-icon></div>
-            <h4>Revisionnage illimité</h4>
-            <p>Accédez aux enregistrements de tous vos cours passés pour réviser</p>
+            <h4>{{ 'subscription.benefitCards.replay.title' | translate }}</h4>
+            <p>{{ 'subscription.benefitCards.replay.description' | translate }}</p>
           </div>
           <div class="benefit-card">
             <div class="benefit-card__icon"><ng-icon name="heroPlayPause" size="32"></ng-icon></div>
-            <h4>Reprise automatique</h4>
-            <p>Reprenez le visionnage de vos cours où vous les avez laissés</p>
+            <h4>{{ 'subscription.benefitCards.resume.title' | translate }}</h4>
+            <p>{{ 'subscription.benefitCards.resume.description' | translate }}</p>
           </div>
           <div class="benefit-card">
             <div class="benefit-card__icon"><ng-icon name="heroBell" size="32"></ng-icon></div>
-            <h4>Notifications prioritaires</h4>
-            <p>Soyez alerté quand vos coachs favoris publient de nouveaux créneaux</p>
+            <h4>{{ 'subscription.benefitCards.alerts.title' | translate }}</h4>
+            <p>{{ 'subscription.benefitCards.alerts.description' | translate }}</p>
           </div>
           <div class="benefit-card">
             <div class="benefit-card__icon"><ng-icon name="heroPuzzlePiece" size="32"></ng-icon></div>
-            <h4>Entraînement myChessBot</h4>
-            <p>Exercez-vous contre notre IA après chaque cours pour progresser</p>
+            <h4>{{ 'subscription.benefitCards.bot.title' | translate }}</h4>
+            <p>{{ 'subscription.benefitCards.bot.description' | translate }}</p>
           </div>
         </div>
       </section>
@@ -322,7 +325,7 @@
   @if (showCheckout() && checkoutClientSecret()) {
     <app-embedded-checkout
       [clientSecret]="checkoutClientSecret()!"
-      [title]="'Paiement - Abonnement Premium'"
+      [title]="'subscription.paymentTitle' | translate"
       (closed)="closeCheckout()"
       (completed)="onCheckoutCompleted()"
     ></app-embedded-checkout>

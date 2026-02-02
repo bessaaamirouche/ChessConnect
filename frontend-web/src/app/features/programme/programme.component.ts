@@ -1,6 +1,7 @@
 import { Component, signal, ChangeDetectionStrategy, inject, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
+import { TranslateModule } from '@ngx-translate/core';
 import {
   heroAcademicCap,
   heroChevronDown,
@@ -39,7 +40,7 @@ interface Level {
 @Component({
   selector: 'app-programme',
   standalone: true,
-  imports: [CommonModule, NgIconComponent],
+  imports: [CommonModule, NgIconComponent, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({
     heroAcademicCap,

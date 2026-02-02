@@ -2,6 +2,7 @@ import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 import { TeacherService } from '../../../core/services/teacher.service';
 import { LessonService } from '../../../core/services/lesson.service';
 import { AvailabilityService } from '../../../core/services/availability.service';
@@ -40,7 +41,7 @@ import {
 @Component({
   selector: 'app-book-lesson',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule, NgIconComponent, EmbeddedCheckoutComponent, AppSidebarComponent],
+  imports: [CommonModule, RouterLink, ReactiveFormsModule, TranslateModule, NgIconComponent, EmbeddedCheckoutComponent, AppSidebarComponent],
   viewProviders: [provideIcons({
     heroTicket,
     heroCreditCard,

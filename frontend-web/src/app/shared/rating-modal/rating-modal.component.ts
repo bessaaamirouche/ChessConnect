@@ -1,12 +1,13 @@
-import { Component, EventEmitter, Input, Output, signal, HostListener } from '@angular/core';
+import { Component, EventEmitter, Input, Output, signal, HostListener, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { RatingService, CreateRatingRequest } from '../../core/services/rating.service';
 import { FocusTrapDirective } from '../directives/focus-trap.directive';
 
 @Component({
   selector: 'app-rating-modal',
   standalone: true,
-  imports: [FormsModule, FocusTrapDirective],
+  imports: [FormsModule, FocusTrapDirective, TranslateModule],
   templateUrl: './rating-modal.component.html',
   styleUrl: './rating-modal.component.scss'
 })
@@ -21,6 +22,8 @@ export class RatingModalComponent {
   comment = '';
   loading = signal(false);
   error = signal<string | null>(null);
+
+  private translateService = inject(TranslateService);
 
   constructor(private ratingService: RatingService) {}
 
@@ -47,7 +50,7 @@ export class RatingModalComponent {
 
   onSubmit(): void {
     if (this.selectedStars() === 0) {
-      this.error.set('Veuillez sélectionner une note');
+      this.error.set(this.translateService.instant('errors.selectRating'));
       return;
     }
 
@@ -67,7 +70,7 @@ export class RatingModalComponent {
       },
       error: (err) => {
         this.loading.set(false);
-        this.error.set(err.error?.error || err.error?.message || 'Une erreur est survenue');
+        this.error.set(err.error?.error || err.error?.message || this.translateService.instant('errors.generic'));
       }
     });
   }

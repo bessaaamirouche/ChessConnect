@@ -5,5 +5,5 @@
   </main>
 
   <!-- Sidebar (after main so it renders on top) -->
-  <app-sidebar [sections]="sidebarSections" (collapsedChange)="onSidebarCollapsedChange($event)"></app-sidebar>
+  <app-sidebar [sections]="sidebarSections()" (collapsedChange)="onSidebarCollapsedChange($event)"></app-sidebar>
 </div>

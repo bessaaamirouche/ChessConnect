@@ -20,11 +20,11 @@
       </div>
       <div class="video-header__actions">
         @if (downloadUrl) {
-          <button class="video-btn video-btn--icon" (click)="download()" title="Telecharger">
+          <button class="video-btn video-btn--icon" (click)="download()" [title]="'videoPlayer.download' | translate">
             <ng-icon name="heroArrowDownTray" size="20"></ng-icon>
           </button>
         }
-        <button class="video-btn video-btn--icon video-btn--close" (click)="close.emit()" title="Fermer">
+        <button class="video-btn video-btn--icon video-btn--close" (click)="close.emit()" [title]="'common.close' | translate">
           <ng-icon name="heroXMark" size="24"></ng-icon>
         </button>
       </div>
@@ -36,7 +36,14 @@
       class="video-container"
       [class.video-container--fullscreen]="isFullscreen()"
       (mousemove)="onMouseMove()"
+      (touchstart)="onMouseMove()"
     >
+      <!-- Mobile fullscreen exit button -->
+      @if (isFullscreen()) {
+        <button class="fullscreen-exit-btn" (click)="toggleFullscreen()" [title]="'videoPlayer.exitFullscreen' | translate">
+          <ng-icon name="heroXMark" size="24"></ng-icon>
+        </button>
+      }
       <!-- Bunny Stream Embed -->
       @if (isBunnyStream() && bunnyEmbedUrl()) {
         <iframe
@@ -54,7 +61,7 @@
           playsinline
           (click)="togglePlay()"
         >
-          Votre navigateur ne supporte pas la lecture de videos.
+          {{ 'videoPlayer.notSupported' | translate }}
         </video>
 
         <!-- Loading Spinner -->
@@ -67,8 +74,8 @@
         <!-- Error State -->
         @if (hasError()) {
           <div class="video-error">
-            <p>Impossible de charger la video</p>
-            <button class="btn btn--primary btn--sm" (click)="close.emit()">Fermer</button>
+            <p>{{ 'videoPlayer.loadError' | translate }}</p>
+            <button class="btn btn--primary btn--sm" (click)="close.emit()">{{ 'common.close' | translate }}</button>
           </div>
         }
 
@@ -80,7 +87,7 @@
             </div>
             @if (savedProgressTime()) {
               <div class="video-resume-hint">
-                Reprendre a {{ formatTime(savedProgressTime()!) }}
+                {{ 'videoPlayer.resumeAt' | translate }} {{ formatTime(savedProgressTime()!) }}
               </div>
             }
           </button>
@@ -99,23 +106,23 @@
           <div class="video-controls__row">
             <div class="video-controls__left">
               <!-- Play/Pause -->
-              <button class="video-btn" (click)="togglePlay()" [title]="isPlaying() ? 'Pause' : 'Lecture'">
+              <button class="video-btn" (click)="togglePlay()" [title]="isPlaying() ? ('videoPlayer.pause' | translate) : ('videoPlayer.play' | translate)">
                 <ng-icon [name]="isPlaying() ? 'heroPause' : 'heroPlay'" size="24"></ng-icon>
               </button>
 
               <!-- Skip Backward -->
-              <button class="video-btn" (click)="skip(-10)" title="Reculer de 10s">
+              <button class="video-btn" (click)="skip(-10)" [title]="'videoPlayer.rewind' | translate">
                 <ng-icon name="heroBackward" size="20"></ng-icon>
               </button>
 
               <!-- Skip Forward -->
-              <button class="video-btn" (click)="skip(10)" title="Avancer de 10s">
+              <button class="video-btn" (click)="skip(10)" [title]="'videoPlayer.forward' | translate">
                 <ng-icon name="heroForward" size="20"></ng-icon>
               </button>
 
               <!-- Volume -->
               <div class="video-volume">
-                <button class="video-btn" (click)="toggleMute()" [title]="isMuted() ? 'Activer le son' : 'Couper le son'">
+                <button class="video-btn" (click)="toggleMute()" [title]="isMuted() ? ('videoPlayer.unmute' | translate) : ('videoPlayer.mute' | translate)">
                   <ng-icon [name]="isMuted() ? 'heroSpeakerXMark' : 'heroSpeakerWave'" size="20"></ng-icon>
                 </button>
                 <input
@@ -138,8 +145,41 @@
             </div>
 
             <div class="video-controls__right">
+              <!-- Quality Selector -->
+              <div class="video-quality">
+                @if (availableQualities().length > 1) {
+                  <button class="video-btn" (click)="toggleQualityMenu()" [title]="'videoPlayer.quality' | translate">
+                    <ng-icon name="heroCog6Tooth" size="20"></ng-icon>
+                    <span class="quality-label">{{ getQualityLabel() }}</span>
+                  </button>
+                  @if (showQualityMenu()) {
+                    <div class="quality-menu">
+                      <button
+                        class="quality-option"
+                        [class.active]="currentQuality() === -1"
+                        (click)="setQuality(-1)"
+                      >
+                        {{ 'videoPlayer.auto' | translate }}
+                      </button>
+                      @for (quality of availableQualities(); track quality.index) {
+                        <button
+                          class="quality-option"
+                          [class.active]="currentQuality() === quality.index"
+                          (click)="setQuality(quality.index)"
+                        >
+                          {{ quality.label }}
+                        </button>
+                      }
+                    </div>
+                  }
+                } @else {
+                  <!-- Single quality (MP4) - just show indicator -->
+                  <span class="quality-indicator" [title]="'videoPlayer.originalQuality' | translate">HD</span>
+                }
+              </div>
+
               <!-- Fullscreen -->
-              <button class="video-btn" (click)="toggleFullscreen()" title="Plein ecran">
+              <button class="video-btn" (click)="toggleFullscreen()" [title]="'videoPlayer.fullscreen' | translate">
                 <ng-icon name="heroArrowsPointingOut" size="20"></ng-icon>
               </button>
             </div>
@@ -151,10 +191,10 @@
     <!-- Keyboard Shortcuts Hint -->
     @if (!isBunnyStream()) {
       <div class="video-hints">
-        <span><kbd>Espace</kbd> Lecture/Pause</span>
-        <span><kbd>←</kbd><kbd>→</kbd> ±10s</span>
-        <span><kbd>M</kbd> Muet</span>
-        <span><kbd>F</kbd> Plein ecran</span>
+        <span><kbd>{{ 'videoPlayer.shortcuts.space' | translate }}</kbd> {{ 'videoPlayer.shortcuts.playPause' | translate }}</span>
+        <span><kbd>←</kbd><kbd>→</kbd> {{ 'videoPlayer.shortcuts.skip' | translate }}</span>
+        <span><kbd>M</kbd> {{ 'videoPlayer.shortcuts.mute' | translate }}</span>
+        <span><kbd>F</kbd> {{ 'videoPlayer.shortcuts.fullscreen' | translate }}</span>
       </div>
     }
   </div>

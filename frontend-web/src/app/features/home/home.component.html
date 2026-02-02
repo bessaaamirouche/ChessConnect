@@ -16,7 +16,7 @@
         class="nav__hamburger"
         [class.active]="mobileMenuOpen()"
         (click)="toggleMobileMenu()"
-        aria-label="Menu de navigation"
+        [attr.aria-label]="'nav.menu' | translate"
         [attr.aria-expanded]="mobileMenuOpen()">
         <span></span>
         <span></span>
@@ -28,42 +28,35 @@
 
       <!-- Desktop Pill Tabs Navigation (Disney+ style) -->
       <div class="nav__pills">
-        <a href="#features"
-           class="nav__pill"
-           [class.nav__pill--active]="activeSection() === 'features'"
-           (click)="scrollToSection('features')">Avantages</a>
-        <a href="#levels"
-           class="nav__pill"
-           [class.nav__pill--active]="activeSection() === 'levels'"
-           (click)="scrollToSection('levels')">Parcours</a>
-        <a routerLink="/how-it-works" class="nav__pill">Comment ca marche ?</a>
-        <a routerLink="/teachers" class="nav__pill">Nos coachs</a>
-        <a routerLink="/blog" class="nav__pill">Blog</a>
-        <a routerLink="/faq" class="nav__pill">FAQ</a>
+        <a routerLink="/" class="nav__pill">{{ 'nav.home' | translate }}</a>
+        <a routerLink="/how-it-works" class="nav__pill">{{ 'nav.howItWorks' | translate }}</a>
+        <a routerLink="/teachers" class="nav__pill">{{ 'teachers.title' | translate }}</a>
+        <a routerLink="/blog" class="nav__pill">{{ 'nav.blog' | translate }}</a>
+        <a routerLink="/faq" class="nav__pill">{{ 'nav.faq' | translate }}</a>
         @if (authService.isAuthenticated()) {
-          <a routerLink="/dashboard" class="nav__pill">Mon Espace</a>
+          <a routerLink="/dashboard" class="nav__pill">{{ 'sidebar.dashboard' | translate }}</a>
         } @else {
-          <a routerLink="/login" class="nav__pill">S'identifier</a>
-          <a routerLink="/register" class="nav__pill">S'inscrire</a>
+          <a routerLink="/login" class="nav__pill">{{ 'nav.login' | translate }}</a>
+          <a routerLink="/register" class="nav__pill">{{ 'nav.signup' | translate }}</a>
         }
+        <app-language-selector></app-language-selector>
       </div>
 
       <!-- Mobile Drawer Menu -->
       <div class="nav__links" [class.active]="mobileMenuOpen()">
-        <a href="#features" (click)="scrollToSection('features'); closeMobileMenu()">Avantages</a>
-        <a href="#levels" (click)="scrollToSection('levels'); closeMobileMenu()">Parcours</a>
-        <a routerLink="/how-it-works" (click)="closeMobileMenu()">Comment ca marche ?</a>
-        <a routerLink="/teachers" (click)="closeMobileMenu()">Nos coachs</a>
-        <a routerLink="/blog" (click)="closeMobileMenu()">Blog</a>
-        <a routerLink="/faq" (click)="closeMobileMenu()">FAQ</a>
+        <a routerLink="/" (click)="closeMobileMenu()">{{ 'nav.home' | translate }}</a>
+        <a routerLink="/how-it-works" (click)="closeMobileMenu()">{{ 'nav.howItWorks' | translate }}</a>
+        <a routerLink="/teachers" (click)="closeMobileMenu()">{{ 'teachers.title' | translate }}</a>
+        <a routerLink="/blog" (click)="closeMobileMenu()">{{ 'nav.blog' | translate }}</a>
+        <a routerLink="/faq" (click)="closeMobileMenu()">{{ 'nav.faq' | translate }}</a>
 
         <!-- Mobile-only auth buttons -->
         <div class="nav__mobile-actions">
           @if (authService.isAuthenticated()) {
-            <a routerLink="/dashboard" class="nav__btn nav__btn--primary" (click)="closeMobileMenu()">Mon Espace</a>
+            <a routerLink="/dashboard" class="nav__btn nav__btn--primary" (click)="closeMobileMenu()">{{ 'sidebar.dashboard' | translate }}</a>
           } @else {
-            <a routerLink="/login" class="nav__btn nav__btn--ghost" (click)="closeMobileMenu()">S'identifier</a>
-            <a routerLink="/register" class="nav__btn nav__btn--primary" (click)="closeMobileMenu()">S'inscrire</a>
+            <a routerLink="/login" class="nav__btn nav__btn--ghost" (click)="closeMobileMenu()">{{ 'nav.login' | translate }}</a>
+            <a routerLink="/register" class="nav__btn nav__btn--primary" (click)="closeMobileMenu()">{{ 'nav.signup' | translate }}</a>
           }
         </div>
       </div>
@@ -86,19 +79,18 @@
       <div class="hero__decor hero__decor--rook">&#9814;</div>
 
       <div class="hero__content">
-        <img src="assets/chess-pieces-hero.png" alt="Pièces d'échecs" class="hero__image" appScrollReveal="fade-up">
+        <img src="assets/chess-pieces-hero.png" alt="Chess pieces" class="hero__image" appScrollReveal="fade-up">
 
-        <h1 class="hero__title hero__title--compact" appScrollReveal="fade-up" [revealDelay]="100">
-          Envie de progresser aux <span class="gold-text">Échecs</span> ?
+        <h1 class="hero__title hero__title--compact" appScrollReveal="fade-up" [revealDelay]="100" [innerHTML]="'hero.title' | translate">
         </h1>
 
         <p class="hero__subtitle" appScrollReveal="fade-up" [revealDelay]="200">
-          Un accompagnement d'excellence, adapté à votre niveau.
+          {{ 'hero.subtitle' | translate }}
         </p>
 
         <div class="hero__cta" appScrollReveal="fade-up" [revealDelay]="300">
           <a routerLink="/register" class="btn btn--primary btn--lg">
-            Commencer gratuitement
+            {{ 'hero.cta' | translate }}
           </a>
         </div>
 
@@ -107,9 +99,9 @@
       <button
         class="hero__scroll-indicator"
         (click)="scrollToSection('features')"
-        aria-label="Défiler vers la section suivante"
+        [attr.aria-label]="'common.next' | translate"
       >
-        <span>Découvrir</span>
+        <span>{{ 'common.seeMore' | translate }}</span>
         <div class="hero__scroll-arrow"></div>
       </button>
     </section>
@@ -118,7 +110,7 @@
     <section class="section section--features" id="features">
       <div class="section__container">
         <div class="section__header" appScrollReveal="fade-up">
-          <h2 class="section__title">Vous voulez progresser <span class="gold-text">à votre rythme ?</span></h2>
+          <h2 class="section__title" [innerHTML]="'features.title' | translate"></h2>
         </div>
 
         <div class="features-grid" appStaggerReveal>
@@ -126,9 +118,9 @@
             <div class="feature-card__icon">
               <ng-icon name="heroVideoCamera" size="32"></ng-icon>
             </div>
-            <h3 class="feature-card__title">Cours en visio</h3>
+            <h3 class="feature-card__title">{{ 'features.videoLessons.title' | translate }}</h3>
             <p class="feature-card__desc">
-              Apprenez depuis chez vous avec un échiquier interactif partagé avec votre coach.
+              {{ 'features.videoLessons.description' | translate }}
             </p>
           </div>
 
@@ -136,9 +128,9 @@
             <div class="feature-card__icon">
               <ng-icon name="heroChartBar" size="32"></ng-icon>
             </div>
-            <h3 class="feature-card__title">Parcours structuré</h3>
+            <h3 class="feature-card__title">{{ 'features.personalizedPath.title' | translate }}</h3>
             <p class="feature-card__desc">
-              6 niveaux progressifs pour apprendre les échecs étape par étape, de débutant à maître.
+              {{ 'features.personalizedPath.description' | translate }}
             </p>
           </div>
 
@@ -146,9 +138,9 @@
             <div class="feature-card__icon">
               <ng-icon name="heroClock" size="32"></ng-icon>
             </div>
-            <h3 class="feature-card__title">Horaires flexibles</h3>
+            <h3 class="feature-card__title">{{ 'features.flexibleScheduling.title' | translate }}</h3>
             <p class="feature-card__desc">
-              Réservez vos cours selon vos disponibilités, 7j/7, matin comme soir.
+              {{ 'features.flexibleScheduling.description' | translate }}
             </p>
           </div>
 
@@ -156,9 +148,9 @@
             <div class="feature-card__icon">
               <ng-icon name="heroShieldCheck" size="32"></ng-icon>
             </div>
-            <h3 class="feature-card__title">Essai Premium gratuit</h3>
+            <h3 class="feature-card__title">{{ 'features.progressTracking.title' | translate }}</h3>
             <p class="feature-card__desc">
-              14 jours d'accès Premium offerts. Paiement sécurisé par Stripe.
+              {{ 'features.progressTracking.description' | translate }}
             </p>
           </div>
         </div>
@@ -169,7 +161,7 @@
     <section class="section section--levels" id="levels">
       <div class="section__container">
         <div class="section__header" appScrollReveal="fade-up">
-          <h2 class="section__title">Quel est votre <span class="gold-text">niveau actuel ?</span></h2>
+          <h2 class="section__title" [innerHTML]="'levels.title' | translate"></h2>
         </div>
 
         <div class="levels-timeline">
@@ -178,36 +170,36 @@
           <div class="level-item" appScrollReveal="fade-left">
             <div class="level-item__badge level-item__badge--pion">&#9823;</div>
             <div class="level-item__content">
-              <span class="level-item__tag">Debutant</span>
-              <h3 class="level-item__title">Pion</h3>
-              <p class="level-item__desc">Decouvrez l'echiquier et ses secrets. Premiers pas vers la maitrise du jeu.</p>
+              <span class="level-item__tag">{{ 'levels.pawn.subtitle' | translate }}</span>
+              <h3 class="level-item__title">{{ 'levels.pawn.name' | translate }}</h3>
+              <p class="level-item__desc">{{ 'levels.pawn.description' | translate }}</p>
             </div>
           </div>
 
           <div class="level-item level-item--right" appScrollReveal="fade-right">
             <div class="level-item__badge level-item__badge--cavalier">&#9822;</div>
             <div class="level-item__content">
-              <span class="level-item__tag">Intermediaire</span>
-              <h3 class="level-item__title">Cavalier</h3>
-              <p class="level-item__desc">Dominez le centre et construisez des positions solides. L'art de l'ouverture.</p>
+              <span class="level-item__tag">{{ 'levels.knight.subtitle' | translate }}</span>
+              <h3 class="level-item__title">{{ 'levels.knight.name' | translate }}</h3>
+              <p class="level-item__desc">{{ 'levels.knight.description' | translate }}</p>
             </div>
           </div>
 
           <div class="level-item" appScrollReveal="fade-left">
             <div class="level-item__badge level-item__badge--reine">&#9819;</div>
             <div class="level-item__content">
-              <span class="level-item__tag">Avance</span>
-              <h3 class="level-item__title">Reine</h3>
-              <p class="level-item__desc">Maitrisez les finales et les subtilites strategiques des grands joueurs.</p>
+              <span class="level-item__tag">{{ 'levels.queen.subtitle' | translate }}</span>
+              <h3 class="level-item__title">{{ 'levels.queen.name' | translate }}</h3>
+              <p class="level-item__desc">{{ 'levels.queen.description' | translate }}</p>
             </div>
           </div>
 
           <div class="level-item level-item--right level-item--featured" appScrollReveal="fade-right">
             <div class="level-item__badge level-item__badge--roi">&#9818;</div>
             <div class="level-item__content">
-              <span class="level-item__tag">Expert</span>
-              <h3 class="level-item__title">Roi</h3>
-              <p class="level-item__desc">Le sommet de l'excellence. Jouez au plus haut niveau comme les grands maitres.</p>
+              <span class="level-item__tag">{{ 'levels.king.subtitle' | translate }}</span>
+              <h3 class="level-item__title">{{ 'levels.king.name' | translate }}</h3>
+              <p class="level-item__desc">{{ 'levels.king.description' | translate }}</p>
             </div>
           </div>
 
@@ -215,7 +207,7 @@
 
         <div class="section__cta" appScrollReveal="fade-up">
           <a routerLink="/register" class="btn btn--primary btn--lg">
-            Évaluer mon niveau
+            {{ 'quiz.start' | translate }}
           </a>
         </div>
       </div>
@@ -225,16 +217,16 @@
     <section class="section section--how" id="how-it-works">
       <div class="section__container">
         <div class="section__header" appScrollReveal="fade-up">
-          <span class="section__eyebrow">Prêt à commencer ?</span>
-          <h2 class="section__title">Votre premier cours<br><span class="gold-text">en 3 minutes</span></h2>
+          <span class="section__eyebrow">{{ 'nav.getStarted' | translate }}</span>
+          <h2 class="section__title" [innerHTML]="'howItWorks.title' | translate"></h2>
         </div>
 
         <div class="steps">
           <div class="step" appScrollReveal="fade-up">
             <div class="step__number">01</div>
             <div class="step__content">
-              <h3 class="step__title">Inscription rapide</h3>
-              <p class="step__desc">Créez votre compte gratuitement et évaluez votre niveau avec notre quiz.</p>
+              <h3 class="step__title">{{ 'howItWorks.forPlayers.step1.title' | translate }}</h3>
+              <p class="step__desc">{{ 'howItWorks.forPlayers.step1.description' | translate }}</p>
             </div>
             <div class="step__visual">
               <div class="step__icon">
@@ -246,8 +238,8 @@
           <div class="step step--reverse" appScrollReveal="fade-up" [revealDelay]="150">
             <div class="step__number">02</div>
             <div class="step__content">
-              <h3 class="step__title">Choisissez un coach</h3>
-              <p class="step__desc">Consultez les profils, tarifs et disponibilités pour trouver le coach qui vous convient.</p>
+              <h3 class="step__title">{{ 'howItWorks.forPlayers.step2.title' | translate }}</h3>
+              <p class="step__desc">{{ 'howItWorks.forPlayers.step2.description' | translate }}</p>
             </div>
             <div class="step__visual">
               <div class="step__icon">
@@ -259,8 +251,8 @@
           <div class="step" appScrollReveal="fade-up" [revealDelay]="300">
             <div class="step__number">03</div>
             <div class="step__content">
-              <h3 class="step__title">Réservez votre cours</h3>
-              <p class="step__desc">Sélectionnez un créneau et commencez votre apprentissage avec 14 jours Premium offerts !</p>
+              <h3 class="step__title">{{ 'howItWorks.forPlayers.step3.title' | translate }}</h3>
+              <p class="step__desc">{{ 'howItWorks.forPlayers.step3.description' | translate }}</p>
             </div>
             <div class="step__visual">
               <div class="step__icon">
@@ -284,22 +276,22 @@
 
         <div class="footer__columns">
           <div class="footer__column">
-            <h4>Plateforme</h4>
-            <a routerLink="/teachers">Nos coachs</a>
-            <a routerLink="/pricing">Tarifs</a>
-            <a routerLink="/register">S'inscrire</a>
-            <a routerLink="/login">Connexion</a>
+            <h4>{{ 'footer.company' | translate }}</h4>
+            <a routerLink="/teachers">{{ 'teachers.title' | translate }}</a>
+            <a routerLink="/pricing">{{ 'nav.pricing' | translate }}</a>
+            <a routerLink="/register">{{ 'nav.signup' | translate }}</a>
+            <a routerLink="/login">{{ 'nav.login' | translate }}</a>
           </div>
 
           <div class="footer__column">
-            <h4>Ressources</h4>
-            <a routerLink="/blog">Blog</a>
-            <a routerLink="/how-it-works">Comment ca marche ?</a>
-            <a routerLink="/faq">FAQ</a>
+            <h4>{{ 'footer.support' | translate }}</h4>
+            <a routerLink="/blog">{{ 'nav.blog' | translate }}</a>
+            <a routerLink="/how-it-works">{{ 'nav.howItWorks' | translate }}</a>
+            <a routerLink="/faq">{{ 'nav.faq' | translate }}</a>
           </div>
 
           <div class="footer__column">
-            <h4>Suivez-nous</h4>
+            <h4>{{ 'footer.social' | translate }}</h4>
             <a href="mailto:support@mychess.fr">support&#64;mychess.fr</a>
             <div class="footer__instagram">
               <a href="https://www.instagram.com/mychess_learning" target="_blank" rel="noopener noreferrer" class="footer__social-link">
@@ -317,11 +309,11 @@
       <div class="footer__divider"></div>
 
       <div class="footer__bottom">
-        <p class="footer__copyright">&copy; 2026 mychess. Tous droits réservés.</p>
+        <p class="footer__copyright">&copy; 2026 mychess. {{ 'footer.copyright' | translate }}</p>
         <div class="footer__legal">
-          <a routerLink="/privacy">Confidentialité</a>
-          <a routerLink="/terms">CGU</a>
-          <a routerLink="/legal-notice">Mentions légales</a>
+          <a routerLink="/privacy">{{ 'footer.privacy' | translate }}</a>
+          <a routerLink="/terms">{{ 'footer.terms' | translate }}</a>
+          <a routerLink="/legal-notice">{{ 'footer.legal' | translate }}</a>
         </div>
       </div>
     </div>
@@ -337,13 +329,13 @@
         </button>
       } @else {
         <!-- Expanded: full content with close button outside -->
-        <button class="promo-popup__close" (click)="closePromoPopup()" aria-label="Fermer">
+        <button class="promo-popup__close" (click)="closePromoPopup()" [attr.aria-label]="'common.close' | translate">
           <ng-icon name="heroXMark" size="12"></ng-icon>
         </button>
         <div class="promo-popup__content">
           <ng-icon name="heroGift" size="18"></ng-icon>
-          <span>Essayez l'offre Premium <strong>gratuitement</strong> pendant 14 jours !</span>
-          <a routerLink="/register" class="promo-popup__btn">J'en profite</a>
+          <span [innerHTML]="'pricing.premium.trial' | translate"></span>
+          <a routerLink="/register" class="promo-popup__btn">{{ 'nav.getStarted' | translate }}</a>
         </div>
       }
     </div>

@@ -9,10 +9,13 @@ import {
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../core/services/auth.service';
+import { LanguageService } from '../../core/services/language.service';
 import { SeoService } from '../../core/services/seo.service';
 import { StructuredDataService } from '../../core/services/structured-data.service';
 import { ScrollRevealDirective, StaggerRevealDirective } from '../../shared/directives/scroll-reveal.directive';
+import { LanguageSelectorComponent } from '../../shared/components/language-selector/language-selector.component';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   heroUserGroup,
@@ -35,7 +38,9 @@ import {
     RouterLink,
     NgIconComponent,
     ScrollRevealDirective,
-    StaggerRevealDirective
+    StaggerRevealDirective,
+    TranslateModule,
+    LanguageSelectorComponent
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({
@@ -70,6 +75,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   // Scroll listener reference for cleanup
   private scrollListener: (() => void) | null = null;
   private rafId: number | null = null;
+
+  public languageService = inject(LanguageService);
 
   constructor(public authService: AuthService) {
     this.seoService.setHomePage();

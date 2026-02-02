@@ -8,17 +8,17 @@
       @if (success()) {
         <div class="success-card text-center">
           <div class="success-icon">&#10004;</div>
-          <h2 class="heading-3">Réservation confirmée !</h2>
-          <p class="text-secondary">Vous allez être redirigé vers Mon Espace...</p>
+          <h2 class="heading-3">{{ 'booking.success.title' | translate }}</h2>
+          <p class="text-secondary">{{ 'booking.redirecting' | translate }}</p>
         </div>
       } @else if (teacherService.selectedTeacher()) {
         <div class="booking-content">
           <header class="booking-content__header">
             <button type="button" class="back-btn" routerLink="/teachers">
               <ng-icon name="heroArrowLeft" size="18"></ng-icon>
-              <span>Retour aux coachs</span>
+              <span>{{ 'booking.backToCoaches' | translate }}</span>
             </button>
-            <h1 class="heading-3">Réserver un cours</h1>
+            <h1 class="heading-3">{{ 'booking.title' | translate }}</h1>
           </header>
 
           <!-- Teacher Info -->
@@ -41,7 +41,7 @@
               <div class="subscription-info__card subscription-info__card--payment">
                 <span class="subscription-info__icon"><ng-icon name="heroBanknotes" size="18"></ng-icon></span>
                 <div>
-                  <strong>Tarif du cours</strong>
+                  <strong>{{ 'booking.lessonRate' | translate }}</strong>
                   <p>{{ formatPrice(teacherService.selectedTeacher()?.hourlyRateCents) }}</p>
                 </div>
               </div>
@@ -53,8 +53,8 @@
                 <div class="wallet-info__card" [class.wallet-info__card--active]="payWithCreditSignal()">
                   <span class="wallet-info__icon"><ng-icon name="heroWallet" size="20"></ng-icon></span>
                   <div class="wallet-info__content">
-                    <strong>Mon Portefeuille</strong>
-                    <p class="wallet-info__balance">Solde: {{ walletService.formatPrice(walletService.balance()) }}</p>
+                    <strong>{{ 'booking.wallet' | translate }}</strong>
+                    <p class="wallet-info__balance">{{ 'booking.walletBalance' | translate }}: {{ walletService.formatPrice(walletService.balance()) }}</p>
                   </div>
                   @if (canPayWithCredit()) {
                     <label class="wallet-info__toggle">
@@ -63,10 +63,10 @@
                         [checked]="payWithCreditSignal()"
                         (change)="togglePayWithCredit($any($event.target).checked)"
                       />
-                      <span class="wallet-info__toggle-label">Utiliser</span>
+                      <span class="wallet-info__toggle-label">{{ 'booking.useWallet' | translate }}</span>
                     </label>
                   } @else {
-                    <span class="wallet-info__insufficient">Solde insuffisant</span>
+                    <span class="wallet-info__insufficient">{{ 'booking.insufficientBalance' | translate }}</span>
                   }
                 </div>
               </div>
@@ -83,62 +83,62 @@
           <div class="course-section">
             <h4 class="course-section__title">
               <ng-icon name="heroBookOpen" size="18"></ng-icon>
-              Cours de cette séance
+              {{ 'booking.sessionCourse' | translate }}
             </h4>
 
             @if (learningPathLoading()) {
               <div class="course-section__loading">
                 <span class="spinner spinner--sm"></span>
-                <span>Chargement du cours...</span>
+                <span>{{ 'common.loading' | translate }}</span>
               </div>
             } @else if (programmeService.currentCourse()) {
               <div class="current-course-card">
                 <div class="current-course-card__badge" [style.background]="programmeService.getLevelColor(programmeService.currentCourse()!.levelCode)">
-                  Niveau {{ programmeService.currentCourse()!.levelCode }}
+                  {{ 'booking.level' | translate }} {{ programmeService.currentCourse()!.levelCode }}
                 </div>
                 <div class="current-course-card__content">
-                  <span class="current-course-card__order">Cours {{ programmeService.currentCourse()!.id }}</span>
+                  <span class="current-course-card__order">{{ 'booking.course' | translate }} {{ programmeService.currentCourse()!.id }}</span>
                   <h3 class="current-course-card__title">{{ programmeService.currentCourse()!.title }}</h3>
                 </div>
                 <a routerLink="/programme" class="current-course-card__link">
-                  Voir le programme
+                  {{ 'booking.viewProgram' | translate }}
                 </a>
               </div>
               <p class="course-section__info">
                 <ng-icon name="heroCheckCircle" size="16"></ng-icon>
-                Ce cours sera automatiquement incrémenté après cette séance
+                {{ 'booking.courseAutoIncrement' | translate }}
               </p>
             } @else {
               <div class="course-section__empty">
-                <p>Aucun cours défini. <a routerLink="/programme">Consultez le programme</a> pour choisir votre point de départ.</p>
+                <p>{{ 'booking.noCourseSet' | translate }} <a routerLink="/programme">{{ 'booking.consultProgram' | translate }}</a></p>
               </div>
             }
           </div>
 
           <!-- Available Slots -->
           <div class="slots-section">
-            <h4 class="slots-title">Choisissez un créneau</h4>
+            <h4 class="slots-title">{{ 'booking.selectTime' | translate }}</h4>
 
             <!-- Premium Priority Banner (for non-premium users) -->
             @if (!paymentService.hasActiveSubscription()) {
               <a routerLink="/subscription" class="premium-priority-banner">
                 <ng-icon name="heroSparkles" size="18" class="premium-priority-banner__icon"></ng-icon>
                 <div class="premium-priority-banner__content">
-                  <strong>Accès prioritaire aux créneaux</strong>
-                  <span>Les membres Premium réservent avant les autres</span>
+                  <strong>{{ 'booking.priorityAccess' | translate }}</strong>
+                  <span>{{ 'booking.premiumBookFirst' | translate }}</span>
                 </div>
-                <span class="premium-priority-banner__cta">Découvrir</span>
+                <span class="premium-priority-banner__cta">{{ 'booking.discover' | translate }}</span>
               </a>
             }
 
             @if (slotsLoading()) {
               <div class="slots-loading">
                 <span class="spinner spinner--md"></span>
-                <p>Chargement...</p>
+                <p>{{ 'common.loading' | translate }}</p>
               </div>
             } @else if (teacherSlots().length === 0) {
               <div class="slots-empty">
-                <p>Aucun créneau disponible</p>
+                <p>{{ 'booking.noSlots' | translate }}</p>
               </div>
             } @else {
               <div class="slots-calendar">
@@ -160,7 +160,7 @@
                         >
                           {{ slot.startTime }}
                           @if (!slot.isAvailable) {
-                            <span class="slot-btn__badge">Pris</span>
+                            <span class="slot-btn__badge">{{ 'booking.taken' | translate }}</span>
                           }
                         </button>
                       }
@@ -174,31 +174,31 @@
           <!-- Selected Slot Info -->
           <div class="selected-slot-info" [class.selected-slot-info--empty]="!selectedSlot()">
             @if (selectedSlot()) {
-              <span class="selected-slot-info__label">Créneau sélectionné :</span>
+              <span class="selected-slot-info__label">{{ 'booking.selectedSlot' | translate }}:</span>
               <span class="selected-slot-info__value">
-                {{ formatDateShort(selectedSlot()!.date) }} à {{ formatTime(selectedSlot()!.startTime) }}
+                {{ formatDateShort(selectedSlot()!.date) }} {{ 'lessons.details.at' | translate }} {{ formatTime(selectedSlot()!.startTime) }}
               </span>
             } @else {
-              <span class="selected-slot-info__placeholder">Sélectionnez un créneau</span>
+              <span class="selected-slot-info__placeholder">{{ 'booking.selectSlotPlaceholder' | translate }}</span>
             }
           </div>
 
           <!-- Booking Form -->
           <form [formGroup]="bookingForm" (ngSubmit)="onSubmit()" class="booking-form">
             <div class="form-group form-group--compact">
-              <label class="form-group__label">Notes (optionnel)</label>
+              <label class="form-group__label">{{ 'booking.notes' | translate }} ({{ 'common.optional' | translate }})</label>
               <textarea
                 formControlName="notes"
                 class="textarea textarea--compact"
                 rows="2"
-                placeholder="Objectifs, questions..."
+                [placeholder]="'booking.notesPlaceholder' | translate"
               ></textarea>
             </div>
 
             <!-- Price Summary -->
             <div class="price-summary">
               <div class="price-summary__row">
-                <span>Prix</span>
+                <span>{{ 'booking.price' | translate }}</span>
                 <span class="price-summary__value">
                   {{ formatPrice(teacherService.selectedTeacher()?.hourlyRateCents) }}
                 </span>
@@ -214,17 +214,17 @@
               @if (loading()) {
                 <span class="spinner spinner--sm"></span>
                 @if (payWithCreditSignal() && canPayWithCredit()) {
-                  Paiement...
+                  {{ 'booking.processing' | translate }}
                 } @else {
-                  Redirection...
+                  {{ 'booking.redirecting' | translate }}
                 }
               } @else {
                 @if (payWithCreditSignal() && canPayWithCredit()) {
                   <ng-icon name="heroWallet" size="18"></ng-icon>
-                  Payer avec mon crédit
+                  {{ 'booking.payWithCredit' | translate }}
                 } @else {
                   <ng-icon name="heroCreditCard" size="18"></ng-icon>
-                  Payer {{ formatPrice(teacherService.selectedTeacher()?.hourlyRateCents) }}
+                  {{ 'booking.pay' | translate }} {{ formatPrice(teacherService.selectedTeacher()?.hourlyRateCents) }}
                 }
               }
               </button>

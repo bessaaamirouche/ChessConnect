@@ -3,18 +3,121 @@
 :host {
   display: block;
   width: 100%;
+  height: 100%;
+}
+
+// Fixed viewport layout
+.lessons-page {
+  height: calc(100vh - 60px); // Account for top navbar if any
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: var(--space-lg);
+
+  @media (max-width: 768px) {
+    height: calc(100vh - 56px);
+    padding: var(--space-md);
+  }
+}
+
+// Sections container - takes remaining space
+.sections-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  overflow: hidden;
+  min-height: 0; // Important for flex overflow
+}
+
+// Each section (Upcoming + History)
+.upcoming-section,
+.history-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+}
+
+// Section header (stays fixed at top of section)
+.section-header {
+  flex-shrink: 0;
+  padding: var(--space-md) var(--space-lg);
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--bg-tertiary);
+
+  &__row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+  }
+
+  .section__title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .section__count {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--gold-400);
+    background: rgba(212, 168, 75, 0.15);
+    padding: 2px 10px;
+    border-radius: var(--radius-full);
+  }
+
+  .history-filters {
+    margin-top: var(--space-sm);
+    margin-bottom: 0;
+    padding: var(--space-sm);
+    background: transparent;
+    border: none;
+  }
+}
+
+// Section content (scrollable)
+.section-content {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  padding: var(--space-md);
+
+  // Custom scrollbar
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--border-default);
+    border-radius: 3px;
+
+    &:hover {
+      background: var(--text-muted);
+    }
+  }
 }
 
 // Pending Validation Banner
 .pending-validation-banner {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   gap: var(--space-md);
-  padding: var(--space-md) var(--space-lg);
-  margin-bottom: var(--space-lg);
+  padding: var(--space-sm) var(--space-md);
+  margin-bottom: var(--space-md);
   background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(245, 158, 11, 0.08) 100%);
   border: 1px solid var(--warning-500, #f59e0b);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
 
   &__icon {
     color: var(--warning-500, #f59e0b);
@@ -23,7 +126,7 @@
 
   &__content {
     flex: 1;
-    font-size: 0.9375rem;
+    font-size: 0.875rem;
     color: var(--text-primary);
 
     strong {
@@ -35,8 +138,8 @@
   @media (max-width: 768px) {
     flex-direction: column;
     text-align: center;
-    gap: var(--space-sm);
-    padding: var(--space-md);
+    gap: var(--space-xs);
+    padding: var(--space-sm);
   }
 }
 
@@ -50,20 +153,14 @@
 }
 
 .page-header {
+  flex-shrink: 0;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: var(--space-2xl);
-
-  &__title-row {
-    display: flex;
-    align-items: center;
-    gap: var(--space-lg);
-    flex-wrap: wrap;
-  }
+  margin-bottom: var(--space-lg);
 
   &__title {
-    font-size: 2rem;
+    font-size: 1.5rem;
     font-weight: 700;
     color: var(--text-primary);
     margin-bottom: 0;
@@ -71,7 +168,7 @@
 
   &__subtitle {
     color: var(--text-secondary);
-    font-size: 1rem;
+    font-size: 0.875rem;
     margin-top: var(--space-xs);
   }
 
@@ -80,11 +177,7 @@
     gap: var(--space-md);
 
     &__title {
-      font-size: 1.5rem;
-    }
-
-    &__title-row {
-      gap: var(--space-md);
+      font-size: 1.25rem;
     }
   }
 }
@@ -92,64 +185,121 @@
 .email-reminder-toggle {
   display: flex;
   align-items: center;
-  gap: var(--space-xs);
-  padding: var(--space-xs) var(--space-sm);
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
   background: var(--bg-tertiary);
   border-radius: var(--radius-md);
   border: 1px solid var(--border-subtle);
+  width: fit-content;
+  transition: all var(--transition-fast);
+
+  &:hover {
+    border-color: var(--border-default);
+  }
+
+  &--loading {
+    opacity: 0.7;
+    pointer-events: none;
+  }
 
   &__label {
     display: flex;
     align-items: center;
-    gap: var(--space-2xs);
-    font-size: 0.75rem;
+    gap: var(--space-xs);
+    font-size: 0.875rem;
     color: var(--text-secondary);
-    text-transform: lowercase;
     white-space: nowrap;
+    user-select: none;
+
+    ng-icon {
+      color: var(--gold-400);
+    }
   }
 
-  .toggle--sm {
-    transform: scale(0.8);
+  // Toggle switch inline styles (to avoid encapsulation issues)
+  .toggle {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    flex-shrink: 0;
+
+    input {
+      display: none;
+
+      &:checked + .toggle__switch {
+        background: var(--gold-400);
+
+        &::after {
+          transform: translateX(22px);
+          background: var(--bg-primary);
+        }
+      }
+
+      &:disabled + .toggle__switch {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+    }
+
+    &__switch {
+      position: relative;
+      width: 48px;
+      height: 26px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 13px;
+      transition: background var(--transition-fast);
+
+      &::after {
+        content: '';
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 20px;
+        height: 20px;
+        background: var(--text-muted);
+        border-radius: 50%;
+        transition: all var(--transition-fast);
+      }
+    }
   }
 }
 
+// Legacy section styles (overridden by new layout)
 .section {
-  margin-bottom: var(--space-3xl);
+  margin-bottom: 0;
 
   &__header {
     display: flex;
     align-items: center;
-    margin-bottom: var(--space-lg);
   }
 
   &__title {
-    font-size: 1.25rem;
+    font-size: 1rem;
     font-weight: 600;
     color: var(--text-primary);
   }
 
   &__count {
-    font-size: 0.8125rem;
+    font-size: 0.75rem;
     font-weight: 500;
     color: var(--gold-400);
     background: rgba(212, 168, 75, 0.15);
-    padding: 4px 12px;
+    padding: 2px 10px;
     border-radius: var(--radius-full);
-    margin-left: var(--space-md);
+    margin-left: var(--space-sm);
   }
 
   &__desc {
-    color: var(--text-muted);
-    font-size: 0.9375rem;
-    margin-bottom: var(--space-xl);
-    max-width: 600px;
+    display: none; // Hidden in new layout
   }
 }
 
 .lessons-list {
   display: flex;
   flex-direction: column;
-  gap: var(--space-sm);
+  gap: var(--space-xs);
 }
 
 .lesson-card {
@@ -271,16 +421,17 @@
 
 // History Filters
 .history-filters {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: var(--space-md);
-  margin-bottom: var(--space-lg);
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  margin-bottom: 0;
+  margin-top: var(--space-sm);
 
   &__row {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-md);
+    gap: var(--space-sm);
     align-items: flex-end;
   }
 }
@@ -288,8 +439,8 @@
 .filter-group {
   display: flex;
   flex-direction: column;
-  gap: var(--space-xs);
-  min-width: 140px;
+  gap: 4px;
+  min-width: 120px;
 
   &--checkbox {
     min-width: auto;
@@ -313,13 +464,13 @@
 }
 
 .filter-select {
-  padding: var(--space-xs) var(--space-sm);
-  background: var(--bg-tertiary);
+  padding: 6px var(--space-sm);
+  background: var(--bg-secondary);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
   color: var(--text-primary);
-  font-size: 0.875rem;
-  min-width: 150px;
+  font-size: 0.8125rem;
+  min-width: 130px;
   cursor: pointer;
   transition: all var(--transition-fast);
 
@@ -389,8 +540,8 @@
 
 .history-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: var(--space-md);
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--space-sm);
 }
 
 .history-card {
@@ -659,16 +810,17 @@
 
 .empty-state {
   text-align: center;
-  padding: var(--space-xl);
+  padding: var(--space-lg);
   color: var(--text-muted);
 
   &__icon {
-    font-size: 2rem;
-    margin-bottom: var(--space-sm);
+    font-size: 1.5rem;
+    margin-bottom: var(--space-xs);
+    opacity: 0.5;
   }
 
   &__description {
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
   }
 }
 
@@ -685,6 +837,18 @@
 @media (max-width: 768px) {
   .main-content {
     padding: var(--space-md);
+  }
+
+  .sections-container {
+    gap: var(--space-sm);
+  }
+
+  .section-header {
+    padding: var(--space-sm) var(--space-md);
+  }
+
+  .section-content {
+    padding: var(--space-sm);
   }
 
   .history-grid {

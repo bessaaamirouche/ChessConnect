@@ -1,6 +1,7 @@
 import { Component, signal, ChangeDetectionStrategy, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth.service';
 import { SeoService } from '../../../core/services/seo.service';
 import { NotificationCenterService } from '../../../core/services/notification-center.service';
@@ -36,7 +37,7 @@ function emailValidator(control: AbstractControl): ValidationErrors | null {
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, NgIconComponent, DateInputComponent],
+  imports: [ReactiveFormsModule, RouterLink, NgIconComponent, DateInputComponent, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({ heroAcademicCap, heroUserGroup, heroPlayCircle, heroArrowRight })],
   templateUrl: './register.component.html',
@@ -46,6 +47,7 @@ export class RegisterComponent {
   private seoService = inject(SeoService);
   private notificationCenter = inject(NotificationCenterService);
   private toastService = inject(ToastService);
+  private translateService = inject(TranslateService);
 
   registerForm: FormGroup;
   loading = signal(false);
@@ -178,7 +180,7 @@ export class RegisterComponent {
         // User needs to verify email before logging in
       },
       error: (err) => {
-        this.error.set(err.error?.error || err.error?.message || 'Une erreur est survenue');
+        this.error.set(err.error?.error || err.error?.message || this.translateService.instant('errors.generic'));
         this.loading.set(false);
       }
     });
@@ -201,11 +203,11 @@ export class RegisterComponent {
       next: () => {
         this.resendLoading.set(false);
         this.resendSuccess.set(true);
-        this.toastService.success('Email de vérification renvoyé !');
+        this.toastService.success(this.translateService.instant('auth.verificationEmailResent'));
       },
       error: (err) => {
         this.resendLoading.set(false);
-        const errorMsg = err.error?.error || 'Erreur lors de l\'envoi';
+        const errorMsg = err.error?.error || this.translateService.instant('errors.sendEmail');
         this.toastService.error(errorMsg);
       }
     });

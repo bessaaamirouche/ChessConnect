@@ -15,6 +15,7 @@ import {
 } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
+import { TranslateModule } from '@ngx-translate/core';
 import {
   heroXMark,
   heroPlay,
@@ -24,7 +25,8 @@ import {
   heroArrowsPointingOut,
   heroArrowDownTray,
   heroForward,
-  heroBackward
+  heroBackward,
+  heroCog6Tooth
 } from '@ng-icons/heroicons/outline';
 import { heroPlaySolid } from '@ng-icons/heroicons/solid';
 import Hls from 'hls.js';
@@ -34,7 +36,7 @@ import { AuthService } from '../../../core/services/auth.service';
 @Component({
   selector: 'app-video-player',
   standalone: true,
-  imports: [NgIconComponent],
+  imports: [NgIconComponent, TranslateModule],
   viewProviders: [provideIcons({
     heroXMark,
     heroPlay,
@@ -45,7 +47,8 @@ import { AuthService } from '../../../core/services/auth.service';
     heroArrowDownTray,
     heroForward,
     heroBackward,
-    heroPlaySolid
+    heroPlaySolid,
+    heroCog6Tooth
   })],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './video-player.component.html',
@@ -80,6 +83,11 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   hasError = signal(false);
   showControls = signal(true);
   savedProgressTime = signal<number | null>(null); // For resume indicator
+
+  // Quality settings
+  availableQualities = signal<{height: number, label: string, index: number}[]>([]);
+  currentQuality = signal<number>(-1); // -1 = auto
+  showQualityMenu = signal(false);
 
   // Computed values
   progress = computed(() => {
@@ -147,6 +155,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
       this.initializePlayer();
     }
     this.setupKeyboardControls();
+    this.setupFullscreenListeners();
   }
 
   ngOnDestroy(): void {
@@ -160,7 +169,45 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
       clearInterval(this.saveProgressInterval);
     }
     document.removeEventListener('keydown', this.handleKeydown);
+    this.removeFullscreenListeners();
   }
+
+  private setupFullscreenListeners(): void {
+    // Listen for fullscreen changes
+    document.addEventListener('fullscreenchange', this.onFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', this.onFullscreenChange);
+
+    // iOS video fullscreen events
+    const video = this.videoElement?.nativeElement;
+    if (video) {
+      video.addEventListener('webkitendfullscreen', this.onIOSFullscreenEnd);
+      video.addEventListener('webkitbeginfullscreen', this.onIOSFullscreenBegin);
+    }
+  }
+
+  private removeFullscreenListeners(): void {
+    document.removeEventListener('fullscreenchange', this.onFullscreenChange);
+    document.removeEventListener('webkitfullscreenchange', this.onFullscreenChange);
+
+    const video = this.videoElement?.nativeElement;
+    if (video) {
+      video.removeEventListener('webkitendfullscreen', this.onIOSFullscreenEnd);
+      video.removeEventListener('webkitbeginfullscreen', this.onIOSFullscreenBegin);
+    }
+  }
+
+  private onFullscreenChange = (): void => {
+    const isFs = !!document.fullscreenElement || !!(document as any).webkitFullscreenElement;
+    this.isFullscreen.set(isFs);
+  };
+
+  private onIOSFullscreenEnd = (): void => {
+    this.isFullscreen.set(false);
+  };
+
+  private onIOSFullscreenBegin = (): void => {
+    this.isFullscreen.set(true);
+  };
 
   private detectBunnyStream(): void {
     if (!this.url) return;
@@ -265,9 +312,26 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
         });
         this.hls.loadSource(this.url);
         this.hls.attachMedia(video);
-        this.hls.on(Hls.Events.MANIFEST_PARSED, () => {
+
+        // Get quality levels when manifest is parsed
+        this.hls.on(Hls.Events.MANIFEST_PARSED, (_, data) => {
+          const qualities = data.levels.map((level, index) => ({
+            height: level.height,
+            label: level.height ? `${level.height}p` : `Niveau ${index + 1}`,
+            index
+          })).sort((a, b) => b.height - a.height);
+          this.availableQualities.set(qualities);
+          this.currentQuality.set(-1); // Auto by default
           video.play().catch(() => {});
         });
+
+        // Track quality changes
+        this.hls.on(Hls.Events.LEVEL_SWITCHED, (_, data) => {
+          if (this.currentQuality() === -1) {
+            // Auto mode - don't update UI
+          }
+        });
+
         this.hls.on(Hls.Events.ERROR, (_, data) => {
           if (data.fatal) {
             if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
@@ -280,6 +344,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
           }
         });
       } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        // Native HLS (Safari/iOS) - no quality selection available
         video.src = this.url;
         video.play().catch(() => {});
       } else {
@@ -391,16 +456,87 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   toggleFullscreen(): void {
-    const container = this.playerContainer?.nativeElement;
-    if (!container) return;
+    const video = this.videoElement?.nativeElement as any;
+    const container = this.playerContainer?.nativeElement as any;
 
-    if (!document.fullscreenElement) {
-      container.requestFullscreen?.();
-      this.isFullscreen.set(true);
-    } else {
-      document.exitFullscreen?.();
+    // Check if we're currently in fullscreen
+    const isCurrentlyFullscreen = this.isFullscreen() ||
+      !!document.fullscreenElement ||
+      !!(document as any).webkitFullscreenElement ||
+      !!(document as any).mozFullScreenElement ||
+      !!(document as any).msFullscreenElement;
+
+    if (isCurrentlyFullscreen) {
+      // Exit fullscreen
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if ((document as any).webkitExitFullscreen) {
+        (document as any).webkitExitFullscreen();
+      } else if ((document as any).mozCancelFullScreen) {
+        (document as any).mozCancelFullScreen();
+      } else if ((document as any).msExitFullscreen) {
+        (document as any).msExitFullscreen();
+      } else if (video && video.webkitExitFullscreen) {
+        video.webkitExitFullscreen();
+      }
       this.isFullscreen.set(false);
+      return;
     }
+
+    // Enter fullscreen
+    // Try container first (preferred for custom controls)
+    if (container) {
+      if (container.requestFullscreen) {
+        container.requestFullscreen();
+        this.isFullscreen.set(true);
+        return;
+      } else if (container.webkitRequestFullscreen) {
+        container.webkitRequestFullscreen();
+        this.isFullscreen.set(true);
+        return;
+      } else if (container.mozRequestFullScreen) {
+        container.mozRequestFullScreen();
+        this.isFullscreen.set(true);
+        return;
+      } else if (container.msRequestFullscreen) {
+        container.msRequestFullscreen();
+        this.isFullscreen.set(true);
+        return;
+      }
+    }
+
+    // Fallback: iOS Safari - use video element's native fullscreen
+    if (video) {
+      if (video.webkitEnterFullscreen) {
+        video.webkitEnterFullscreen();
+        this.isFullscreen.set(true);
+        return;
+      } else if (video.webkitRequestFullscreen) {
+        video.webkitRequestFullscreen();
+        this.isFullscreen.set(true);
+        return;
+      }
+    }
+  }
+
+  // Quality selection
+  toggleQualityMenu(): void {
+    this.showQualityMenu.update(v => !v);
+  }
+
+  setQuality(index: number): void {
+    if (this.hls) {
+      this.hls.currentLevel = index;
+      this.currentQuality.set(index);
+    }
+    this.showQualityMenu.set(false);
+  }
+
+  getQualityLabel(): string {
+    const current = this.currentQuality();
+    if (current === -1) return 'Auto';
+    const quality = this.availableQualities().find(q => q.index === current);
+    return quality ? quality.label : 'Auto';
   }
 
   onMouseMove(): void {

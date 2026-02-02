@@ -7,6 +7,7 @@ import { PaymentService } from '../../core/services/payment.service';
 import { UrlValidatorService } from '../../core/services/url-validator.service';
 import { EmbeddedCheckoutComponent } from '../../shared/embedded-checkout/embedded-checkout.component';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
+import { TranslateModule } from '@ngx-translate/core';
 import {
   heroWallet,
   heroArrowUpCircle,
@@ -28,7 +29,7 @@ interface TopUpOption {
 @Component({
   selector: 'app-wallet',
   standalone: true,
-  imports: [RouterLink, DatePipe, NgIconComponent, EmbeddedCheckoutComponent],
+  imports: [RouterLink, DatePipe, NgIconComponent, EmbeddedCheckoutComponent, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({
     heroWallet,

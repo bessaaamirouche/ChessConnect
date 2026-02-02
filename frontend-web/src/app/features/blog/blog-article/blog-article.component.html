@@ -18,30 +18,30 @@
 
       <!-- Desktop Pill Tabs Navigation -->
       <div class="nav__pills">
-        <a routerLink="/" class="nav__pill">Accueil</a>
-        <a routerLink="/teachers" class="nav__pill">Nos coachs</a>
-        <a routerLink="/blog" class="nav__pill nav__pill--active">Blog</a>
+        <a routerLink="/" class="nav__pill">{{ 'nav.home' | translate }}</a>
+        <a routerLink="/teachers" class="nav__pill">{{ 'teachers.title' | translate }}</a>
+        <a routerLink="/blog" class="nav__pill nav__pill--active">{{ 'blog.title' | translate }}</a>
         @if (authService.isAuthenticated()) {
-          <a routerLink="/dashboard" class="nav__pill">Mon Espace</a>
+          <a routerLink="/dashboard" class="nav__pill">{{ 'sidebar.dashboard' | translate }}</a>
         } @else {
-          <a routerLink="/login" class="nav__pill">S'identifier</a>
-          <a routerLink="/register" class="nav__pill">S'inscrire</a>
+          <a routerLink="/login" class="nav__pill">{{ 'nav.login' | translate }}</a>
+          <a routerLink="/register" class="nav__pill">{{ 'nav.signup' | translate }}</a>
         }
       </div>
 
       <!-- Mobile Drawer Menu -->
       <div class="nav__links" [class.active]="mobileMenuOpen()">
-        <a routerLink="/" (click)="closeMobileMenu()">Accueil</a>
-        <a routerLink="/teachers" (click)="closeMobileMenu()">Nos coachs</a>
-        <a routerLink="/blog" (click)="closeMobileMenu()">Blog</a>
+        <a routerLink="/" (click)="closeMobileMenu()">{{ 'nav.home' | translate }}</a>
+        <a routerLink="/teachers" (click)="closeMobileMenu()">{{ 'teachers.title' | translate }}</a>
+        <a routerLink="/blog" (click)="closeMobileMenu()">{{ 'blog.title' | translate }}</a>
 
         <!-- Mobile-only auth buttons -->
         <div class="nav__mobile-actions">
           @if (authService.isAuthenticated()) {
-            <a routerLink="/dashboard" class="nav__btn nav__btn--primary" (click)="closeMobileMenu()">Mon Espace</a>
+            <a routerLink="/dashboard" class="nav__btn nav__btn--primary" (click)="closeMobileMenu()">{{ 'sidebar.dashboard' | translate }}</a>
           } @else {
-            <a routerLink="/login" class="nav__btn nav__btn--ghost" (click)="closeMobileMenu()">S'identifier</a>
-            <a routerLink="/register" class="nav__btn nav__btn--primary" (click)="closeMobileMenu()">S'inscrire</a>
+            <a routerLink="/login" class="nav__btn nav__btn--ghost" (click)="closeMobileMenu()">{{ 'nav.login' | translate }}</a>
+            <a routerLink="/register" class="nav__btn nav__btn--primary" (click)="closeMobileMenu()">{{ 'nav.signup' | translate }}</a>
           }
         </div>
       </div>
@@ -51,13 +51,13 @@
   @if (loading()) {
     <div class="loading">
       <div class="loading__spinner"></div>
-      <p>Chargement de l'article...</p>
+      <p>{{ 'blog.loadingArticle' | translate }}</p>
     </div>
   } @else if (error()) {
     <div class="error">
-      <h2>Article non trouvé</h2>
-      <p>L'article que vous recherchez n'existe pas ou a été supprimé.</p>
-      <a routerLink="/blog" class="btn btn--primary">Retour au blog</a>
+      <h2>{{ 'blog.article.notFound' | translate }}</h2>
+      <p>{{ 'blog.article.notFoundDesc' | translate }}</p>
+      <a routerLink="/blog" class="btn btn--primary">{{ 'blog.backToList' | translate }}</a>
     </div>
   } @else if (article()) {
     <!-- Hero -->
@@ -79,13 +79,13 @@
         </div>
         <h1 class="article-hero__title" appScrollReveal="fade-up">{{ article()!.title }}</h1>
         <div class="article-hero__meta" appScrollReveal="fade-up" [revealDelay]="100">
-          <span class="article-hero__author">Par {{ article()!.author }}</span>
+          <span class="article-hero__author">{{ 'blog.article.by' | translate }} {{ article()!.author }}</span>
           <span class="article-hero__separator">•</span>
           <span class="article-hero__date">{{ formatDate(article()!.publishedAt) }}</span>
           <span class="article-hero__separator">•</span>
           <span class="article-hero__reading">
             <ng-icon name="heroClock" size="16"></ng-icon>
-            {{ article()!.readingTimeMinutes }} min de lecture
+            {{ article()!.readingTimeMinutes }} {{ 'blog.article.minRead' | translate }}
           </span>
         </div>
       </div>
@@ -100,7 +100,7 @@
 
         <!-- Share -->
         <div class="article-share" appScrollReveal="fade-up">
-          <span>Partager cet article</span>
+          <span>{{ 'blog.article.share' | translate }}</span>
           <div class="article-share__buttons">
             <button class="article-share__btn" (click)="shareOnTwitter()">Twitter</button>
             <button class="article-share__btn" (click)="shareOnLinkedIn()">LinkedIn</button>
@@ -114,7 +114,7 @@
     @if (article()!.relatedArticles && article()!.relatedArticles.length > 0) {
       <section class="related-articles">
         <div class="related-articles__container">
-          <h2 class="related-articles__title" appScrollReveal="fade-up">Articles similaires</h2>
+          <h2 class="related-articles__title" appScrollReveal="fade-up">{{ 'blog.article.relatedArticles' | translate }}</h2>
           <div class="related-articles__grid">
             @for (related of article()!.relatedArticles; track related.id) {
               <article class="related-card" appScrollReveal="fade-up">
@@ -148,10 +148,10 @@
     <!-- CTA -->
     <section class="article-cta" appScrollReveal="scale-up">
       <div class="article-cta__container">
-        <h2>Prêt à progresser aux échecs ?</h2>
-        <p>Rejoignez mychess et apprenez avec nos maîtres certifiés.</p>
+        <h2>{{ 'blog.article.readyToProgress' | translate }}</h2>
+        <p>{{ 'blog.article.readyToProgressDesc' | translate }}</p>
         <a routerLink="/register" class="btn btn--primary btn--lg">
-          Commencer maintenant
+          {{ 'blog.article.startNow' | translate }}
           <ng-icon name="heroArrowRight" size="20"></ng-icon>
         </a>
       </div>
@@ -160,10 +160,10 @@
     <!-- Footer -->
     <footer class="article-footer">
       <div class="article-footer__container">
-        <p>&copy; 2026 mychess. Tous droits réservés.</p>
+        <p>&copy; 2026 {{ 'blog.footer.copyright' | translate }}</p>
         <div class="article-footer__links">
-          <a routerLink="/">Accueil</a>
-          <a routerLink="/blog">Blog</a>
+          <a routerLink="/">{{ 'nav.home' | translate }}</a>
+          <a routerLink="/blog">{{ 'blog.title' | translate }}</a>
         </div>
       </div>
     </footer>

@@ -2,7 +2,7 @@
   <div class="modal">
     <!-- Header -->
     <header class="modal__header">
-      <h2 class="modal__title">Profil du joueur</h2>
+      <h2 class="modal__title">{{ 'progress.studentProfile.title' | translate }}</h2>
       <button class="modal__close" (click)="closeModal()">
         <ng-icon name="heroXMark" size="24"></ng-icon>
       </button>
@@ -11,7 +11,7 @@
     @if (learningPathService.loading()) {
       <div class="modal__loading">
         <span class="spinner spinner--lg"></span>
-        <p>Chargement du coachil...</p>
+        <p>{{ 'progress.studentProfile.loading' | translate }}</p>
       </div>
     } @else if (learningPathService.studentProfile()) {
       <!-- Student Info -->
@@ -22,17 +22,17 @@
         <div class="student-info__details">
           <h3 class="student-info__name">{{ learningPathService.studentProfile()!.fullName }}</h3>
           <span class="student-info__level">
-            Niveau : {{ learningPathService.studentProfile()!.currentLevelDisplayName }}
+            {{ 'progress.studentProfile.level' | translate }} {{ learningPathService.studentProfile()!.currentLevelDisplayName }}
           </span>
         </div>
         <div class="student-info__stats">
           <div class="stat">
             <span class="stat__value">{{ learningPathService.studentProfile()!.totalLessonsCompleted }}</span>
-            <span class="stat__label">Cours validés</span>
+            <span class="stat__label">{{ 'progress.studentProfile.validatedCourses' | translate }}</span>
           </div>
           <div class="stat">
             <span class="stat__value">{{ learningPathService.studentProfile()!.progressPercentage | number:'1.0-0' }}%</span>
-            <span class="stat__label">Progression</span>
+            <span class="stat__label">{{ 'progress.studentProfile.progression' | translate }}</span>
           </div>
         </div>
       </div>
@@ -41,15 +41,15 @@
       <div class="level-section">
         <div class="level-section__header">
           <ng-icon name="heroAcademicCap" size="20"></ng-icon>
-          <span>Définir le niveau</span>
+          <span>{{ 'progress.studentProfile.setLevel' | translate }}</span>
         </div>
         @if (learningPathService.studentProfile()!.levelSetByCoach && learningPathService.studentProfile()!.evaluatedByTeacherName) {
           <p class="level-section__info">
-            Niveau défini par <strong>{{ learningPathService.studentProfile()!.evaluatedByTeacherName }}</strong>
+            {{ 'progress.studentProfile.levelSetBy' | translate }} <strong>{{ learningPathService.studentProfile()!.evaluatedByTeacherName }}</strong>
           </p>
         } @else {
           <p class="level-section__info level-section__info--warning">
-            Ce joueur n'a pas encore été évalué. Définissez son niveau après avoir testé ses compétences.
+            {{ 'progress.studentProfile.notEvaluated' | translate }}
           </p>
         }
         <div class="level-section__form">
@@ -70,7 +70,7 @@
             @if (settingLevel()) {
               <span class="spinner spinner--xs"></span>
             } @else {
-              Appliquer
+              {{ 'common.apply' | translate }}
             }
           </button>
         </div>
@@ -78,7 +78,7 @@
 
       <!-- Course Progress -->
       <div class="modal__content">
-        <h4 class="section-title">Progression par niveau</h4>
+        <h4 class="section-title">{{ 'progress.studentProfile.progressByLevel' | translate }}</h4>
 
         <div class="grades-list">
           @for (grade of learningPathService.studentProfile()!.courseProgress; track grade.grade) {
@@ -106,7 +106,7 @@
                           @case ('COMPLETED') {
                             <span class="course-row__status course-row__status--completed">
                               <ng-icon name="heroCheckCircle" size="18"></ng-icon>
-                              Validé
+                              {{ 'progress.studentProfile.validated' | translate }}
                             </span>
                           }
                           @case ('IN_PROGRESS') {
@@ -118,7 +118,7 @@
                               @if (validatingCourse() === course.id) {
                                 <span class="spinner spinner--xs"></span>
                               } @else {
-                                Valider
+                                {{ 'progress.studentProfile.validate' | translate }}
                               }
                             </button>
                           }
@@ -131,14 +131,14 @@
                               @if (validatingCourse() === course.id) {
                                 <span class="spinner spinner--xs"></span>
                               } @else {
-                                En attente - Valider
+                                {{ 'progress.studentProfile.pendingValidate' | translate }}
                               }
                             </button>
                           }
                           @case ('LOCKED') {
                             <span class="course-row__status course-row__status--locked">
                               <ng-icon name="heroLockClosed" size="16"></ng-icon>
-                              Verrouillé
+                              {{ 'progress.locked' | translate }}
                             </span>
                           }
                         }
@@ -155,14 +155,14 @@
       <div class="modal__error">
         <p>{{ learningPathService.error() }}</p>
         <button class="btn btn--primary" (click)="learningPathService.getStudentProfile(studentId).subscribe()">
-          Réessayer
+          {{ 'common.retry' | translate }}
         </button>
       </div>
     }
 
     <!-- Footer -->
     <footer class="modal__footer">
-      <button class="btn btn--ghost" (click)="closeModal()">Fermer</button>
+      <button class="btn btn--ghost" (click)="closeModal()">{{ 'common.close' | translate }}</button>
     </footer>
   </div>
 </div>

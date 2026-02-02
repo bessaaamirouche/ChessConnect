@@ -1,6 +1,7 @@
 import { Component, OnInit, signal, computed, ChangeDetectionStrategy, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 import { TeacherService } from '../../../core/services/teacher.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { FavoriteService } from '../../../core/services/favorite.service';
@@ -25,7 +26,7 @@ import {
 @Component({
   selector: 'app-teacher-list',
   standalone: true,
-  imports: [RouterLink, NgIconComponent, FormsModule, AppSidebarComponent],
+  imports: [RouterLink, NgIconComponent, FormsModule, AppSidebarComponent, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({
     heroAcademicCap,

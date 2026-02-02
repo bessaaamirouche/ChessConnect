@@ -2,13 +2,13 @@
   <header class="exercise-header">
     <button class="btn btn--ghost" (click)="goBack()">
       <ng-icon name="heroArrowLeft" size="20"></ng-icon>
-      Retour
+      {{ 'exercise.back' | translate }}
     </button>
 
     @if (exercise()) {
       <div class="exercise-header__info">
-        <h1>{{ exercise()!.courseTitle || ('Entraînement niveau ' + (exercise()!.chessLevel || 'Débutant')) }}</h1>
-        <p class="lesson-meta">myChessBot en mode {{ difficultyLabels[exercise()!.difficultyLevel].label }}</p>
+        <h1>{{ exercise()!.courseTitle || (('exercise.trainingLevel' | translate) + ' ' + (exercise()!.chessLevel || ('exercise.difficulty.beginner' | translate))) }}</h1>
+        <p class="lesson-meta">{{ 'exercise.botMode' | translate }} {{ difficultyLabels[exercise()!.difficultyLevel].label }}</p>
         <div class="exercise-badges">
           <span
             class="difficulty-badge"
@@ -21,7 +21,7 @@
           @if (engineService.thinking()) {
             <span class="thinking-badge">
               <span class="thinking-dot"></span>
-              myChessBot réfléchit...
+              {{ 'exercise.game.thinking' | translate }}
             </span>
           }
         </div>
@@ -33,16 +33,16 @@
     @if (exerciseService.loading() || gameStatus() === 'loading') {
       <div class="loading-state">
         <div class="spinner"></div>
-        <p>Chargement de l'exercice...</p>
+        <p>{{ 'exercise.loading' | translate }}</p>
         @if (!engineInitialized()) {
-          <p class="loading-hint">Initialisation du moteur d'échecs...</p>
+          <p class="loading-hint">{{ 'exercise.initEngine' | translate }}</p>
         }
       </div>
     } @else if (exerciseService.error()) {
       <div class="error-state">
         <ng-icon name="heroExclamationTriangle" size="48"></ng-icon>
         <p>{{ exerciseService.error() }}</p>
-        <button class="btn btn--primary" (click)="goBack()">Retour aux cours</button>
+        <button class="btn btn--primary" (click)="goBack()">{{ 'exercise.backToLessons' | translate }}</button>
       </div>
     } @else if (exercise()) {
       <div class="game-container">
@@ -72,19 +72,19 @@
             >
               @if (gameStatus() === 'player_won') {
                 <ng-icon name="heroTrophy" size="32"></ng-icon>
-                <h2>Victoire !</h2>
-                <p>Félicitations, vous avez battu myChessBot !</p>
+                <h2>{{ 'exercise.result.win' | translate }}</h2>
+                <p>{{ 'exercise.result.winMessage' | translate }}</p>
               } @else if (gameStatus() === 'ai_won') {
                 <ng-icon name="heroXCircle" size="32"></ng-icon>
-                <h2>Défaite</h2>
-                <p>myChessBot a gagné cette partie.</p>
+                <h2>{{ 'exercise.result.lose' | translate }}</h2>
+                <p>{{ 'exercise.result.loseMessage' | translate }}</p>
               } @else {
                 <ng-icon name="heroExclamationTriangle" size="32"></ng-icon>
-                <h2>Match nul</h2>
-                <p>La partie s'est terminée par une égalité.</p>
+                <h2>{{ 'exercise.result.draw' | translate }}</h2>
+                <p>{{ 'exercise.result.drawMessage' | translate }}</p>
               }
               <button class="btn btn--primary" (click)="onReset()">
-                Rejouer
+                {{ 'exercise.result.playAgain' | translate }}
               </button>
             </div>
           }
@@ -93,14 +93,14 @@
           @if (gameStatus() === 'playing') {
             <div class="turn-indicator">
               <div class="turn-indicator__dot" [class.turn-indicator__dot--active]="isPlayerTurn()"></div>
-              <span>{{ isPlayerTurn() ? 'Votre tour' : 'Tour de myChessBot' }}</span>
+              <span>{{ isPlayerTurn() ? ('exercise.game.yourTurn' | translate) : ('exercise.game.botTurn' | translate) }}</span>
             </div>
           }
 
           <!-- Evaluation Bar -->
           @if (engineService.evaluation() !== null && gameStatus() === 'playing') {
             <div class="evaluation-section">
-              <h3>Evaluation</h3>
+              <h3>{{ 'exercise.evaluation.title' | translate }}</h3>
               <div class="eval-bar">
                 <div
                   class="eval-bar__fill"
@@ -117,7 +117,7 @@
           <div class="history-section">
             <h3>
               <ng-icon name="heroClock" size="16"></ng-icon>
-              Historique ({{ moveCount() }} coups)
+              {{ 'exercise.history.title' | translate }} ({{ moveCount() }} {{ 'exercise.history.moves' | translate }})
             </h3>
             <div class="move-list">
               @for (movePair of formatMoveHistory(); track movePair.moveNumber) {
@@ -130,7 +130,7 @@
                 </div>
               }
               @if (moveHistory().length === 0) {
-                <p class="no-moves">Aucun coup joué</p>
+                <p class="no-moves">{{ 'exercise.history.noMoves' | translate }}</p>
               }
             </div>
           </div>
@@ -138,7 +138,7 @@
           <!-- Tips -->
           @if (exercise()!.description) {
             <div class="tips-section">
-              <h3>Conseil</h3>
+              <h3>{{ 'exercise.tip' | translate }}</h3>
               <p>{{ exercise()!.description }}</p>
             </div>
           }

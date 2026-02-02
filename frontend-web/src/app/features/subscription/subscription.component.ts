@@ -7,6 +7,7 @@ import { SeoService } from '../../core/services/seo.service';
 import { UrlValidatorService } from '../../core/services/url-validator.service';
 import { SubscriptionPlan } from '../../core/models/subscription.model';
 import { EmbeddedCheckoutComponent } from '../../shared/embedded-checkout/embedded-checkout.component';
+import { TranslateModule } from '@ngx-translate/core';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   heroChartBarSquare,
@@ -27,13 +28,17 @@ import {
   heroClock,
   heroChartBar,
   heroPlayPause,
-  heroPuzzlePiece
+  heroPuzzlePiece,
+  heroPlayCircle,
+  heroArrowPath,
+  heroBellAlert,
+  heroCpuChip
 } from '@ng-icons/heroicons/outline';
 
 @Component({
   selector: 'app-subscription',
   standalone: true,
-  imports: [RouterLink, DatePipe, NgIconComponent, EmbeddedCheckoutComponent],
+  imports: [RouterLink, DatePipe, NgIconComponent, EmbeddedCheckoutComponent, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({
     heroChartBarSquare,
@@ -54,7 +59,11 @@ import {
     heroClock,
     heroChartBar,
     heroPlayPause,
-    heroPuzzlePiece
+    heroPuzzlePiece,
+    heroPlayCircle,
+    heroArrowPath,
+    heroBellAlert,
+    heroCpuChip
   })],
   templateUrl: './subscription.component.html',
   styleUrl: './subscription.component.scss'

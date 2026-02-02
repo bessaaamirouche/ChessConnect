@@ -13,6 +13,7 @@ $text-muted-color: #6b6965;
   color: $ivory;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
 }
 
 // === Navigation ===
@@ -23,12 +24,14 @@ $text-muted-color: #6b6965;
   right: 0;
   z-index: 1000;
   padding: var(--space-md) var(--space-lg);
-  background: rgba($bg-dark, 0.8);
-  backdrop-filter: blur(20px);
+  background: $bg-dark;
   border-bottom: 1px solid rgba($gold, 0.1);
 
   @include respond-to(lg) {
     padding: var(--space-lg) var(--space-xl);
+    background: rgba($bg-dark, 0.8);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
   }
 
   &__container {
@@ -81,6 +84,7 @@ $text-muted-color: #6b6965;
     cursor: pointer;
     z-index: 9999;
     backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 
     @include respond-to(lg) {
@@ -159,10 +163,11 @@ $text-muted-color: #6b6965;
     z-index: 1002;
     overflow-y: auto;
     backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
 
     &.active {
       transform: translateX(0);
-      opacity: 0.95;
+      opacity: 1;
     }
 
     @include respond-to(lg) {
@@ -254,7 +259,7 @@ $text-muted-color: #6b6965;
     white-space: nowrap;
 
     &:hover {
-      color: $ivory;
+      color: $gold;
     }
 
     &--active {

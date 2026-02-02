@@ -3,6 +3,7 @@ import {
   ViewChild, ChangeDetectionStrategy
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   heroArrowLeft, heroCpuChip, heroTrophy, heroClock,
@@ -18,7 +19,7 @@ type GameStatus = 'loading' | 'playing' | 'player_won' | 'ai_won' | 'draw';
 @Component({
   selector: 'app-exercise',
   standalone: true,
-  imports: [RouterLink, NgIconComponent, ChessBoardComponent],
+  imports: [RouterLink, NgIconComponent, ChessBoardComponent, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({
     heroArrowLeft, heroCpuChip, heroTrophy, heroClock,

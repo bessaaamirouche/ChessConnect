@@ -1,0 +1,1324 @@
+{
+  "nav": {
+    "home": "Accueil",
+    "benefits": "Avantages",
+    "levels": "Niveaux",
+    "howItWorks": "Comment ça marche",
+    "pricing": "Tarifs",
+    "blog": "Blog",
+    "faq": "FAQ",
+    "login": "Connexion",
+    "signup": "S'inscrire",
+    "getStarted": "Commencer",
+    "menu": "Menu de navigation"
+  },
+  "hero": {
+    "title": "Prêt à maîtriser les <span>Échecs</span> ?",
+    "subtitle": "Connectez-vous avec des coachs de haut niveau. Apprenez à votre rythme. Suivez chaque victoire.",
+    "cta": "Commencer",
+    "secondaryCta": "Trouver un coach",
+    "stats": {
+      "coaches": "Coachs experts",
+      "students": "Joueurs actifs",
+      "lessons": "Cours réalisés"
+    }
+  },
+  "features": {
+    "title": "Pourquoi les joueurs choisissent mychess",
+    "subtitle": "Tout ce dont vous avez besoin pour progresser",
+    "personalizedPath": {
+      "title": "Parcours personnalisé",
+      "description": "Un programme structuré qui s'adapte à votre niveau, de la théorie des ouvertures à la maîtrise des finales."
+    },
+    "expertCoaches": {
+      "title": "Coachs experts vérifiés",
+      "description": "Apprenez avec des joueurs classés et des instructeurs certifiés qui savent révéler votre potentiel."
+    },
+    "flexibleScheduling": {
+      "title": "Réservez à tout moment",
+      "description": "Planifiez vos cours selon votre emploi du temps. Matin, soir, week-end — vous choisissez."
+    },
+    "progressTracking": {
+      "title": "Suivez votre progression",
+      "description": "Regardez votre niveau monter avec des statistiques détaillées, l'analyse des parties et des badges."
+    },
+    "videoLessons": {
+      "title": "Cours vidéo HD",
+      "description": "Appels vidéo haute qualité avec partage d'écran. Revoyez les enregistrements avec Premium."
+    },
+    "community": {
+      "title": "Rejoignez la communauté",
+      "description": "Connectez-vous avec d'autres joueurs, partagez vos stratégies et célébrez vos victoires ensemble."
+    }
+  },
+  "levels": {
+    "title": "Votre parcours échiquéen",
+    "subtitle": "4 niveaux. 120 cours. Un chemin vers la maîtrise.",
+    "pawn": {
+      "name": "Pion",
+      "icon": "Pion",
+      "subtitle": "Niveau A — Débutant",
+      "description": "Maîtrisez les fondamentaux : mouvement des pièces, tactiques de base et vos premiers mats.",
+      "skills": ["Mouvement des pièces", "Captures de base", "Mats simples", "Principes d'ouverture"]
+    },
+    "knight": {
+      "name": "Cavalier",
+      "icon": "Cavalier",
+      "subtitle": "Niveau B — Intermédiaire",
+      "description": "Développez votre vision tactique avec fourchettes, clouages et attaques à la découverte.",
+      "skills": ["Motifs tactiques", "Coordination des pièces", "Structures de pions", "Stratégie du milieu de partie"]
+    },
+    "queen": {
+      "name": "Fou",
+      "icon": "Fou",
+      "subtitle": "Niveau C — Avancé",
+      "description": "Approfondissez votre compréhension stratégique et maîtrisez les positions complexes.",
+      "skills": ["Jeu positionnel", "Tactiques avancées", "Technique de finale", "Répertoire d'ouvertures"]
+    },
+    "king": {
+      "name": "Tour",
+      "icon": "Tour",
+      "subtitle": "Niveau D — Expert",
+      "description": "Perfectionnez votre jeu avec des concepts de grand maître et la préparation compétitive.",
+      "skills": ["Calcul profond", "Maîtrise stratégique", "Préparation tournoi", "Analyse de parties"]
+    }
+  },
+  "howItWorks": {
+    "title": "Comment ça marche",
+    "subtitle": "Trois étapes vers votre premier cours",
+    "forPlayers": {
+      "title": "Pour les joueurs",
+      "step1": {
+        "title": "Passez le quiz",
+        "description": "Répondez à 20 questions pour découvrir votre niveau actuel. Cela ne prend que 5 minutes."
+      },
+      "step2": {
+        "title": "Trouvez votre coach",
+        "description": "Parcourez les coachs vérifiés, lisez les avis et choisissez celui qui correspond à vos objectifs."
+      },
+      "step3": {
+        "title": "Réservez et apprenez",
+        "description": "Planifiez votre premier cours. Votre coach vous guidera à travers un programme personnalisé."
+      }
+    },
+    "forCoaches": {
+      "title": "Pour les coachs",
+      "step1": {
+        "title": "Créez votre profil",
+        "description": "Présentez vos qualifications, votre style d'enseignement et votre tarif horaire."
+      },
+      "step2": {
+        "title": "Définissez vos disponibilités",
+        "description": "Configurez votre emploi du temps. Les élèves réservent directement — pas d'allers-retours."
+      },
+      "step3": {
+        "title": "Enseignez et gagnez",
+        "description": "Donnez vos cours en vidéo HD. Recevez vos paiements chaque semaine via Stripe Connect."
+      }
+    },
+    "cta": "Commencer maintenant"
+  },
+  "pricing": {
+    "title": "Tarification simple et transparente",
+    "subtitle": "Payez par cours. Passez à Premium pour plus d'avantages.",
+    "free": {
+      "title": "Gratuit",
+      "price": "0",
+      "period": "pour toujours",
+      "description": "Parfait pour commencer",
+      "features": [
+        "Quiz d'évaluation de niveau",
+        "Parcourir tous les coachs",
+        "Réserver aux tarifs des coachs",
+        "Suivi de progression",
+        "Premier cours offert"
+      ],
+      "cta": "Commencer gratuitement"
+    },
+    "premium": {
+      "title": "Premium",
+      "price": "4,99",
+      "period": "par mois",
+      "description": "Pour les joueurs sérieux",
+      "features": [
+        "Tout le plan Gratuit",
+        "Enregistrements des cours",
+        "Notifications prioritaires",
+        "Badge Premium sur le profil",
+        "Entraînement contre myChessBot"
+      ],
+      "cta": "Passer à Premium",
+      "badge": "Le plus populaire",
+      "trial": "Essayez l'offre Premium <strong>gratuitement</strong> pendant 14 jours !"
+    },
+    "lessonPricing": {
+      "title": "Tarifs des cours",
+      "description": "Les coachs fixent leurs propres tarifs",
+      "range": "30 - 80",
+      "unit": "par heure",
+      "note": "Premier cours toujours gratuit"
+    },
+    "guarantee": {
+      "title": "Garantie satisfaction",
+      "description": "Pas satisfait de votre premier cours payant ? Nous vous remboursons. Sans condition."
+    }
+  },
+  "faq": {
+    "title": "Questions fréquentes",
+    "subtitle": "Tout ce que vous devez savoir",
+    "categories": {
+      "general": "Général",
+      "lessons": "Cours",
+      "payments": "Paiements",
+      "coaches": "Pour les coachs",
+      "technical": "Technique"
+    },
+    "questions": {
+      "whatIsMychess": {
+        "q": "Qu'est-ce que mychess ?",
+        "a": "mychess est une plateforme en ligne qui met en relation les joueurs d'échecs avec des coachs vérifiés. Nous proposons un parcours d'apprentissage structuré avec 120 cours répartis sur 4 niveaux, des cours vidéo en direct et un suivi de progression."
+      },
+      "howToStart": {
+        "q": "Comment commencer ?",
+        "a": "Créez un compte gratuit, passez notre quiz d'évaluation de 5 minutes pour déterminer votre niveau, puis parcourez les coachs et réservez votre premier cours. Votre premier cours est gratuit !"
+      },
+      "whoAreCoaches": {
+        "q": "Qui sont les coachs ?",
+        "a": "Nos coachs sont des joueurs d'échecs vérifiés et des instructeurs dont les classements et qualifications sont affichés sur leur profil. Vous pouvez lire les avis d'autres élèves avant de réserver."
+      },
+      "howBookLesson": {
+        "q": "Comment réserver un cours ?",
+        "a": "Trouvez un coach qui vous plaît, consultez ses créneaux disponibles et réservez directement. Vous recevrez un email de confirmation avec le lien de l'appel vidéo."
+      },
+      "howLessonsWork": {
+        "q": "Comment fonctionnent les cours vidéo ?",
+        "a": "Les cours se déroulent via Jitsi Meet — une plateforme vidéo gratuite dans le navigateur. Aucun téléchargement nécessaire. Votre coach partagera son écran pour démontrer les coups et analyser les parties."
+      },
+      "lessonDuration": {
+        "q": "Quelle est la durée d'un cours ?",
+        "a": "Les cours standard durent 1 heure. Les coachs peuvent proposer différentes durées — consultez leur profil pour les options."
+      },
+      "cancelLesson": {
+        "q": "Puis-je annuler un cours ?",
+        "a": "Oui. Annulation plus de 24h avant : remboursement intégral. Entre 2-24h : remboursement à 50%. Moins de 2h : pas de remboursement. Si un coach annule, vous êtes toujours intégralement remboursé."
+      },
+      "firstLessonFree": {
+        "q": "Le premier cours est-il vraiment gratuit ?",
+        "a": "Oui ! Les nouveaux joueurs bénéficient d'un premier cours totalement gratuit — sans carte bancaire. C'est notre façon de vous aider à trouver le bon coach."
+      },
+      "paymentMethods": {
+        "q": "Quels moyens de paiement acceptez-vous ?",
+        "a": "Nous acceptons toutes les principales cartes bancaires via Stripe. Vous pouvez également créditer votre portefeuille pour un paiement plus rapide."
+      },
+      "coachRates": {
+        "q": "Combien coûtent les cours ?",
+        "a": "Les coachs fixent leurs propres tarifs, généralement entre 30 et 80€ de l'heure. Vous verrez le prix avant de réserver."
+      },
+      "premiumBenefits": {
+        "q": "Que comprend l'abonnement Premium ?",
+        "a": "Premium (4,99€/mois) vous donne accès aux enregistrements des cours, aux notifications prioritaires quand vos coachs favoris publient des créneaux, un badge sur votre profil et l'accès à l'entraînement contre myChessBot."
+      },
+      "becomeCoach": {
+        "q": "Comment devenir coach ?",
+        "a": "Inscrivez-vous en tant que coach, complétez votre profil avec vos qualifications et votre expérience, définissez votre tarif horaire et vos disponibilités. Une fois approuvé, les élèves peuvent vous réserver."
+      },
+      "coachPayments": {
+        "q": "Comment les coachs sont-ils payés ?",
+        "a": "Les coachs reçoivent leurs paiements chaque semaine via Stripe Connect. Configurez votre compte de versement dans les Paramètres. Commission plateforme : 12,5% (10% plateforme + 2,5% Stripe)."
+      },
+      "technicalRequirements": {
+        "q": "De quoi ai-je besoin pour les cours vidéo ?",
+        "a": "Un ordinateur ou une tablette avec webcam, micro et connexion internet stable. Les cours se déroulent dans votre navigateur — aucun logiciel à installer."
+      },
+      "mobileApp": {
+        "q": "Y a-t-il une application mobile ?",
+        "a": "Le site fonctionne parfaitement sur les navigateurs mobiles. Une application dédiée arrive bientôt !"
+      },
+      "dataPrivacy": {
+        "q": "Mes données sont-elles sécurisées ?",
+        "a": "Oui. Nous utilisons un chiffrement standard de l'industrie, ne stockons jamais les numéros de carte et sommes conformes au RGPD. Consultez notre Politique de confidentialité pour plus de détails."
+      }
+    }
+  },
+  "sidebar": {
+    "menu": "Menu",
+    "dashboard": "Mon espace",
+    "myLessons": "Mes cours",
+    "myProgress": "Ma progression",
+    "programme": "Programme",
+    "myLibrary": "Ma bibliothèque",
+    "findCoach": "Trouver un coach",
+    "myAvailability": "Mes disponibilités",
+    "account": "Compte",
+    "profile": "Mon profil",
+    "wallet": "Mon solde",
+    "subscription": "Abonnement",
+    "invoices": "Mes factures",
+    "settings": "Paramètres",
+    "logout": "Déconnexion",
+    "admin": "Administration",
+    "adminDashboard": "Tableau de bord",
+    "overview": "Vue d'ensemble",
+    "users": "Utilisateurs",
+    "lessons": "Cours",
+    "accounting": "Comptabilité",
+    "stripeConnect": "Stripe Connect",
+    "blogAdmin": "Blog",
+    "messages": "Messages",
+    "roles": {
+      "player": "Joueur",
+      "coach": "Coach",
+      "admin": "Administrateur"
+    },
+    "notifications": "Notifications",
+    "notificationCenter": "Centre de notifications",
+    "clearAll": "Tout effacer",
+    "noNotifications": "Aucune notification",
+    "open": "Ouvrir",
+    "close": "Fermer",
+    "closeMenu": "Fermer le menu"
+  },
+  "dashboard": {
+    "welcome": "Bienvenue",
+    "hello": "Bonjour",
+    "continueProgress": "Continuez votre progression aux échecs",
+    "manageCoursesRevenue": "Gérez vos cours et suivez vos revenus",
+    "quickActions": "Actions rapides",
+    "bookLesson": "Réserver un cours",
+    "takeQuiz": "Passer le quiz",
+    "viewProgress": "Voir ma progression",
+    "upcomingLessons": "Prochains cours",
+    "noUpcoming": "Aucun cours prévu",
+    "noUpcomingDescription": "Vos prochains cours apparaîtront ici",
+    "findCoachCta": "Trouvez un coach et réservez votre prochaine session",
+    "recentProgress": "Progression récente",
+    "coursesCompleted": "Cours terminés",
+    "currentLevel": "Niveau actuel",
+    "totalLessons": "Total des cours",
+    "nextMilestone": "Prochain objectif",
+    "stats": {
+      "upcomingLessons": "Cours à venir",
+      "completedLessons": "Cours terminés",
+      "activeSubscription": "Abonnement actif",
+      "goPremium": "Passer Premium",
+      "availableBalance": "Solde disponible",
+      "totalEarned": "Total gagné"
+    },
+    "earnings": {
+      "title": "Mes Revenus",
+      "configurePayments": "Configurer paiements",
+      "stripeWarning": "Pour pouvoir retirer votre argent, veuillez aller dans <a>Profil</a> et renseigner vos coordonnées bancaires.",
+      "netAmountsNote": "Montants nets après commission (12.5%)",
+      "availableBalance": "Solde disponible",
+      "totalEarnedNet": "Total gagné (net)",
+      "alreadyWithdrawn": "Déjà retiré",
+      "amountToWithdraw": "Montant à retirer",
+      "minimumMaximum": "Minimum 100 EUR - Maximum",
+      "withdrawalInProgress": "Retrait en cours…",
+      "withdraw": "Retirer",
+      "minimumRequired": "Solde minimum de 100 EUR requis pour effectuer un retrait. Il vous manque",
+      "configureBank": "Configurez votre compte bancaire pour pouvoir retirer vos gains.",
+      "noEarningsYet": "Aucun gain disponible pour le moment. Terminez des cours pour commencer à gagner !"
+    },
+    "wallet": {
+      "title": "Mon Portefeuille",
+      "viewAll": "Voir tout",
+      "availableBalance": "Solde disponible",
+      "credit": "Créditer",
+      "bookLesson": "Réserver un cours"
+    },
+    "subscription": {
+      "title": "Abonnement",
+      "manage": "Gérer",
+      "premium": "Premium",
+      "replay": "Revisionnage",
+      "notifications": "Notifications",
+      "since": "Depuis le",
+      "goPremium": "Passez Premium",
+      "accessReplays": "Accédez aux replays et fonctionnalités exclusives",
+      "discover": "Découvrir"
+    },
+    "teacherLessons": {
+      "title": "Prochains cours",
+      "lessonWith": "Cours avec",
+      "confirm": "Confirmer",
+      "decline": "Refuser",
+      "join": "Accéder",
+      "complete": "Terminer"
+    },
+    "cancelDialog": {
+      "title": "Annuler le cours",
+      "message": "Êtes-vous sûr de vouloir annuler ce cours ?",
+      "confirmText": "Annuler le cours",
+      "cancelText": "Retour",
+      "inputLabel": "Raison de l'annulation (optionnel)",
+      "inputPlaceholder": "Ex: Indisponibilité..."
+    }
+  },
+  "teachers": {
+    "title": "Trouvez votre coach",
+    "subtitle": "Parcourez les coachs vérifiés et réservez votre premier cours",
+    "pageTitle": "Nos Coachs d'Échecs",
+    "pageSubtitle": "Trouvez le coach parfait pour progresser à votre rythme",
+    "searchPlaceholder": "Rechercher par nom…",
+    "myFavorites": "Mes Favoris",
+    "allCoaches": "Tous les Coachs",
+    "coachFound": "coach trouvé",
+    "coachesFound": "coachs trouvés",
+    "filters": {
+      "level": "Niveau",
+      "minRating": "Note minimum",
+      "minRate": "Tarif min",
+      "maxRate": "Tarif max",
+      "maxPrice": "Prix maximum",
+      "availability": "Disponibilité",
+      "language": "Langue",
+      "clearAll": "Réinitialiser les filtres"
+    },
+    "sort": {
+      "rating": "Mieux notés",
+      "price": "Prix le plus bas",
+      "experience": "Plus d'expérience",
+      "newest": "Les plus récents"
+    },
+    "card": {
+      "perHour": "par heure",
+      "rating": "note",
+      "reviews": "avis",
+      "students": "élèves",
+      "lessonsTaught": "cours donnés",
+      "viewProfile": "Voir le profil",
+      "bookNow": "Réserver",
+      "online": "En ligne",
+      "favorite": "Ajouter aux favoris",
+      "unfavorite": "Retirer des favoris"
+    },
+    "profile": {
+      "about": "À propos",
+      "experience": "Expérience",
+      "specialties": "Spécialités",
+      "languages": "Langues",
+      "availability": "Disponibilités",
+      "reviews": "Avis",
+      "noReviews": "Aucun avis pour le moment",
+      "beFirst": "Réservez un cours et soyez le premier à donner votre avis !",
+      "allReviews": "Voir tous les avis",
+      "bookLesson": "Réserver un cours",
+      "selectSlot": "Sélectionnez un créneau disponible",
+      "noSlots": "Aucun créneau disponible",
+      "checkBack": "Revenez plus tard pour de nouvelles disponibilités",
+      "coachTitle": "Coach d'échecs",
+      "favorite": "Favori",
+      "addFavorite": "Ajouter",
+      "hourlyRate": "Tarif horaire",
+      "averageRating": "Note moyenne",
+      "lessonsTaught": "Cours donnés",
+      "studentsCount": "Élèves",
+      "emailAlerts": "Alertes email",
+      "emailAlertsHint": "Recevoir un email quand ce coach publie des créneaux",
+      "goPremium": "Passez Premium",
+      "premiumAlertsHint": "pour recevoir les alertes de disponibilités"
+    },
+    "empty": {
+      "title": "Aucun résultat",
+      "description": "Essayez d'ajuster vos filtres ou termes de recherche",
+      "noCoaches": "Aucun coach disponible",
+      "noCoachesDescription": "Revenez bientôt, de nouveaux coachs rejoignent la plateforme régulièrement !"
+    },
+    "cta": {
+      "title": "Prêt à progresser aux échecs ?",
+      "description": "Inscrivez-vous gratuitement et réservez votre premier cours offert",
+      "button": "Commencer maintenant"
+    }
+  },
+  "lessons": {
+    "title": "Mes cours",
+    "tabs": {
+      "upcoming": "À venir",
+      "history": "Historique",
+      "pending": "En attente"
+    },
+    "upcoming": {
+      "title": "Cours à venir",
+      "empty": "Aucun cours à venir",
+      "emptyCta": "Réservez un cours avec un coach",
+      "joinCall": "Rejoindre l'appel",
+      "startsIn": "Commence dans",
+      "cancel": "Annuler le cours",
+      "reschedule": "Reporter"
+    },
+    "history": {
+      "title": "Historique des cours",
+      "empty": "Aucun cours passé",
+      "completed": "Terminé",
+      "cancelled": "Annulé",
+      "noShow": "Absent",
+      "rateLesson": "Noter ce cours",
+      "viewRecording": "Voir l'enregistrement",
+      "practice": "S'exercer",
+      "deleteFromHistory": "Supprimer de l'historique"
+    },
+    "pending": {
+      "title": "En attente de confirmation",
+      "empty": "Aucun cours en attente",
+      "awaitingConfirmation": "En attente de confirmation du coach",
+      "expiresIn": "Expire dans"
+    },
+    "status": {
+      "confirmed": "Confirmé",
+      "pending": "En attente",
+      "completed": "Terminé",
+      "cancelled": "Annulé",
+      "cancelledByMe": "Annulé par moi",
+      "cancelledByCoach": "Annulé par le coach",
+      "cancelledByStudent": "Annulé par le joueur",
+      "cancelledAuto": "Annulé (auto)",
+      "noShow": "Absent"
+    },
+    "details": {
+      "with": "avec",
+      "on": "le",
+      "at": "à",
+      "duration": "Durée",
+      "price": "Prix",
+      "level": "Niveau",
+      "topic": "Sujet"
+    }
+  },
+  "booking": {
+    "title": "Réserver un cours",
+    "selectDate": "Sélectionnez une date",
+    "selectTime": "Sélectionnez une heure",
+    "availableSlots": "Créneaux disponibles",
+    "noSlots": "Aucun créneau disponible pour cette date",
+    "selectedSlot": "Créneau sélectionné",
+    "summary": "Récapitulatif",
+    "coach": "Coach",
+    "dateTime": "Date et heure",
+    "price": "Prix",
+    "paymentMethod": "Moyen de paiement",
+    "card": "Carte bancaire",
+    "wallet": "Solde du portefeuille",
+    "walletBalance": "Solde disponible",
+    "insufficientBalance": "Solde insuffisant",
+    "addFunds": "Créditer",
+    "firstLessonFree": "Premier cours offert !",
+    "firstLessonBanner": "Votre premier cours est offert. Aucun paiement requis.",
+    "bookFree": "Réserver gratuitement",
+    "bookNow": "Réserver et payer",
+    "processing": "Traitement en cours…",
+    "redirecting": "Redirection vers le paiement…",
+    "success": {
+      "title": "Cours réservé !",
+      "message": "Votre cours a été programmé. Vous recevrez un email de confirmation sous peu.",
+      "addToCalendar": "Ajouter au calendrier",
+      "viewLesson": "Voir le cours"
+    },
+    "error": {
+      "slotTaken": "Ce créneau n'est plus disponible",
+      "paymentFailed": "Échec du paiement. Veuillez réessayer.",
+      "generic": "Une erreur s'est produite. Veuillez réessayer."
+    }
+  },
+  "wallet": {
+    "title": "Mon Portefeuille",
+    "subtitle": "Rechargez votre crédit et payez vos cours en un clic",
+    "balance": "Solde actuel",
+    "addFunds": "Créditer",
+    "topUp": "Recharger",
+    "minAmount": "Minimum 5 €",
+    "transactions": "Historique des transactions",
+    "noTransactions": "Aucune transaction pour le moment",
+    "noTransactionsHint": "Rechargez votre crédit pour réserver des cours",
+    "types": {
+      "credit": "Crédit",
+      "debit": "Paiement",
+      "refund": "Remboursement",
+      "lesson": "Paiement de cours"
+    },
+    "stats": {
+      "totalTopUps": "Total rechargé",
+      "totalSpent": "Total dépensé",
+      "totalRefunded": "Total remboursé"
+    },
+    "addFundsModal": {
+      "title": "Recharger mon crédit",
+      "description": "Choisissez un montant ou entrez un montant personnalisé (minimum 5 €)",
+      "popular": "Populaire",
+      "customAmount": "Montant personnalisé",
+      "customPlaceholder": "Ex: 75",
+      "amountToPay": "Montant à payer :",
+      "amount": "Montant",
+      "confirm": "Créditer",
+      "pay": "Payer",
+      "processing": "Chargement…"
+    },
+    "creditTopUp": "Recharge de crédit"
+  },
+  "subscription": {
+    "title": "Abonnement",
+    "currentPlan": "Plan actuel",
+    "free": {
+      "title": "Plan Gratuit",
+      "description": "Accès de base à la plateforme"
+    },
+    "premium": {
+      "title": "Premium",
+      "description": "Accès complet avec fonctionnalités exclusives",
+      "price": "4,99",
+      "period": "par mois",
+      "badge": "Actif"
+    },
+    "benefits": {
+      "title": "Avantages Premium",
+      "recordings": "Accès aux enregistrements des cours",
+      "notifications": "Alertes de réservation prioritaires",
+      "badge": "Badge Premium sur le profil",
+      "bot": "Entraînement contre myChessBot",
+      "support": "Support prioritaire"
+    },
+    "upgrade": "Passer à Premium",
+    "manage": "Gérer l'abonnement",
+    "cancel": "Annuler l'abonnement",
+    "cancelConfirm": {
+      "title": "Annuler l'abonnement ?",
+      "message": "Vous perdrez l'accès aux fonctionnalités Premium à la fin de votre période de facturation.",
+      "confirm": "Oui, annuler",
+      "keep": "Garder Premium"
+    },
+    "renewsOn": "Renouvellement le",
+    "expiresOn": "Expire le"
+  },
+  "progress": {
+    "title": "Ma Progression",
+    "subtitle": "{{completed}} cours validés sur {{total}}",
+    "overview": "Vue d'ensemble",
+    "currentLevel": "Niveau actuel",
+    "totalCourses": "Cours terminés",
+    "totalLessons": "Cours suivis",
+    "progressPercent": "Progression globale",
+    "levelProgress": "Progression par niveau",
+    "courses": "cours",
+    "coursesCompleted": "terminés",
+    "locked": "Verrouillé",
+    "inProgress": "En cours",
+    "completed": "Terminé",
+    "pendingValidation": "En attente de validation",
+    "startCourse": "Commencer",
+    "continueCourse": "Continuer",
+    "viewDetails": "Voir les détails",
+    "nextUp": "À suivre",
+    "retakeQuiz": "Repasser le quiz d'évaluation",
+    "loading": "Chargement de votre progression…",
+    "error": "Erreur",
+    "noCourses": "Aucun cours disponible",
+    "cta": {
+      "title": "Continuez votre progression !",
+      "description": "Réservez un cours avec un coach pour valider vos connaissances.",
+      "findCoach": "Trouver un coach"
+    },
+    "quiz": {
+      "icon": "Pièce d'échecs",
+      "title": "Réévaluez votre niveau",
+      "description": "Vous pensez avoir progressé ? Repassez le quiz pour mettre à jour votre niveau.",
+      "takeQuiz": "Passer le quiz"
+    },
+    "studentProfile": {
+      "title": "Profil du joueur",
+      "loading": "Chargement du profil…",
+      "level": "Niveau :",
+      "validatedCourses": "Cours validés",
+      "progression": "Progression",
+      "setLevel": "Définir le niveau",
+      "levelSetBy": "Niveau défini par",
+      "notEvaluated": "Ce joueur n'a pas encore été évalué. Définissez son niveau après avoir testé ses compétences.",
+      "progressByLevel": "Progression par niveau",
+      "validated": "Validé",
+      "validate": "Valider",
+      "pendingValidate": "En attente - Valider"
+    }
+  },
+  "quiz": {
+    "title": "Évaluation de niveau",
+    "subtitle": "Répondez à 20 questions pour découvrir votre niveau aux échecs",
+    "start": "Commencer le quiz",
+    "question": "Question",
+    "of": "sur",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "submit": "Valider le quiz",
+    "skip": "Passer",
+    "finish": "Terminer",
+    "sending": "Envoi…",
+    "timeRemaining": "Temps restant",
+    "intro": {
+      "icon": "Pion d'échecs",
+      "title": "Testez vos connaissances",
+      "description": "Ce quiz est indicatif et vous permet de tester vos connaissances aux échecs. Votre niveau officiel sera déterminé par votre coach lors de votre premier cours.",
+      "questions": "Questions",
+      "levels": "Niveaux",
+      "toPass": "Pour passer",
+      "evaluatedLevels": "Niveaux évalués",
+      "skipToPawn": "Passer et commencer au niveau Pion"
+    },
+    "progress": {
+      "level": "Niveau"
+    },
+    "answered": "répondues",
+    "results": {
+      "title": "Vos résultats",
+      "level": "Votre niveau",
+      "suggestedLevel": "Niveau suggéré",
+      "score": "Score",
+      "breakdown": "Détail du score",
+      "resultsByLevel": "Résultats par niveau",
+      "recommendation": "Nous vous recommandons de commencer au niveau",
+      "startLearning": "Commencer l'apprentissage",
+      "retake": "Refaire le quiz",
+      "viewProgress": "Voir mon parcours",
+      "notice": "Note : Ce résultat est indicatif. Votre coach évaluera officiellement votre niveau lors de votre premier cours avec des exercices pratiques.",
+      "notEvaluated": "Non évalué",
+      "passed": "Réussi",
+      "failed": "Échoué"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Bon retour parmi nous",
+      "subtitle": "Connectez-vous pour continuer votre parcours échiquéen",
+      "email": "Email",
+      "password": "Mot de passe",
+      "forgotPassword": "Mot de passe oublié ?",
+      "submit": "Se connecter",
+      "noAccount": "Pas encore de compte ?",
+      "signup": "S'inscrire",
+      "or": "ou",
+      "googleLogin": "Continuer avec Google"
+    },
+    "signup": {
+      "title": "Créer un compte",
+      "subtitle": "Rejoignez des milliers de joueurs d'échecs",
+      "role": "Je souhaite",
+      "player": "Apprendre les échecs",
+      "coach": "Enseigner les échecs",
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "email": "Email",
+      "password": "Mot de passe",
+      "passwordHint": "Au moins 8 caractères",
+      "confirmPassword": "Confirmer le mot de passe",
+      "terms": "J'accepte les",
+      "termsLink": "Conditions d'utilisation",
+      "and": "et la",
+      "privacyLink": "Politique de confidentialité",
+      "submit": "Créer mon compte",
+      "hasAccount": "Déjà inscrit ?",
+      "login": "Se connecter"
+    },
+    "forgotPassword": {
+      "title": "Mot de passe oublié",
+      "subtitle": "Entrez votre email pour recevoir un lien de réinitialisation",
+      "email": "Email",
+      "submit": "Envoyer le lien",
+      "sending": "Envoi en cours…",
+      "success": {
+        "title": "Email envoyé !",
+        "message": "Si un compte existe avec cette adresse email, vous recevrez un lien de réinitialisation dans les prochaines minutes.",
+        "checkSpam": "Pensez à vérifier vos spams."
+      },
+      "backToLogin": "Retour à la connexion"
+    },
+    "resetPassword": {
+      "title": "Nouveau mot de passe",
+      "subtitle": "Choisissez un nouveau mot de passe sécurisé",
+      "newPassword": "Nouveau mot de passe",
+      "confirmPassword": "Confirmer le mot de passe",
+      "submit": "Modifier mon mot de passe",
+      "submitting": "Modification…",
+      "success": {
+        "title": "Mot de passe modifié !",
+        "message": "Votre mot de passe a été réinitialisé avec succès. Vous pouvez maintenant vous connecter avec votre nouveau mot de passe."
+      },
+      "invalidLink": {
+        "title": "Lien invalide",
+        "message": "Ce lien de réinitialisation est invalide ou a expiré.",
+        "requestNew": "Demander un nouveau lien"
+      },
+      "validating": "Vérification du lien…"
+    },
+    "errors": {
+      "invalidEmail": "Veuillez entrer un email valide",
+      "passwordTooShort": "Le mot de passe doit contenir au moins 8 caractères",
+      "passwordMismatch": "Les mots de passe ne correspondent pas",
+      "invalidCredentials": "Email ou mot de passe incorrect",
+      "emailInUse": "Cet email est déjà utilisé",
+      "required": "Ce champ est requis"
+    },
+    "verificationEmailResent": "Email de vérification renvoyé !"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "profile": {
+      "title": "Profil",
+      "avatar": "Photo de profil",
+      "changeAvatar": "Modifier la photo",
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "email": "Email",
+      "bio": "Bio",
+      "bioPlaceholder": "Décrivez votre expérience…",
+      "save": "Enregistrer",
+      "saving": "Enregistrement…"
+    },
+    "coachProfile": {
+      "title": "Profil coach",
+      "hourlyRate": "Tarif horaire",
+      "experience": "Années d'expérience",
+      "specialties": "Spécialités",
+      "languages": "Langues",
+      "elo": "Classement ELO",
+      "fide": "Titre FIDE"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "email": "Notifications par email",
+      "emailReminders": "Rappels de cours",
+      "emailBookings": "Nouvelles réservations",
+      "emailFavorites": "Disponibilités des coachs favoris",
+      "push": "Notifications push",
+      "pushReminders": "Rappels de cours",
+      "pushBookings": "Mises à jour des réservations"
+    },
+    "language": {
+      "title": "Langue",
+      "description": "Choisissez votre langue préférée pour l'interface"
+    },
+    "calendar": {
+      "title": "Intégration calendrier",
+      "google": "Google Calendar",
+      "connected": "Connecté",
+      "connect": "Connecter",
+      "disconnect": "Déconnecter",
+      "syncDescription": "Ajoutez automatiquement les cours à votre Google Calendar"
+    },
+    "stripe": {
+      "title": "Paramètres de versement",
+      "description": "Connectez Stripe pour recevoir les paiements des cours",
+      "connected": "Connecté",
+      "connect": "Connecter Stripe",
+      "disconnect": "Déconnecter",
+      "status": "Statut du compte",
+      "verified": "Vérifié",
+      "pending": "Vérification en cours",
+      "configurationComplete": "Configuration terminée !",
+      "configurationIncomplete": "Configuration incomplète. Veuillez reprendre le processus.",
+      "disconnectConfirmMessage": "Êtes-vous sûr de vouloir déconnecter votre compte ? Vous ne pourrez plus recevoir de paiements.",
+      "disconnectTitle": "Déconnexion Stripe",
+      "accountDisconnected": "Compte déconnecté",
+      "withdrawConfirmMessage": "Voulez-vous retirer {{amount}} EUR vers votre compte bancaire ?",
+      "withdrawTitle": "Retirer mes gains",
+      "withdrawSuccess": "Retrait de {{amount}} effectué !",
+      "balanceRecalculatedSuccess": "Balance recalculée avec succès !"
+    },
+    "password": {
+      "title": "Modifier le mot de passe",
+      "current": "Mot de passe actuel",
+      "new": "Nouveau mot de passe",
+      "confirm": "Confirmer le nouveau mot de passe",
+      "submit": "Mettre à jour"
+    },
+    "danger": {
+      "title": "Zone de danger",
+      "deleteAccount": "Supprimer le compte",
+      "deleteWarning": "Cette action est irréversible. Toutes vos données seront définitivement supprimées.",
+      "confirmDelete": "Je comprends, supprimer mon compte"
+    },
+    "deleteAccount": {
+      "title": "Supprimer mon compte",
+      "confirmMessage": "Cette action est irréversible. Toutes vos données seront supprimées définitivement.",
+      "passwordPrompt": "Entrez votre mot de passe pour confirmer",
+      "confirmationRequired": "Confirmation requise",
+      "deletePermanently": "Supprimer définitivement",
+      "success": "Votre compte a été supprimé avec succès"
+    }
+  },
+  "exercise": {
+    "title": "Entraînement",
+    "subtitle": "Jouez contre myChessBot",
+    "back": "Retour",
+    "backToLessons": "Retour aux cours",
+    "trainingLevel": "Entraînement niveau",
+    "botMode": "myChessBot en mode",
+    "difficulty": {
+      "title": "Sélectionnez la difficulté",
+      "beginner": "Débutant",
+      "easy": "Facile",
+      "medium": "Moyen",
+      "hard": "Difficile",
+      "expert": "Expert"
+    },
+    "game": {
+      "yourTurn": "Votre tour",
+      "botTurn": "myChessBot réfléchit…",
+      "thinking": "myChessBot réfléchit…",
+      "check": "Échec !",
+      "checkmate": "Échec et mat !",
+      "stalemate": "Pat",
+      "draw": "Nulle"
+    },
+    "result": {
+      "win": "Victoire !",
+      "winMessage": "Félicitations, vous avez battu myChessBot !",
+      "lose": "Défaite",
+      "loseMessage": "myChessBot a gagné cette partie.",
+      "draw": "Match nul",
+      "drawMessage": "La partie s'est terminée par une égalité.",
+      "playAgain": "Rejouer"
+    },
+    "controls": {
+      "newGame": "Nouvelle partie",
+      "resign": "Abandonner",
+      "hint": "Indice",
+      "undo": "Annuler le coup",
+      "flip": "Retourner l'échiquier"
+    },
+    "history": {
+      "title": "Historique des coups",
+      "moves": "coups",
+      "noMoves": "Aucun coup joué"
+    },
+    "evaluation": {
+      "title": "Évaluation"
+    },
+    "loading": "Chargement de l'exercice…",
+    "initEngine": "Initialisation du moteur d'échecs…",
+    "tip": "Conseil"
+  },
+  "availability": {
+    "title": "Mes disponibilités",
+    "subtitle": "Gérez vos créneaux de cours disponibles",
+    "addSlot": "Ajouter un créneau",
+    "weekView": "Vue semaine",
+    "listView": "Vue liste",
+    "noSlots": "Aucune disponibilité définie",
+    "noSlotsHint": "Ajoutez des créneaux pour permettre aux élèves de réserver des cours",
+    "recurring": {
+      "title": "Créneaux récurrents",
+      "description": "Ces créneaux se répètent chaque semaine"
+    },
+    "specific": {
+      "title": "Créneaux ponctuels",
+      "description": "Disponibilités pour des dates spécifiques",
+      "empty": "Aucun créneau ponctuel défini"
+    },
+    "slot": {
+      "date": "Date",
+      "startTime": "Heure de début",
+      "endTime": "Heure de fin",
+      "duration": "Durée",
+      "type": "Type de créneau",
+      "recurringWeekly": "Récurrent (chaque semaine)",
+      "specificDate": "Ponctuel (date spécifique)",
+      "dayOfWeek": "Jour de la semaine",
+      "repeat": "Répétition",
+      "repeatOptions": {
+        "none": "Ne se répète pas",
+        "daily": "Quotidien",
+        "weekly": "Hebdomadaire",
+        "biweekly": "Toutes les 2 semaines"
+      },
+      "delete": "Supprimer",
+      "booked": "Réservé",
+      "durationHint": "Durée du créneau : 1 heure (fin à"
+    },
+    "modal": {
+      "title": "Ajouter une disponibilité",
+      "save": "Enregistrer",
+      "cancel": "Annuler",
+      "add": "Ajouter"
+    },
+    "validation": {
+      "minDuration": "La durée minimum est de 1 heure",
+      "overlap": "Ce créneau chevauche une disponibilité existante",
+      "past": "Impossible d'ajouter des créneaux dans le passé"
+    },
+    "confirmDelete": {
+      "title": "Supprimer la disponibilité",
+      "message": "Êtes-vous sûr de vouloir supprimer cette disponibilité ?",
+      "confirm": "Supprimer",
+      "cancel": "Annuler"
+    }
+  },
+  "rating": {
+    "title": "Noter votre cours",
+    "subtitle": "Comment était votre cours avec",
+    "yourRating": "Votre note :",
+    "selectRating": "Sélectionnez une note",
+    "star": "étoile",
+    "stars": {
+      "1": "Médiocre",
+      "2": "Passable",
+      "3": "Bien",
+      "4": "Très bien",
+      "5": "Excellent"
+    },
+    "comment": "Laisser un commentaire (optionnel)",
+    "commentPlaceholder": "Partagez votre expérience…",
+    "submit": "Envoyer",
+    "submitting": "Envoi…",
+    "success": "Merci pour votre avis !",
+    "skip": "Passer"
+  },
+  "invoices": {
+    "title": "Factures",
+    "download": "Télécharger PDF",
+    "noInvoices": "Aucune facture",
+    "columns": {
+      "date": "Date",
+      "description": "Description",
+      "amount": "Montant",
+      "status": "Statut",
+      "actions": "Actions"
+    },
+    "status": {
+      "paid": "Payée",
+      "pending": "En attente",
+      "refunded": "Remboursée"
+    },
+    "types": {
+      "lesson": "Cours",
+      "subscription": "Abonnement",
+      "wallet": "Crédit portefeuille",
+      "refund": "Remboursement"
+    },
+    "filter": {
+      "dateRange": "Période",
+      "from": "Du",
+      "to": "Au",
+      "apply": "Appliquer"
+    }
+  },
+  "blog": {
+    "title": "Blog",
+    "subtitle": "Conseils, stratégies et actualités échiquéennes",
+    "readMore": "Lire la suite",
+    "backToList": "Retour aux articles",
+    "loadingArticle": "Chargement de l'article…",
+    "pagination": {
+      "previous": "Précédent",
+      "next": "Suivant"
+    },
+    "footer": {
+      "copyright": "mychess. Tous droits réservés.",
+      "backToHome": "Retour à l'accueil"
+    },
+    "categories": {
+      "all": "Tous",
+      "strategy": "Stratégie",
+      "openings": "Ouvertures",
+      "endgame": "Finales",
+      "tactics": "Tactique",
+      "news": "Actualités"
+    },
+    "article": {
+      "by": "Par",
+      "on": "le",
+      "minRead": "min de lecture",
+      "share": "Partager cet article",
+      "relatedArticles": "Articles similaires",
+      "notFound": "Article non trouvé",
+      "notFoundDesc": "L'article que vous recherchez n'existe pas ou a été supprimé.",
+      "readyToProgress": "Prêt à progresser aux échecs ?",
+      "readyToProgressDesc": "Rejoignez mychess et apprenez avec nos maîtres certifiés.",
+      "startNow": "Commencer maintenant"
+    },
+    "empty": {
+      "title": "Aucun article pour le moment",
+      "description": "Revenez bientôt pour des conseils et actualités échiquéennes"
+    },
+    "loading": "Chargement des articles…"
+  },
+  "library": {
+    "title": "Ma Bibliothèque",
+    "subtitle": "Revisionnez vos cours enregistrés",
+    "searchPlaceholder": "Rechercher par nom de coach…",
+    "customDates": "Dates personnalisées",
+    "clearFilters": "Effacer les filtres",
+    "dateFrom": "Du",
+    "dateTo": "Au",
+    "loading": "Chargement des vidéos…",
+    "retry": "Réessayer",
+    "empty": {
+      "title": "Votre bibliothèque est vide",
+      "description": "Les enregistrements de vos cours apparaîtront ici",
+      "noResults": "Aucune vidéo trouvée",
+      "noResultsHint": "Essayez de modifier vos critères de recherche"
+    },
+    "periods": {
+      "all": "Toutes les dates",
+      "week": "7 derniers jours",
+      "month": "30 derniers jours",
+      "3months": "3 derniers mois",
+      "year": "Cette année"
+    },
+    "video": {
+      "lessonWith": "Cours avec",
+      "deleteConfirm": "Supprimer cette vidéo de votre bibliothèque ?",
+      "deleteTitle": "Supprimer de la bibliothèque"
+    }
+  },
+  "common": {
+    "loading": "Chargement…",
+    "error": "Une erreur s'est produite",
+    "retry": "Réessayer",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "close": "Fermer",
+    "confirm": "Confirmer",
+    "back": "Retour",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "sort": "Trier",
+    "all": "Tous",
+    "none": "Aucun",
+    "yes": "Oui",
+    "no": "Non",
+    "ok": "OK",
+    "done": "Terminé",
+    "apply": "Appliquer",
+    "reset": "Réinitialiser",
+    "clear": "Effacer",
+    "viewAll": "Voir tout",
+    "seeMore": "Voir plus",
+    "showLess": "Voir moins",
+    "comingSoon": "Bientôt disponible",
+    "new": "Nouveau",
+    "beta": "Bêta",
+    "free": "Gratuit",
+    "premium": "Premium",
+    "online": "En ligne",
+    "offline": "Hors ligne",
+    "required": "Requis",
+    "optional": "Optionnel",
+    "perHour": "par heure",
+    "perMonth": "par mois",
+    "minutes": "minutes",
+    "hours": "heures",
+    "days": "jours",
+    "disconnect": "Déconnecter",
+    "withdraw": "Retirer",
+    "continue": "Continuer",
+    "password": "Mot de passe"
+  },
+  "status": {
+    "success": "Succès",
+    "error": "Erreur",
+    "warning": "Attention",
+    "info": "Information",
+    "pending": "En attente",
+    "confirmed": "Confirmé",
+    "completed": "Terminé",
+    "cancelled": "Annulé",
+    "active": "Actif",
+    "inactive": "Inactif",
+    "verified": "Vérifié",
+    "unverified": "Non vérifié"
+  },
+  "days": {
+    "monday": "Lundi",
+    "tuesday": "Mardi",
+    "wednesday": "Mercredi",
+    "thursday": "Jeudi",
+    "friday": "Vendredi",
+    "saturday": "Samedi",
+    "sunday": "Dimanche",
+    "mon": "Lun",
+    "tue": "Mar",
+    "wed": "Mer",
+    "thu": "Jeu",
+    "fri": "Ven",
+    "sat": "Sam",
+    "sun": "Dim"
+  },
+  "months": {
+    "january": "Janvier",
+    "february": "Février",
+    "march": "Mars",
+    "april": "Avril",
+    "may": "Mai",
+    "june": "Juin",
+    "july": "Juillet",
+    "august": "Août",
+    "september": "Septembre",
+    "october": "Octobre",
+    "november": "Novembre",
+    "december": "Décembre",
+    "jan": "Jan",
+    "feb": "Fév",
+    "mar": "Mar",
+    "apr": "Avr",
+    "jun": "Juin",
+    "jul": "Juil",
+    "aug": "Août",
+    "sep": "Sep",
+    "oct": "Oct",
+    "nov": "Nov",
+    "dec": "Déc"
+  },
+  "errors": {
+    "network": "Erreur réseau. Vérifiez votre connexion.",
+    "server": "Erreur serveur. Veuillez réessayer plus tard.",
+    "notFound": "Page non trouvée",
+    "unauthorized": "Veuillez vous connecter pour continuer",
+    "forbidden": "Vous n'avez pas accès à cette ressource",
+    "sessionExpired": "Votre session a expiré. Veuillez vous reconnecter.",
+    "validation": "Veuillez vérifier vos informations et réessayer",
+    "generic": "Une erreur est survenue",
+    "upload": "Erreur lors de l'upload",
+    "delete": "Erreur lors de la suppression",
+    "save": "Erreur lors de la sauvegarde",
+    "load": "Erreur lors du chargement",
+    "loadPaymentForm": "Erreur lors du chargement du formulaire de paiement",
+    "selectRating": "Veuillez sélectionner une note",
+    "courseSelection": "Erreur lors de la sélection du cours",
+    "previousCourse": "Erreur lors du retour au cours précédent",
+    "stripeIncomplete": "Configuration incomplète. Veuillez reprendre le processus.",
+    "stripeConfig": "Erreur lors de la configuration",
+    "stripeConnection": "Erreur de connexion",
+    "stripeDisconnect": "Erreur lors de la déconnexion",
+    "stripeWithdraw": "Erreur lors du retrait",
+    "stripeRecalculate": "Erreur lors du recalcul",
+    "accountDelete": "Erreur lors de la suppression du compte",
+    "invalidSession": "Session de paiement invalide",
+    "paymentConfirm": "Erreur lors de la confirmation du paiement",
+    "videoLoad": "Erreur lors du chargement des vidéos",
+    "exerciseLoad": "Erreur lors du chargement de l'exercice",
+    "exercisesLoad": "Erreur lors du chargement des exercices",
+    "saveRecording": "Erreur lors de l'enregistrement",
+    "jitsiToken": "Erreur lors de la génération du token Jitsi",
+    "quizSubmit": "Erreur lors de la soumission du quiz",
+    "slotCreate": "Erreur lors de la création du créneau",
+    "availabilityLoad": "Erreur lors du chargement des disponibilités",
+    "slotsLoad": "Erreur lors du chargement des créneaux",
+    "bookingCreate": "Erreur lors de la réservation",
+    "checkoutCreate": "Erreur lors de la création de la session de paiement",
+    "sendEmail": "Erreur lors de l'envoi. Veuillez réessayer.",
+    "sendMessage": "Erreur lors de l'envoi du message. Veuillez réessayer.",
+    "subscriptionCancel": "Erreur lors de l'annulation de l'abonnement",
+    "freeTrialStart": "Erreur lors du démarrage de l'essai gratuit",
+    "invalidLink": "Lien invalide",
+    "linkExpired": "Le lien de vérification est invalide ou a expiré.",
+    "linkValidation": "Une erreur est survenue lors de la validation du lien.",
+    "tokenInvalid": "Token invalide",
+    "resetLinkInvalid": "Le lien de réinitialisation est invalide ou a expiré.",
+    "programmeLoad": "Erreur de chargement",
+    "subscriptionActivate": "Erreur lors de l'activation de l'abonnement",
+    "unknownError": "Erreur inconnue",
+    "suspendUser": "Erreur lors de la suspension",
+    "reactivateUser": "Erreur lors de la réactivation",
+    "deleteUser": "Erreur lors de la suppression",
+    "articleSave": "Erreur lors de l'enregistrement",
+    "articleDelete": "Erreur lors de la suppression",
+    "transferAmount": "Le montant doit être supérieur à 0",
+    "insufficientBalance": "Le montant dépasse votre solde disponible",
+    "transferError": "Erreur lors du virement",
+    "fileMustBeImage": "Le fichier doit être une image",
+    "imageTooLarge": "L'image ne doit pas dépasser 5 Mo",
+    "connection": "Erreur de connexion",
+    "stripeResume": "Erreur lors de la reprise",
+    "amountExceedsBalance": "Le montant dépasse votre solde disponible",
+    "withdrawal": "Erreur lors du retrait",
+    "recalculate": "Erreur lors du recalcul",
+    "deleteAccount": "Erreur lors de la suppression du compte"
+  },
+  "videoPlayer": {
+    "download": "Télécharger",
+    "exitFullscreen": "Quitter le plein écran",
+    "notSupported": "Votre navigateur ne supporte pas la lecture de vidéos.",
+    "loadError": "Impossible de charger la vidéo",
+    "resumeAt": "Reprendre à",
+    "pause": "Pause",
+    "play": "Lecture",
+    "rewind": "Reculer de 10 s",
+    "forward": "Avancer de 10 s",
+    "unmute": "Activer le son",
+    "mute": "Couper le son",
+    "quality": "Qualité vidéo",
+    "auto": "Auto",
+    "originalQuality": "Qualité originale",
+    "fullscreen": "Plein écran",
+    "shortcuts": {
+      "space": "Espace",
+      "playPause": "Lecture/Pause",
+      "skip": "+/-10s",
+      "mute": "Muet",
+      "fullscreen": "Plein écran"
+    }
+  },
+  "footer": {
+    "tagline": "Maîtrisez les échecs, un coup à la fois",
+    "company": "Entreprise",
+    "about": "À propos",
+    "careers": "Carrières",
+    "blog": "Blog",
+    "press": "Presse",
+    "legal": "Légal",
+    "terms": "Conditions d'utilisation",
+    "privacy": "Politique de confidentialité",
+    "cookies": "Politique des cookies",
+    "support": "Support",
+    "help": "Centre d'aide",
+    "contact": "Nous contacter",
+    "faq": "FAQ",
+    "social": "Suivez-nous",
+    "copyright": "Tous droits réservés"
+  },
+  "meta": {
+    "homeTitle": "mychess - Apprenez les échecs avec des coachs experts",
+    "homeDescription": "Connectez-vous avec des coachs d'échecs vérifiés. Cours personnalisés, programme structuré et suivi de progression. Premier cours gratuit !",
+    "teachersTitle": "Trouver un coach d'échecs | mychess",
+    "teachersDescription": "Parcourez les instructeurs d'échecs vérifiés. Lisez les avis, comparez les tarifs et réservez votre premier cours gratuit.",
+    "pricingTitle": "Tarifs | mychess",
+    "pricingDescription": "Tarification simple et transparente. Payez par cours ou passez à Premium. Premier cours toujours gratuit.",
+    "blogTitle": "Blog échecs | mychess",
+    "blogDescription": "Conseils, stratégies et analyses pour améliorer votre jeu d'échecs. Apprenez des experts et progressez."
+  },
+  "legal": {
+    "terms": {
+      "title": "Conditions Générales d'Utilisation",
+      "lastUpdate": "Dernière mise à jour"
+    },
+    "privacy": {
+      "title": "Politique de Confidentialité",
+      "lastUpdate": "Dernière mise à jour"
+    },
+    "legalNotice": {
+      "title": "Mentions Légales",
+      "lastUpdate": "Dernière mise à jour"
+    },
+    "home": "Accueil",
+    "ourCoaches": "Nos coachs",
+    "mySpace": "Mon Espace"
+  },
+  "programme": {
+    "title": "Programme Pédagogique",
+    "subtitle": "Progressez à votre rythme avec notre parcours structuré",
+    "goBack": "Revenir au cours précédent",
+    "yourNextCourse": "Votre prochain cours",
+    "level": "Niveau",
+    "infoBanner": "Cliquez sur un cours pour voir son contenu. Vous pouvez choisir de commencer à partir d'un cours différent en cliquant sur \"Démarrer ici\".",
+    "courses": "cours",
+    "lessons": "leçons",
+    "inProgress": "En cours",
+    "startHere": "Démarrer ici",
+    "stats": {
+      "levels": "Niveaux",
+      "courses": "Cours",
+      "lessons": "Leçons"
+    }
+  }
+}

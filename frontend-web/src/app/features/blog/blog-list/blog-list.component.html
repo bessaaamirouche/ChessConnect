@@ -18,30 +18,30 @@
 
       <!-- Desktop Pill Tabs Navigation -->
       <div class="nav__pills">
-        <a routerLink="/" class="nav__pill">Accueil</a>
-        <a routerLink="/teachers" class="nav__pill">Nos coachs</a>
-        <a routerLink="/blog" class="nav__pill nav__pill--active">Blog</a>
+        <a routerLink="/" class="nav__pill">{{ 'nav.home' | translate }}</a>
+        <a routerLink="/teachers" class="nav__pill">{{ 'teachers.title' | translate }}</a>
+        <a routerLink="/blog" class="nav__pill nav__pill--active">{{ 'blog.title' | translate }}</a>
         @if (authService.isAuthenticated()) {
-          <a routerLink="/dashboard" class="nav__pill">Mon Espace</a>
+          <a routerLink="/dashboard" class="nav__pill">{{ 'sidebar.dashboard' | translate }}</a>
         } @else {
-          <a routerLink="/login" class="nav__pill">S'identifier</a>
-          <a routerLink="/register" class="nav__pill">S'inscrire</a>
+          <a routerLink="/login" class="nav__pill">{{ 'nav.login' | translate }}</a>
+          <a routerLink="/register" class="nav__pill">{{ 'nav.signup' | translate }}</a>
         }
       </div>
 
       <!-- Mobile Drawer Menu -->
       <div class="nav__links" [class.active]="mobileMenuOpen()">
-        <a routerLink="/" (click)="closeMobileMenu()">Accueil</a>
-        <a routerLink="/teachers" (click)="closeMobileMenu()">Nos coachs</a>
-        <a routerLink="/blog" (click)="closeMobileMenu()">Blog</a>
+        <a routerLink="/" (click)="closeMobileMenu()">{{ 'nav.home' | translate }}</a>
+        <a routerLink="/teachers" (click)="closeMobileMenu()">{{ 'teachers.title' | translate }}</a>
+        <a routerLink="/blog" (click)="closeMobileMenu()">{{ 'blog.title' | translate }}</a>
 
         <!-- Mobile-only auth buttons -->
         <div class="nav__mobile-actions">
           @if (authService.isAuthenticated()) {
-            <a routerLink="/dashboard" class="nav__btn nav__btn--primary" (click)="closeMobileMenu()">Mon Espace</a>
+            <a routerLink="/dashboard" class="nav__btn nav__btn--primary" (click)="closeMobileMenu()">{{ 'sidebar.dashboard' | translate }}</a>
           } @else {
-            <a routerLink="/login" class="nav__btn nav__btn--ghost" (click)="closeMobileMenu()">S'identifier</a>
-            <a routerLink="/register" class="nav__btn nav__btn--primary" (click)="closeMobileMenu()">S'inscrire</a>
+            <a routerLink="/login" class="nav__btn nav__btn--ghost" (click)="closeMobileMenu()">{{ 'nav.login' | translate }}</a>
+            <a routerLink="/register" class="nav__btn nav__btn--primary" (click)="closeMobileMenu()">{{ 'nav.signup' | translate }}</a>
           }
         </div>
       </div>
@@ -51,9 +51,9 @@
   <!-- Header -->
   <header class="blog-header">
     <div class="blog-header__container">
-      <h1 class="blog-header__title" appScrollReveal="fade-up">Blog</h1>
+      <h1 class="blog-header__title" appScrollReveal="fade-up">{{ 'blog.title' | translate }}</h1>
       <p class="blog-header__subtitle" appScrollReveal="fade-up" [revealDelay]="100">
-        Conseils, stratégies et actualités du monde des échecs
+        {{ 'blog.subtitle' | translate }}
       </p>
     </div>
   </header>
@@ -67,7 +67,7 @@
           [class.active]="selectedCategory() === null"
           (click)="selectCategory(null)"
         >
-          Tous
+          {{ 'blog.categories.all' | translate }}
         </button>
         @for (category of categories(); track category) {
           <button
@@ -88,11 +88,11 @@
       @if (loading()) {
         <div class="loading">
           <div class="loading__spinner"></div>
-          <p>Chargement des articles...</p>
+          <p>{{ 'blog.loading' | translate }}</p>
         </div>
       } @else if (articles().length === 0) {
         <div class="empty-state">
-          <p>Aucun article disponible pour le moment.</p>
+          <p>{{ 'blog.empty.title' | translate }}</p>
         </div>
       } @else {
         <div class="articles-grid" appStaggerReveal>
@@ -135,7 +135,7 @@
               (click)="goToPage(currentPage() - 1)"
             >
               <ng-icon name="heroArrowLeft" size="18"></ng-icon>
-              Précédent
+              {{ 'blog.pagination.previous' | translate }}
             </button>
 
             <div class="pagination__pages">
@@ -155,7 +155,7 @@
               [disabled]="currentPage() === totalPages() - 1"
               (click)="goToPage(currentPage() + 1)"
             >
-              Suivant
+              {{ 'blog.pagination.next' | translate }}
               <ng-icon name="heroArrowRight" size="18"></ng-icon>
             </button>
           </nav>
@@ -167,8 +167,8 @@
   <!-- Footer -->
   <footer class="blog-footer">
     <div class="blog-footer__container">
-      <p>&copy; 2026 mychess. Tous droits réservés.</p>
-      <a routerLink="/">Retour à l'accueil</a>
+      <p>&copy; 2026 {{ 'blog.footer.copyright' | translate }}</p>
+      <a routerLink="/">{{ 'blog.footer.backToHome' | translate }}</a>
     </div>
   </footer>
 </div>

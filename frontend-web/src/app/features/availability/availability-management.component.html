@@ -1,33 +1,32 @@
 <div class="availability-page">
     <header class="page-header">
       <div>
-        <h1 class="page-header__title">Mes Disponibilités</h1>
-        <p class="page-header__subtitle">Gérez vos créneaux de cours disponibles</p>
+        <h1 class="page-header__title">{{ 'availability.title' | translate }}</h1>
+        <p class="page-header__subtitle">{{ 'availability.subtitle' | translate }}</p>
       </div>
       <button class="btn btn--primary" (click)="openAddModal()">
-        <ng-icon name="heroPlus" size="16"></ng-icon> Ajouter un créneau
+        <ng-icon name="heroPlus" size="16"></ng-icon> {{ 'availability.addSlot' | translate }}
       </button>
     </header>
 
-    <div class="alert-container">
-      <div class="alert alert--error alert--inline" [class.alert--visible]="error()">
+    <div class="alert-inline-container">
+      <div class="alert-inline alert-inline--error" [class.alert-inline--visible]="error()">
         <span>{{ error() }}</span>
-        <button class="alert__close" (click)="clearError()">×</button>
       </div>
     </div>
 
     @if (loading()) {
       <div class="loading-state">
         <span class="spinner spinner--lg"></span>
-        <p>Chargement...</p>
+        <p>{{ 'common.loading' | translate }}</p>
       </div>
     } @else {
       <!-- Recurring Availabilities -->
       <section class="section">
         <div class="section__header">
-          <h2 class="section__title">Créneaux Récurrents</h2>
+          <h2 class="section__title">{{ 'availability.recurring.title' | translate }}</h2>
         </div>
-        <p class="section__desc">Ces créneaux se répètent chaque semaine</p>
+        <p class="section__desc">{{ 'availability.recurring.description' | translate }}</p>
 
         <div class="week-grid">
           @for (day of daysOfWeek; track day.value) {
@@ -39,7 +38,7 @@
                     <div class="slot-time">
                       {{ slot.startTime }} - {{ slot.endTime }}
                     </div>
-                    <button class="slot-delete" (click)="deleteAvailability(slot.id)" title="Supprimer">
+                    <button class="slot-delete" (click)="deleteAvailability(slot.id)" [title]="'availability.slot.delete' | translate">
                       <ng-icon name="heroTrash" size="14"></ng-icon>
                     </button>
                   </div>
@@ -55,9 +54,9 @@
       <!-- Specific Date Availabilities -->
       <section class="section">
         <div class="section__header">
-          <h2 class="section__title">Créneaux Ponctuels</h2>
+          <h2 class="section__title">{{ 'availability.specific.title' | translate }}</h2>
         </div>
-        <p class="section__desc">Disponibilités pour des dates spécifiques</p>
+        <p class="section__desc">{{ 'availability.specific.description' | translate }}</p>
 
         @if (getSpecificDateAvailabilities().length > 0) {
           <div class="specific-slots">
@@ -65,7 +64,7 @@
               <div class="specific-slot-card">
                 <div class="slot-date">{{ slot.specificDate }}</div>
                 <div class="slot-time">{{ slot.startTime }} - {{ slot.endTime }}</div>
-                <button class="slot-delete" (click)="deleteAvailability(slot.id)" title="Supprimer">
+                <button class="slot-delete" (click)="deleteAvailability(slot.id)" [title]="'availability.slot.delete' | translate">
                   <ng-icon name="heroTrash" size="14"></ng-icon>
                 </button>
               </div>
@@ -74,7 +73,7 @@
         } @else {
           <div class="empty-state">
             <div class="empty-state__icon"><ng-icon name="heroCalendarDays" size="48"></ng-icon></div>
-            <p class="empty-state__description">Aucun créneau ponctuel défini</p>
+            <p class="empty-state__description">{{ 'availability.specific.empty' | translate }}</p>
           </div>
         }
       </section>
@@ -86,7 +85,7 @@
   <div class="modal-overlay" (click)="closeModal()">
     <div class="modal" (click)="$event.stopPropagation()">
       <div class="modal__header">
-        <h3>Ajouter une disponibilité</h3>
+        <h3>{{ 'availability.modal.title' | translate }}</h3>
         <button class="modal__close" (click)="closeModal()"><ng-icon name="heroXMark" size="20"></ng-icon></button>
       </div>
 
@@ -101,7 +100,7 @@
 
         <!-- Type Selection -->
         <div class="form-group">
-          <label class="form-group__label">Type de créneau</label>
+          <label class="form-group__label">{{ 'availability.slot.type' | translate }}</label>
           <div class="radio-group">
             <label class="radio-option">
               <input
@@ -111,7 +110,7 @@
                 [(ngModel)]="isRecurring"
                 (ngModelChange)="onRecurringChange()"
               />
-              <span>Récurrent (chaque semaine)</span>
+              <span>{{ 'availability.slot.recurringWeekly' | translate }}</span>
             </label>
             <label class="radio-option">
               <input
@@ -121,7 +120,7 @@
                 [(ngModel)]="isRecurring"
                 (ngModelChange)="onRecurringChange()"
               />
-              <span>Ponctuel (date spécifique)</span>
+              <span>{{ 'availability.slot.specificDate' | translate }}</span>
             </label>
           </div>
         </div>
@@ -129,7 +128,7 @@
         <!-- Day Selection (for recurring) -->
         @if (isRecurring) {
           <div class="form-group">
-            <label class="form-group__label" for="daySelect">Jour de la semaine</label>
+            <label class="form-group__label" for="daySelect">{{ 'availability.slot.dayOfWeek' | translate }}</label>
             <select id="daySelect" class="input" [(ngModel)]="selectedDay">
               @for (day of daysOfWeek; track day.value) {
                 <option [value]="day.value">{{ day.label }}</option>
@@ -141,7 +140,7 @@
         <!-- Date Selection (for specific) -->
         @if (!isRecurring) {
           <div class="form-group">
-            <label class="form-group__label" for="dateInput">Date</label>
+            <label class="form-group__label" for="dateInput">{{ 'availability.slot.date' | translate }}</label>
             <app-date-input
               [(ngModel)]="selectedDate"
               [min]="getTodayDate()"
@@ -152,7 +151,7 @@
 
         <!-- Time Selection -->
         <div class="form-group">
-          <label class="form-group__label">Heure de début</label>
+          <label class="form-group__label">{{ 'availability.slot.startTime' | translate }}</label>
           <div class="time-picker">
             <select class="input time-picker__select" [(ngModel)]="startHour">
               @for (h of availableStartHours; track h) {
@@ -166,12 +165,12 @@
               }
             </select>
           </div>
-          <small class="form-hint">Durée du créneau : 1 heure (fin à {{ endTime }})</small>
+          <small class="form-hint">{{ 'availability.slot.durationHint' | translate }} {{ endTime }})</small>
         </div>
       </div>
 
       <div class="modal__footer">
-        <button class="btn btn--ghost" (click)="closeModal()">Annuler</button>
+        <button class="btn btn--ghost" (click)="closeModal()">{{ 'availability.modal.cancel' | translate }}</button>
         <button
           class="btn btn--primary"
           (click)="createAvailability()"
@@ -180,7 +179,7 @@
           @if (submitting) {
             <span class="spinner spinner--sm"></span>
           } @else {
-            Ajouter
+            {{ 'availability.modal.add' | translate }}
           }
         </button>
       </div>

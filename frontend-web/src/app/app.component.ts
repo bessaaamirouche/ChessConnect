@@ -4,7 +4,7 @@ import { ToastComponent } from './shared/toast/toast.component';
 import { GlobalDialogComponent } from './shared/global-dialog/global-dialog.component';
 import { CookieConsentComponent } from './shared/cookie-consent/cookie-consent.component';
 import { AuthService } from './core/services/auth.service';
-import { NotificationService } from './core/services/notification.service';
+import { SseService } from './core/services/sse.service';
 import { InactivityService } from './core/services/inactivity.service';
 import { PresenceService } from './core/services/presence.service';
 import { TrackingService } from './core/services/tracking.service';
@@ -26,24 +26,26 @@ import { TrackingService } from './core/services/tracking.service';
 })
 export class AppComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
-  private notificationService = inject(NotificationService);
+  private sseService = inject(SseService);
   private inactivityService = inject(InactivityService);
   private presenceService = inject(PresenceService);
   private trackingService = inject(TrackingService); // Initialize page tracking
 
   constructor() {
-    // Use effect to react to auth state changes (replaces 2s polling)
-    // allowSignalWrites: true because startPolling/stopPolling write to signals
+    // Use effect to react to auth state changes
+    // Connect/disconnect SSE based on user role
     effect(() => {
       const user = this.authService.currentUser();
       const isStudent = this.authService.isStudent();
       const isTeacher = this.authService.isTeacher();
       const isAuthenticated = this.authService.isAuthenticated();
 
-      if (user && (isStudent || isTeacher)) {
-        this.notificationService.startPolling();
+      if (user && isStudent) {
+        this.sseService.connect('student');
+      } else if (user && isTeacher) {
+        this.sseService.connect('teacher');
       } else {
-        this.notificationService.stopPolling();
+        this.sseService.disconnect();
       }
 
       // Start/stop inactivity tracking and presence based on auth state
@@ -62,7 +64,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.notificationService.stopPolling();
+    this.sseService.disconnect();
     this.inactivityService.stopWatching();
     this.presenceService.stopHeartbeat();
   }

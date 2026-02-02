@@ -1,7 +1,6 @@
 import { Injectable, signal, computed, inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { interval, Subscription } from 'rxjs';
 
 export interface AppNotification {
   id: string;
@@ -14,13 +13,13 @@ export interface AppNotification {
   fromBackend?: boolean; // Track if notification came from backend
 }
 
-interface BackendNotification {
+export interface BackendNotification {
   id: number;
   type: string;
   title: string;
   message: string;
   link: string | null;
-  isRead: boolean;
+  isRead?: boolean;
   createdAt: string;
 }
 
@@ -30,13 +29,11 @@ interface BackendNotification {
 export class NotificationCenterService {
   private readonly STORAGE_KEY_PREFIX = 'mychess_notifications_';
   private readonly MAX_NOTIFICATIONS = 50;
-  private readonly POLL_INTERVAL_MS = 30000; // Poll every 30 seconds
 
   private http = inject(HttpClient);
   private platformId = inject(PLATFORM_ID);
   private notificationsSignal = signal<AppNotification[]>([]);
   private currentUserId: number | null = null;
-  private pollingSubscription?: Subscription;
   private knownBackendIds = new Set<number>();
 
   readonly notifications = this.notificationsSignal.asReadonly();
@@ -67,36 +64,47 @@ export class NotificationCenterService {
 
     this.currentUserId = userId;
     this.loadFromStorage();
+    // Fetch initial backend notifications (SSE will handle real-time updates)
     this.fetchBackendNotifications();
-    this.startPolling();
   }
 
   /**
    * Clear notifications and reset state when user logs out
    */
   clearOnLogout(): void {
-    this.stopPolling();
     this.notificationsSignal.set([]);
     this.currentUserId = null;
     this.knownBackendIds.clear();
   }
 
   /**
-   * Start polling for backend notifications
+   * Add a notification received from SSE.
+   * This replaces the polling mechanism.
    */
-  private startPolling(): void {
-    this.stopPolling();
-    this.pollingSubscription = interval(this.POLL_INTERVAL_MS).subscribe(() => {
-      this.fetchBackendNotifications();
-    });
-  }
+  addFromBackend(notification: BackendNotification): void {
+    if (this.knownBackendIds.has(notification.id)) {
+      return; // Already have this notification
+    }
 
-  /**
-   * Stop polling
-   */
-  private stopPolling(): void {
-    this.pollingSubscription?.unsubscribe();
-    this.pollingSubscription = undefined;
+    this.knownBackendIds.add(notification.id);
+
+    const appNotification: AppNotification = {
+      id: `backend-${notification.id}`,
+      type: this.mapBackendType(notification.type),
+      title: notification.title,
+      message: notification.message,
+      timestamp: new Date(notification.createdAt),
+      read: notification.isRead || false,
+      link: notification.link || undefined,
+      fromBackend: true
+    };
+
+    this.notificationsSignal.update(notifications => {
+      const updated = [appNotification, ...notifications];
+      return updated.slice(0, this.MAX_NOTIFICATIONS);
+    });
+
+    this.saveToStorage();
   }
 
   /**
@@ -119,7 +127,7 @@ export class NotificationCenterService {
               title: bn.title,
               message: bn.message,
               timestamp: new Date(bn.createdAt),
-              read: bn.isRead,
+              read: bn.isRead ?? false,
               link: bn.link || undefined,
               fromBackend: true
             };

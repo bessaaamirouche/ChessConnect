@@ -3,6 +3,9 @@ package com.chessconnect.service;
 import com.chessconnect.dto.lesson.BookLessonRequest;
 import com.chessconnect.dto.lesson.LessonResponse;
 import com.chessconnect.dto.lesson.UpdateLessonStatusRequest;
+import com.chessconnect.event.NotificationEvent;
+import com.chessconnect.event.payload.LessonStatusPayload;
+import com.chessconnect.event.payload.TeacherJoinedPayload;
 import com.chessconnect.model.Lesson;
 import com.chessconnect.model.Payment;
 import com.chessconnect.model.Progress;
@@ -22,6 +25,7 @@ import com.chessconnect.repository.RatingRepository;
 import com.chessconnect.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +35,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -42,6 +47,7 @@ import java.util.stream.Stream;
 public class LessonService {
 
     private static final Logger log = LoggerFactory.getLogger(LessonService.class);
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     // Cancellation policy constants
     private static final int FULL_REFUND_HOURS = 24;       // > 24h before = 100% refund
@@ -62,6 +68,7 @@ public class LessonService {
     private final ProgrammeService programmeService;
     private final PendingValidationService pendingValidationService;
     private final BunnyStorageService bunnyStorageService;
+    private final ApplicationEventPublisher eventPublisher;
 
     public LessonService(
             LessonRepository lessonRepository,
@@ -77,7 +84,8 @@ public class LessonService {
             WalletService walletService,
             ProgrammeService programmeService,
             PendingValidationService pendingValidationService,
-            BunnyStorageService bunnyStorageService
+            BunnyStorageService bunnyStorageService,
+            ApplicationEventPublisher eventPublisher
     ) {
         this.lessonRepository = lessonRepository;
         this.userRepository = userRepository;
@@ -93,6 +101,7 @@ public class LessonService {
         this.programmeService = programmeService;
         this.pendingValidationService = pendingValidationService;
         this.bunnyStorageService = bunnyStorageService;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional
@@ -143,7 +152,39 @@ public class LessonService {
 
         Lesson savedLesson = lessonRepository.save(lesson);
 
+        // Publish SSE event to notify teacher of new booking
+        publishLessonBookedEvent(savedLesson);
+
         return LessonResponse.from(savedLesson);
+    }
+
+    /**
+     * Publish SSE event when a lesson is booked.
+     */
+    private void publishLessonBookedEvent(Lesson lesson) {
+        try {
+            String studentName = lesson.getStudent().getFirstName() + " " + lesson.getStudent().getLastName();
+            String teacherName = lesson.getTeacher().getFirstName() + " " + lesson.getTeacher().getLastName();
+
+            LessonStatusPayload payload = new LessonStatusPayload(
+                    lesson.getId(),
+                    null,
+                    LessonStatus.PENDING.name(),
+                    teacherName,
+                    studentName,
+                    lesson.getScheduledAt().format(DATE_FORMATTER)
+            );
+
+            // Notify teacher
+            eventPublisher.publishEvent(new NotificationEvent(
+                    this,
+                    NotificationEvent.EventType.LESSON_BOOKED,
+                    lesson.getTeacher().getId(),
+                    payload
+            ));
+        } catch (Exception e) {
+            log.warn("Failed to publish SSE lesson booked event: {}", e.getMessage());
+        }
     }
 
     @Transactional
@@ -225,9 +266,53 @@ public class LessonService {
             }
         }
 
+        LessonStatus oldStatus = lesson.getStatus();
         lesson.setStatus(newStatus);
         Lesson updatedLesson = lessonRepository.save(lesson);
+
+        // Publish SSE event for status change
+        if (newStatus == LessonStatus.CONFIRMED || newStatus == LessonStatus.CANCELLED) {
+            publishLessonStatusChangedEvent(updatedLesson, oldStatus, newStatus);
+        }
+
         return LessonResponse.from(updatedLesson);
+    }
+
+    /**
+     * Publish SSE event when a lesson status changes.
+     */
+    private void publishLessonStatusChangedEvent(Lesson lesson, LessonStatus oldStatus, LessonStatus newStatus) {
+        try {
+            String studentName = lesson.getStudent().getFirstName() + " " + lesson.getStudent().getLastName();
+            String teacherName = lesson.getTeacher().getFirstName() + " " + lesson.getTeacher().getLastName();
+
+            LessonStatusPayload payload = new LessonStatusPayload(
+                    lesson.getId(),
+                    oldStatus.name(),
+                    newStatus.name(),
+                    teacherName,
+                    studentName,
+                    lesson.getScheduledAt().format(DATE_FORMATTER)
+            );
+
+            // Notify student
+            eventPublisher.publishEvent(new NotificationEvent(
+                    this,
+                    NotificationEvent.EventType.LESSON_STATUS_CHANGED,
+                    lesson.getStudent().getId(),
+                    payload
+            ));
+
+            // Notify teacher
+            eventPublisher.publishEvent(new NotificationEvent(
+                    this,
+                    NotificationEvent.EventType.LESSON_STATUS_CHANGED,
+                    lesson.getTeacher().getId(),
+                    payload
+            ));
+        } catch (Exception e) {
+            log.warn("Failed to publish SSE lesson status changed event: {}", e.getMessage());
+        }
     }
 
     public List<LessonResponse> getUpcomingLessonsForStudent(Long studentId) {
@@ -485,7 +570,34 @@ public class LessonService {
 
         lessonRepository.save(lesson);
 
+        // Publish SSE event to notify student that teacher has joined
+        publishTeacherJoinedEvent(lesson);
+
         return LessonResponse.from(lesson);
+    }
+
+    /**
+     * Publish SSE event when teacher joins the video call.
+     */
+    private void publishTeacherJoinedEvent(Lesson lesson) {
+        try {
+            String teacherName = lesson.getTeacher().getFirstName() + " " + lesson.getTeacher().getLastName();
+
+            TeacherJoinedPayload payload = new TeacherJoinedPayload(
+                    lesson.getId(),
+                    teacherName
+            );
+
+            // Notify student
+            eventPublisher.publishEvent(new NotificationEvent(
+                    this,
+                    NotificationEvent.EventType.TEACHER_JOINED_CALL,
+                    lesson.getStudent().getId(),
+                    payload
+            ));
+        } catch (Exception e) {
+            log.warn("Failed to publish SSE teacher joined event: {}", e.getMessage());
+        }
     }
 
     /**

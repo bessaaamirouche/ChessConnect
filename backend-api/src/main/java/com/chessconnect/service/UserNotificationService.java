@@ -1,5 +1,7 @@
 package com.chessconnect.service;
 
+import com.chessconnect.event.NotificationEvent;
+import com.chessconnect.event.payload.BackendNotificationPayload;
 import com.chessconnect.model.User;
 import com.chessconnect.model.UserNotification;
 import com.chessconnect.model.enums.NotificationType;
@@ -7,25 +9,31 @@ import com.chessconnect.repository.UserNotificationRepository;
 import com.chessconnect.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
 public class UserNotificationService {
 
     private static final Logger log = LoggerFactory.getLogger(UserNotificationService.class);
+    private static final DateTimeFormatter ISO_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
     private final UserNotificationRepository notificationRepository;
     private final UserRepository userRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     public UserNotificationService(
             UserNotificationRepository notificationRepository,
-            UserRepository userRepository
+            UserRepository userRepository,
+            ApplicationEventPublisher eventPublisher
     ) {
         this.notificationRepository = notificationRepository;
         this.userRepository = userRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     /**
@@ -40,7 +48,36 @@ public class UserNotificationService {
         notification = notificationRepository.save(notification);
 
         log.info("Created notification for user {}: {} - {}", userId, title, message);
+
+        // Publish SSE event for real-time notification
+        publishNotificationEvent(notification);
+
         return notification;
+    }
+
+    /**
+     * Publish SSE event for a new notification.
+     */
+    private void publishNotificationEvent(UserNotification notification) {
+        try {
+            BackendNotificationPayload payload = new BackendNotificationPayload(
+                    notification.getId(),
+                    notification.getType().name(),
+                    notification.getTitle(),
+                    notification.getMessage(),
+                    notification.getLink(),
+                    notification.getCreatedAt().format(ISO_FORMATTER)
+            );
+
+            eventPublisher.publishEvent(new NotificationEvent(
+                    this,
+                    NotificationEvent.EventType.NOTIFICATION_CREATED,
+                    notification.getUser().getId(),
+                    payload
+            ));
+        } catch (Exception e) {
+            log.warn("Failed to publish SSE notification event: {}", e.getMessage());
+        }
     }
 
     /**

@@ -3,6 +3,8 @@ package com.chessconnect.service;
 import com.chessconnect.dto.availability.AvailabilityRequest;
 import com.chessconnect.dto.availability.AvailabilityResponse;
 import com.chessconnect.dto.availability.TimeSlotResponse;
+import com.chessconnect.event.NotificationEvent;
+import com.chessconnect.event.payload.AvailabilityPayload;
 import com.chessconnect.model.Availability;
 import com.chessconnect.model.FavoriteTeacher;
 import com.chessconnect.model.Lesson;
@@ -15,6 +17,7 @@ import com.chessconnect.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,6 +44,7 @@ public class AvailabilityService {
     private final FavoriteTeacherRepository favoriteRepository;
     private final EmailService emailService;
     private final SubscriptionService subscriptionService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Value("${app.frontend-url:http://localhost:4200}")
     private String frontendUrl;
@@ -51,7 +55,8 @@ public class AvailabilityService {
             UserRepository userRepository,
             FavoriteTeacherRepository favoriteRepository,
             EmailService emailService,
-            SubscriptionService subscriptionService
+            SubscriptionService subscriptionService,
+            ApplicationEventPublisher eventPublisher
     ) {
         this.availabilityRepository = availabilityRepository;
         this.lessonRepository = lessonRepository;
@@ -59,6 +64,7 @@ public class AvailabilityService {
         this.favoriteRepository = favoriteRepository;
         this.emailService = emailService;
         this.subscriptionService = subscriptionService;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional
@@ -101,26 +107,57 @@ public class AvailabilityService {
         String bookingLink = frontendUrl + "/book/" + teacher.getId();
 
         int notifiedCount = 0;
+        int sseNotifiedCount = 0;
         for (FavoriteTeacher subscriber : subscribers) {
             User student = subscriber.getStudent();
 
-            // Only notify Premium subscribers
-            if (!subscriptionService.isPremium(student.getId())) {
-                continue;
+            // Only notify Premium subscribers via email
+            boolean isPremium = subscriptionService.isPremium(student.getId());
+            if (isPremium) {
+                emailService.sendNewAvailabilityNotification(
+                        student.getEmail(),
+                        student.getFirstName(),
+                        teacherName,
+                        availabilityInfo,
+                        bookingLink
+                );
+                notifiedCount++;
             }
 
-            emailService.sendNewAvailabilityNotification(
-                    student.getEmail(),
-                    student.getFirstName(),
-                    teacherName,
-                    availabilityInfo,
-                    bookingLink
-            );
-            notifiedCount++;
+            // Send SSE notification to all subscribed students (Premium or not)
+            publishAvailabilityEvent(student.getId(), teacher, availability, availabilityInfo);
+            sseNotifiedCount++;
         }
 
-        log.info("Notified {} Premium subscribers about new availability for teacher {}",
-                notifiedCount, teacher.getId());
+        log.info("Notified {} Premium subscribers (email) and {} subscribers (SSE) about new availability for teacher {}",
+                notifiedCount, sseNotifiedCount, teacher.getId());
+    }
+
+    /**
+     * Publish SSE event when a new availability is created.
+     */
+    private void publishAvailabilityEvent(Long studentId, User teacher, Availability availability, String dayInfo) {
+        try {
+            String teacherName = teacher.getFirstName() + " " + teacher.getLastName();
+            String timeRange = availability.getStartTime() + " - " + availability.getEndTime();
+
+            AvailabilityPayload payload = new AvailabilityPayload(
+                    availability.getId(),
+                    teacher.getId(),
+                    teacherName,
+                    dayInfo,
+                    timeRange
+            );
+
+            eventPublisher.publishEvent(new NotificationEvent(
+                    this,
+                    NotificationEvent.EventType.AVAILABILITY_CREATED,
+                    studentId,
+                    payload
+            ));
+        } catch (Exception e) {
+            log.warn("Failed to publish SSE availability event: {}", e.getMessage());
+        }
     }
 
     private String formatAvailabilityInfo(Availability availability) {

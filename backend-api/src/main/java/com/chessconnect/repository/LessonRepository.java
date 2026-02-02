@@ -1,6 +1,7 @@
 package com.chessconnect.repository;
 
 import com.chessconnect.model.Lesson;
+import com.chessconnect.model.User;
 import com.chessconnect.model.enums.LessonStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -161,6 +162,29 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
     // Find active lessons for teacher/student by status (for admin deletion with refund)
     List<Lesson> findByTeacherIdAndStatusIn(Long teacherId, Collection<LessonStatus> statuses);
     List<Lesson> findByStudentIdAndStatusIn(Long studentId, Collection<LessonStatus> statuses);
+
+    // Library: completed lessons with recordings for a student
+    List<Lesson> findByStudentAndStatusAndRecordingUrlIsNotNullOrderByScheduledAtDesc(User student, LessonStatus status);
+
+    // Library: search and filter completed lessons with recordings
+    @Query(value = "SELECT l.* FROM lessons l " +
+           "JOIN users t ON t.id = l.teacher_id " +
+           "WHERE l.student_id = :studentId " +
+           "AND l.status = 'COMPLETED' " +
+           "AND l.recording_url IS NOT NULL " +
+           "AND (l.deleted_by_student IS NULL OR l.deleted_by_student = false) " +
+           "AND (CAST(:search AS VARCHAR) IS NULL OR CAST(:search AS VARCHAR) = '' " +
+           "    OR LOWER(t.first_name) LIKE LOWER(CONCAT('%', CAST(:search AS VARCHAR), '%')) " +
+           "    OR LOWER(t.last_name) LIKE LOWER(CONCAT('%', CAST(:search AS VARCHAR), '%'))) " +
+           "AND (CAST(:dateFrom AS TIMESTAMP) IS NULL OR l.scheduled_at >= CAST(:dateFrom AS TIMESTAMP)) " +
+           "AND (CAST(:dateTo AS TIMESTAMP) IS NULL OR l.scheduled_at <= CAST(:dateTo AS TIMESTAMP)) " +
+           "ORDER BY l.scheduled_at DESC", nativeQuery = true)
+    List<Lesson> findLibraryVideos(
+            @Param("studentId") Long studentId,
+            @Param("search") String search,
+            @Param("dateFrom") LocalDateTime dateFrom,
+            @Param("dateTo") LocalDateTime dateTo
+    );
 
     // Admin: Find lessons with messages/notes for review
     @Query("SELECT l FROM Lesson l " +

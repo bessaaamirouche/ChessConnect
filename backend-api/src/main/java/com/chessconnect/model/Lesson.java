@@ -109,6 +109,9 @@ public class Lesson {
     @Column(name = "recording_url")
     private String recordingUrl;
 
+    @Column(name = "thumbnail_url")
+    private String thumbnailUrl;
+
     @Column(name = "teacher_joined_at")
     private LocalDateTime teacherJoinedAt;
 
@@ -226,6 +229,9 @@ public class Lesson {
 
     public String getRecordingUrl() { return recordingUrl; }
     public void setRecordingUrl(String recordingUrl) { this.recordingUrl = recordingUrl; }
+
+    public String getThumbnailUrl() { return thumbnailUrl; }
+    public void setThumbnailUrl(String thumbnailUrl) { this.thumbnailUrl = thumbnailUrl; }
 
     public LocalDateTime getTeacherJoinedAt() { return teacherJoinedAt; }
     public void setTeacherJoinedAt(LocalDateTime teacherJoinedAt) { this.teacherJoinedAt = teacherJoinedAt; }

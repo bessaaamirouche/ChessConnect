@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard, guestGuard, studentGuard, teacherGuard } from './core/guards/auth.guard';
 import { premiumGuard } from './core/guards/premium.guard';
+import { libraryGuard } from './core/guards/library.guard';
 
 export const routes: Routes = [
   {
@@ -94,6 +95,11 @@ export const routes: Routes = [
       {
         path: 'teachers/:id',
         loadComponent: () => import('./features/teachers/teacher-profile/teacher-profile.component').then(m => m.TeacherProfileComponent)
+      },
+      {
+        path: 'library',
+        canActivate: [libraryGuard],
+        loadComponent: () => import('./features/library/library.component').then(m => m.LibraryComponent)
       }
     ]
   },

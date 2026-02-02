@@ -1,0 +1,176 @@
+<div class="library-page">
+  <app-page-header
+    [title]="'library.title' | translate"
+    [subtitle]="'library.subtitle' | translate">
+  </app-page-header>
+
+  <!-- Filters Section -->
+  <div class="filters-section">
+    <!-- Search Bar -->
+    <div class="search-bar">
+      <ng-icon name="heroMagnifyingGlass" class="search-icon"></ng-icon>
+      <input
+        type="text"
+        [placeholder]="'library.searchPlaceholder' | translate"
+        [ngModel]="searchTerm()"
+        (ngModelChange)="onSearchChange($event)"
+        class="search-input"
+      />
+      @if (searchTerm()) {
+        <button class="clear-search" (click)="onSearchChange('')">
+          <ng-icon name="heroXMark"></ng-icon>
+        </button>
+      }
+    </div>
+
+    <!-- Period Filter -->
+    <div class="filter-row">
+      <div class="period-filter">
+        <select
+          [ngModel]="selectedPeriod()"
+          (ngModelChange)="onPeriodChange($event)"
+          class="period-select"
+        >
+          @for (option of periodOptions; track option.value) {
+            <option [value]="option.value">{{ option.labelKey | translate }}</option>
+          }
+        </select>
+      </div>
+
+      <button
+        class="custom-dates-toggle"
+        [class.active]="showCustomDates()"
+        (click)="toggleCustomDates()"
+      >
+        <ng-icon name="heroCalendarDays"></ng-icon>
+        {{ 'library.customDates' | translate }}
+      </button>
+
+      @if (hasActiveFilters()) {
+        <button class="clear-filters" (click)="clearFilters()">
+          <ng-icon name="heroXMark"></ng-icon>
+          {{ 'library.clearFilters' | translate }}
+        </button>
+      }
+    </div>
+
+    <!-- Custom Date Range -->
+    @if (showCustomDates()) {
+      <div class="date-range">
+        <div class="date-field">
+          <label>{{ 'library.dateFrom' | translate }}</label>
+          <input
+            type="date"
+            [ngModel]="dateFrom()"
+            (ngModelChange)="dateFrom.set($event); onDateChange()"
+            class="date-input"
+          />
+        </div>
+        <div class="date-field">
+          <label>{{ 'library.dateTo' | translate }}</label>
+          <input
+            type="date"
+            [ngModel]="dateTo()"
+            (ngModelChange)="dateTo.set($event); onDateChange()"
+            class="date-input"
+          />
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>{{ 'library.loading' | translate }}</p>
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (error()) {
+    <div class="error-state">
+      <p>{{ error() }}</p>
+      <button class="retry-btn" (click)="clearFilters()">{{ 'library.retry' | translate }}</button>
+    </div>
+  }
+
+  <!-- Empty State -->
+  @if (!loading() && !error() && filteredVideos().length === 0) {
+    <div class="empty-state">
+      <ng-icon name="heroFilm" class="empty-icon"></ng-icon>
+      @if (hasActiveFilters()) {
+        <h3>{{ 'library.empty.noResults' | translate }}</h3>
+        <p>{{ 'library.empty.noResultsHint' | translate }}</p>
+        <button class="clear-filters-btn" (click)="clearFilters()">{{ 'library.clearFilters' | translate }}</button>
+      } @else {
+        <h3>{{ 'library.empty.title' | translate }}</h3>
+        <p>{{ 'library.empty.description' | translate }}</p>
+      }
+    </div>
+  }
+
+  <!-- Video Grid -->
+  @if (!loading() && !error() && filteredVideos().length > 0) {
+    <div class="videos-grid">
+      @for (video of filteredVideos(); track video.id) {
+        <div class="video-card" (click)="playVideo(video)">
+          <div class="thumbnail-container">
+            <img
+              [src]="video.thumbnailUrl || '/assets/images/video-thumbnail-placeholder.svg'"
+              [alt]="('library.video.lessonWith' | translate) + ' ' + video.teacherName"
+              class="thumbnail"
+              loading="lazy"
+            />
+            <div class="play-overlay">
+              <ng-icon name="heroPlaySolid" class="play-icon"></ng-icon>
+            </div>
+            <div class="duration-badge">{{ formatDuration(video.durationSeconds) }}</div>
+            <button
+              class="delete-btn"
+              (click)="deleteVideo(video, $event)"
+              [title]="'library.video.deleteTitle' | translate"
+            >
+              <ng-icon name="heroTrash"></ng-icon>
+            </button>
+          </div>
+          <div class="video-info">
+            @if (video.courseTitle) {
+              <div class="course-title">{{ video.courseTitle }}</div>
+            }
+            <div class="teacher-row">
+              @if (video.teacherAvatar) {
+                <img [src]="video.teacherAvatar" [alt]="video.teacherName" class="teacher-avatar" />
+              } @else {
+                <div class="teacher-avatar-placeholder">
+                  {{ video.teacherName.charAt(0) }}
+                </div>
+              }
+              <span class="teacher-name">{{ video.teacherName }}</span>
+            </div>
+            <div class="date-row">
+              <span class="relative-date">{{ formatRelativeDate(video.scheduledAt) }}</span>
+              <span class="absolute-date">{{ formatDate(video.scheduledAt) }}</span>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<!-- Video Player Modal -->
+@if (selectedVideo()) {
+  <div class="video-modal-overlay" (click)="closePlayer()">
+    <div class="video-modal" (click)="$event.stopPropagation()">
+      <app-video-player
+        [url]="selectedVideo()!.recordingUrl"
+        [videoId]="selectedVideo()!.lessonId"
+        [title]="selectedVideo()!.courseTitle || 'Cours avec ' + selectedVideo()!.teacherName"
+        [teacherName]="selectedVideo()!.teacherName"
+        [lessonDate]="formatDate(selectedVideo()!.scheduledAt)"
+        (close)="closePlayer()"
+      ></app-video-player>
+    </div>
+  </div>
+}

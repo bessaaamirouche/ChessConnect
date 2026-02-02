@@ -1,22 +1,16 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, inject, signal, PLATFORM_ID, Inject } from '@angular/core'; // Ajout de PLATFORM_ID et Inject
+import { isPlatformBrowser } from '@angular/common'; // Ajout de isPlatformBrowser
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 
-export interface PushSubscriptionStatus {
-  enabled: boolean;
-  subscriptionCount: number;
-  hasSubscriptions: boolean;
-}
+// ... interface reste inchangée ...
 
-/**
- * Service for managing Web Push notifications.
- * Handles service worker registration, permission requests, and subscription management.
- */
 @Injectable({
   providedIn: 'root'
 })
 export class PushNotificationService {
   private http = inject(HttpClient);
+  private platformId = inject(PLATFORM_ID); // Injection de la plateforme
 
   // Service worker registration
   private swRegistration: ServiceWorkerRegistration | null = null;
@@ -32,14 +26,17 @@ export class PushNotificationService {
   private vapidPublicKey: string | null = null;
 
   constructor() {
-    // Check if push notifications are supported
-    this.checkSupport();
+    // 🛡️ PROTECTION SSR : On ne vérifie le support que si on est sur le client
+    if (isPlatformBrowser(this.platformId)) {
+      this.checkSupport();
+    }
   }
 
   /**
    * Check if push notifications are supported in this browser.
    */
   private checkSupport(): void {
+    // Ici, on est sûr d'être dans le navigateur grâce au check du constructeur
     const isSupported =
       'serviceWorker' in navigator &&
       'PushManager' in window &&

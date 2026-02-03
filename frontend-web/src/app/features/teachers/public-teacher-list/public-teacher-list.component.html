@@ -128,6 +128,11 @@
                     <span class="review-count">({{ teacher.reviewCount }})</span>
                   </span>
                 }
+                @if (teacher.eloRating) {
+                  <span class="teacher-card__elo">
+                    ELO {{ teacher.eloRating }}
+                  </span>
+                }
               </div>
             </div>
 

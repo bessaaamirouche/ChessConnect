@@ -639,17 +639,19 @@
       "selectSlot": "Sélectionnez un créneau disponible",
       "noSlots": "Aucun créneau disponible",
       "checkBack": "Revenez plus tard pour de nouvelles disponibilités",
-      "coachTitle": "Coach d'échecs",
+      "coachTitle": "Coach",
       "favorite": "Favori",
       "addFavorite": "Ajouter",
       "hourlyRate": "Tarif horaire",
       "averageRating": "Note moyenne",
       "lessonsTaught": "Cours donnés",
       "studentsCount": "Élèves",
+      "eloRating": "Classement ELO",
       "emailAlerts": "Alertes email",
       "emailAlertsHint": "Recevoir un email quand ce coach publie des créneaux",
       "goPremium": "Passez Premium",
-      "premiumAlertsHint": "pour recevoir les alertes de disponibilités"
+      "premiumAlertsHint": "pour recevoir les alertes de disponibilités",
+      "signupToBook": "S'inscrire pour réserver"
     },
     "empty": {
       "title": "Aucun résultat",
@@ -1080,6 +1082,8 @@
       "eloPlaceholder": "Ex: 1500",
       "eloHint": "Optionnel - votre classement ELO actuel",
       "knowsElo": "Je connais mon ELO",
+      "coachKnowsElo": "J'ai un classement ELO officiel",
+      "coachEloHint": "Optionnel - votre classement ELO officiel (FIDE, FFE...)",
       "bio": "Biographie",
       "bioPlaceholder": "Présentez-vous en quelques mots...",
       "bioRequiredError": "La biographie est requise pour les coachs",
@@ -1203,6 +1207,13 @@
       "avatarHint": "JPG ou PNG, max 5 Mo",
       "success": "Profil mis à jour avec succès"
     },
+    "share": {
+      "title": "Partager mon profil",
+      "copyLink": "Copier le lien",
+      "linkCopied": "Lien copié !",
+      "twitterText": "Découvrez mon profil de coach sur myChess !",
+      "whatsappText": "Découvrez mon profil de coach sur myChess !"
+    },
     "coachProfile": {
       "title": "Profil coach",
       "hourlyRate": "Tarif horaire",
@@ -1210,6 +1221,9 @@
       "specialties": "Spécialités",
       "languages": "Langues",
       "elo": "Classement ELO",
+      "eloRating": "Classement ELO",
+      "eloKnown": "Connu",
+      "eloHint": "Optionnel - sera affiché sur votre profil public",
       "fide": "Titre FIDE",
       "languagesHint": "Langues parlées pendant les cours"
     },

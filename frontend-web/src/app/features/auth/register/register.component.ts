@@ -166,7 +166,10 @@ export class RegisterComponent {
       formValue.hourlyRateCents = formValue.hourlyRate * 100;
       delete formValue.hourlyRate;
       delete formValue.birthDate;
-      delete formValue.eloRating;
+      // Handle ELO - only include if user knows it (for teachers too)
+      if (!formValue.knowsElo || !formValue.eloRating) {
+        delete formValue.eloRating;
+      }
       delete formValue.knowsElo;
       // Add selected languages
       formValue.languages = this.selectedLanguages();

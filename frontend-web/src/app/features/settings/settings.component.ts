@@ -345,6 +345,10 @@ export class SettingsComponent implements OnInit {
       // Professional fields
       payload.siret = formValue.siret;
       payload.companyName = formValue.companyName;
+      // Optional ELO rating
+      if (formValue.knowsElo && formValue.eloRating) {
+        payload.eloRating = formValue.eloRating;
+      }
     }
 
     if (this.isStudent()) {
@@ -620,7 +624,8 @@ export class SettingsComponent implements OnInit {
     return `https://mychess.fr/coaches/${uuid}`;
   }
 
-  toggleShareMenu(): void {
+  toggleShareMenu(event?: Event): void {
+    event?.stopPropagation();
     this.showShareMenu.update(v => !v);
   }
 

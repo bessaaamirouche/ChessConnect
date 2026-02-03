@@ -639,17 +639,19 @@
       "selectSlot": "Select an available time slot",
       "noSlots": "No available slots",
       "checkBack": "Check back later for new availability",
-      "coachTitle": "Chess Coach",
+      "coachTitle": "Coach",
       "favorite": "Favorite",
       "addFavorite": "Add",
       "hourlyRate": "Hourly Rate",
       "averageRating": "Average Rating",
       "lessonsTaught": "Lessons Given",
       "studentsCount": "Students",
+      "eloRating": "ELO Rating",
       "emailAlerts": "Email Alerts",
       "emailAlertsHint": "Receive an email when this coach posts new slots",
       "goPremium": "Go Premium",
-      "premiumAlertsHint": "to receive availability alerts"
+      "premiumAlertsHint": "to receive availability alerts",
+      "signupToBook": "Sign up to book"
     },
     "empty": {
       "title": "No results",
@@ -1080,6 +1082,8 @@
       "eloPlaceholder": "Ex: 1500",
       "eloHint": "Optional - your current ELO rating",
       "knowsElo": "I know my ELO",
+      "coachKnowsElo": "I have an official ELO rating",
+      "coachEloHint": "Optional - your official ELO rating (FIDE, national...)",
       "bio": "Biography",
       "bioPlaceholder": "Introduce yourself...",
       "bioRequiredError": "Biography is required for coaches",
@@ -1204,6 +1208,13 @@
       "saving": "Saving...",
       "success": "Profile updated successfully"
     },
+    "share": {
+      "title": "Share my profile",
+      "copyLink": "Copy link",
+      "linkCopied": "Link copied!",
+      "twitterText": "Check out my coach profile on myChess!",
+      "whatsappText": "Check out my coach profile on myChess!"
+    },
     "player": {
       "birthDate": "Birth date",
       "eloRating": "ELO rating",
@@ -1217,6 +1228,9 @@
       "languages": "Languages Spoken",
       "languagesHint": "Languages spoken during lessons",
       "elo": "ELO Rating",
+      "eloRating": "ELO Rating",
+      "eloKnown": "Known",
+      "eloHint": "Optional - will be displayed on your public profile",
       "fide": "FIDE Title"
     },
     "professional": {

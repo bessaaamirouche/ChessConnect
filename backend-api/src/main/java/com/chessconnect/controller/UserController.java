@@ -96,6 +96,10 @@ public class UserController {
             if (request.getCompanyName() != null) {
                 user.setCompanyName(request.getCompanyName());
             }
+            // Optional ELO rating for teachers
+            if (request.getEloRating() != null) {
+                user.setEloRating(request.getEloRating());
+            }
         }
 
         // Student-specific fields

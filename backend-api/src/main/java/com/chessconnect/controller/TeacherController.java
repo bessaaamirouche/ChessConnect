@@ -136,7 +136,8 @@ public class TeacherController {
                 reviewCount,
                 lessonsCompleted != null ? lessonsCompleted : 0,
                 totalStudents != null ? totalStudents : 0,
-                teacher.isOnline()
+                teacher.isOnline(),
+                teacher.getEloRating()
         );
     }
 
@@ -154,6 +155,7 @@ public class TeacherController {
             Integer reviewCount,
             Integer lessonsCompleted,
             Integer totalStudents,
-            Boolean isOnline
+            Boolean isOnline,
+            Integer eloRating
     ) {}
 }

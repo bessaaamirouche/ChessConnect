@@ -272,6 +272,31 @@
           </div>
 
           <div class="form-group">
+            <label class="checkbox">
+              <input type="checkbox" formControlName="knowsElo">
+              <span>{{ 'auth.signup.coachKnowsElo' | translate }}</span>
+            </label>
+          </div>
+
+          <div class="elo-field-container">
+            @if (registerForm.get('knowsElo')?.value) {
+              <div class="form-group elo-field">
+                <label class="form-group__label" for="eloRating">{{ 'auth.signup.eloRating' | translate }}</label>
+                <input
+                  type="number"
+                  id="eloRating"
+                  formControlName="eloRating"
+                  class="input"
+                  min="100"
+                  max="3500"
+                  [placeholder]="'auth.signup.eloPlaceholder' | translate"
+                >
+                <small class="form-hint">{{ 'auth.signup.coachEloHint' | translate }}</small>
+              </div>
+            }
+          </div>
+
+          <div class="form-group">
             <label class="form-group__label" id="languages-label">{{ 'auth.signup.languages' | translate }}</label>
             <div class="language-selector" role="group" aria-labelledby="languages-label">
               @for (lang of availableLanguages; track lang.code) {

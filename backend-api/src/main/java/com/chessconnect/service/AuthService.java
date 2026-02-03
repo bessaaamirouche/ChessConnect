@@ -12,6 +12,7 @@ import com.chessconnect.model.Progress;
 import com.chessconnect.model.User;
 import com.chessconnect.model.enums.ChessLevel;
 import com.chessconnect.model.enums.UserRole;
+import java.time.LocalDate;
 import com.chessconnect.repository.ProgressRepository;
 import com.chessconnect.repository.UserRepository;
 import com.chessconnect.security.JwtService;
@@ -84,11 +85,17 @@ public class AuthService {
             } else {
                 user.setLanguages("FR"); // Default to French
             }
+            // Optional ELO rating for teachers
+            if (request.eloRating() != null) {
+                user.setEloRating(request.eloRating());
+            }
         } else if (request.role() == UserRole.STUDENT) {
             user.setBirthDate(request.birthDate());
             user.setEloRating(request.eloRating());
             // Set starting course (default to 1 if not specified)
             user.setCurrentCourseId(request.startingCourseId() != null ? request.startingCourseId() : 1);
+            // Activate 14-day premium trial for all new students
+            user.setPremiumTrialEnd(LocalDate.now().plusDays(14));
         }
 
         User savedUser = userRepository.save(user);

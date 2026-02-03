@@ -340,6 +340,17 @@
     }
   }
 
+  &__elo {
+    display: inline-block;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--gold-400);
+    background: rgba(212, 168, 75, 0.15);
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    margin-left: var(--space-sm);
+  }
+
   &__bio {
     font-size: 0.9375rem;
     color: var(--text-secondary);

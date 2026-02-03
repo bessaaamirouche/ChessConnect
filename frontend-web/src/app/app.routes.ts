@@ -37,7 +37,16 @@ export const routes: Routes = [
     path: 'verify-email',
     loadComponent: () => import('./features/auth/verify-email/verify-email.component').then(m => m.VerifyEmailComponent)
   },
-  // User routes with sidebar layout (must be before public teacher routes)
+  // Public coach pages (no authentication required)
+  {
+    path: 'coaches',
+    loadComponent: () => import('./features/teachers/public-teacher-list/public-teacher-list.component').then(m => m.PublicTeacherListComponent)
+  },
+  {
+    path: 'coaches/:uuid',
+    loadComponent: () => import('./features/teachers/public-teacher-profile/public-teacher-profile.component').then(m => m.PublicTeacherProfileComponent)
+  },
+  // User routes with sidebar layout
   {
     path: '',
     canActivate: [authGuard],
@@ -165,15 +174,6 @@ export const routes: Routes = [
   {
     path: 'legal-notice',
     loadComponent: () => import('./features/legal/legal-notice/legal-notice.component').then(m => m.LegalNoticeComponent)
-  },
-  // Public teacher routes (for non-authenticated users, must be after auth routes)
-  {
-    path: 'teachers',
-    loadComponent: () => import('./features/teachers/teacher-list/teacher-list.component').then(m => m.TeacherListComponent)
-  },
-  {
-    path: 'teachers/:id',
-    loadComponent: () => import('./features/teachers/teacher-profile/teacher-profile.component').then(m => m.TeacherProfileComponent)
   },
   {
     path: '**',

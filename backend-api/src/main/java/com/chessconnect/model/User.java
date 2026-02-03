@@ -7,12 +7,14 @@ import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "users", indexes = {
     @Index(name = "idx_user_role", columnList = "role"),
     @Index(name = "idx_user_email", columnList = "email"),
-    @Index(name = "idx_user_last_login", columnList = "last_login_at")
+    @Index(name = "idx_user_last_login", columnList = "last_login_at"),
+    @Index(name = "idx_user_uuid", columnList = "uuid")
 })
 public class User {
 
@@ -22,6 +24,9 @@ public class User {
 
     @Version
     private Long version;
+
+    @Column(nullable = false, unique = true, updatable = false)
+    private String uuid;
 
     @Column(nullable = false, unique = true)
     private String email;
@@ -135,6 +140,9 @@ public class User {
 
     @PrePersist
     protected void onCreate() {
+        if (uuid == null) {
+            uuid = UUID.randomUUID().toString();
+        }
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
     }
@@ -147,6 +155,8 @@ public class User {
     // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
+
+    public String getUuid() { return uuid; }
 
     public Long getVersion() { return version; }
     public void setVersion(Long version) { this.version = version; }

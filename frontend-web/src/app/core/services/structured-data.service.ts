@@ -3,6 +3,7 @@ import { DOCUMENT } from '@angular/common';
 
 export interface Teacher {
   id: number;
+  uuid?: string;
   firstName: string;
   lastName: string;
   bio?: string;
@@ -33,11 +34,16 @@ export class StructuredDataService {
   }
 
   setTeacherSchema(teacher: Teacher): void {
+    // Use UUID for public coach URLs
+    const teacherUrl = teacher.uuid
+      ? `${this.baseUrl}/coaches/${teacher.uuid}`
+      : `${this.baseUrl}/teachers/${teacher.id}`;
+
     const schema = {
       '@context': 'https://schema.org',
       '@type': 'Person',
       name: `${teacher.firstName} ${teacher.lastName}`,
-      url: `${this.baseUrl}/teachers/${teacher.id}`,
+      url: teacherUrl,
       jobTitle: 'Coach d\'échecs',
       description: teacher.bio || `Coach d'échecs disponible pour des cours particuliers en visioconférence.`,
       worksFor: {

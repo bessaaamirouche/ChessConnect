@@ -234,6 +234,7 @@ public class UserController {
     private TeacherProfileResponse mapToProfileResponse(User user) {
         return TeacherProfileResponse.builder()
                 .id(user.getId())
+                .uuid(user.getUuid())
                 .email(user.getEmail())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())

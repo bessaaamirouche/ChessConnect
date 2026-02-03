@@ -1,0 +1,149 @@
+<div class="public-page">
+  <!-- Public Navbar -->
+  <nav class="public-nav">
+    <div class="public-nav__container">
+      <a routerLink="/" class="public-nav__logo">
+        <img src="assets/logo.png" alt="mychess" class="public-nav__logo-img">
+      </a>
+      <div class="public-nav__links">
+        <a routerLink="/" class="public-nav__link">{{ 'nav.home' | translate }}</a>
+        <a routerLink="/coaches" class="public-nav__link">{{ 'teachers.title' | translate }}</a>
+        <a routerLink="/pricing" class="public-nav__link">{{ 'nav.pricing' | translate }}</a>
+        <a routerLink="/blog" class="public-nav__link">{{ 'nav.blog' | translate }}</a>
+      </div>
+      <div class="public-nav__actions">
+        <app-language-selector></app-language-selector>
+        <a routerLink="/login" class="btn btn--ghost btn--sm">{{ 'nav.login' | translate }}</a>
+        <a routerLink="/register" class="btn btn--primary btn--sm">{{ 'nav.signup' | translate }}</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="public-content">
+    @if (teacherService.selectedTeacher(); as teacher) {
+      <div class="profile-card">
+        <!-- Header with gradient background -->
+        <div class="profile-card__header">
+          <a routerLink="/coaches" class="back-link">
+            &larr; {{ 'common.back' | translate }}
+          </a>
+          <div class="profile-card__avatar">
+            @if (teacher.avatarUrl) {
+              <img [src]="teacher.avatarUrl" [alt]="teacher.firstName">
+            } @else {
+              <span class="profile-card__initials">{{ getInitials(teacher.firstName, teacher.lastName) }}</span>
+            }
+          </div>
+          <h1 class="profile-card__name">{{ teacher.firstName }} {{ teacher.lastName }}</h1>
+          <p class="profile-card__title">{{ 'teachers.profile.coachTitle' | translate }}</p>
+          @if (teacher.isOnline) {
+            <span class="profile-card__status">
+              <span class="status-dot"></span>
+              {{ 'teachers.card.online' | translate }}
+            </span>
+          }
+        </div>
+
+        <!-- CTA to register -->
+        <div class="profile-card__cta">
+          <a routerLink="/register" class="btn btn--primary btn--lg btn--full">
+            {{ 'teachers.profile.signupToBook' | translate }}
+          </a>
+        </div>
+
+        <!-- Info sections -->
+        <div class="profile-card__sections">
+          <!-- Tarif -->
+          <div class="info-section">
+            <div class="info-row">
+              <span class="info-row__label">{{ 'teachers.profile.hourlyRate' | translate }}</span>
+              <span class="info-row__value info-row__value--gold">{{ formatPrice(teacher.hourlyRateCents) }}/h</span>
+            </div>
+          </div>
+
+          <!-- Stats -->
+          @if (teacher.lessonsCompleted || teacher.totalStudents || teacher.averageRating) {
+            <div class="info-section">
+              @if (teacher.averageRating) {
+                <div class="info-row">
+                  <span class="info-row__label">{{ 'teachers.profile.averageRating' | translate }}</span>
+                  <span class="info-row__value">
+                    <span class="stars">
+                      @for (i of [1,2,3,4,5]; track i) {
+                        <span class="star" [class.star--filled]="i <= teacher.averageRating">&#9733;</span>
+                      }
+                    </span>
+                    {{ teacher.averageRating.toFixed(1) }}
+                    <span class="text-muted">({{ teacher.reviewCount }} {{ 'teachers.card.reviews' | translate }})</span>
+                  </span>
+                </div>
+              }
+              @if (teacher.lessonsCompleted) {
+                <div class="info-row">
+                  <span class="info-row__label">{{ 'teachers.profile.lessonsTaught' | translate }}</span>
+                  <span class="info-row__value">{{ teacher.lessonsCompleted }}</span>
+                </div>
+              }
+              @if (teacher.totalStudents) {
+                <div class="info-row">
+                  <span class="info-row__label">{{ 'teachers.profile.studentsCount' | translate }}</span>
+                  <span class="info-row__value">{{ teacher.totalStudents }}</span>
+                </div>
+              }
+            </div>
+          }
+
+          <!-- Languages -->
+          @if (teacher.languages && teacher.languages.length > 0) {
+            <div class="info-section">
+              <div class="info-row">
+                <span class="info-row__label">{{ 'teachers.profile.languages' | translate }}</span>
+                <span class="info-row__value">
+                  @for (lang of teacher.languages; track lang; let last = $last) {
+                    {{ lang }}{{ !last ? ', ' : '' }}
+                  }
+                </span>
+              </div>
+            </div>
+          }
+
+          <!-- Bio -->
+          @if (teacher.bio) {
+            <div class="info-section info-section--bio">
+              <span class="info-section__title">{{ 'teachers.profile.about' | translate }}</span>
+              <p class="info-section__text">{{ teacher.bio }}</p>
+            </div>
+          }
+        </div>
+
+        <!-- Second CTA -->
+        <div class="profile-card__footer">
+          <p class="signup-prompt">{{ 'teachers.cta.title' | translate }}</p>
+          <a routerLink="/register" class="btn btn--primary btn--lg">{{ 'nav.signup' | translate }}</a>
+        </div>
+      </div>
+    } @else {
+      <div class="loading-state">
+        <span class="spinner spinner--lg"></span>
+      </div>
+    }
+  </main>
+
+  <!-- Footer -->
+  <footer class="public-footer">
+    <div class="public-footer__container">
+      <div class="public-footer__brand">
+        <img src="assets/logo.png" alt="mychess" class="public-footer__logo">
+        <p>{{ 'footer.tagline' | translate }}</p>
+      </div>
+      <div class="public-footer__links">
+        <a routerLink="/">{{ 'nav.home' | translate }}</a>
+        <a routerLink="/coaches">{{ 'teachers.title' | translate }}</a>
+        <a routerLink="/pricing">{{ 'nav.pricing' | translate }}</a>
+        <a routerLink="/register">{{ 'nav.signup' | translate }}</a>
+      </div>
+      <p class="public-footer__copyright">© 2026 mychess. {{ 'footer.copyright' | translate }}</p>
+    </div>
+  </footer>
+</div>

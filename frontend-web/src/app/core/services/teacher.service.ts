@@ -41,6 +41,12 @@ export class TeacherService {
     );
   }
 
+  getTeacherByUuid(uuid: string): Observable<User> {
+    return this.http.get<User>(`${this.apiUrl}/uuid/${uuid}`).pipe(
+      tap(teacher => this.selectedTeacherSignal.set(teacher))
+    );
+  }
+
   searchTeachers(query: string): Observable<User[]> {
     return this.http.get<User[]>(`${this.apiUrl}/search`, {
       params: { q: query }

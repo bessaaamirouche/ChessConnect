@@ -11,6 +11,7 @@ import java.util.List;
 @Builder
 public class TeacherProfileResponse {
     private Long id;
+    private String uuid;
     private String email;
     private String firstName;
     private String lastName;

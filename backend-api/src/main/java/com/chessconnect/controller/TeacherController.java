@@ -52,6 +52,14 @@ public class TeacherController {
         return ResponseEntity.ok(mapToResponse(teacher));
     }
 
+    @GetMapping("/uuid/{uuid}")
+    public ResponseEntity<TeacherResponse> getTeacherByUuid(@PathVariable String uuid) {
+        User teacher = userRepository.findByUuid(uuid)
+                .filter(u -> u.getRole() == UserRole.TEACHER)
+                .orElseThrow(() -> new RuntimeException("Teacher not found"));
+        return ResponseEntity.ok(mapToResponse(teacher));
+    }
+
     @GetMapping("/search")
     public ResponseEntity<List<TeacherResponse>> searchTeachers(@RequestParam String q) {
         List<User> teachers = userRepository.findByRole(UserRole.TEACHER).stream()
@@ -116,6 +124,7 @@ public class TeacherController {
 
         return new TeacherResponse(
                 teacher.getId(),
+                teacher.getUuid(),
                 teacher.getFirstName(),
                 teacher.getLastName(),
                 teacher.getHourlyRateCents(),
@@ -133,6 +142,7 @@ public class TeacherController {
 
     public record TeacherResponse(
             Long id,
+            String uuid,
             String firstName,
             String lastName,
             Integer hourlyRateCents,

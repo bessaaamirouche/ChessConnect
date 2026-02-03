@@ -4,6 +4,7 @@ import { DOCUMENT } from '@angular/common';
 
 export interface Teacher {
   id: number;
+  uuid?: string;
   firstName: string;
   lastName: string;
   bio?: string;
@@ -40,7 +41,7 @@ export class SeoService {
     this.updateTags({
       title: pageTitle,
       description,
-      url: `${this.baseUrl}/teachers`,
+      url: `${this.baseUrl}/coaches`,
       type: 'website'
     });
   }
@@ -52,10 +53,15 @@ export class SeoService {
       ? teacher.bio.substring(0, 155) + (teacher.bio.length > 155 ? '...' : '')
       : `Réservez un cours d'échecs avec ${fullName}. Coach qualifié disponible pour des cours particuliers en visioconférence.`;
 
+    // Use UUID for public coach URLs
+    const url = teacher.uuid
+      ? `${this.baseUrl}/coaches/${teacher.uuid}`
+      : `${this.baseUrl}/teachers/${teacher.id}`;
+
     this.updateTags({
       title: pageTitle,
       description,
-      url: `${this.baseUrl}/teachers/${teacher.id}`,
+      url,
       type: 'profile'
     });
   }

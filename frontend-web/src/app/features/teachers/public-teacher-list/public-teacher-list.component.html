@@ -1,0 +1,172 @@
+<div class="public-page">
+  <!-- Public Navbar -->
+  <nav class="public-nav">
+    <div class="public-nav__container">
+      <a routerLink="/" class="public-nav__logo">
+        <img src="assets/logo.png" alt="mychess" class="public-nav__logo-img">
+      </a>
+      <div class="public-nav__links">
+        <a routerLink="/" class="public-nav__link">{{ 'nav.home' | translate }}</a>
+        <a routerLink="/how-it-works" class="public-nav__link">{{ 'nav.howItWorks' | translate }}</a>
+        <a routerLink="/pricing" class="public-nav__link">{{ 'nav.pricing' | translate }}</a>
+        <a routerLink="/blog" class="public-nav__link">{{ 'nav.blog' | translate }}</a>
+      </div>
+      <div class="public-nav__actions">
+        <app-language-selector></app-language-selector>
+        <a routerLink="/login" class="btn btn--ghost btn--sm">{{ 'nav.login' | translate }}</a>
+        <a routerLink="/register" class="btn btn--primary btn--sm">{{ 'nav.signup' | translate }}</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="public-content">
+    <header class="public-header">
+      <h1 class="public-header__title">{{ 'teachers.pageTitle' | translate }}</h1>
+      <p class="public-header__subtitle">{{ 'teachers.pageSubtitle' | translate }}</p>
+    </header>
+
+    <!-- Search & Filters -->
+    <div class="search-section">
+      <div class="search-bar">
+        <ng-icon name="heroMagnifyingGlass" class="search-bar__icon"></ng-icon>
+        <input
+          type="text"
+          class="search-bar__input"
+          [placeholder]="'teachers.searchPlaceholder' | translate"
+          [ngModel]="searchQuery()"
+          (ngModelChange)="searchQuery.set($event)"
+        >
+        @if (searchQuery()) {
+          <button class="search-bar__clear" (click)="searchQuery.set('')">
+            <ng-icon name="heroXMark" size="18"></ng-icon>
+          </button>
+        }
+      </div>
+
+      <div class="filters">
+        <div class="filter-group">
+          <label class="filter-group__label">{{ 'teachers.filters.minRate' | translate }}</label>
+          <div class="filter-group__input">
+            <input
+              type="number"
+              placeholder="0"
+              min="0"
+              [ngModel]="minRate()"
+              (ngModelChange)="minRate.set($event)"
+            >
+            <span>€/h</span>
+          </div>
+        </div>
+        <div class="filter-group">
+          <label class="filter-group__label">{{ 'teachers.filters.maxRate' | translate }}</label>
+          <div class="filter-group__input">
+            <input
+              type="number"
+              placeholder="200"
+              min="0"
+              [ngModel]="maxRate()"
+              (ngModelChange)="maxRate.set($event)"
+            >
+            <span>€/h</span>
+          </div>
+        </div>
+        @if (hasActiveFilters()) {
+          <button class="btn btn--ghost btn--sm" (click)="clearFilters()">
+            {{ 'common.reset' | translate }}
+          </button>
+        }
+      </div>
+
+      <div class="search-results">
+        {{ filteredTeachers().length }} {{ filteredTeachers().length > 1 ? ('teachers.coachesFound' | translate) : ('teachers.coachFound' | translate) }}
+      </div>
+    </div>
+
+    @if (teacherService.loading()) {
+      <div class="loading-state">
+        <span class="spinner spinner--lg"></span>
+      </div>
+    } @else if (filteredTeachers().length === 0) {
+      <div class="empty-state">
+        <div class="empty-state__icon"><ng-icon name="heroAcademicCap" size="48"></ng-icon></div>
+        @if (hasActiveFilters()) {
+          <h3 class="empty-state__title">{{ 'teachers.empty.title' | translate }}</h3>
+          <p class="empty-state__description">
+            {{ 'teachers.empty.description' | translate }}
+          </p>
+          <button class="btn btn--primary" (click)="clearFilters()">{{ 'teachers.filters.clearAll' | translate }}</button>
+        } @else {
+          <h3 class="empty-state__title">{{ 'teachers.empty.noCoaches' | translate }}</h3>
+          <p class="empty-state__description">
+            {{ 'teachers.empty.noCoachesDescription' | translate }}
+          </p>
+        }
+      </div>
+    } @else {
+      <div class="teachers-grid">
+        @for (teacher of filteredTeachers(); track teacher.id) {
+          <a [routerLink]="['/coaches', teacher.uuid]" class="teacher-card">
+            <div class="teacher-card__header">
+              <div class="avatar">
+                @if (teacher.avatarUrl) {
+                  <img [src]="teacher.avatarUrl" [alt]="teacher.firstName">
+                } @else {
+                  {{ getInitials(teacher.firstName, teacher.lastName) }}
+                }
+              </div>
+              <div class="teacher-card__info">
+                <h3 class="teacher-card__name">
+                  {{ formatCoachName(teacher.firstName, teacher.lastName) }}
+                </h3>
+                <span class="teacher-card__rate">
+                  {{ formatPrice(teacher.hourlyRateCents) }}
+                </span>
+                @if (teacher.averageRating) {
+                  <span class="teacher-card__rating">
+                    <span class="star">&#9733;</span> {{ teacher.averageRating.toFixed(1) }}
+                    <span class="review-count">({{ teacher.reviewCount }})</span>
+                  </span>
+                }
+              </div>
+            </div>
+
+            @if (teacher.bio) {
+              <p class="teacher-card__bio">
+                {{ teacher.bio }}
+              </p>
+            }
+
+            <div class="teacher-card__footer">
+              <span class="btn btn--primary btn--sm">{{ 'teachers.card.viewProfile' | translate }}</span>
+            </div>
+          </a>
+        }
+      </div>
+    }
+
+    <!-- CTA Section -->
+    <div class="public-cta">
+      <h2>{{ 'teachers.cta.title' | translate }}</h2>
+      <p>{{ 'teachers.cta.description' | translate }}</p>
+      <a routerLink="/register" class="btn btn--primary btn--lg">{{ 'teachers.cta.button' | translate }}</a>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="public-footer">
+    <div class="public-footer__container">
+      <div class="public-footer__brand">
+        <img src="assets/logo.png" alt="mychess" class="public-footer__logo">
+        <p>{{ 'footer.tagline' | translate }}</p>
+      </div>
+      <div class="public-footer__links">
+        <a routerLink="/">{{ 'nav.home' | translate }}</a>
+        <a routerLink="/pricing">{{ 'nav.pricing' | translate }}</a>
+        <a routerLink="/blog">{{ 'nav.blog' | translate }}</a>
+        <a routerLink="/register">{{ 'nav.signup' | translate }}</a>
+      </div>
+      <p class="public-footer__copyright">© 2026 mychess. {{ 'footer.copyright' | translate }}</p>
+    </div>
+  </footer>
+</div>

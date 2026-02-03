@@ -83,6 +83,7 @@ export interface ResetPasswordRequest {
 
 export interface User {
   id: number;
+  uuid?: string;
   email: string;
   firstName: string;
   lastName: string;
@@ -136,6 +137,7 @@ export interface ChangePasswordRequest {
 
 export interface TeacherProfileResponse {
   id: number;
+  uuid?: string;
   email: string;
   firstName: string;
   lastName: string;

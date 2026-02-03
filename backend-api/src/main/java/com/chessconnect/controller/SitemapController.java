@@ -37,15 +37,15 @@ public class SitemapController {
 
         // Static pages
         addUrl(xml, "", "1.0", "daily");
-        addUrl(xml, "/teachers", "0.9", "daily");
+        addUrl(xml, "/coaches", "0.9", "daily");
         addUrl(xml, "/blog", "0.9", "daily");
         addUrl(xml, "/register", "0.7", "monthly");
         addUrl(xml, "/login", "0.5", "monthly");
 
-        // Teacher profile pages
+        // Teacher profile pages (using UUID for privacy)
         List<User> teachers = userRepository.findByRole(UserRole.TEACHER);
         for (User teacher : teachers) {
-            addUrl(xml, "/teachers/" + teacher.getId(), "0.8", "weekly");
+            addUrl(xml, "/coaches/" + teacher.getUuid(), "0.8", "weekly");
         }
 
         // Blog articles

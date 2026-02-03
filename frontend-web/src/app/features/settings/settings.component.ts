@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, ChangeDetectionStrategy, inject, computed } from '@angular/core';
+import { Component, OnInit, signal, ChangeDetectionStrategy, inject, computed, HostListener, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
 
@@ -36,7 +36,9 @@ import {
   heroUserCircle,
   heroArrowRightOnRectangle,
   heroTrash,
-  heroExclamationTriangle
+  heroExclamationTriangle,
+  heroArrowUpOnSquare,
+  heroLink
 } from '@ng-icons/heroicons/outline';
 
 @Component({
@@ -54,7 +56,9 @@ import {
     heroUserCircle,
     heroArrowRightOnRectangle,
     heroTrash,
-    heroExclamationTriangle
+    heroExclamationTriangle,
+    heroArrowUpOnSquare,
+    heroLink
   })],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.scss'
@@ -119,7 +123,20 @@ export class SettingsComponent implements OnInit {
   private toastService = inject(ToastService);
   private router = inject(Router);
   private translateService = inject(TranslateService);
+  private elementRef = inject(ElementRef);
   languageService = inject(LanguageService);
+
+  // Close share menu when clicking outside
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (!this.showShareMenu()) return;
+
+    const target = event.target as HTMLElement;
+    const shareContainer = this.elementRef.nativeElement.querySelector('.share-container');
+    if (shareContainer && !shareContainer.contains(target)) {
+      this.closeShareMenu();
+    }
+  }
 
   constructor(
     private fb: FormBuilder,
@@ -593,6 +610,56 @@ export class SettingsComponent implements OnInit {
         this.stripeConnectError.set(err.error?.message || this.translateService.instant('errors.recalculate'));
       }
     });
+  }
+
+  // Share profile (teachers only)
+  showShareMenu = signal(false);
+
+  getProfileUrl(): string {
+    const uuid = this.authService.currentUser()?.uuid;
+    return `https://mychess.fr/coaches/${uuid}`;
+  }
+
+  toggleShareMenu(): void {
+    this.showShareMenu.update(v => !v);
+  }
+
+  closeShareMenu(): void {
+    this.showShareMenu.set(false);
+  }
+
+  copyProfileLink(): void {
+    const url = this.getProfileUrl();
+    navigator.clipboard.writeText(url).then(() => {
+      this.toastService.success(this.translateService.instant('settings.share.linkCopied'));
+      this.closeShareMenu();
+    });
+  }
+
+  shareOnTwitter(): void {
+    const url = this.getProfileUrl();
+    const text = this.translateService.instant('settings.share.twitterText');
+    window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
+    this.closeShareMenu();
+  }
+
+  shareOnFacebook(): void {
+    const url = this.getProfileUrl();
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
+    this.closeShareMenu();
+  }
+
+  shareOnLinkedIn(): void {
+    const url = this.getProfileUrl();
+    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`, '_blank');
+    this.closeShareMenu();
+  }
+
+  shareOnWhatsApp(): void {
+    const url = this.getProfileUrl();
+    const text = this.translateService.instant('settings.share.whatsappText');
+    window.open(`https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`, '_blank');
+    this.closeShareMenu();
   }
 
   // Account deletion (RGPD compliance)

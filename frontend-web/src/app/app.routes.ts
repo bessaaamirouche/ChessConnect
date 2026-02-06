@@ -164,6 +164,10 @@ export const routes: Routes = [
     path: 'faq',
     loadComponent: () => import('./features/faq/faq.component').then(m => m.FaqComponent)
   },
+  {
+    path: 'links',
+    loadComponent: () => import('./features/links/links.component').then(m => m.LinksComponent)
+  },
   // Legal pages
   {
     path: 'terms',

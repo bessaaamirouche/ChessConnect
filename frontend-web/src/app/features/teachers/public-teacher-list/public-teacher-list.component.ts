@@ -8,11 +8,12 @@ import { StructuredDataService } from '../../../core/services/structured-data.se
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { heroMagnifyingGlass, heroXMark, heroAcademicCap } from '@ng-icons/heroicons/outline';
 import { LanguageSelectorComponent } from '../../../shared/components/language-selector/language-selector.component';
+import { FooterComponent } from '../../../shared/components/footer/footer.component';
 
 @Component({
   selector: 'app-public-teacher-list',
   standalone: true,
-  imports: [RouterLink, NgIconComponent, FormsModule, TranslateModule, LanguageSelectorComponent],
+  imports: [RouterLink, NgIconComponent, FormsModule, TranslateModule, LanguageSelectorComponent, FooterComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({ heroMagnifyingGlass, heroXMark, heroAcademicCap })],
   templateUrl: './public-teacher-list.component.html',

@@ -4,12 +4,12 @@ import { TranslateModule } from '@ngx-translate/core';
 import { SeoService } from '../../core/services/seo.service';
 import { StructuredDataService } from '../../core/services/structured-data.service';
 import { PublicNavbarComponent, NavLink } from '../../shared/components/public-navbar/public-navbar.component';
-import { SimpleFooterComponent } from '../../shared/components/simple-footer/simple-footer.component';
+import { FooterComponent } from '../../shared/components/footer/footer.component';
 
 @Component({
   selector: 'app-how-it-works',
   standalone: true,
-  imports: [RouterLink, TranslateModule, PublicNavbarComponent, SimpleFooterComponent],
+  imports: [RouterLink, TranslateModule, PublicNavbarComponent, FooterComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './how-it-works.component.html',
   styleUrl: './how-it-works.component.scss'

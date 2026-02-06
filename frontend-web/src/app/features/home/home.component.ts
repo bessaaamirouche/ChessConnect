@@ -16,6 +16,7 @@ import { SeoService } from '../../core/services/seo.service';
 import { StructuredDataService } from '../../core/services/structured-data.service';
 import { ScrollRevealDirective, StaggerRevealDirective } from '../../shared/directives/scroll-reveal.directive';
 import { PublicNavbarComponent, NavLink } from '../../shared/components/public-navbar/public-navbar.component';
+import { FooterComponent } from '../../shared/components/footer/footer.component';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   heroUserGroup,
@@ -40,7 +41,8 @@ import {
     ScrollRevealDirective,
     StaggerRevealDirective,
     TranslateModule,
-    PublicNavbarComponent
+    PublicNavbarComponent,
+    FooterComponent
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({

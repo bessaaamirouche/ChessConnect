@@ -8,14 +8,14 @@ import { StructuredDataService } from '../../../core/services/structured-data.se
 import { ArticleList, ArticlePage, ARTICLE_CATEGORIES } from '../../../core/models/article.model';
 import { ScrollRevealDirective, StaggerRevealDirective } from '../../../shared/directives/scroll-reveal.directive';
 import { PublicNavbarComponent, NavLink } from '../../../shared/components/public-navbar/public-navbar.component';
-import { SimpleFooterComponent, FooterLink } from '../../../shared/components/simple-footer/simple-footer.component';
+import { FooterComponent } from '../../../shared/components/footer/footer.component';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { heroClock, heroArrowRight, heroArrowLeft } from '@ng-icons/heroicons/outline';
 
 @Component({
   selector: 'app-blog-list',
   standalone: true,
-  imports: [RouterLink, DatePipe, NgIconComponent, ScrollRevealDirective, StaggerRevealDirective, TranslateModule, PublicNavbarComponent, SimpleFooterComponent],
+  imports: [RouterLink, DatePipe, NgIconComponent, ScrollRevealDirective, StaggerRevealDirective, TranslateModule, PublicNavbarComponent, FooterComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({ heroClock, heroArrowRight, heroArrowLeft })],
   templateUrl: './blog-list.component.html',
@@ -37,10 +37,6 @@ export class BlogListComponent implements OnInit {
     { route: '/', labelKey: 'nav.home' },
     { route: '/teachers', labelKey: 'teachers.title' },
     { route: '/blog', labelKey: 'blog.title', active: true }
-  ];
-
-  footerLinks: FooterLink[] = [
-    { route: '/', labelKey: 'blog.footer.backToHome' }
   ];
 
   categoryLabels = ARTICLE_CATEGORIES;

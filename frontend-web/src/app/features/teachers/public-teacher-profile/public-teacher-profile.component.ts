@@ -5,12 +5,13 @@ import { TeacherService } from '../../../core/services/teacher.service';
 import { SeoService } from '../../../core/services/seo.service';
 import { StructuredDataService } from '../../../core/services/structured-data.service';
 import { LanguageSelectorComponent } from '../../../shared/components/language-selector/language-selector.component';
+import { FooterComponent } from '../../../shared/components/footer/footer.component';
 import { User } from '../../../core/models/user.model';
 
 @Component({
   selector: 'app-public-teacher-profile',
   standalone: true,
-  imports: [RouterLink, TranslateModule, LanguageSelectorComponent],
+  imports: [RouterLink, TranslateModule, LanguageSelectorComponent, FooterComponent],
   templateUrl: './public-teacher-profile.component.html',
   styleUrl: './public-teacher-profile.component.scss'
 })

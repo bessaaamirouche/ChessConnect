@@ -3,7 +3,7 @@ import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../core/services/auth.service';
 import { PublicNavbarComponent, NavLink } from '../../shared/components/public-navbar/public-navbar.component';
-import { SimpleFooterComponent } from '../../shared/components/simple-footer/simple-footer.component';
+import { FooterComponent } from '../../shared/components/footer/footer.component';
 import { SeoService } from '../../core/services/seo.service';
 import { StructuredDataService } from '../../core/services/structured-data.service';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
@@ -25,7 +25,7 @@ import {
 @Component({
   selector: 'app-pricing',
   standalone: true,
-  imports: [RouterLink, NgIconComponent, TranslateModule, PublicNavbarComponent, SimpleFooterComponent],
+  imports: [RouterLink, NgIconComponent, TranslateModule, PublicNavbarComponent, FooterComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({
     heroCheck,

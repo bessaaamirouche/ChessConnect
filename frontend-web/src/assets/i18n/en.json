@@ -1759,7 +1759,11 @@
     "contact": "Contact Us",
     "faq": "FAQ",
     "social": "Follow Us",
+    "ourNetworks": "Our socials",
     "copyright": "All rights reserved"
+  },
+  "links": {
+    "tagline": "Find us on social media"
   },
   "meta": {
     "homeTitle": "mychess - Learn Chess with Expert Coaches",

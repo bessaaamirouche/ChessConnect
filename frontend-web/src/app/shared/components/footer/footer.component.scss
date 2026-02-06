@@ -1,0 +1,175 @@
+@use '../../../../styles/variables' as *;
+
+$gold: #d4a84b;
+$ivory: #f5f3eb;
+$ivory-muted: #a8a5a0;
+$text-muted: #6b6965;
+$bg-dark: #0a0a0c;
+
+.footer {
+  background: #09090b;
+  border-top: 1px solid rgba($gold, 0.1);
+  padding: var(--space-3xl) var(--space-lg) var(--space-xl);
+
+  @include respond-down(md) {
+    padding: var(--space-xl) var(--space-md) var(--space-md);
+  }
+
+  &__container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  &__main {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xl);
+    margin-bottom: var(--space-2xl);
+
+    @include respond-to(md) {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    @include respond-down(md) {
+      gap: var(--space-lg);
+      margin-bottom: var(--space-lg);
+    }
+  }
+
+  &__brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    @include respond-to(md) {
+      justify-content: flex-start;
+    }
+  }
+
+  &__logo {
+    height: 40px;
+    max-width: 160px;
+    object-fit: contain;
+
+    @include respond-down(md) {
+      height: 32px;
+      max-width: 130px;
+    }
+  }
+
+  &__columns {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-xl) var(--space-3xl);
+
+    @include respond-to(sm) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    @include respond-down(md) {
+      gap: var(--space-md) var(--space-lg);
+    }
+  }
+
+  &__column {
+    h4 {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: $ivory;
+      margin-bottom: var(--space-md);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+
+      @include respond-down(md) {
+        font-size: 0.75rem;
+        margin-bottom: var(--space-sm);
+      }
+    }
+
+    a {
+      display: block;
+      font-size: 0.875rem;
+      color: $ivory-muted;
+      padding: var(--space-xs) 0;
+      transition: all var(--transition-fast);
+
+      &:hover {
+        color: $gold;
+        padding-left: 4px;
+      }
+
+      @include respond-down(md) {
+        font-size: 0.8125rem;
+        padding: 3px 0;
+      }
+    }
+  }
+
+  &__qr-code {
+    width: 100px;
+    height: 100px;
+    border-radius: var(--radius-sm);
+    border: 2px solid rgba($gold, 0.3);
+    background: $bg-dark;
+    margin-top: var(--space-xs);
+
+    @include respond-down(md) {
+      width: 80px;
+      height: 80px;
+    }
+  }
+
+  &__divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba($gold, 0.2), transparent);
+    margin-bottom: var(--space-lg);
+  }
+
+  &__bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-md);
+
+    @include respond-to(md) {
+      flex-direction: row;
+      justify-content: space-between;
+    }
+  }
+
+  &__copyright {
+    font-size: 0.8125rem;
+    color: $text-muted;
+
+    @include respond-down(md) {
+      font-size: 0.75rem;
+    }
+  }
+
+  &__legal {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-sm) var(--space-lg);
+
+    a {
+      font-size: 0.8125rem;
+      color: $text-muted;
+      transition: color var(--transition-fast);
+
+      &:hover {
+        color: $gold;
+      }
+
+      @include respond-down(md) {
+        font-size: 0.75rem;
+      }
+    }
+
+    @include respond-down(md) {
+      gap: var(--space-xs) var(--space-md);
+    }
+  }
+}

@@ -9,7 +9,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { ArticleDetail, ARTICLE_CATEGORIES } from '../../../core/models/article.model';
 import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.directive';
 import { PublicNavbarComponent, NavLink } from '../../../shared/components/public-navbar/public-navbar.component';
-import { SimpleFooterComponent, FooterLink } from '../../../shared/components/simple-footer/simple-footer.component';
+import { FooterComponent } from '../../../shared/components/footer/footer.component';
 import { MarkdownPipe } from '../../../shared/pipes/markdown.pipe';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { heroClock, heroArrowLeft, heroArrowRight } from '@ng-icons/heroicons/outline';
@@ -17,7 +17,7 @@ import { heroClock, heroArrowLeft, heroArrowRight } from '@ng-icons/heroicons/ou
 @Component({
   selector: 'app-blog-article',
   standalone: true,
-  imports: [RouterLink, DatePipe, NgIconComponent, ScrollRevealDirective, MarkdownPipe, TranslateModule, PublicNavbarComponent, SimpleFooterComponent],
+  imports: [RouterLink, DatePipe, NgIconComponent, ScrollRevealDirective, MarkdownPipe, TranslateModule, PublicNavbarComponent, FooterComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({ heroClock, heroArrowLeft, heroArrowRight })],
   templateUrl: './blog-article.component.html',
@@ -37,11 +37,6 @@ export class BlogArticleComponent implements OnInit {
     { route: '/', labelKey: 'nav.home' },
     { route: '/teachers', labelKey: 'teachers.title' },
     { route: '/blog', labelKey: 'blog.title', active: true }
-  ];
-
-  footerLinks: FooterLink[] = [
-    { route: '/', labelKey: 'nav.home' },
-    { route: '/blog', labelKey: 'blog.title' }
   ];
 
   categoryLabels = ARTICLE_CATEGORIES;

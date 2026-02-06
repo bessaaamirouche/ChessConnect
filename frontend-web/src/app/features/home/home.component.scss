@@ -38,6 +38,11 @@ $text-muted: #6b6965;
     padding: 0 var(--space-xl);
   }
 
+  @include respond-down(md) {
+    min-height: auto;
+    padding: 80px var(--space-md) var(--space-xl);
+  }
+
   &__bg {
     position: absolute;
     inset: 0;
@@ -148,11 +153,21 @@ $text-muted: #6b6965;
     &-icon {
       font-size: 1rem;
     }
+
+    @include respond-down(md) {
+      padding: var(--space-xs) var(--space-sm);
+      font-size: 0.75rem;
+      margin-bottom: var(--space-md);
+    }
   }
 
   &__title {
     margin-bottom: var(--space-lg);
     max-width: 100%;
+
+    @include respond-down(md) {
+      margin-bottom: var(--space-md);
+    }
 
     &--compact {
       font-family: var(--font-display);
@@ -191,6 +206,12 @@ $text-muted: #6b6965;
     color: $ivory-muted;
     line-height: 1.6;
     margin-bottom: var(--space-xl);
+
+    @include respond-down(md) {
+      font-size: 0.875rem;
+      line-height: 1.5;
+      margin-bottom: var(--space-lg);
+    }
   }
 
   &__free-trial {
@@ -249,6 +270,11 @@ $text-muted: #6b6965;
     width: 100%;
     padding: 0 var(--space-md);
 
+    @include respond-down(md) {
+      margin-bottom: var(--space-xl);
+      gap: var(--space-sm);
+    }
+
     @include respond-down(sm) {
       flex-direction: column;
       align-items: center;
@@ -273,6 +299,11 @@ $text-muted: #6b6965;
     @include respond-to(md) {
       gap: var(--space-3xl);
     }
+
+    @include respond-down(md) {
+      gap: var(--space-md);
+      padding-top: var(--space-md);
+    }
   }
 
   &__stat {
@@ -292,6 +323,17 @@ $text-muted: #6b6965;
       color: $text-muted;
       text-transform: uppercase;
       letter-spacing: 0.1em;
+
+      @include respond-down(md) {
+        font-size: 0.6875rem;
+      }
+    }
+
+    @include respond-down(md) {
+      &-value {
+        font-size: 1.25rem;
+        margin-bottom: 2px;
+      }
     }
   }
 
@@ -350,6 +392,10 @@ $text-muted: #6b6965;
     padding: 120px var(--space-xl);
   }
 
+  @include respond-down(md) {
+    padding: var(--space-xl) var(--space-md);
+  }
+
   &__container {
     max-width: 1200px;
     margin: 0 auto;
@@ -362,6 +408,10 @@ $text-muted: #6b6965;
     @include respond-to(lg) {
       margin-bottom: 80px;
     }
+
+    @include respond-down(md) {
+      margin-bottom: var(--space-xl);
+    }
   }
 
   &__eyebrow {
@@ -372,6 +422,11 @@ $text-muted: #6b6965;
     text-transform: uppercase;
     letter-spacing: 0.15em;
     margin-bottom: var(--space-md);
+
+    @include respond-down(md) {
+      font-size: 0.6875rem;
+      margin-bottom: var(--space-sm);
+    }
   }
 
   &__title {
@@ -383,12 +438,13 @@ $text-muted: #6b6965;
     hyphens: none;
     word-break: normal;
 
-    @include respond-down(sm) {
-      font-size: 1.375rem;
-      line-height: 1.35;
+    @include respond-down(md) {
+      font-size: 1.25rem;
+      line-height: 1.3;
+      margin-bottom: var(--space-sm);
 
       br {
-        display: none; // Remove forced line breaks on mobile
+        display: none;
       }
     }
   }
@@ -397,11 +453,20 @@ $text-muted: #6b6965;
     font-size: clamp(1rem, 2vw, 1.125rem);
     color: $ivory-muted;
     line-height: 1.6;
+
+    @include respond-down(md) {
+      font-size: 0.875rem;
+      line-height: 1.5;
+    }
   }
 
   &__cta {
     text-align: center;
     margin-top: var(--space-3xl);
+
+    @include respond-down(md) {
+      margin-top: var(--space-xl);
+    }
   }
 
   // Section backgrounds
@@ -427,6 +492,10 @@ $text-muted: #6b6965;
 
     @include respond-to(lg) {
       padding: 120px var(--space-xl);
+    }
+
+    @include respond-down(md) {
+      padding: var(--space-xl) var(--space-md);
     }
   }
 }
@@ -483,6 +552,21 @@ $text-muted: #6b6965;
     padding: var(--space-lg) var(--space-3xl);
     font-size: 1.125rem;
   }
+
+  @include respond-down(md) {
+    padding: 10px var(--space-lg);
+    font-size: 0.8125rem;
+
+    &--lg {
+      padding: 10px var(--space-xl);
+      font-size: 0.8125rem;
+    }
+
+    &--xl {
+      padding: var(--space-md) var(--space-xl);
+      font-size: 0.9375rem;
+    }
+  }
 }
 
 // === Features Grid ===
@@ -498,6 +582,10 @@ $text-muted: #6b6965;
   @include respond-to(lg) {
     grid-template-columns: repeat(3, 1fr);
     gap: var(--space-xl);
+  }
+
+  @include respond-down(md) {
+    gap: var(--space-md);
   }
 }
 
@@ -530,6 +618,17 @@ $text-muted: #6b6965;
     color: $gold;
     margin-bottom: var(--space-lg);
     transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+
+    @include respond-down(md) {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-md);
+      margin-bottom: var(--space-sm);
+
+      ng-icon {
+        font-size: 20px;
+      }
+    }
   }
 
   &__title {
@@ -538,12 +637,27 @@ $text-muted: #6b6965;
     font-weight: 600;
     color: $ivory;
     margin-bottom: var(--space-sm);
+
+    @include respond-down(md) {
+      font-size: 1rem;
+      margin-bottom: 4px;
+    }
   }
 
   &__desc {
     font-size: 0.9375rem;
     color: $ivory-muted;
     line-height: 1.6;
+
+    @include respond-down(md) {
+      font-size: 0.8125rem;
+      line-height: 1.5;
+    }
+  }
+
+  @include respond-down(md) {
+    padding: var(--space-md);
+    border-radius: var(--radius-md);
   }
 }
 
@@ -564,7 +678,7 @@ $text-muted: #6b6965;
     z-index: 0; // Behind the cards
 
     @include respond-down(md) {
-      left: 30px;
+      left: 22px;
     }
   }
 }
@@ -577,7 +691,10 @@ $text-muted: #6b6965;
   padding: var(--space-lg) 0;
 
   @include respond-down(md) {
-    padding-left: 80px;
+    padding-left: 60px;
+    padding-top: var(--space-sm);
+    padding-bottom: var(--space-sm);
+    gap: var(--space-md);
   }
 
   &--right {
@@ -625,8 +742,9 @@ $text-muted: #6b6965;
     @include respond-down(md) {
       position: absolute;
       left: 0;
-      width: 60px;
-      height: 60px;
+      width: 44px;
+      height: 44px;
+      font-size: 1.25rem;
     }
 
     &--pion { background: linear-gradient(135deg, #78716c 0%, #57534e 100%); }
@@ -647,6 +765,8 @@ $text-muted: #6b6965;
 
     @include respond-down(md) {
       max-width: none;
+      padding: var(--space-md);
+      border-radius: var(--radius-md);
     }
   }
 
@@ -666,6 +786,11 @@ $text-muted: #6b6965;
     font-weight: 700;
     color: $ivory;
     margin-bottom: var(--space-sm);
+
+    @include respond-down(md) {
+      font-size: 1.125rem;
+      margin-bottom: 4px;
+    }
   }
 
   &__desc {
@@ -673,6 +798,12 @@ $text-muted: #6b6965;
     color: $ivory-muted;
     line-height: 1.6;
     margin-bottom: var(--space-md);
+
+    @include respond-down(md) {
+      font-size: 0.8125rem;
+      line-height: 1.5;
+      margin-bottom: var(--space-sm);
+    }
   }
 
   &__meta {
@@ -685,6 +816,11 @@ $text-muted: #6b6965;
       color: $gold;
       font-weight: 600;
     }
+
+    @include respond-down(md) {
+      font-size: 0.75rem;
+      gap: var(--space-sm);
+    }
   }
 }
 
@@ -695,6 +831,10 @@ $text-muted: #6b6965;
   gap: var(--space-2xl);
   max-width: 900px;
   margin: 0 auto;
+
+  @include respond-down(md) {
+    gap: var(--space-lg);
+  }
 }
 
 .step {
@@ -729,6 +869,7 @@ $text-muted: #6b6965;
 
     @include respond-down(md) {
       order: 1;
+      font-size: 2.5rem;
     }
   }
 
@@ -744,18 +885,28 @@ $text-muted: #6b6965;
     font-weight: 700;
     color: $ivory;
     margin-bottom: var(--space-sm);
+
+    @include respond-down(md) {
+      font-size: 1.125rem;
+      margin-bottom: 4px;
+    }
   }
 
   &__desc {
     font-size: 1rem;
     color: $ivory-muted;
     line-height: 1.6;
+
+    @include respond-down(md) {
+      font-size: 0.8125rem;
+      line-height: 1.5;
+    }
   }
 
   &__visual {
     @include respond-down(md) {
       order: 2;
-      margin-bottom: var(--space-md);
+      margin-bottom: var(--space-sm);
     }
   }
 
@@ -771,7 +922,13 @@ $text-muted: #6b6965;
     color: $gold;
 
     @include respond-down(md) {
+      width: 56px;
+      height: 56px;
       margin: 0 auto;
+
+      ng-icon {
+        font-size: 24px;
+      }
     }
   }
 }
@@ -785,6 +942,10 @@ $text-muted: #6b6965;
   @include respond-to(md) {
     grid-template-columns: repeat(3, 1fr);
     gap: var(--space-xl);
+  }
+
+  @include respond-down(md) {
+    gap: var(--space-md);
   }
 }
 
@@ -806,6 +967,11 @@ $text-muted: #6b6965;
     margin-bottom: var(--space-md);
     color: $gold;
     font-size: 1rem;
+
+    @include respond-down(md) {
+      margin-bottom: var(--space-sm);
+      font-size: 0.875rem;
+    }
   }
 
   &__quote {
@@ -814,12 +980,22 @@ $text-muted: #6b6965;
     line-height: 1.7;
     font-style: italic;
     margin-bottom: var(--space-lg);
+
+    @include respond-down(md) {
+      font-size: 0.875rem;
+      line-height: 1.5;
+      margin-bottom: var(--space-md);
+    }
   }
 
   &__author {
     display: flex;
     align-items: center;
     gap: var(--space-md);
+
+    @include respond-down(md) {
+      gap: var(--space-sm);
+    }
   }
 
   &__avatar {
@@ -833,6 +1009,12 @@ $text-muted: #6b6965;
     font-weight: 700;
     color: $bg-dark;
     font-size: 0.875rem;
+
+    @include respond-down(md) {
+      width: 40px;
+      height: 40px;
+      font-size: 0.75rem;
+    }
   }
 
   &__name {
@@ -840,12 +1022,25 @@ $text-muted: #6b6965;
     font-weight: 600;
     color: $ivory;
     font-size: 0.9375rem;
+
+    @include respond-down(md) {
+      font-size: 0.8125rem;
+    }
   }
 
   &__level {
     display: block;
     font-size: 0.8125rem;
     color: $text-muted;
+
+    @include respond-down(md) {
+      font-size: 0.75rem;
+    }
+  }
+
+  @include respond-down(md) {
+    padding: var(--space-md);
+    border-radius: var(--radius-md);
   }
 }
 
@@ -865,191 +1060,47 @@ $text-muted: #6b6965;
     font-weight: 700;
     color: $ivory;
     margin-bottom: var(--space-md);
+
+    @include respond-down(md) {
+      font-size: 1.25rem;
+      margin-bottom: var(--space-sm);
+    }
   }
 
   &__subtitle {
     font-size: 1.125rem;
     color: $ivory-muted;
     margin-bottom: var(--space-xl);
+
+    @include respond-down(md) {
+      font-size: 0.875rem;
+      margin-bottom: var(--space-md);
+    }
   }
 
   &__buttons {
     margin-bottom: var(--space-lg);
+
+    @include respond-down(md) {
+      margin-bottom: var(--space-md);
+    }
   }
 
   &__note {
     font-size: 0.8125rem;
     color: $text-muted;
-  }
-}
 
-// === Footer ===
-.footer {
-  background: #09090b;
-  border-top: 1px solid rgba($gold, 0.1);
-  padding: var(--space-3xl) var(--space-lg) var(--space-xl);
-
-  &__container {
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-
-  &__main {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2xl);
-    margin-bottom: var(--space-2xl);
-
-    @include respond-to(md) {
-      flex-direction: row;
-      justify-content: space-between;
-      align-items: flex-start;
+    @include respond-down(md) {
+      font-size: 0.75rem;
     }
   }
 
-  &__brand {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    @include respond-to(md) {
-      justify-content: flex-start;
-    }
-  }
-
-  &__logo {
-    height: 40px;
-    max-width: 160px;
-    object-fit: contain;
-  }
-
-  &__columns {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-xl) var(--space-3xl);
-
-    @include respond-to(sm) {
-      grid-template-columns: repeat(3, 1fr);
-    }
-  }
-
-  &__column {
-    h4 {
-      font-size: 0.875rem;
-      font-weight: 600;
-      color: $ivory;
-      margin-bottom: var(--space-md);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    a {
-      display: block;
-      font-size: 0.875rem;
-      color: $ivory-muted;
-      padding: var(--space-xs) 0;
-      transition: all var(--transition-fast);
-
-      &:hover {
-        color: $gold;
-        padding-left: 4px;
-      }
-    }
-  }
-
-  &__socials {
-    display: flex;
-    gap: var(--space-sm);
-    margin-top: var(--space-sm);
-  }
-
-  &__social-link {
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-xs);
-    padding: var(--space-xs) !important;
-    background: rgba($gold, 0.1);
+  @include respond-down(md) {
+    padding: var(--space-lg) var(--space-md);
     border-radius: var(--radius-md);
-    color: $gold !important;
-    transition: all var(--transition-fast);
-    width: auto;
-    height: auto;
-
-    &:hover {
-      background: rgba($gold, 0.2);
-      color: $gold !important;
-      padding-left: var(--space-xs) !important;
-      transform: translateY(-2px);
-    }
-
-    svg {
-      width: 20px;
-      height: 20px;
-      flex-shrink: 0;
-    }
-
-    span {
-      font-size: 0.8125rem;
-      font-weight: 500;
-    }
-  }
-
-  &__instagram {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-sm);
-    margin-top: var(--space-sm);
-  }
-
-  &__qr-code {
-    width: 100px;
-    height: 100px;
-    border-radius: var(--radius-sm);
-    border: 2px solid rgba($gold, 0.3);
-    background: $bg-dark;
-  }
-
-  &__divider {
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba($gold, 0.2), transparent);
-    margin-bottom: var(--space-lg);
-  }
-
-  &__bottom {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--space-md);
-
-    @include respond-to(md) {
-      flex-direction: row;
-      justify-content: space-between;
-    }
-  }
-
-  &__copyright {
-    font-size: 0.8125rem;
-    color: $text-muted;
-  }
-
-  &__legal {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: var(--space-sm) var(--space-lg);
-
-    a {
-      font-size: 0.8125rem;
-      color: $text-muted;
-      transition: color var(--transition-fast);
-
-      &:hover {
-        color: $gold;
-      }
-    }
   }
 }
+
 
 // === Utility Classes ===
 .hide-mobile {

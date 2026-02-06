@@ -3,12 +3,12 @@ import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { SeoService } from '../../../core/services/seo.service';
 import { PublicNavbarComponent, NavLink } from '../../../shared/components/public-navbar/public-navbar.component';
-import { SimpleFooterComponent, FooterLink } from '../../../shared/components/simple-footer/simple-footer.component';
+import { FooterComponent } from '../../../shared/components/footer/footer.component';
 
 @Component({
   selector: 'app-privacy',
   standalone: true,
-  imports: [RouterLink, TranslateModule, PublicNavbarComponent, SimpleFooterComponent],
+  imports: [RouterLink, TranslateModule, PublicNavbarComponent, FooterComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './privacy.component.html',
   styleUrl: './privacy.component.scss'
@@ -22,13 +22,6 @@ export class PrivacyComponent {
     { route: '/', labelKey: 'legal.home' },
     { route: '/teachers', labelKey: 'legal.ourCoaches' },
     { route: '/blog', labelKey: 'nav.blog' }
-  ];
-
-  footerLinks: FooterLink[] = [
-    { route: '/', labelKey: 'legal.home' },
-    { route: '/terms', labelKey: 'footer.terms' },
-    { route: '/privacy', labelKey: 'footer.privacy', active: true },
-    { route: '/legal-notice', labelKey: 'footer.legal' }
   ];
 
   constructor() {

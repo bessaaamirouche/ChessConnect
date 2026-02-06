@@ -132,6 +132,11 @@
   border-radius: var(--radius-lg);
   border: 1px solid var(--border-subtle);
   margin-bottom: var(--space-xl);
+
+  @include respond-down(md) {
+    padding: var(--space-md);
+    border-radius: var(--radius-md);
+  }
 }
 
 .search-bar {
@@ -146,6 +151,11 @@
     left: var(--space-md);
     color: #999;
     font-size: 1.125rem;
+
+    @include respond-down(md) {
+      left: 12px;
+      font-size: 1rem;
+    }
   }
 
   &__input {
@@ -167,6 +177,12 @@
       border-color: var(--gold-400);
       box-shadow: 0 0 0 2px rgba(212, 168, 75, 0.1);
     }
+
+    @include respond-down(md) {
+      padding: 10px 36px 10px 36px;
+      font-size: 0.875rem;
+      border-radius: var(--radius-full);
+    }
   }
 
   &__clear {
@@ -187,10 +203,15 @@
       color: var(--text-primary);
       background: var(--bg-tertiary);
     }
+
+    @include respond-down(md) {
+      right: 10px;
+    }
   }
 
   @include respond-down(md) {
     max-width: 100%;
+    margin-bottom: var(--space-sm);
   }
 }
 
@@ -202,8 +223,10 @@
   margin-bottom: var(--space-md);
 
   @include respond-down(md) {
-    flex-direction: column;
-    align-items: stretch;
+    flex-direction: row;
+    align-items: flex-end;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-sm);
   }
 }
 
@@ -216,6 +239,11 @@
     margin-bottom: var(--space-xs);
     text-transform: uppercase;
     letter-spacing: 0.05em;
+
+    @include respond-down(md) {
+      font-size: 0.6875rem;
+      margin-bottom: 2px;
+    }
   }
 
   &__input {
@@ -241,18 +269,29 @@
       &::placeholder {
         color: var(--text-muted);
       }
+
+      @include respond-down(md) {
+        padding: 8px 10px;
+        font-size: 0.8125rem;
+        border-radius: var(--radius-full);
+      }
     }
 
     span {
       font-size: 0.875rem;
       color: var(--text-muted);
+
+      @include respond-down(md) {
+        font-size: 0.8125rem;
+      }
     }
   }
 
   @include respond-down(md) {
-    width: 100%;
+    flex: 1;
 
     &__input input {
+      width: 100%;
       flex: 1;
     }
   }
@@ -261,6 +300,11 @@
 .search-results {
   font-size: 0.875rem;
   color: var(--text-secondary);
+
+  @include respond-down(md) {
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+  }
 }
 
 // Teachers Grid
@@ -458,56 +502,24 @@
       box-shadow: 0 8px 24px rgba(212, 168, 75, 0.3);
     }
   }
-}
 
-.public-footer {
-  background: var(--bg-secondary);
-  border-top: 1px solid var(--border-subtle);
-  padding: var(--space-xl) 0;
-  margin-top: auto;
+  @include respond-down(md) {
+    padding: var(--space-lg) var(--space-md);
+    margin-top: var(--space-lg);
+    border-radius: var(--radius-md);
 
-  &__container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 var(--space-lg);
-    text-align: center;
-  }
-
-  &__brand {
-    margin-bottom: var(--space-lg);
+    h2 {
+      font-size: 1.125rem;
+    }
 
     p {
-      color: var(--text-muted);
       font-size: 0.875rem;
-      margin-top: var(--space-sm);
+      margin-bottom: var(--space-md);
     }
-  }
 
-  &__logo {
-    height: 40px;
-    width: auto;
-  }
-
-  &__links {
-    display: flex;
-    justify-content: center;
-    gap: var(--space-lg);
-    margin-bottom: var(--space-lg);
-    flex-wrap: wrap;
-
-    a {
-      color: var(--text-secondary);
+    .btn--primary {
+      padding: 10px var(--space-xl);
       font-size: 0.875rem;
-      transition: color var(--transition-fast);
-
-      &:hover {
-        color: var(--gold-400);
-      }
     }
-  }
-
-  &__copyright {
-    color: var(--text-muted);
-    font-size: 0.75rem;
   }
 }

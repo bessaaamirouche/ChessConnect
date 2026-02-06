@@ -1759,7 +1759,11 @@
     "contact": "Nous contacter",
     "faq": "FAQ",
     "social": "Suivez-nous",
+    "ourNetworks": "Nos réseaux",
     "copyright": "Tous droits réservés"
+  },
+  "links": {
+    "tagline": "Retrouvez-nous sur les réseaux sociaux"
   },
   "meta": {
     "homeTitle": "mychess - Apprenez les échecs avec des coachs experts",

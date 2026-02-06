@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { authGuard, guestGuard, studentGuard, teacherGuard } from './core/guards/auth.guard';
 import { premiumGuard } from './core/guards/premium.guard';
 import { libraryGuard } from './core/guards/library.guard';
+import { teacherResolver } from './core/resolvers/teacher.resolver';
 
 export const routes: Routes = [
   {
@@ -44,7 +45,8 @@ export const routes: Routes = [
   },
   {
     path: 'coaches/:uuid',
-    loadComponent: () => import('./features/teachers/public-teacher-profile/public-teacher-profile.component').then(m => m.PublicTeacherProfileComponent)
+    loadComponent: () => import('./features/teachers/public-teacher-profile/public-teacher-profile.component').then(m => m.PublicTeacherProfileComponent),
+    resolve: { teacher: teacherResolver }
   },
   // User routes with sidebar layout
   {

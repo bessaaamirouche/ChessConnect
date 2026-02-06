@@ -1,7 +1,8 @@
-import { Injectable, inject, OnDestroy } from '@angular/core';
+import { Injectable, inject, OnDestroy, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from './auth.service';
-import { interval, Subscription, filter, switchMap } from 'rxjs';
+import { interval, Subscription, filter, switchMap, catchError, EMPTY } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -9,15 +10,21 @@ import { interval, Subscription, filter, switchMap } from 'rxjs';
 export class PresenceService implements OnDestroy {
   private http = inject(HttpClient);
   private authService = inject(AuthService);
+  private platformId = inject(PLATFORM_ID);
   private heartbeatSubscription?: Subscription;
   private readonly HEARTBEAT_INTERVAL = 30000; // 30 seconds
 
   constructor() {
-    // Start heartbeat when service is created if user is logged in
-    this.startHeartbeat();
+    // Don't auto-start - let app.component control when to start
+    // This prevents heartbeat during SSR and before proper auth
   }
 
   startHeartbeat(): void {
+    // Only run in browser
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
     // Stop any existing heartbeat
     this.stopHeartbeat();
 
@@ -27,9 +34,11 @@ export class PresenceService implements OnDestroy {
       switchMap(() => this.sendHeartbeat())
     ).subscribe();
 
-    // Also send an immediate heartbeat if authenticated
+    // Also send an immediate heartbeat if authenticated (with small delay)
     if (this.authService.isAuthenticated()) {
-      this.sendHeartbeat().subscribe();
+      setTimeout(() => {
+        this.sendHeartbeat().subscribe();
+      }, 1000);
     }
   }
 
@@ -41,7 +50,12 @@ export class PresenceService implements OnDestroy {
   }
 
   private sendHeartbeat() {
-    return this.http.post<void>('/api/users/me/heartbeat', {});
+    return this.http.post<void>('/api/users/me/heartbeat', {}).pipe(
+      catchError(() => {
+        // Silently ignore heartbeat errors (user might not be fully authenticated yet)
+        return EMPTY;
+      })
+    );
   }
 
   ngOnDestroy(): void {

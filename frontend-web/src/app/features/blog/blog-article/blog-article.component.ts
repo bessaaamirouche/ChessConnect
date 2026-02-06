@@ -4,9 +4,12 @@ import { DatePipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { ArticleService } from '../../../core/services/article.service';
 import { SeoService } from '../../../core/services/seo.service';
+import { StructuredDataService } from '../../../core/services/structured-data.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ArticleDetail, ARTICLE_CATEGORIES } from '../../../core/models/article.model';
 import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.directive';
+import { PublicNavbarComponent, NavLink } from '../../../shared/components/public-navbar/public-navbar.component';
+import { SimpleFooterComponent, FooterLink } from '../../../shared/components/simple-footer/simple-footer.component';
 import { MarkdownPipe } from '../../../shared/pipes/markdown.pipe';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { heroClock, heroArrowLeft, heroArrowRight } from '@ng-icons/heroicons/outline';
@@ -14,7 +17,7 @@ import { heroClock, heroArrowLeft, heroArrowRight } from '@ng-icons/heroicons/ou
 @Component({
   selector: 'app-blog-article',
   standalone: true,
-  imports: [RouterLink, DatePipe, NgIconComponent, ScrollRevealDirective, MarkdownPipe, TranslateModule],
+  imports: [RouterLink, DatePipe, NgIconComponent, ScrollRevealDirective, MarkdownPipe, TranslateModule, PublicNavbarComponent, SimpleFooterComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({ heroClock, heroArrowLeft, heroArrowRight })],
   templateUrl: './blog-article.component.html',
@@ -24,12 +27,22 @@ export class BlogArticleComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private articleService = inject(ArticleService);
   private seoService = inject(SeoService);
+  private structuredDataService = inject(StructuredDataService);
   authService = inject(AuthService);
 
   article = signal<ArticleDetail | null>(null);
   loading = signal(true);
   error = signal(false);
-  mobileMenuOpen = signal(false);
+  navLinks: NavLink[] = [
+    { route: '/', labelKey: 'nav.home' },
+    { route: '/teachers', labelKey: 'teachers.title' },
+    { route: '/blog', labelKey: 'blog.title', active: true }
+  ];
+
+  footerLinks: FooterLink[] = [
+    { route: '/', labelKey: 'nav.home' },
+    { route: '/blog', labelKey: 'blog.title' }
+  ];
 
   categoryLabels = ARTICLE_CATEGORIES;
 
@@ -68,6 +81,11 @@ export class BlogArticleComponent implements OnInit {
           image: article.coverImage,
           slug: article.slug
         });
+        this.structuredDataService.setBreadcrumbSchema([
+          { name: 'Accueil', url: 'https://mychess.fr/' },
+          { name: 'Blog', url: 'https://mychess.fr/blog' },
+          { name: article.title, url: `https://mychess.fr/blog/${article.slug}` }
+        ]);
       },
       error: () => {
         this.loading.set(false);
@@ -107,11 +125,4 @@ export class BlogArticleComponent implements OnInit {
     window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
   }
 
-  toggleMobileMenu(): void {
-    this.mobileMenuOpen.update(open => !open);
-  }
-
-  closeMobileMenu(): void {
-    this.mobileMenuOpen.set(false);
-  }
 }

@@ -1,8 +1,11 @@
-import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../core/services/auth.service';
+import { PublicNavbarComponent, NavLink } from '../../shared/components/public-navbar/public-navbar.component';
+import { SimpleFooterComponent } from '../../shared/components/simple-footer/simple-footer.component';
 import { SeoService } from '../../core/services/seo.service';
+import { StructuredDataService } from '../../core/services/structured-data.service';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   heroCheck,
@@ -22,7 +25,7 @@ import {
 @Component({
   selector: 'app-pricing',
   standalone: true,
-  imports: [RouterLink, NgIconComponent, TranslateModule],
+  imports: [RouterLink, NgIconComponent, TranslateModule, PublicNavbarComponent, SimpleFooterComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({
     heroCheck,
@@ -44,8 +47,14 @@ import {
 export class PricingComponent {
   authService = inject(AuthService);
   private seoService = inject(SeoService);
+  private structuredDataService = inject(StructuredDataService);
 
-  mobileMenuOpen = signal(false);
+  navLinks: NavLink[] = [
+    { route: '/', labelKey: 'nav.home' },
+    { route: '/teachers', labelKey: 'teachers.title' },
+    { route: '/how-it-works', labelKey: 'nav.howItWorks' },
+    { route: '/blog', labelKey: 'nav.blog' }
+  ];
 
   constructor() {
     this.seoService.updateMetaTags({
@@ -53,13 +62,9 @@ export class PricingComponent {
       description: 'Decouvrez nos tarifs : cours d\'echecs avec coachs qualifies et abonnement Premium a 4,99E/mois. Essai gratuit 14 jours sans carte bancaire !',
       keywords: 'mychess, tarifs, prix, cours echecs, premium, abonnement'
     });
-  }
-
-  toggleMobileMenu(): void {
-    this.mobileMenuOpen.update(v => !v);
-  }
-
-  closeMobileMenu(): void {
-    this.mobileMenuOpen.set(false);
+    this.structuredDataService.setBreadcrumbSchema([
+      { name: 'Accueil', url: 'https://mychess.fr/' },
+      { name: 'Tarifs', url: 'https://mychess.fr/pricing' }
+    ]);
   }
 }

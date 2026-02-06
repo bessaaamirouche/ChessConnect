@@ -1,51 +1,5 @@
 <div class="legal-page">
-  <!-- Navbar -->
-  <nav class="nav">
-    <div class="nav__container">
-      <a routerLink="/" class="nav__logo">
-        <img src="assets/logo.png" alt="myChess" class="nav__logo-img">
-      </a>
-
-      <!-- Mobile hamburger -->
-      <button class="nav__hamburger" [class.active]="mobileMenuOpen()" (click)="toggleMobileMenu()">
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
-
-      <!-- Mobile menu overlay -->
-      <div class="nav__mobile-overlay" [class.active]="mobileMenuOpen()" (click)="closeMobileMenu()"></div>
-
-      <!-- Desktop Pill Tabs Navigation -->
-      <div class="nav__pills">
-        <a routerLink="/" class="nav__pill">{{ 'legal.home' | translate }}</a>
-        <a routerLink="/teachers" class="nav__pill">{{ 'legal.ourCoaches' | translate }}</a>
-        <a routerLink="/blog" class="nav__pill">{{ 'nav.blog' | translate }}</a>
-        @if (authService.isAuthenticated()) {
-          <a routerLink="/dashboard" class="nav__pill">{{ 'legal.mySpace' | translate }}</a>
-        } @else {
-          <a routerLink="/login" class="nav__pill">{{ 'nav.login' | translate }}</a>
-          <a routerLink="/register" class="nav__pill">{{ 'nav.signup' | translate }}</a>
-        }
-      </div>
-
-      <!-- Mobile Drawer Menu -->
-      <div class="nav__links" [class.active]="mobileMenuOpen()">
-        <a routerLink="/" (click)="closeMobileMenu()">{{ 'legal.home' | translate }}</a>
-        <a routerLink="/teachers" (click)="closeMobileMenu()">{{ 'legal.ourCoaches' | translate }}</a>
-        <a routerLink="/blog" (click)="closeMobileMenu()">{{ 'nav.blog' | translate }}</a>
-
-        <div class="nav__mobile-actions">
-          @if (authService.isAuthenticated()) {
-            <a routerLink="/dashboard" class="nav__btn nav__btn--primary" (click)="closeMobileMenu()">{{ 'legal.mySpace' | translate }}</a>
-          } @else {
-            <a routerLink="/login" class="nav__btn nav__btn--ghost" (click)="closeMobileMenu()">{{ 'nav.login' | translate }}</a>
-            <a routerLink="/register" class="nav__btn nav__btn--primary" (click)="closeMobileMenu()">{{ 'nav.signup' | translate }}</a>
-          }
-        </div>
-      </div>
-    </div>
-  </nav>
+  <app-public-navbar [links]="navLinks" [dashboardLabelKey]="'legal.mySpace'"></app-public-navbar>
 
   <!-- Header -->
   <header class="legal-header">
@@ -329,16 +283,5 @@
     </div>
   </main>
 
-  <!-- Footer -->
-  <footer class="legal-footer">
-    <div class="legal-footer__container">
-      <p>&copy; 2026 mychess. {{ 'footer.copyright' | translate }}</p>
-      <div class="legal-footer__links">
-        <a routerLink="/">{{ 'legal.home' | translate }}</a>
-        <a routerLink="/privacy" class="active">{{ 'footer.privacy' | translate }}</a>
-        <a routerLink="/terms">{{ 'footer.terms' | translate }}</a>
-        <a routerLink="/legal-notice">{{ 'footer.legal' | translate }}</a>
-      </div>
-    </div>
-  </footer>
+  <app-simple-footer [links]="footerLinks"></app-simple-footer>
 </div>

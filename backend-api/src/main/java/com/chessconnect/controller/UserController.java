@@ -97,7 +97,9 @@ public class UserController {
                 user.setCompanyName(request.getCompanyName());
             }
             // Optional ELO rating for teachers
-            if (request.getEloRating() != null) {
+            if (Boolean.TRUE.equals(request.getClearEloRating())) {
+                user.setEloRating(null);
+            } else if (request.getEloRating() != null) {
                 user.setEloRating(request.getEloRating());
             }
         }
@@ -107,7 +109,10 @@ public class UserController {
             if (request.getBirthDate() != null) {
                 user.setBirthDate(request.getBirthDate());
             }
-            if (request.getEloRating() != null) {
+            // Optional ELO rating for students
+            if (Boolean.TRUE.equals(request.getClearEloRating())) {
+                user.setEloRating(null);
+            } else if (request.getEloRating() != null) {
                 user.setEloRating(request.getEloRating());
             }
         }

@@ -15,7 +15,7 @@ import { heroCheckCircle, heroXCircle, heroArrowRight } from '@ng-icons/heroicon
   template: `
     <div class="auth-page">
       <a routerLink="/" class="auth-page__logo">
-        <img src="assets/logo.png" alt="mychess" class="auth-page__logo-img">
+        <img src="assets/logo.webp" alt="mychess" class="auth-page__logo-img">
       </a>
       <div class="auth-card card">
         @if (loading()) {

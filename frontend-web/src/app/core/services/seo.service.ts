@@ -9,6 +9,9 @@ export interface Teacher {
   lastName: string;
   bio?: string;
   hourlyRateCents?: number;
+  avatarUrl?: string;
+  averageRating?: number;
+  reviewCount?: number;
 }
 
 @Injectable({
@@ -21,6 +24,38 @@ export class SeoService {
 
   private readonly baseUrl = 'https://mychess.fr';
   private readonly siteName = 'mychess';
+
+  /**
+   * Update hreflang alternate links for multilingual SEO.
+   * Since the site serves both FR/EN at the same URL (client-side i18n),
+   * we declare both language alternates pointing to the same canonical URL.
+   */
+  private updateHreflangTags(url: string): void {
+    // Remove existing hreflang links
+    const existingLinks = this.document.querySelectorAll('link[rel="alternate"][hreflang]');
+    existingLinks.forEach((link: Element) => link.remove());
+
+    // Add hreflang for French (default)
+    const frLink = this.document.createElement('link');
+    frLink.setAttribute('rel', 'alternate');
+    frLink.setAttribute('hreflang', 'fr');
+    frLink.setAttribute('href', url);
+    this.document.head.appendChild(frLink);
+
+    // Add hreflang for English
+    const enLink = this.document.createElement('link');
+    enLink.setAttribute('rel', 'alternate');
+    enLink.setAttribute('hreflang', 'en');
+    enLink.setAttribute('href', url);
+    this.document.head.appendChild(enLink);
+
+    // Add x-default (fallback)
+    const defaultLink = this.document.createElement('link');
+    defaultLink.setAttribute('rel', 'alternate');
+    defaultLink.setAttribute('hreflang', 'x-default');
+    defaultLink.setAttribute('href', url);
+    this.document.head.appendChild(defaultLink);
+  }
 
   setHomePage(): void {
     const pageTitle = 'mychess - Cours d\'Échecs en Ligne avec les Meilleurs Coachs';
@@ -49,20 +84,38 @@ export class SeoService {
   setTeacherProfilePage(teacher: Teacher): void {
     const fullName = `${teacher.firstName} ${teacher.lastName}`;
     const pageTitle = `${fullName} - Coach d'Échecs | mychess`;
-    const description = teacher.bio
-      ? teacher.bio.substring(0, 155) + (teacher.bio.length > 155 ? '...' : '')
-      : `Réservez un cours d'échecs avec ${fullName}. Coach qualifié disponible pour des cours particuliers en visioconférence.`;
+
+    // Build a rich description with rating if available
+    let description: string;
+    if (teacher.bio) {
+      description = teacher.bio.substring(0, 155) + (teacher.bio.length > 155 ? '...' : '');
+    } else {
+      description = `Réservez un cours d'échecs avec ${fullName}. Coach qualifié disponible pour des cours particuliers en visioconférence.`;
+    }
+
+    // Add rating to description if available
+    if (teacher.averageRating && teacher.reviewCount) {
+      const ratingText = ` ⭐ ${teacher.averageRating.toFixed(1)}/5 (${teacher.reviewCount} avis)`;
+      if (description.length + ratingText.length <= 160) {
+        description += ratingText;
+      }
+    }
 
     // Use UUID for public coach URLs
     const url = teacher.uuid
       ? `${this.baseUrl}/coaches/${teacher.uuid}`
       : `${this.baseUrl}/teachers/${teacher.id}`;
 
-    this.updateTags({
+    // Use teacher's avatar or fallback to default logo
+    const image = teacher.avatarUrl || `${this.baseUrl}/assets/logo.png`;
+
+    this.updateTagsWithImage({
       title: pageTitle,
       description,
       url,
-      type: 'profile'
+      type: 'profile',
+      image,
+      imageAlt: `Photo de ${fullName}, coach d'échecs sur mychess`
     });
   }
 
@@ -114,6 +167,9 @@ export class SeoService {
     // Update canonical link
     this.updateCanonicalUrl(config.url);
 
+    // Update hreflang tags for multilingual SEO
+    this.updateHreflangTags(config.url);
+
     // Update Open Graph tags
     this.meta.updateTag({ property: 'og:title', content: config.title });
     this.meta.updateTag({ property: 'og:description', content: config.description });
@@ -121,11 +177,65 @@ export class SeoService {
     this.meta.updateTag({ property: 'og:type', content: config.type });
     this.meta.updateTag({ property: 'og:site_name', content: this.siteName });
     this.meta.updateTag({ property: 'og:locale', content: 'fr_FR' });
+    this.meta.updateTag({ property: 'og:locale:alternate', content: 'en_GB' });
 
     // Update Twitter Card tags
     this.meta.updateTag({ name: 'twitter:title', content: config.title });
     this.meta.updateTag({ name: 'twitter:description', content: config.description });
     this.meta.updateTag({ name: 'twitter:card', content: 'summary_large_image' });
+  }
+
+  private updateTagsWithImage(config: {
+    title: string;
+    description: string;
+    url: string;
+    type: string;
+    image: string;
+    imageAlt?: string;
+    noIndex?: boolean;
+  }): void {
+    // Update basic tags
+    this.title.setTitle(config.title);
+    this.meta.updateTag({ name: 'description', content: config.description });
+
+    // Update robots
+    if (config.noIndex) {
+      this.meta.updateTag({ name: 'robots', content: 'noindex, nofollow' });
+    } else {
+      this.meta.updateTag({ name: 'robots', content: 'index, follow' });
+    }
+
+    // Update canonical link
+    this.updateCanonicalUrl(config.url);
+
+    // Update hreflang tags for multilingual SEO
+    this.updateHreflangTags(config.url);
+
+    // Update Open Graph tags
+    this.meta.updateTag({ property: 'og:title', content: config.title });
+    this.meta.updateTag({ property: 'og:description', content: config.description });
+    this.meta.updateTag({ property: 'og:url', content: config.url });
+    this.meta.updateTag({ property: 'og:type', content: config.type });
+    this.meta.updateTag({ property: 'og:site_name', content: this.siteName });
+    this.meta.updateTag({ property: 'og:locale', content: 'fr_FR' });
+    this.meta.updateTag({ property: 'og:locale:alternate', content: 'en_GB' });
+    this.meta.updateTag({ property: 'og:image', content: config.image });
+    this.meta.updateTag({ property: 'og:image:secure_url', content: config.image });
+    this.meta.updateTag({ property: 'og:image:type', content: 'image/jpeg' });
+    this.meta.updateTag({ property: 'og:image:width', content: '1200' });
+    this.meta.updateTag({ property: 'og:image:height', content: '630' });
+    if (config.imageAlt) {
+      this.meta.updateTag({ property: 'og:image:alt', content: config.imageAlt });
+    }
+
+    // Update Twitter Card tags
+    this.meta.updateTag({ name: 'twitter:card', content: 'summary_large_image' });
+    this.meta.updateTag({ name: 'twitter:title', content: config.title });
+    this.meta.updateTag({ name: 'twitter:description', content: config.description });
+    this.meta.updateTag({ name: 'twitter:image', content: config.image });
+    if (config.imageAlt) {
+      this.meta.updateTag({ name: 'twitter:image:alt', content: config.imageAlt });
+    }
   }
 
   private updateCanonicalUrl(url: string): void {
@@ -172,6 +282,9 @@ export class SeoService {
     const url = config.url || `${this.baseUrl}${typeof window !== 'undefined' ? window.location.pathname : ''}`;
     this.updateCanonicalUrl(url);
 
+    // Update hreflang tags for multilingual SEO
+    this.updateHreflangTags(url);
+
     // Update Open Graph tags
     this.meta.updateTag({ property: 'og:title', content: config.title });
     this.meta.updateTag({ property: 'og:description', content: config.description });
@@ -179,6 +292,7 @@ export class SeoService {
     this.meta.updateTag({ property: 'og:type', content: config.type || 'article' });
     this.meta.updateTag({ property: 'og:site_name', content: this.siteName });
     this.meta.updateTag({ property: 'og:locale', content: 'fr_FR' });
+    this.meta.updateTag({ property: 'og:locale:alternate', content: 'en_GB' });
 
     if (config.image) {
       this.meta.updateTag({ property: 'og:image', content: config.image });

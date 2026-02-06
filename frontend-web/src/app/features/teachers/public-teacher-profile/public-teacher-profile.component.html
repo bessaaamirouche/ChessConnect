@@ -3,7 +3,7 @@
   <nav class="public-nav">
     <div class="public-nav__container">
       <a routerLink="/" class="public-nav__logo">
-        <img src="assets/logo.png" alt="mychess" class="public-nav__logo-img">
+        <img src="assets/logo.webp" alt="mychess" class="public-nav__logo-img">
       </a>
       <div class="public-nav__links">
         <a routerLink="/" class="public-nav__link">{{ 'nav.home' | translate }}</a>
@@ -30,13 +30,19 @@
           </a>
           <div class="profile-card__avatar">
             @if (teacher.avatarUrl) {
-              <img [src]="teacher.avatarUrl" [alt]="teacher.firstName">
+              <img [src]="teacher.avatarUrl" [alt]="'Photo de ' + teacher.firstName + ' ' + teacher.lastName + ', coach d\'échecs sur mychess'">
             } @else {
               <span class="profile-card__initials">{{ getInitials(teacher.firstName, teacher.lastName) }}</span>
             }
           </div>
           <h1 class="profile-card__name">{{ teacher.firstName }} {{ teacher.lastName }}</h1>
           <p class="profile-card__title">{{ 'teachers.profile.coachTitle' | translate }}</p>
+          @if (teacher.eloRating) {
+            <span class="profile-card__elo-badge">
+              <span class="elo-icon">♔</span>
+              ELO {{ teacher.eloRating }}
+            </span>
+          }
           @if (teacher.isOnline) {
             <span class="profile-card__status">
               <span class="status-dot"></span>
@@ -94,16 +100,6 @@
             </div>
           }
 
-          <!-- ELO Rating -->
-          @if (teacher.eloRating) {
-            <div class="info-section">
-              <div class="info-row">
-                <span class="info-row__label">{{ 'teachers.profile.eloRating' | translate }}</span>
-                <span class="info-row__value info-row__value--gold">{{ teacher.eloRating }}</span>
-              </div>
-            </div>
-          }
-
           <!-- Languages -->
           @if (teacher.languages && teacher.languages.length > 0) {
             <div class="info-section">
@@ -144,7 +140,7 @@
   <footer class="public-footer">
     <div class="public-footer__container">
       <div class="public-footer__brand">
-        <img src="assets/logo.png" alt="mychess" class="public-footer__logo">
+        <img src="assets/logo.webp" alt="mychess" class="public-footer__logo">
         <p>{{ 'footer.tagline' | translate }}</p>
       </div>
       <div class="public-footer__links">

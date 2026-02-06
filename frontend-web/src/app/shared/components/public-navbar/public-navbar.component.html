@@ -1,0 +1,62 @@
+@if (scrollProgress() !== null) {
+  <div class="scroll-progress">
+    <div class="scroll-progress__bar" [style.transform]="'scaleX(' + scrollProgress() + ')'"></div>
+  </div>
+}
+
+<nav class="nav" [class.nav--scrolled]="isScrolled()" [class.nav--static]="staticBackground()">
+  <div class="nav__container">
+    <a routerLink="/" class="nav__logo">
+      <img src="assets/logo.webp" alt="myChess" class="nav__logo-img">
+    </a>
+
+    <!-- Mobile hamburger -->
+    <button
+      class="nav__hamburger"
+      [class.active]="mobileMenuOpen()"
+      (click)="toggleMobileMenu()"
+      [attr.aria-label]="'nav.menu' | translate"
+      [attr.aria-expanded]="mobileMenuOpen()">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <!-- Mobile menu overlay -->
+    <div class="nav__mobile-overlay" [class.active]="mobileMenuOpen()" (click)="closeMobileMenu()"></div>
+
+    <!-- Desktop Pill Tabs Navigation -->
+    <div class="nav__pills">
+      @for (link of links(); track link.route) {
+        <a [routerLink]="link.route" class="nav__pill" [class.nav__pill--active]="link.active">{{ link.labelKey | translate }}</a>
+      }
+      @if (authService.isAuthenticated()) {
+        <a routerLink="/dashboard" class="nav__pill">{{ dashboardLabelKey() | translate }}</a>
+      } @else {
+        <a routerLink="/login" class="nav__pill">{{ 'nav.login' | translate }}</a>
+        <a routerLink="/register" class="nav__pill">{{ 'nav.signup' | translate }}</a>
+      }
+      @if (showDesktopLanguageSelector()) {
+        <app-language-selector></app-language-selector>
+      }
+    </div>
+
+    <!-- Mobile Drawer Menu -->
+    <div class="nav__links" [class.active]="mobileMenuOpen()">
+      @for (link of links(); track link.route) {
+        <a [routerLink]="link.route" (click)="closeMobileMenu()">{{ link.labelKey | translate }}</a>
+      }
+
+      <app-language-selector></app-language-selector>
+
+      <div class="nav__mobile-actions">
+        @if (authService.isAuthenticated()) {
+          <a routerLink="/dashboard" class="nav__btn nav__btn--primary" (click)="closeMobileMenu()">{{ dashboardLabelKey() | translate }}</a>
+        } @else {
+          <a routerLink="/login" class="nav__btn nav__btn--ghost" (click)="closeMobileMenu()">{{ 'nav.login' | translate }}</a>
+          <a routerLink="/register" class="nav__btn nav__btn--primary" (click)="closeMobileMenu()">{{ 'nav.signup' | translate }}</a>
+        }
+      </div>
+    </div>
+  </div>
+</nav>

@@ -2,6 +2,25 @@
 
 Plateforme de mise en relation Profs/Joueurs d'echecs avec systeme de progression standardise.
 
+## REGLES IMPORTANTES POUR CLAUDE
+
+### Environnement Production (ports 4200, 8282)
+
+- NE JAMAIS rebuild les containers sauf demande explicite
+- Mots-clés pour déployer : "applique", "patch", "mise à jour", "déploie", "rebuild"
+
+### Commandes de rebuild
+```bash
+# Backend seulement
+docker compose up -d backend --build
+
+# Frontend seulement
+docker compose up -d frontend --build
+
+# Les deux
+docker compose up -d --build
+```
+
 ## Demarrage Rapide (Docker)
 
 **Prerequis:** Uniquement [Docker Desktop](https://www.docker.com/products/docker-desktop/) installe et en cours d'execution.
@@ -29,11 +48,11 @@ EOF
 
 ### URLs d'acces
 
-| Service  | URL                         |
-|----------|----------------------------|
-| Frontend | http://localhost:4200       |
-| Backend  | http://localhost:8282/api   |
-| Database | localhost:5433 (PostgreSQL) |
+| Service | URL |
+|---------|-----|
+| Frontend | http://localhost:4200 |
+| Backend | http://localhost:8282/api |
+| Database | interne (PostgreSQL) |
 
 ### Commandes utiles
 
@@ -57,50 +76,9 @@ Apres le premier demarrage, creez un compte via l'interface:
 3. Choisissez "Joueur" ou "Coach"
 4. Remplissez le formulaire
 
-## Deploiement sur VPS
-
-### 1. Installer Docker sur le serveur
-
-```bash
-curl -fsSL https://get.docker.com | sh
-sudo usermod -aG docker $USER && newgrp docker
-```
-
-### 2. Cloner et configurer
-
-```bash
-git clone https://github.com/bessaaamirouche/mychess.git
-cd mychess
-
-# Creer le fichier .env avec vos cles Stripe
-cat > .env << 'EOF'
-STRIPE_SECRET_KEY=sk_test_votre_cle_secrete
-STRIPE_PUBLISHABLE_KEY=pk_test_votre_cle_publique
-STRIPE_WEBHOOK_SECRET=whsec_votre_secret_webhook
-EOF
-
-# Modifier l'URL frontend avec l'IP du serveur
-sed -i 's|FRONTEND_URL: http://localhost:4200|FRONTEND_URL: http://VOTRE_IP:4200|' docker-compose.yml
-```
-
-### 3. Lancer
-
-```bash
-./start.sh
-# ou: docker compose up --build -d
-```
-
-L'application sera accessible sur `http://VOTRE_IP:4200`
-
-### 4. Ouvrir les ports (si necessaire)
-
-```bash
-sudo ufw allow 4200
-sudo ufw allow 8282
-```
-
 ## Fonctionnalites
 
+### Fonctionnalites Principales
 - **Inscription Joueur/Coach** : Creation de compte avec roles et badges visuels
 - **Premier Cours Offert** : Les nouveaux joueurs beneficient d'un premier cours gratuit
 - **Quiz d'Evaluation** : Determinez votre niveau d'echecs (A, B, C, D)
@@ -109,12 +87,10 @@ sudo ufw allow 8282
 - **Disponibilites 24h/24** : Les coachs peuvent creer des creneaux a n'importe quelle heure
 - **Reservations urgentes** : Les creneaux restent visibles jusqu'a 5 min apres l'heure de debut
 - **Suivi de Progression** : Suivez votre parcours d'apprentissage
-- **Abonnement Premium** : 4,99€/mois avec fonctionnalités exclusives (revisionnage, notifications prioritaires, badge Premium)
 - **Paiements Stripe** : Paiements securises integres (mode test)
 - **Portefeuille (Wallet)** : Credit de solde pour payer les cours, remboursements automatiques
 - **Factures PDF** : Generation automatique avec mentions legales, avoir pour remboursements
-- **Video Jitsi Meet** : Cours en visioconference integree
-- **Notifications en temps reel** : Alertes pour nouvelles disponibilites et reservations
+- **Video Jitsi Meet** : Cours en visioconference integree avec theme Premium mychess
 - **Indicateur de presence** : Pastille verte quand un coach est en ligne
 - **Blog SEO** : Articles optimises pour le referencement avec support Markdown
 - **Design Apple-like** : Animations scroll, sections immersives, effets parallax
@@ -124,6 +100,124 @@ sudo ufw allow 8282
 - **Rappels Email** : Notification automatique 1 heure avant chaque cours
 - **Enregistrement Video** : Les cours sont enregistres via Jibri pour revisionnage (Premium)
 
+### Internationalisation (i18n) 🌍
+
+Support multilingue complet avec 2 langues :
+- **Francais** (`/assets/i18n/fr.json`) - Langue par defaut
+- **Anglais** (`/assets/i18n/en.json`)
+
+**Implementation :**
+- Librairie `@ngx-translate/core`
+- `LanguageService` - Gestion du changement de langue avec persistance localStorage
+- `LanguageSelectorComponent` - Selecteur de langue dans les settings
+- 1795 cles de traduction par langue couvrant toute l'application
+
+**Zones traduites :**
+- Navigation, hero, features, pricing, FAQ
+- Authentification (login, register, forgot password)
+- Dashboard, lessons, teachers, progress
+- Wallet, subscription, invoices
+- Settings, availability, ratings
+- Blog, library, exercise
+- Messages d'erreur, validations, statuts
+
+### Notifications Push Web 🔔
+
+Notifications push navigateur (Web Push API) pour notifier les utilisateurs meme quand l'app est fermee.
+
+**Backend :**
+- `WebPushService.java` - Gestion des subscriptions et envoi des notifications
+- `PushController.java` - Endpoints REST pour la gestion push
+- `WebPushConfig.java` - Configuration VAPID (cles auto-generees si non definies)
+
+**Frontend :**
+- `PushNotificationService` - Gestion client des subscriptions push
+- `sw-push.js` - Service Worker pour recevoir les notifications
+- Integration dans Settings pour activer/desactiver
+
+**Cas d'usage :**
+- Nouveau creneau d'un coach favori
+- Confirmation/annulation de cours
+- Rappel 1h avant le cours
+- Nouvelle reservation (pour les coachs)
+
+**Compatibilite :**
+- Android Chrome : ✅ Excellent
+- Desktop (Chrome, Firefox, Edge) : ✅ Excellent
+- iOS Safari : ⚠️ Uniquement si PWA installee (iOS 16.4+)
+
+### Notifications Temps Reel (SSE) 📡
+
+Server-Sent Events pour les notifications en temps reel quand l'app est ouverte.
+
+**Backend :**
+- `SseConnectionManager.java` - Gestion des connexions SSE actives
+- `UserNotificationService.java` - Orchestration des notifications
+
+**Frontend :**
+- `NotificationService` - Client SSE avec reconnexion automatique
+
+**Logique intelligente :** Si l'utilisateur est connecte via SSE, les notifications push ne sont pas envoyees (evite les doublons).
+
+### Bibliotheque Video (Premium) 📚
+
+Fonctionnalite exclusive pour les abonnes Premium permettant de revoir les cours enregistres.
+
+**Backend :**
+- `LibraryController.java` - Endpoints `/library/videos`
+- Integration avec `LessonRepository.findLibraryVideos()`
+
+**Frontend :**
+- `LibraryComponent` - Interface de la bibliotheque video
+- Route : `/library`
+
+**Fonctionnalites :**
+- Liste des cours enregistres avec vignettes
+- Recherche par nom de coach
+- Filtres par periode (7j, 30j, 3 mois, annee)
+- Filtre par plage de dates personnalisee
+- Suppression soft des videos
+- Lecteur video integre avec reprise de lecture
+
+### Integration Bunny CDN 🐰
+
+Hebergement video avec Bunny.net pour le streaming des enregistrements.
+
+**Services :**
+- `BunnyStreamService.java` - API Bunny Stream (transcoding HLS)
+- `BunnyStorageService.java` - Stockage direct CDN
+- `ThumbnailService.java` - Generation de vignettes
+
+**Variables d'environnement :**
+```env
+BUNNY_STREAM_API_KEY=
+BUNNY_STREAM_LIBRARY_ID=590076
+BUNNY_STREAM_CDN_HOSTNAME=vz-34fe20be-093.b-cdn.net
+BUNNY_STORAGE_ZONE=mychess
+BUNNY_STORAGE_API_KEY=
+BUNNY_CDN_URL=https://mychess.b-cdn.net
+```
+
+### Abonnement Premium (4,99€/mois) ⭐
+
+Fonctionnalites exclusives pour les abonnes Premium :
+- **Bibliotheque Video** : Acces aux enregistrements de cours
+- **Reprise de lecture** : Progression video sauvegardee
+- **Notifications prioritaires** : Alertes email quand les coachs favoris publient des creneaux
+- **Badge Premium** : Badge dore visible sur le profil
+- **Entrainement myChessBot** : Jouez contre le bot apres vos cours
+
+### Interface Jitsi Premium 🎥
+
+Configuration personnalisee de Jitsi Meet aux couleurs mychess :
+- Theme sombre avec accents dores
+- Logo mychess integre
+- Watermarks Jitsi masques
+- Toolbar complete avec toutes les fonctionnalites
+- CSS injecte dynamiquement pour le style premium
+- Fond par defaut : `#0d0d0f`
+- Couleur accent : `#d4a84b` (or)
+
 ### Systeme d'annulation et remboursement
 
 - **Prof ne confirme pas sous 24h** : Annulation auto + remboursement 100%
@@ -132,14 +226,6 @@ sudo ufw allow 8282
 - **Joueur annule 2-24h avant** : Remboursement 50%
 - **Joueur annule < 2h avant** : Pas de remboursement
 - Affichage dynamique du statut : "Annule par moi" / "Annule par le coach" / "Annule par le joueur" / "Annule (auto)"
-
-### Abonnement Premium (4,99€/mois)
-
-Fonctionnalités exclusives pour les abonnés Premium :
-- **Revisionnage des cours** : Accès aux enregistrements vidéo dans l'historique
-- **Notifications prioritaires** : Alertes email quand les coachs favoris publient des créneaux
-- **Badge Premium** : Badge doré visible sur le profil
-- **Entrainement contre myChessBot** : Jouez contre myChessBot apres vos cours pour vous exercer
 
 ### Premier Cours Offert
 
@@ -179,33 +265,6 @@ Module d'exercice contre myChessBot accessible depuis l'historique des cours :
 - **Detection fin de partie** : Mat, pat, nulle
 - Bouton "M'exercer" dans l'historique des cours (visible uniquement pour Premium)
 - Route : `/exercise/:lessonId` protegee par `premiumGuard`
-- Endpoints API : `GET /api/exercises/lesson/{lessonId}`, `GET /api/exercises/{id}`, `GET /api/exercises`
-
-## Mode Developpement (sans Docker)
-
-### Prerequis
-
-- Java 17+
-- Node.js 18+ et npm
-- Maven 3.8+
-- PostgreSQL 16 (port 5433)
-
-### Backend (Spring Boot)
-
-```bash
-cd backend-api
-./mvnw spring-boot:run
-```
-Le backend demarre sur `http://localhost:8282/api`
-
-### Frontend (Angular)
-
-```bash
-cd frontend-web
-npm install
-npm start
-```
-Le frontend demarre sur `http://localhost:4200`
 
 ## Structure du Projet
 
@@ -213,142 +272,56 @@ Le frontend demarre sur `http://localhost:4200`
 /mychess
 ├── /backend-api              # API Spring Boot
 │   ├── /src/main/java/com/chessconnect
-│   │   ├── /config           # SecurityConfig, StripeConfig, QuizDataInitializer
-│   │   ├── /controller       # REST Controllers
+│   │   ├── /config           # SecurityConfig, StripeConfig, WebPushConfig, CacheConfig
+│   │   ├── /controller       # REST Controllers (+ PushController, LibraryController)
 │   │   ├── /dto              # Data Transfer Objects
-│   │   ├── /model            # Entites JPA (User avec hasUsedFreeTrial)
+│   │   ├── /model            # Entites JPA (User, PushSubscription, etc.)
 │   │   ├── /repository       # Repositories Spring Data
-│   │   ├── /security         # JWT (JwtService, JwtAuthenticationFilter)
-│   │   └── /service          # Services metier (LessonService avec free trial)
+│   │   ├── /security         # JWT, RateLimiting
+│   │   └── /service          # Services metier (WebPushService, BunnyStreamService, etc.)
+│   ├── /src/main/resources
+│   │   └── /db/migration     # Migrations Flyway (V1-V19)
 │   ├── Dockerfile
 │   └── pom.xml
 ├── /frontend-web             # Application Angular 17
 │   ├── /src/app
 │   │   ├── /core             # Services, Guards, Interceptors, Models
+│   │   │   └── /services     # PushNotificationService, LanguageService, LibraryService
 │   │   ├── /features         # Composants par fonctionnalite
-│   │   │   ├── /admin        # Back-office administrateur (users, lessons, accounting, invoices, blog)
+│   │   │   ├── /admin        # Back-office administrateur
 │   │   │   ├── /auth         # Login, Register, Forgot/Reset Password
 │   │   │   ├── /availability # Gestion des disponibilites (prof)
-│   │   │   ├── /blog         # Articles SEO (liste + detail)
-│   │   │   ├── /dashboard    # Tableau de bord avec badges de role
-│   │   │   ├── /home         # Landing page style Apple
-│   │   │   ├── /lessons      # Reservation (avec premier cours offert) et liste
+│   │   │   ├── /blog         # Articles SEO
+│   │   │   ├── /dashboard    # Tableau de bord
+│   │   │   ├── /exercise     # Entrainement myChessBot (Premium)
+│   │   │   ├── /home         # Landing page
+│   │   │   ├── /lessons      # Reservation et liste des cours
+│   │   │   ├── /library      # Bibliotheque video (Premium)
 │   │   │   ├── /progress     # Suivi de progression
-│   │   │   ├── /quiz         # Quiz d'evaluation de niveau
+│   │   │   ├── /quiz         # Quiz d'evaluation
+│   │   │   ├── /settings     # Parametres utilisateur
 │   │   │   ├── /subscription # Gestion des abonnements
 │   │   │   ├── /teachers     # Liste et profil des coachs
-│   │   │   ├── /wallet       # Portefeuille et transactions
-│   │   │   └── /invoices     # Factures utilisateur
-│   │   └── /shared           # Composants partages (toast, modals, video-call, etc.)
+│   │   │   ├── /wallet       # Portefeuille
+│   │   │   └── /invoices     # Factures
+│   │   └── /shared           # Composants partages (video-call, language-selector, etc.)
 │   ├── /src/assets
-│   │   ├── logo.svg          # Logo vectoriel mychess
-│   │   ├── logo.png          # Logo PNG 400x400
-│   │   ├── og-image.jpg      # Image Open Graph 1200x630
-│   │   └── /icons            # Icones PWA (72-512px), favicons, apple-touch-icon
+│   │   ├── /i18n             # Fichiers de traduction (en.json, fr.json)
+│   │   ├── /icons            # Icones PWA
+│   │   ├── logo.png          # Logo mychess
+│   │   └── og-image.jpg      # Image Open Graph
 │   ├── /src/styles
-│   │   ├── _variables.scss   # Variables CSS et theme
+│   │   ├── _variables.scss   # Variables CSS (theme sombre + accents dores)
 │   │   ├── _animations.scss  # Animations scroll reveal
-│   │   └── _mobile.scss      # Styles responsive mobile
+│   │   └── _mobile.scss      # Styles responsive
+│   ├── sw-push.js            # Service Worker pour Push
 │   ├── Dockerfile
 │   └── package.json
-├── docker-compose.yml
-├── start.sh                  # Script de demarrage Docker
-├── stop.sh                   # Script d'arret Docker
-├── backup.sh                 # Script de sauvegarde base de donnees
-├── restore.sh                # Script de restauration base de donnees
-├── cron-backup.sh            # Script pour sauvegardes automatiques (cron)
+├── docker-compose.yml        # Config Docker
 ├── .env                      # Variables d'environnement (a creer)
 ├── .env.example              # Exemple de configuration
+├── start.sh / stop.sh        # Scripts Docker
 └── CLAUDE.md
-```
-
-## Specifications Metier
-
-- **Cursus Standardise:** 4 niveaux (A, B, C, D). Le joueur progresse meme s'il change de prof.
-- **Quiz d'Evaluation:** 20 questions (5 par niveau) pour determiner le niveau initial
-- **Reservations:** Sessions d'une heure via Jitsi Meet
-- **Disponibilites:** Le coach cree des creneaux d'au moins 1h pour permettre une reservation
-- **Abonnement Premium:** 4,99€/mois pour fonctionnalités exclusives (pas de quota de cours)
-- **Paiement des cours:** Directement au tarif du coach (30€-80€/h)
-- **Commission:** 12.5% prélevés (10% plateforme + 2.5% Stripe)
-- **Premier Cours Offert:** Un cours gratuit pour les nouveaux joueurs
-
-### Gestion des cours (Lessons)
-
-- Reservation de cours avec un coach
-- Premier cours offert pour les nouveaux joueurs
-- Confirmation/Annulation par le coach
-- Statuts : PENDING, CONFIRMED, COMPLETED, CANCELLED, NO_SHOW
-- Affichage des informations joueur pour le coach (niveau, age, ELO)
-- Raison d'annulation visible (tooltip)
-- Suppression de l'historique
-- Visioconference integree (Jitsi)
-
-### Progression (Learning Path)
-
-- Niveaux d'echecs : A (Pion), B (Cavalier), C (Fou), D (Tour)
-- 120 cours, 546 lecons au total
-- Cours par niveau (grades) avec accordeon
-- Statuts cours : LOCKED, IN_PROGRESS, PENDING_VALIDATION, COMPLETED
-- Validation des cours par le coach uniquement
-- Modale coachil joueur (cote prof) avec progression et validation
-
-### Interface Utilisateur
-
-- **Badges de role** : Joueur (bleu), Coach (violet), Admin (dore) dans la sidebar
-- **Indicateur de presence** : Pastille verte sur l'avatar des coachs en ligne (activite < 5 min)
-- **Design responsive** : Optimise pour mobile avec touch targets accessibles
-- **Landing page** : Style Apple avec animations au scroll, sections plein ecran
-- **Theme sombre** : Interface elegante avec accents dores
-- **Notifications toast** : Cliquables sans fleches, croix pour fermer
-- **Dialogues de confirmation** : Style macOS avec boutons destructifs en rouge
-- **Menu hamburger mobile** : Fixe, semi-transparent (30% opacite), toujours visible
-- **Footer** : Logo et tagline sur la meme ligne
-
-### Structure de la Sidebar
-
-**Joueur :**
-```
-Menu:
-├── Mon Espace
-├── Mes Cours
-├── Ma Progression
-└── Trouver un Coach
-
-Compte:
-├── Mon Profil
-├── Mon Solde
-├── Abonnement
-├── Mes Factures
-└── Deconnexion
-```
-
-**Coach :**
-```
-Menu:
-├── Mon Espace
-├── Mes Cours
-└── Mes Disponibilites
-
-Compte:
-├── Mon Profil
-├── Mes Factures
-└── Deconnexion
-```
-
-**Admin :**
-```
-Administration:
-├── Vue d'ensemble
-├── Utilisateurs
-├── Cours
-├── Comptabilite
-└── Factures
-
-Compte:
-├── Mon Profil
-├── Mes Factures
-└── Deconnexion
 ```
 
 ## API Endpoints
@@ -359,6 +332,32 @@ Compte:
 | POST    | `/register` | Inscription d'un utilisateur | Non  |
 | POST    | `/login`    | Connexion (retourne JWT)   | Non  |
 
+### Notifications Push (`/api/push`)
+| Methode | Endpoint      | Description                     | Auth    |
+|---------|---------------|---------------------------------|---------|
+| GET     | `/vapid-key`  | Cle publique VAPID              | Non     |
+| POST    | `/subscribe`  | S'abonner aux notifications     | JWT     |
+| POST    | `/unsubscribe`| Se desabonner                   | JWT     |
+| GET     | `/status`     | Statut des notifications        | JWT     |
+| PATCH   | `/preference` | Activer/desactiver les push     | JWT     |
+
+### Bibliotheque Video (`/api/library`)
+| Methode | Endpoint              | Description                     | Auth    |
+|---------|-----------------------|---------------------------------|---------|
+| GET     | `/videos`             | Liste des videos (avec filtres) | PREMIUM |
+| DELETE  | `/videos/{lessonId}`  | Supprimer une video             | PREMIUM |
+
+### Progression Video (`/api/video-progress`)
+| Methode | Endpoint              | Description                     | Auth    |
+|---------|-----------------------|---------------------------------|---------|
+| GET     | `/{lessonId}`         | Progression d'une video         | JWT     |
+| POST    | `/`                   | Sauvegarder la progression      | JWT     |
+
+### Notifications SSE (`/api/notifications`)
+| Methode | Endpoint      | Description                     | Auth    |
+|---------|---------------|---------------------------------|---------|
+| GET     | `/stream`     | Flux SSE temps reel             | JWT     |
+
 ### Quiz (`/api/quiz`)
 | Methode | Endpoint     | Description                     | Auth    |
 |---------|--------------|---------------------------------|---------|
@@ -366,17 +365,11 @@ Compte:
 | POST    | `/submit`    | Soumettre les reponses          | STUDENT |
 | GET     | `/result`    | Dernier resultat du quiz        | STUDENT |
 
-### Progression (`/api/progress`)
-| Methode | Endpoint          | Description                     | Auth    |
-|---------|-------------------|---------------------------------|---------|
-| GET     | `/me`             | Ma progression                  | STUDENT |
-| GET     | `/learning-path`  | Parcours d'apprentissage        | STUDENT |
-
 ### Coachs (`/api/teachers`)
 | Methode | Endpoint        | Description                        | Auth |
 |---------|-----------------|------------------------------------|------|
-| GET     | `/`             | Liste tous les coachs         | Non  |
-| GET     | `/{id}`         | Detail d'un coach             | Non  |
+| GET     | `/`             | Liste tous les coachs              | Non  |
+| GET     | `/{id}`         | Detail d'un coach                  | Non  |
 
 ### Disponibilites (`/api/availabilities`)
 | Methode | Endpoint              | Description                     | Auth    |
@@ -384,7 +377,7 @@ Compte:
 | POST    | `/`                   | Creer une disponibilite         | TEACHER |
 | GET     | `/me`                 | Mes disponibilites              | TEACHER |
 | DELETE  | `/{id}`               | Supprimer une disponibilite     | TEACHER |
-| GET     | `/teacher/{id}/slots` | Creneaux disponibles d'un coach  | Non     |
+| GET     | `/teacher/{id}/slots` | Creneaux disponibles d'un coach | Non     |
 
 ### Cours (`/api/lessons`)
 | Methode | Endpoint               | Description                     | Auth    |
@@ -421,24 +414,6 @@ Compte:
 | GET     | `/{id}/pdf`     | Telecharger PDF de la facture  | JWT     |
 | GET     | `/` (admin)     | Toutes les factures            | ADMIN   |
 
-### Stripe Connect (`/api/stripe-connect`)
-| Methode | Endpoint        | Description                           | Auth    |
-|---------|-----------------|---------------------------------------|---------|
-| POST    | `/onboarding`   | Demarre l'onboarding Stripe Connect   | TEACHER |
-| GET     | `/status`       | Statut du compte Stripe Connect       | TEACHER |
-| POST    | `/refresh-link` | Rafraichir le lien d'onboarding       | TEACHER |
-| DELETE  | `/disconnect`   | Deconnecter le compte Stripe Connect  | TEACHER |
-
-### Articles/Blog (`/api/articles`)
-| Methode | Endpoint              | Description                     | Auth    |
-|---------|-----------------------|---------------------------------|---------|
-| GET     | `/`                   | Liste des articles publies      | Non     |
-| GET     | `/{slug}`             | Detail d'un article par slug    | Non     |
-| GET     | `/category/{cat}`     | Articles par categorie          | Non     |
-| POST    | `/`                   | Creer un article                | ADMIN   |
-| PUT     | `/{id}`               | Modifier un article             | ADMIN   |
-| DELETE  | `/{id}`               | Supprimer un article            | ADMIN   |
-
 ### Exercices (`/api/exercises`)
 | Methode | Endpoint              | Description                     | Auth    |
 |---------|-----------------------|---------------------------------|---------|
@@ -447,13 +422,11 @@ Compte:
 | GET     | `/`                   | Liste des exercices             | PREMIUM |
 
 ### Evaluations (`/api/ratings`)
-| Methode | Endpoint                    | Description                     | Auth    |
-|---------|-----------------------------|---------------------------------|---------|
-| POST    | `/`                         | Creer une evaluation            | STUDENT |
-| GET     | `/teacher/{teacherId}`      | Evaluations d'un coach          | Non     |
-| GET     | `/teacher/{teacherId}/summary` | Moyenne et nombre d'avis     | Non     |
-| GET     | `/lesson/{lessonId}`        | Evaluation d'un cours           | JWT     |
-| GET     | `/my-rated-lessons`         | Mes cours deja evalues          | STUDENT |
+| Methode | Endpoint                       | Description                     | Auth    |
+|---------|--------------------------------|---------------------------------|---------|
+| POST    | `/`                            | Creer une evaluation            | STUDENT |
+| GET     | `/teacher/{teacherId}`         | Evaluations d'un coach          | Non     |
+| GET     | `/teacher/{teacherId}/summary` | Moyenne et nombre d'avis        | Non     |
 
 ### Favoris (`/api/favorites`)
 | Methode | Endpoint                 | Description                        | Auth    |
@@ -461,21 +434,12 @@ Compte:
 | POST    | `/{teacherId}`           | Ajouter un coach en favori         | STUDENT |
 | DELETE  | `/{teacherId}`           | Retirer un coach des favoris       | STUDENT |
 | GET     | `/`                      | Liste de mes coachs favoris        | STUDENT |
-| GET     | `/{teacherId}/status`    | Verifier si coach est en favori    | STUDENT |
 | PATCH   | `/{teacherId}/notify`    | Activer/desactiver notifications   | STUDENT |
-
-### Google Calendar (`/api/calendar`)
-| Methode | Endpoint                 | Description                        | Auth    |
-|---------|--------------------------|------------------------------------|---------|
-| GET     | `/google/auth-url`       | URL d'autorisation OAuth           | JWT     |
-| POST    | `/google/callback`       | Callback OAuth (echange de code)   | JWT     |
-| DELETE  | `/google/disconnect`     | Deconnecter Google Calendar        | JWT     |
-| GET     | `/google/status`         | Statut de connexion                | JWT     |
 
 ### Enregistrements (`/api/recordings`)
 | Methode | Endpoint                 | Description                        | Auth    |
 |---------|--------------------------|------------------------------------|---------|
-| POST    | `/webhook`               | Webhook Jibri (fin d'enregistrement) | Non   |
+| POST    | `/webhook`               | Webhook Jibri                      | Non     |
 | GET     | `/video/{lessonId}`      | Recuperer la video d'un cours      | JWT     |
 
 ## Variables d'Environnement
@@ -483,127 +447,123 @@ Compte:
 Creer un fichier `.env` a la racine du projet (voir `.env.example`) :
 
 ```env
-# Base de donnees (obligatoire en production)
+# Base de donnees (obligatoire)
+POSTGRES_DB=chessconnect
+POSTGRES_USER=chess
 POSTGRES_PASSWORD=votre_mot_de_passe_fort
 
 # JWT (obligatoire)
 JWT_SECRET=votre_secret_jwt_64_caracteres_minimum
 
 # Stripe (obligatoire pour les paiements)
-STRIPE_SECRET_KEY=sk_test_...
-STRIPE_PUBLISHABLE_KEY=pk_test_...
+STRIPE_SECRET_KEY=sk_live_...
+STRIPE_PUBLISHABLE_KEY=pk_live_...
 STRIPE_WEBHOOK_SECRET=whsec_...
 
 # Jitsi (obligatoire pour les appels video)
+JITSI_APP_ID=mychess
 JITSI_APP_SECRET=votre_secret_jitsi
+JITSI_DOMAIN=meet.mychess.fr
 
-# Jibri Recording Webhook (optionnel mais recommande)
-JIBRI_WEBHOOK_SECRET=votre_secret_webhook_jibri
-
-# Google Calendar (optionnel)
-GOOGLE_CLIENT_ID=votre_client_id_google
-GOOGLE_CLIENT_SECRET=votre_client_secret_google
-
-# Email SMTP (pour les rappels)
+# Email SMTP (optionnel)
+MAIL_ENABLED=false
 MAIL_HOST=smtp.gmail.com
 MAIL_PORT=587
-MAIL_USERNAME=votre_email@gmail.com
-MAIL_PASSWORD=votre_mot_de_passe_app
+MAIL_USERNAME=
+MAIL_PASSWORD=
+
+# Web Push Notifications (optionnel - auto-genere si vide)
+VAPID_PUBLIC_KEY=
+VAPID_PRIVATE_KEY=
+VAPID_SUBJECT=mailto:contact@mychess.fr
+
+# Bunny CDN (optionnel - pour la bibliotheque video)
+BUNNY_STREAM_API_KEY=
+BUNNY_STREAM_LIBRARY_ID=590076
+BUNNY_STREAM_CDN_HOSTNAME=vz-34fe20be-093.b-cdn.net
+BUNNY_STORAGE_ZONE=mychess
+BUNNY_STORAGE_API_KEY=
+BUNNY_CDN_URL=https://mychess.b-cdn.net
+
+# Frontend URL
+FRONTEND_URL=https://mychess.fr
+
+# Admin
+ADMIN_EMAIL=support@mychess.fr
 ```
 
-Variables configurees dans `docker-compose.yml` :
+## Migrations Base de Donnees (Flyway)
 
-| Variable                    | Description                  | Defaut |
-|-----------------------------|------------------------------|--------|
-| `POSTGRES_DB`               | Nom de la base               | chessconnect |
-| `POSTGRES_USER`             | Utilisateur PostgreSQL       | chess |
-| `POSTGRES_PASSWORD`         | Mot de passe PostgreSQL      | (requis via .env) |
-| `JWT_SECRET`                | Secret pour signer les JWT   | (requis via .env) |
-| `FRONTEND_URL`              | URL du frontend              | http://localhost:4200 |
-| `TZ`                        | Fuseau horaire               | Europe/Paris |
+| Version | Description |
+|---------|-------------|
+| V1 | Schema initial (users, lessons, etc.) |
+| V2-V14 | Evolutions progressives |
+| V15 | Video watch progress tracking |
+| V16 | Lesson recording URLs |
+| V17 | Thumbnail URLs |
+| V18 | Push subscriptions table |
+| V19 | Push notifications preference |
 
 ## Stack Technique
 
 | Composant | Technologies |
 |-----------|-------------|
-| Backend   | Spring Boot 3.2, Spring Security (JWT HttpOnly), Spring Data JPA, Caffeine Cache |
-| Frontend  | Angular 17, Signals, Standalone Components, RxJS, ng-icons, SCSS |
-| Database  | PostgreSQL 16, Flyway migrations, HikariCP |
-| DevOps    | Docker, Docker Compose, Nginx |
-| Paiements | Stripe (Embedded Checkout) |
-| Video     | Jitsi Meet (gratuit, sans compte) |
-| Images    | Sharp (generation logo/icones) |
+| Backend | Spring Boot 3.2, Spring Security (JWT HttpOnly), Spring Data JPA, Caffeine Cache |
+| Frontend | Angular 17, Signals, Standalone Components, RxJS, ng-icons, ngx-translate, SCSS |
+| Database | PostgreSQL 16, Flyway migrations, HikariCP |
+| DevOps | Docker, Docker Compose, Nginx |
+| Paiements | Stripe (Embedded Checkout, Connect) |
+| Video | Jitsi Meet (theme Premium), Bunny CDN |
+| Push | Web Push API, VAPID, BouncyCastle |
+| i18n | ngx-translate (FR, EN) |
 
 ## Securite
 
 ### Backend
-- **JWT HttpOnly Cookies** : Tokens stockes dans des cookies HttpOnly + Secure + SameSite=Strict (pas de localStorage)
-- **Rate Limiting** : 5 requetes/minute sur les endpoints d'authentification (`RateLimitingFilter.java`)
-- **Expiration JWT** : 1 heure (au lieu de 24h) avec refresh token de 7 jours
-- **Masquage IBAN** : Les IBAN sont masques dans les reponses API (`FR76XXXX...1234`)
-- **Logging securise** : Secrets Stripe et SQL non logues en production
-- **Webhook Jibri** : Validation HMAC-SHA256 des webhooks d'enregistrement video
+- **JWT HttpOnly Cookies** : Tokens stockes dans des cookies HttpOnly + Secure + SameSite=Strict
+- **Rate Limiting** : 5 requetes/minute sur les endpoints d'authentification
+- **CORS** : Origins specifiques (localhost:4200, mychess.fr)
+- **Expiration JWT** : 1 heure avec refresh token de 7 jours
+- **Masquage IBAN** : Les IBAN sont masques dans les reponses API
+- **Webhook Validation** : HMAC-SHA256 pour Jibri et Stripe
 - **ACL Videos** : Seul le student/teacher/admin d'un cours peut acceder a son enregistrement
-- **Optimistic Locking** : Prevention des race conditions sur le premier cours gratuit (`@Version` sur User)
 
 ### Frontend
-- **CSP Headers** : Content-Security-Policy complete configuree dans nginx
-- **XSS Protection** : Sanitization whitelist avec DOMParser dans `markdown.pipe.ts` (sans bypassSecurityTrustHtml)
-- **Security Headers** : X-Frame-Options, X-Content-Type-Options, X-XSS-Protection, Referrer-Policy, Permissions-Policy
-- **Pas de token localStorage** : Authentification geree uniquement via cookies HttpOnly
+- **CSP Headers** : Content-Security-Policy complete
+- **XSS Protection** : Sanitization whitelist avec DOMParser
 - **Container non-root** : Le frontend s'execute avec un utilisateur non-privilegie
-
-### Headers Nginx
-```
-X-Frame-Options: SAMEORIGIN
-X-Content-Type-Options: nosniff
-X-XSS-Protection: 1; mode=block
-Referrer-Policy: strict-origin-when-cross-origin
-Permissions-Policy: geolocation=(), microphone=(self), camera=(self)
-Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://meet.jit.si; ...
-```
 
 ## Performance
 
 ### Backend
-- **Caffeine Cache** : Cache en memoire avec TTL de 5 minutes sur Articles et Ratings (`CacheConfig.java`)
-- **Batch Queries** : Requetes optimisees pour eviter le N+1 dans `AdminService.getUsers()`
-- **HikariCP** : Pool de connexions configure (5-20 connexions, timeout 20s)
-- **Indexes DB** : Index sur `payments` et `invoices` pour les requetes frequentes
+- **Caffeine Cache** : TTL 5 minutes sur Articles et Ratings
+- **Batch Queries** : Evite le N+1
+- **HikariCP** : Pool 5-20 connexions
 
 ### Frontend
-- **OnPush Strategy** : Change Detection optimisee sur les composants principaux
-- **Angular Signals** : Utilisation de `effect()` au lieu du polling pour reagir aux changements d'etat
-- **Lazy Loading** : Images below-the-fold chargees en lazy (`loading="lazy"`)
-- **Gzip Compression** : Assets compresses via nginx
+- **OnPush Strategy** : Change Detection optimisee
+- **Angular Signals** : Reactivite sans polling
+- **Lazy Loading** : Images et modules
+- **Gzip Compression** : Via nginx
 
 ## Architecture Docker
 
 ```
-┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│    Frontend     │     │    Backend      │     │   PostgreSQL    │
-│  (Angular/Nginx)│────>│  (Spring Boot)  │────>│   (Database)    │
-│   Port: 4200    │     │   Port: 8282    │     │   Port: 5433    │
-└─────────────────┘     └─────────────────┘     └─────────────────┘
-        │                       │
-        │   Proxy /api/*        │
-        └───────────────────────┘
+┌─────────────────┐
+│ mychess-frontend│ :4200
+│                 │
+└────────┬────────┘
+         │
+┌────────▼────────┐
+│ mychess-backend │ :8282
+│                 │
+└────────┬────────┘
+         │
+┌────────▼────────┐
+│   mychess-db    │ interne
+│                 │
+└─────────────────┘
 ```
-
-## Logo et Assets
-
-Le logo mychess :
-
-- **Design** : Cavalier d'echecs en bois avec texture effet bois moderne
-- **Couleurs** : Degrade brun/orange (#8B4513 → #CD853F → #DEB887)
-- **Fond** : Transparent
-- **Fichiers** :
-  - `logo.png` - Logo cavalier seul avec fond transparent (248x375)
-  - `og-image.jpg` - 1200x630 pour partage social
-  - `icons/icon-*.png` - PWA (72-512px)
-  - `icons/apple-touch-icon.png` - 180x180
-  - `icons/favicon-*.png` - 16x16, 32x32
-  - `favicon.ico` - Multi-resolution
 
 ## Troubleshooting
 
@@ -612,98 +572,31 @@ Le logo mychess :
 docker logs mychess-backend --tail 50
 ```
 
-### Les conteneurs ne demarrent pas
-```bash
-# Verifier l'etat des conteneurs
-docker compose ps
-
-# Voir les logs d'erreur
-docker compose logs backend
-docker compose logs frontend
-docker compose logs postgres
-```
-
-### Reinitialiser l'application
-```bash
-# Arreter et supprimer tout (y compris la base de donnees)
-docker compose down -v
-
-# Reconstruire et redemarrer
-docker compose up --build -d
-```
-
-### Port deja utilise
-Si le port 4200, 8282 ou 5433 est deja utilise, modifiez les ports dans `docker-compose.yml`:
-```yaml
-ports:
-  - "NOUVEAU_PORT:PORT_INTERNE"
-```
-
-### Probleme de fuseau horaire
-Verifier que le conteneur est en heure Paris :
-```bash
-docker exec mychess-backend date
-```
-
-### Les paiements ne fonctionnent pas
-Verifier que le fichier `.env` existe et contient les cles Stripe :
-```bash
-cat .env
-```
-
 ### CORS errors
-Verifier que `FRONTEND_URL` dans `docker-compose.yml` correspond a l'URL utilisee.
+Verifier que l'origin est dans la liste CORS de `SecurityConfig.java` :
+- `http://localhost:4200`
+- `https://mychess.fr`
 
-## Problemes Connus
+### Les notifications push ne fonctionnent pas
+1. Verifier que VAPID keys sont definies dans `.env`
+2. Verifier que le Service Worker est enregistre (DevTools > Application)
+3. Verifier les permissions navigateur
 
-### Enregistrement video Jitsi
-- **Statut** : Implemente (necessite configuration serveur)
-- L'integration Jibri est implementee avec webhook pour recevoir les enregistrements
-- Le backend stocke l'URL de la video dans `lessons.recording_url`
-- **Pre-requis** : Serveur Jibri configure et operationnel
-- Endpoint webhook : `POST /api/recordings/webhook`
+### Reset complet (attention: efface les donnees)
+```bash
+docker compose down -v
+./start.sh
+```
 
-### Paiement des coachs via Stripe Connect
-- **Statut** : Implemente
-- Les coachs peuvent configurer leur compte Stripe Connect dans les parametres
-- L'admin peut effectuer des virements reels via le bouton "Transferer" dans la comptabilite
-- Le transfert Stripe est enregistre avec l'ID de transaction
-- Pre-requis pour recevoir des paiements : compte Stripe Connect configure et verifie
+## Commits Recents
 
-## Fonctionnalites Implementees (anciennement a faire)
-
-Toutes les fonctionnalites initialement prevues ont ete implementees :
-
-### 1. Evaluation des Coachs ✅
-- Systeme de notation 5 etoiles apres chaque cours termine
-- Commentaires optionnels
-- Note moyenne affichee sur le profil du coach
-- Cache Caffeine pour les performances
-- Fichiers : `RatingController.java`, `RatingService.java`, `Rating.java`, `rating.service.ts`, `rating-modal.component.ts`
-
-### 2. Coachs Favoris et Abonnement ✅
-- Ajout/suppression de coachs favoris
-- Option de notification quand un coach favori publie de nouveaux creneaux
-- Liste des favoris accessible dans le profil joueur
-- Fichiers : `FavoriteController.java`, `FavoriteTeacherService.java`, `FavoriteTeacher.java`, `favorite.service.ts`
-
-### 3. Integration Google Calendar ✅
-- Authentification OAuth 2.0 complete
-- Creation automatique d'evenements lors de la reservation d'un cours
-- Suppression automatique lors de l'annulation
-- Lien Jitsi inclus dans l'evenement
-- Fichiers : `CalendarController.java`, `GoogleCalendarService.java`, `GoogleCalendarConfig.java`
-
-### 4. Rappel par Email ✅
-- Scheduler automatique toutes les 15 minutes
-- Email envoye 1 heure avant le cours (fenetre 45-75 min)
-- Preference utilisateur `emailRemindersEnabled` (activee par defaut)
-- Templates Thymeleaf pour les emails
-- Fichiers : `LessonReminderService.java`, `EmailService.java`
-
-### 5. Enregistrement des appels video ✅
-- Integration Jibri via webhook
-- Stockage URL dans `lessons.recording_url`
-- Endpoint de recuperation des videos
-- Nettoyage automatique des fichiers lors de la suppression d'un cours
-- Fichiers : `RecordingController.java`, `LessonService.java`
+| Hash | Description |
+|------|-------------|
+| 6d3245b | Close all programme accordion levels by default |
+| 7b68d95 | Fix missing i18n translation keys |
+| 41e39fc | Misc improvements and fixes |
+| 2dedfd2 | Add internationalization (i18n) support with French/English |
+| 4ac9a85 | Add video library feature for Premium users |
+| 6321e7f | Add video thumbnail generation |
+| ec8994e | Add SSE for real-time notifications |
+| d3dcc3d | Add video progress tracking, Bunny CDN, premium trial |

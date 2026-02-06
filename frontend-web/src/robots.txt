@@ -9,5 +9,9 @@ Disallow: /subscription
 Disallow: /availability
 Disallow: /settings
 Disallow: /admin
+Disallow: /wallet
+Disallow: /invoices
+Disallow: /library
+Disallow: /exercise
 
 Sitemap: https://mychess.fr/api/sitemap.xml

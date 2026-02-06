@@ -122,6 +122,7 @@ export interface UpdateUserRequest {
   companyName?: string;
   birthDate?: string;
   eloRating?: number;
+  clearEloRating?: boolean;
   emailRemindersEnabled?: boolean;
 }
 

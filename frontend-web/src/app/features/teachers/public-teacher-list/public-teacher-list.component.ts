@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { TeacherService } from '../../../core/services/teacher.service';
 import { SeoService } from '../../../core/services/seo.service';
+import { StructuredDataService } from '../../../core/services/structured-data.service';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { heroMagnifyingGlass, heroXMark, heroAcademicCap } from '@ng-icons/heroicons/outline';
 import { LanguageSelectorComponent } from '../../../shared/components/language-selector/language-selector.component';
@@ -19,6 +20,7 @@ import { LanguageSelectorComponent } from '../../../shared/components/language-s
 })
 export class PublicTeacherListComponent implements OnInit {
   private seoService = inject(SeoService);
+  private structuredDataService = inject(StructuredDataService);
 
   searchQuery = signal('');
   minRate = signal<number | null>(null);
@@ -44,6 +46,10 @@ export class PublicTeacherListComponent implements OnInit {
 
   ngOnInit(): void {
     this.seoService.setTeachersListPage();
+    this.structuredDataService.setBreadcrumbSchema([
+      { name: 'Accueil', url: 'https://mychess.fr/' },
+      { name: 'Coachs', url: 'https://mychess.fr/coaches' }
+    ]);
     this.teacherService.loadTeachers().subscribe();
   }
 

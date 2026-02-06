@@ -75,6 +75,10 @@ export class TeacherService {
     this.selectedTeacherSignal.set(null);
   }
 
+  setSelectedTeacher(teacher: User): void {
+    this.selectedTeacherSignal.set(teacher);
+  }
+
   getMyBalance(): Observable<TeacherBalance> {
     return this.http.get<TeacherBalance>(`${this.apiUrl}/me/balance`).pipe(
       tap(balance => this.balanceSignal.set(balance))

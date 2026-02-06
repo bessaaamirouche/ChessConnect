@@ -5,6 +5,7 @@ import { TeacherService } from '../../../core/services/teacher.service';
 import { SeoService } from '../../../core/services/seo.service';
 import { StructuredDataService } from '../../../core/services/structured-data.service';
 import { LanguageSelectorComponent } from '../../../shared/components/language-selector/language-selector.component';
+import { User } from '../../../core/models/user.model';
 
 @Component({
   selector: 'app-public-teacher-profile',
@@ -23,17 +24,35 @@ export class PublicTeacherProfileComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const uuidParam = this.route.snapshot.paramMap.get('uuid');
-    if (uuidParam) {
-      this.teacherService.getTeacherByUuid(uuidParam).subscribe(teacher => {
-        this.seoService.setTeacherProfilePage(teacher);
-        this.structuredDataService.setTeacherSchema(teacher);
-        this.structuredDataService.setBreadcrumbSchema([
-          { name: 'Accueil', url: 'https://mychess.fr/' },
-          { name: 'Coachs', url: 'https://mychess.fr/coaches' },
-          { name: `${teacher.firstName} ${teacher.lastName}`, url: `https://mychess.fr/coaches/${teacher.uuid}` }
-        ]);
-      });
+    // Get resolved teacher data (loaded by resolver for SSR support)
+    const teacher = this.route.snapshot.data['teacher'] as User | null;
+
+    if (teacher) {
+      // Set the teacher in the service for template access
+      this.teacherService.setSelectedTeacher(teacher);
+
+      // Set SEO meta tags immediately (works with SSR)
+      this.seoService.setTeacherProfilePage(teacher);
+      this.structuredDataService.setTeacherSchema(teacher);
+      this.structuredDataService.setBreadcrumbSchema([
+        { name: 'Accueil', url: 'https://mychess.fr/' },
+        { name: 'Coachs', url: 'https://mychess.fr/coaches' },
+        { name: `${teacher.firstName} ${teacher.lastName}`, url: `https://mychess.fr/coaches/${teacher.uuid}` }
+      ]);
+    } else {
+      // Fallback: if no resolved data, load via API (client-side navigation)
+      const uuidParam = this.route.snapshot.paramMap.get('uuid');
+      if (uuidParam) {
+        this.teacherService.getTeacherByUuid(uuidParam).subscribe(loadedTeacher => {
+          this.seoService.setTeacherProfilePage(loadedTeacher);
+          this.structuredDataService.setTeacherSchema(loadedTeacher);
+          this.structuredDataService.setBreadcrumbSchema([
+            { name: 'Accueil', url: 'https://mychess.fr/' },
+            { name: 'Coachs', url: 'https://mychess.fr/coaches' },
+            { name: `${loadedTeacher.firstName} ${loadedTeacher.lastName}`, url: `https://mychess.fr/coaches/${loadedTeacher.uuid}` }
+          ]);
+        });
+      }
     }
   }
 

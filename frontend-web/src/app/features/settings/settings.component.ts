@@ -348,6 +348,8 @@ export class SettingsComponent implements OnInit {
       // Optional ELO rating
       if (formValue.knowsElo && formValue.eloRating) {
         payload.eloRating = formValue.eloRating;
+      } else {
+        payload.clearEloRating = true;
       }
     }
 
@@ -355,8 +357,11 @@ export class SettingsComponent implements OnInit {
       if (formValue.birthDate) {
         payload.birthDate = formValue.birthDate;
       }
+      // Optional ELO rating
       if (formValue.knowsElo && formValue.eloRating) {
         payload.eloRating = formValue.eloRating;
+      } else {
+        payload.clearEloRating = true;
       }
     }
 

@@ -76,6 +76,7 @@
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   padding: var(--space-lg);
+  overflow: visible; // Override global overflow:hidden to allow share dropdown
 
   &__title {
     font-size: 1rem;
@@ -912,5 +913,171 @@ input[type="date"] {
       opacity: 0.5;
       cursor: not-allowed;
     }
+  }
+}
+
+// Card header with share button
+.card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  margin-bottom: var(--space-md);
+
+  .card__title {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+// Share container
+.share-container {
+  position: relative;
+  flex-shrink: 0;
+}
+
+// Share button
+.btn--icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  padding: 0;
+  border-radius: 50%;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+
+  ng-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  &:hover {
+    background: var(--bg-primary);
+    border-color: var(--gold-500);
+    color: var(--gold-400);
+  }
+}
+
+// Share dropdown menu
+.share-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 200px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  z-index: 9999;
+  overflow: hidden;
+  animation: fadeInDown 0.15s ease-out;
+
+  &__header {
+    padding: var(--space-sm) var(--space-md);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border-subtle);
+    background: var(--bg-tertiary);
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    width: 100%;
+    padding: var(--space-sm) var(--space-md);
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: background var(--transition-fast);
+    text-align: left;
+
+    &:hover {
+      background: var(--bg-tertiary);
+    }
+  }
+
+  &__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    background: var(--bg-tertiary);
+
+    ng-icon {
+      color: var(--gold-400);
+    }
+
+    svg {
+      flex-shrink: 0;
+    }
+
+    // Twitter / X
+    &--x {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 0.8125rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      background: transparent;
+    }
+
+    // Facebook
+    &--facebook {
+      font-family: Georgia, serif;
+      font-size: 0.9375rem;
+      font-weight: 700;
+      color: #1877f2;
+      background: transparent;
+    }
+
+    // LinkedIn
+    &--linkedin {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 0.6875rem;
+      font-weight: 700;
+      color: #0a66c2;
+      background: transparent;
+    }
+
+    // WhatsApp
+    &--whatsapp {
+      color: #25d366;
+      background: transparent;
+    }
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

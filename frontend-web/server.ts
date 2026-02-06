@@ -18,6 +18,15 @@ export function app(): express.Express {
   server.set('view engine', 'html');
   server.set('views', browserDistFolder);
 
+  // Security headers (SEO + security signal)
+  server.use((req, res, next) => {
+    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    next();
+  });
+
   // Proxy API requests to backend using native http
   const backendHost = process.env['API_URL']?.replace(/^https?:\/\//, '').replace(/\/api$/, '') || 'backend:8282';
   console.log(`Proxying /api requests to http://${backendHost}`);

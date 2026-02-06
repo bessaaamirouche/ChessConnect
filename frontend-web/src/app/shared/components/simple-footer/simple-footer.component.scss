@@ -1,0 +1,50 @@
+@use '../../../../styles/variables' as *;
+
+$bg-dark: #0a0a0c;
+$gold: #d4a84b;
+$ivory-muted: #a8a5a0;
+$text-muted: #6b6965;
+
+.simple-footer {
+  padding: var(--space-xl) var(--space-lg);
+  border-top: 1px solid rgba($gold, 0.1);
+  background: $bg-dark;
+
+  &__container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-md);
+  }
+
+  p {
+    font-size: 0.8125rem;
+    color: $text-muted;
+    margin: 0;
+  }
+
+  &__links {
+    display: flex;
+    gap: var(--space-lg);
+
+    a {
+      font-size: 0.8125rem;
+      color: $ivory-muted;
+      transition: color var(--transition-fast);
+
+      &:hover, &.active {
+        color: $gold;
+      }
+    }
+  }
+
+  @media (max-width: 640px) {
+    &__container {
+      flex-direction: column;
+      text-align: center;
+    }
+  }
+}

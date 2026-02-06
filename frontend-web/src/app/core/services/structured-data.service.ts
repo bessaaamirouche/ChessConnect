@@ -8,6 +8,9 @@ export interface Teacher {
   lastName: string;
   bio?: string;
   hourlyRateCents?: number;
+  avatarUrl?: string;
+  averageRating?: number;
+  reviewCount?: number;
 }
 
 @Injectable({
@@ -39,7 +42,7 @@ export class StructuredDataService {
       ? `${this.baseUrl}/coaches/${teacher.uuid}`
       : `${this.baseUrl}/teachers/${teacher.id}`;
 
-    const schema = {
+    const schema: Record<string, unknown> = {
       '@context': 'https://schema.org',
       '@type': 'Person',
       name: `${teacher.firstName} ${teacher.lastName}`,
@@ -52,6 +55,22 @@ export class StructuredDataService {
         url: this.baseUrl
       }
     };
+
+    // Add image if available
+    if (teacher.avatarUrl) {
+      schema['image'] = teacher.avatarUrl;
+    }
+
+    // Add aggregate rating if available
+    if (teacher.averageRating && teacher.reviewCount) {
+      schema['aggregateRating'] = {
+        '@type': 'AggregateRating',
+        ratingValue: teacher.averageRating.toFixed(1),
+        reviewCount: teacher.reviewCount,
+        bestRating: '5',
+        worstRating: '1'
+      };
+    }
 
     this.insertSchema(schema, 'teacher-schema');
   }

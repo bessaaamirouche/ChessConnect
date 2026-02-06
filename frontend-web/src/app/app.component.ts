@@ -9,6 +9,7 @@ import { InactivityService } from './core/services/inactivity.service';
 import { PresenceService } from './core/services/presence.service';
 import { TrackingService } from './core/services/tracking.service';
 import { PushNotificationService } from './core/services/push-notification.service';
+import { LanguageService } from './core/services/language.service';
 
 @Component({
   selector: 'app-root',
@@ -32,6 +33,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private presenceService = inject(PresenceService);
   private trackingService = inject(TrackingService); // Initialize page tracking
   private pushNotificationService = inject(PushNotificationService);
+  private languageService = inject(LanguageService); // Initialize i18n translations
 
   constructor() {
     // Use effect to react to auth state changes

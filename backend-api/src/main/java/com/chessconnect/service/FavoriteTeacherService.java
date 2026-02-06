@@ -52,7 +52,7 @@ public class FavoriteTeacherService {
         FavoriteTeacher favorite = new FavoriteTeacher();
         favorite.setStudent(student);
         favorite.setTeacher(teacher);
-        favorite.setNotifyNewSlots(false);
+        favorite.setNotifyNewSlots(true);
 
         FavoriteTeacher saved = favoriteRepository.save(favorite);
         log.info("Student {} added teacher {} to favorites", studentId, teacherId);

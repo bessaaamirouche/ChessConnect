@@ -111,25 +111,22 @@ public class AvailabilityService {
         for (FavoriteTeacher subscriber : subscribers) {
             User student = subscriber.getStudent();
 
-            // Only notify Premium subscribers via email
-            boolean isPremium = subscriptionService.isPremium(student.getId());
-            if (isPremium) {
-                emailService.sendNewAvailabilityNotification(
-                        student.getEmail(),
-                        student.getFirstName(),
-                        teacherName,
-                        availabilityInfo,
-                        bookingLink
-                );
-                notifiedCount++;
-            }
+            // Send email notification to all subscribers (Premium restriction removed for launch)
+            emailService.sendNewAvailabilityNotification(
+                    student.getEmail(),
+                    student.getFirstName(),
+                    teacherName,
+                    availabilityInfo,
+                    bookingLink
+            );
+            notifiedCount++;
 
-            // Send SSE notification to all subscribed students (Premium or not)
+            // Send SSE notification to all subscribed students
             publishAvailabilityEvent(student.getId(), teacher, availability, availabilityInfo);
             sseNotifiedCount++;
         }
 
-        log.info("Notified {} Premium subscribers (email) and {} subscribers (SSE) about new availability for teacher {}",
+        log.info("Notified {} subscribers (email) and {} subscribers (SSE) about new availability for teacher {}",
                 notifiedCount, sseNotifiedCount, teacher.getId());
     }
 

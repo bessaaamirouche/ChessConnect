@@ -33,6 +33,7 @@ public class UpdateProfileRequest {
     // Student fields
     private LocalDate birthDate;
     private Integer eloRating;
+    private Boolean clearEloRating; // Set to true to clear ELO rating
 
     // Preferences
     private Boolean emailRemindersEnabled;

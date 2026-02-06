@@ -1,4 +1,5 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, PLATFORM_ID, inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
 
 export type Language = 'fr' | 'en';
@@ -8,6 +9,7 @@ export type Language = 'fr' | 'en';
 })
 export class LanguageService {
   private readonly STORAGE_KEY = 'mychess_language';
+  private readonly platformId = inject(PLATFORM_ID);
 
   currentLang = signal<Language>('fr');
 
@@ -21,7 +23,12 @@ export class LanguageService {
   }
 
   private initLanguage(): void {
-    const savedLang = localStorage.getItem(this.STORAGE_KEY) as Language | null;
+    let savedLang: Language | null = null;
+
+    if (isPlatformBrowser(this.platformId)) {
+      savedLang = localStorage.getItem(this.STORAGE_KEY) as Language | null;
+    }
+
     // Toujours FR par défaut, sauf si l'utilisateur a explicitement choisi une autre langue
     const defaultLang: Language = savedLang || 'fr';
 
@@ -33,8 +40,11 @@ export class LanguageService {
   setLanguage(lang: Language): void {
     this.translate.use(lang);
     this.currentLang.set(lang);
-    localStorage.setItem(this.STORAGE_KEY, lang);
-    document.documentElement.lang = lang;
+
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem(this.STORAGE_KEY, lang);
+      document.documentElement.lang = lang;
+    }
   }
 
   toggleLanguage(): void {

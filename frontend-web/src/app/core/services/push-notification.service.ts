@@ -3,7 +3,11 @@ import { isPlatformBrowser } from '@angular/common'; // Ajout de isPlatformBrows
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 
-// ... interface reste inchangée ...
+export interface PushSubscriptionStatus {
+  enabled: boolean;
+  subscriptionCount: number;
+  hasSubscriptions: boolean;
+}
 
 @Injectable({
   providedIn: 'root'

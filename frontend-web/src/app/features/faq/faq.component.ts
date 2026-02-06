@@ -1,8 +1,10 @@
 import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { AuthService } from '../../core/services/auth.service';
 import { SeoService } from '../../core/services/seo.service';
+import { StructuredDataService } from '../../core/services/structured-data.service';
+import { PublicNavbarComponent, NavLink } from '../../shared/components/public-navbar/public-navbar.component';
+import { SimpleFooterComponent } from '../../shared/components/simple-footer/simple-footer.component';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   heroChevronDown,
@@ -31,7 +33,7 @@ interface FaqCategory {
 @Component({
   selector: 'app-faq',
   standalone: true,
-  imports: [RouterLink, NgIconComponent, TranslateModule],
+  imports: [RouterLink, NgIconComponent, TranslateModule, PublicNavbarComponent, SimpleFooterComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({
     heroChevronDown,
@@ -49,12 +51,18 @@ interface FaqCategory {
   styleUrl: './faq.component.scss'
 })
 export class FaqComponent {
-  authService = inject(AuthService);
   private seoService = inject(SeoService);
+  private structuredDataService = inject(StructuredDataService);
 
   openIndex = signal<number | null>(null);
   activeCategory = signal<string>('all');
-  mobileMenuOpen = signal(false);
+
+  navLinks: NavLink[] = [
+    { route: '/', labelKey: 'nav.home' },
+    { route: '/teachers', labelKey: 'teachers.title' },
+    { route: '/how-it-works', labelKey: 'nav.howItWorks' },
+    { route: '/blog', labelKey: 'nav.blog' }
+  ];
 
   categories: FaqCategory[] = [
     { id: 'all', labelKey: 'common.all' },
@@ -149,18 +157,14 @@ export class FaqComponent {
       description: 'Trouvez les reponses a vos questions sur mychess : cours d\'echecs, abonnement Premium, paiements, coachs et plus encore.',
       keywords: 'mychess, faq, questions, aide, support, cours echecs'
     });
+    this.structuredDataService.setBreadcrumbSchema([
+      { name: 'Accueil', url: 'https://mychess.fr/' },
+      { name: 'FAQ', url: 'https://mychess.fr/faq' }
+    ]);
   }
 
   toggleFaq(index: number): void {
     this.openIndex.update(current => current === index ? null : index);
-  }
-
-  toggleMobileMenu(): void {
-    this.mobileMenuOpen.update(v => !v);
-  }
-
-  closeMobileMenu(): void {
-    this.mobileMenuOpen.set(false);
   }
 
   setCategory(category: string): void {

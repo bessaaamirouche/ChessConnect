@@ -92,7 +92,7 @@ export interface SidebarSection {
     <!-- Mobile Header -->
     <header class="mobile-header">
       <a routerLink="/" class="mobile-header__logo">
-        <img src="assets/logo.png" alt="myChess" class="mobile-header__logo-img">
+        <img src="assets/logo.webp" alt="myChess" class="mobile-header__logo-img">
       </a>
       <button
         class="mobile-header__hamburger"
@@ -115,7 +115,7 @@ export interface SidebarSection {
       <div class="sidebar__header">
         @if (!isCollapsed()) {
           <a routerLink="/" class="sidebar__logo">
-            <img src="assets/logo.png" alt="mychess" class="sidebar__logo-img">
+            <img src="assets/logo.webp" alt="mychess" class="sidebar__logo-img">
           </a>
         }
         <button class="sidebar__collapse-btn" (click)="toggleCollapse()" [title]="isCollapsed() ? ('sidebar.open' | translate) : ('sidebar.close' | translate)">

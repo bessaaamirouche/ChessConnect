@@ -2,15 +2,18 @@ package com.chessconnect.controller;
 
 import com.chessconnect.dto.admin.*;
 import com.chessconnect.dto.lesson.LessonResponse;
+import com.chessconnect.model.Availability;
 import com.chessconnect.model.Lesson;
 import com.chessconnect.model.Payment;
 import com.chessconnect.model.Subscription;
 import com.chessconnect.model.User;
 import com.chessconnect.model.enums.UserRole;
+import com.chessconnect.repository.AvailabilityRepository;
 import com.chessconnect.repository.LessonRepository;
 import com.chessconnect.repository.UserRepository;
 import com.chessconnect.service.AdminService;
 import com.chessconnect.service.AnalyticsService;
+import com.chessconnect.service.EmailService;
 import com.chessconnect.service.StripeConnectService;
 import com.chessconnect.service.StripeService;
 import com.chessconnect.service.ThumbnailService;
@@ -44,6 +47,11 @@ public class AdminController {
     private final ThumbnailService thumbnailService;
     private final UserRepository userRepository;
     private final LessonRepository lessonRepository;
+    private final AvailabilityRepository availabilityRepository;
+    private final EmailService emailService;
+
+    @org.springframework.beans.factory.annotation.Value("${app.frontend-url:http://localhost:4200}")
+    private String frontendUrl;
 
     public AdminController(
             AdminService adminService,
@@ -53,7 +61,9 @@ public class AdminController {
             WalletService walletService,
             ThumbnailService thumbnailService,
             UserRepository userRepository,
-            LessonRepository lessonRepository
+            LessonRepository lessonRepository,
+            AvailabilityRepository availabilityRepository,
+            EmailService emailService
     ) {
         this.adminService = adminService;
         this.stripeService = stripeService;
@@ -63,6 +73,8 @@ public class AdminController {
         this.thumbnailService = thumbnailService;
         this.userRepository = userRepository;
         this.lessonRepository = lessonRepository;
+        this.availabilityRepository = availabilityRepository;
+        this.emailService = emailService;
     }
 
     // ============= USER MANAGEMENT =============
@@ -678,5 +690,98 @@ public class AdminController {
             "success", true,
             "message", "Generation de la miniature en cours pour la lecon " + lessonId
         ));
+    }
+
+    // ============= BROADCAST EMAILS =============
+
+    /**
+     * Broadcast availability emails to all students for all coaches with active availabilities.
+     * Used for platform launch to notify all users about available coaches.
+     * TEMPORARY: Also exposed without auth at /api/launch/broadcast for one-time launch use.
+     */
+    @PostMapping("/broadcast-availabilities")
+    public ResponseEntity<?> broadcastAvailabilities() {
+        try {
+            // Get all students
+            List<User> students = userRepository.findByRole(UserRole.STUDENT);
+            if (students.isEmpty()) {
+                return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", "Aucun etudiant dans la base",
+                    "emailsSent", 0
+                ));
+            }
+
+            // Get all teachers with active availabilities
+            List<User> teachers = userRepository.findByRole(UserRole.TEACHER);
+            List<Map<String, Object>> teachersWithAvailabilities = new ArrayList<>();
+
+            for (User teacher : teachers) {
+                List<Availability> availabilities = availabilityRepository.findByTeacherIdAndIsActiveTrue(teacher.getId());
+                if (!availabilities.isEmpty()) {
+                    // Build availability info string
+                    StringBuilder availabilityInfo = new StringBuilder();
+                    for (Availability a : availabilities) {
+                        if (a.getIsRecurring()) {
+                            String dayName = a.getDayOfWeek().getDisplayName(java.time.format.TextStyle.FULL, java.util.Locale.FRENCH);
+                            availabilityInfo.append("- Tous les ").append(dayName).append("s de ")
+                                .append(a.getStartTime()).append(" a ").append(a.getEndTime()).append("\n");
+                        } else if (a.getSpecificDate() != null && !a.getSpecificDate().isBefore(LocalDate.now())) {
+                            availabilityInfo.append("- Le ").append(a.getSpecificDate()).append(" de ")
+                                .append(a.getStartTime()).append(" a ").append(a.getEndTime()).append("\n");
+                        }
+                    }
+
+                    if (availabilityInfo.length() > 0) {
+                        teachersWithAvailabilities.add(Map.of(
+                            "teacher", teacher,
+                            "availabilityInfo", availabilityInfo.toString(),
+                            "bookingLink", frontendUrl + "/book/" + teacher.getId()
+                        ));
+                    }
+                }
+            }
+
+            if (teachersWithAvailabilities.isEmpty()) {
+                return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", "Aucun coach avec des disponibilites actives",
+                    "emailsSent", 0
+                ));
+            }
+
+            // Send emails to all students for each teacher with availabilities
+            int emailsSent = 0;
+            for (User student : students) {
+                for (Map<String, Object> teacherData : teachersWithAvailabilities) {
+                    User teacher = (User) teacherData.get("teacher");
+                    String availabilityInfo = (String) teacherData.get("availabilityInfo");
+                    String bookingLink = (String) teacherData.get("bookingLink");
+
+                    emailService.sendNewAvailabilityNotification(
+                        student.getEmail(),
+                        student.getFirstName(),
+                        teacher.getFirstName() + " " + teacher.getLastName(),
+                        availabilityInfo,
+                        bookingLink
+                    );
+                    emailsSent++;
+                }
+            }
+
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", emailsSent + " emails envoyes (" + students.size() + " etudiants x " + teachersWithAvailabilities.size() + " coachs)",
+                "emailsSent", emailsSent,
+                "studentsCount", students.size(),
+                "teachersCount", teachersWithAvailabilities.size()
+            ));
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                "success", false,
+                "message", "Erreur: " + e.getMessage()
+            ));
+        }
     }
 }

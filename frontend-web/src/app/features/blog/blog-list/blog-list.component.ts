@@ -4,16 +4,18 @@ import { DatePipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { ArticleService } from '../../../core/services/article.service';
 import { SeoService } from '../../../core/services/seo.service';
-import { AuthService } from '../../../core/services/auth.service';
+import { StructuredDataService } from '../../../core/services/structured-data.service';
 import { ArticleList, ArticlePage, ARTICLE_CATEGORIES } from '../../../core/models/article.model';
 import { ScrollRevealDirective, StaggerRevealDirective } from '../../../shared/directives/scroll-reveal.directive';
+import { PublicNavbarComponent, NavLink } from '../../../shared/components/public-navbar/public-navbar.component';
+import { SimpleFooterComponent, FooterLink } from '../../../shared/components/simple-footer/simple-footer.component';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { heroClock, heroArrowRight, heroArrowLeft } from '@ng-icons/heroicons/outline';
 
 @Component({
   selector: 'app-blog-list',
   standalone: true,
-  imports: [RouterLink, DatePipe, NgIconComponent, ScrollRevealDirective, StaggerRevealDirective, TranslateModule],
+  imports: [RouterLink, DatePipe, NgIconComponent, ScrollRevealDirective, StaggerRevealDirective, TranslateModule, PublicNavbarComponent, SimpleFooterComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({ heroClock, heroArrowRight, heroArrowLeft })],
   templateUrl: './blog-list.component.html',
@@ -22,7 +24,7 @@ import { heroClock, heroArrowRight, heroArrowLeft } from '@ng-icons/heroicons/ou
 export class BlogListComponent implements OnInit {
   private articleService = inject(ArticleService);
   private seoService = inject(SeoService);
-  authService = inject(AuthService);
+  private structuredDataService = inject(StructuredDataService);
 
   articles = signal<ArticleList[]>([]);
   categories = signal<string[]>([]);
@@ -30,7 +32,16 @@ export class BlogListComponent implements OnInit {
   currentPage = signal(0);
   totalPages = signal(0);
   loading = signal(false);
-  mobileMenuOpen = signal(false);
+
+  navLinks: NavLink[] = [
+    { route: '/', labelKey: 'nav.home' },
+    { route: '/teachers', labelKey: 'teachers.title' },
+    { route: '/blog', labelKey: 'blog.title', active: true }
+  ];
+
+  footerLinks: FooterLink[] = [
+    { route: '/', labelKey: 'blog.footer.backToHome' }
+  ];
 
   categoryLabels = ARTICLE_CATEGORIES;
 
@@ -40,6 +51,10 @@ export class BlogListComponent implements OnInit {
       description: 'Découvrez nos articles sur les échecs : conseils pour débutants, stratégies avancées, ouvertures, finales et bien plus encore.',
       keywords: 'blog échecs, conseils échecs, stratégie échecs, apprendre échecs'
     });
+    this.structuredDataService.setBreadcrumbSchema([
+      { name: 'Accueil', url: 'https://mychess.fr/' },
+      { name: 'Blog', url: 'https://mychess.fr/blog' }
+    ]);
 
     this.loadArticles();
     this.loadCategories();
@@ -99,11 +114,4 @@ export class BlogListComponent implements OnInit {
     return this.articleService.formatDate(dateString);
   }
 
-  toggleMobileMenu(): void {
-    this.mobileMenuOpen.update(open => !open);
-  }
-
-  closeMobileMenu(): void {
-    this.mobileMenuOpen.set(false);
-  }
 }

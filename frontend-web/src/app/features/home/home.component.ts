@@ -15,7 +15,7 @@ import { LanguageService } from '../../core/services/language.service';
 import { SeoService } from '../../core/services/seo.service';
 import { StructuredDataService } from '../../core/services/structured-data.service';
 import { ScrollRevealDirective, StaggerRevealDirective } from '../../shared/directives/scroll-reveal.directive';
-import { LanguageSelectorComponent } from '../../shared/components/language-selector/language-selector.component';
+import { PublicNavbarComponent, NavLink } from '../../shared/components/public-navbar/public-navbar.component';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   heroUserGroup,
@@ -40,7 +40,7 @@ import {
     ScrollRevealDirective,
     StaggerRevealDirective,
     TranslateModule,
-    LanguageSelectorComponent
+    PublicNavbarComponent
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({
@@ -64,8 +64,15 @@ export class HomeComponent implements OnInit, OnDestroy {
   private structuredDataService = inject(StructuredDataService);
   private platformId = inject(PLATFORM_ID);
 
+  navLinks: NavLink[] = [
+    { route: '/', labelKey: 'nav.home' },
+    { route: '/how-it-works', labelKey: 'nav.howItWorks' },
+    { route: '/coaches', labelKey: 'teachers.title' },
+    { route: '/blog', labelKey: 'nav.blog' },
+    { route: '/faq', labelKey: 'nav.faq' }
+  ];
+
   // Signals
-  mobileMenuOpen = signal(false);
   isScrolled = signal(false);
   scrollProgress = signal(0);
   showPromoPopup = signal(true);
@@ -149,14 +156,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
     // Default to first section
     this.activeSection.set('features');
-  }
-
-  toggleMobileMenu(): void {
-    this.mobileMenuOpen.update(v => !v);
-  }
-
-  closeMobileMenu(): void {
-    this.mobileMenuOpen.set(false);
   }
 
   closePromoPopup(): void {

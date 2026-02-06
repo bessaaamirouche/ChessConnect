@@ -1,52 +1,5 @@
 <div class="article-page">
-  <!-- Navbar -->
-  <nav class="nav">
-    <div class="nav__container">
-      <a routerLink="/" class="nav__logo">
-        <img src="assets/logo.png" alt="myChess" class="nav__logo-img">
-      </a>
-
-      <!-- Mobile hamburger -->
-      <button class="nav__hamburger" [class.active]="mobileMenuOpen()" (click)="toggleMobileMenu()">
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
-
-      <!-- Mobile menu overlay -->
-      <div class="nav__mobile-overlay" [class.active]="mobileMenuOpen()" (click)="closeMobileMenu()"></div>
-
-      <!-- Desktop Pill Tabs Navigation -->
-      <div class="nav__pills">
-        <a routerLink="/" class="nav__pill">{{ 'nav.home' | translate }}</a>
-        <a routerLink="/teachers" class="nav__pill">{{ 'teachers.title' | translate }}</a>
-        <a routerLink="/blog" class="nav__pill nav__pill--active">{{ 'blog.title' | translate }}</a>
-        @if (authService.isAuthenticated()) {
-          <a routerLink="/dashboard" class="nav__pill">{{ 'sidebar.dashboard' | translate }}</a>
-        } @else {
-          <a routerLink="/login" class="nav__pill">{{ 'nav.login' | translate }}</a>
-          <a routerLink="/register" class="nav__pill">{{ 'nav.signup' | translate }}</a>
-        }
-      </div>
-
-      <!-- Mobile Drawer Menu -->
-      <div class="nav__links" [class.active]="mobileMenuOpen()">
-        <a routerLink="/" (click)="closeMobileMenu()">{{ 'nav.home' | translate }}</a>
-        <a routerLink="/teachers" (click)="closeMobileMenu()">{{ 'teachers.title' | translate }}</a>
-        <a routerLink="/blog" (click)="closeMobileMenu()">{{ 'blog.title' | translate }}</a>
-
-        <!-- Mobile-only auth buttons -->
-        <div class="nav__mobile-actions">
-          @if (authService.isAuthenticated()) {
-            <a routerLink="/dashboard" class="nav__btn nav__btn--primary" (click)="closeMobileMenu()">{{ 'sidebar.dashboard' | translate }}</a>
-          } @else {
-            <a routerLink="/login" class="nav__btn nav__btn--ghost" (click)="closeMobileMenu()">{{ 'nav.login' | translate }}</a>
-            <a routerLink="/register" class="nav__btn nav__btn--primary" (click)="closeMobileMenu()">{{ 'nav.signup' | translate }}</a>
-          }
-        </div>
-      </div>
-    </div>
-  </nav>
+  <app-public-navbar [links]="navLinks"></app-public-navbar>
 
   @if (loading()) {
     <div class="loading">
@@ -157,15 +110,6 @@
       </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="article-footer">
-      <div class="article-footer__container">
-        <p>&copy; 2026 {{ 'blog.footer.copyright' | translate }}</p>
-        <div class="article-footer__links">
-          <a routerLink="/">{{ 'nav.home' | translate }}</a>
-          <a routerLink="/blog">{{ 'blog.title' | translate }}</a>
-        </div>
-      </div>
-    </footer>
+    <app-simple-footer [links]="footerLinks" [copyrightKey]="'blog.footer.copyright'" [showBrand]="false"></app-simple-footer>
   }
 </div>

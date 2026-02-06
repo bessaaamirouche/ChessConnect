@@ -2,7 +2,7 @@
   <nav class="navbar">
     <div class="container navbar__inner">
       <a routerLink="/" class="navbar__logo">
-        <img src="assets/logo.png" alt="mychess" class="navbar__logo-img">
+        <img src="assets/logo.webp" alt="mychess" class="navbar__logo-img">
       </a>
       <div class="navbar__actions">
         <a routerLink="/teachers" class="btn btn--ghost">{{ 'common.back' | translate }}</a>
@@ -48,11 +48,20 @@
               <span class="action-btn__label">{{ isFavorite() ? ('teachers.profile.favorite' | translate) : ('teachers.profile.addFavorite' | translate) }}</span>
             </button>
           </div>
-        } @else {
+        } @else if (authService.isAuthenticated()) {
+          <!-- Authenticated but not student (e.g., teacher viewing another profile) -->
           <div class="contact-card__actions contact-card__actions--single">
             <a [routerLink]="['/book', teacher.id]" class="action-btn action-btn--primary action-btn--large">
               <span class="action-btn__icon">&#128197;</span>
               <span class="action-btn__label">{{ 'teachers.profile.bookLesson' | translate }}</span>
+            </a>
+          </div>
+        } @else {
+          <!-- Not authenticated - show signup CTA -->
+          <div class="contact-card__actions contact-card__actions--single">
+            <a routerLink="/register" class="action-btn action-btn--primary action-btn--large">
+              <span class="action-btn__icon">&#128197;</span>
+              <span class="action-btn__label">{{ 'teachers.profile.signupToBook' | translate }}</span>
             </a>
           </div>
         }

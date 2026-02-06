@@ -48,7 +48,7 @@ import { RouterLink } from '@angular/router';
       </div>
 
       <a routerLink="/" class="not-found__logo">
-        <img src="assets/logo.png" alt="mychess" />
+        <img src="assets/logo.webp" alt="mychess" />
       </a>
     </div>
   `,

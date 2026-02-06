@@ -22,7 +22,7 @@ public class FavoriteTeacher {
     private User teacher;
 
     @Column(name = "notify_new_slots", nullable = false)
-    private Boolean notifyNewSlots = false;
+    private Boolean notifyNewSlots = true;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

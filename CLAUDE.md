@@ -475,7 +475,7 @@ MAIL_PASSWORD=
 # Web Push Notifications (optionnel - auto-genere si vide)
 VAPID_PUBLIC_KEY=
 VAPID_PRIVATE_KEY=
-VAPID_SUBJECT=mailto:contact@mychess.fr
+VAPID_SUBJECT=mailto:support@mychess.fr
 
 # Bunny CDN (optionnel - pour la bibliotheque video)
 BUNNY_STREAM_API_KEY=

@@ -33,7 +33,7 @@ public class WebPushConfig {
     @Value("${VAPID_PRIVATE_KEY:}")
     private String vapidPrivateKey;
 
-    @Value("${VAPID_SUBJECT:mailto:contact@mychess.fr}")
+    @Value("${VAPID_SUBJECT:mailto:support@mychess.fr}")
     private String vapidSubject;
 
     private String effectivePublicKey;

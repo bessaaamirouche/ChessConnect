@@ -282,27 +282,122 @@ $premium-color: #f59e0b;
   }
 }
 
-// Responsive
-@media (max-width: 640px) {
+// Responsive - Tablet / Mobile
+@media (max-width: 768px) {
+  .legal-header {
+    padding: 100px var(--space-md) var(--space-lg);
+
+    &__title {
+      font-size: clamp(1.5rem, 4vw, 2rem);
+      margin-bottom: var(--space-sm);
+    }
+
+    &__subtitle {
+      font-size: 0.9375rem;
+    }
+  }
+
+  .legal-content {
+    padding: var(--space-lg) var(--space-md) var(--space-xl);
+  }
+
+  .role-badge {
+    padding: 4px 12px;
+    font-size: 0.6875rem;
+    margin-bottom: var(--space-sm);
+  }
+
   .role-section {
-    padding: var(--space-lg);
+    padding: var(--space-lg) var(--space-md);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-lg);
   }
 
   .info-box {
-    flex-direction: column;
+    padding: var(--space-md);
+    border-radius: var(--radius-md);
+    margin: var(--space-md) 0;
     gap: var(--space-sm);
+
+    &__icon {
+      font-size: 1.25rem;
+    }
+
+    &__content {
+      strong {
+        font-size: 0.875rem;
+        margin-bottom: 2px;
+      }
+
+      p {
+        font-size: 0.8125rem;
+      }
+    }
+  }
+
+  .cta-box {
+    margin-top: var(--space-lg);
+  }
+
+  .cta-button {
+    padding: 10px 24px;
+    font-size: 0.875rem;
   }
 
   .prose {
-    font-size: 0.9375rem;
+    font-size: 0.875rem;
+    line-height: 1.7;
+
+    section:not(.role-section) {
+      margin-bottom: var(--space-lg);
+      padding-bottom: var(--space-lg);
+    }
+
+    h2 {
+      font-size: 1.125rem;
+      margin-bottom: var(--space-md);
+      gap: var(--space-xs);
+
+      &::before {
+        width: 3px;
+      }
+    }
+
+    h3 {
+      font-size: 1rem;
+      margin-top: var(--space-lg);
+      margin-bottom: var(--space-sm);
+    }
+
+    p {
+      margin-bottom: var(--space-sm);
+      font-size: 0.8125rem;
+    }
+
+    ul, ol {
+      margin-bottom: var(--space-sm);
+      padding-left: var(--space-lg);
+    }
+
+    li {
+      margin-bottom: 4px;
+      font-size: 0.8125rem;
+    }
 
     table {
       font-size: 0.8125rem;
+      margin: var(--space-lg) 0;
 
       th, td {
         padding: var(--space-xs) var(--space-sm);
       }
     }
   }
+}
 
+// Responsive - Small mobile
+@media (max-width: 640px) {
+  .info-box {
+    flex-direction: column;
+  }
 }

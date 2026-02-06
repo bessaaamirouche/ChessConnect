@@ -44,7 +44,8 @@ $text-muted-color: #6b6965;
     margin: 0 0 var(--space-sm);
 
     @media (max-width: 768px) {
-      font-size: 1.5rem;
+      font-size: 1.25rem;
+      margin-bottom: 4px;
     }
   }
 
@@ -52,6 +53,18 @@ $text-muted-color: #6b6965;
     font-size: 1rem;
     color: var(--text-muted);
     margin: 0;
+
+    @media (max-width: 768px) {
+      font-size: 0.875rem;
+    }
+  }
+
+  @media (max-width: 768px) {
+    margin-bottom: var(--space-lg);
+
+    ng-icon {
+      margin-bottom: var(--space-sm);
+    }
   }
 }
 
@@ -61,6 +74,11 @@ $text-muted-color: #6b6965;
   gap: var(--space-sm);
   justify-content: center;
   margin-bottom: var(--space-xl);
+
+  @media (max-width: 768px) {
+    gap: var(--space-xs);
+    margin-bottom: var(--space-lg);
+  }
 }
 
 .faq-category {
@@ -88,12 +106,21 @@ $text-muted-color: #6b6965;
       color: var(--text-inverse);
     }
   }
+
+  @media (max-width: 768px) {
+    padding: 6px var(--space-sm);
+    font-size: 0.8125rem;
+  }
 }
 
 .faq-list {
   display: flex;
   flex-direction: column;
   gap: var(--space-sm);
+
+  @media (max-width: 768px) {
+    gap: var(--space-xs);
+  }
 }
 
 .faq-item {
@@ -133,6 +160,15 @@ $text-muted-color: #6b6965;
       flex-shrink: 0;
       color: var(--gold-400);
     }
+
+    @media (max-width: 768px) {
+      padding: var(--space-sm) var(--space-md);
+      gap: var(--space-sm);
+
+      span {
+        font-size: 0.875rem;
+      }
+    }
   }
 
   &__answer {
@@ -143,6 +179,15 @@ $text-muted-color: #6b6965;
       font-size: 0.9375rem;
       line-height: 1.7;
       color: var(--text-secondary);
+    }
+
+    @media (max-width: 768px) {
+      padding: 0 var(--space-md) var(--space-md);
+
+      p {
+        font-size: 0.8125rem;
+        line-height: 1.5;
+      }
     }
   }
 }
@@ -166,6 +211,21 @@ $text-muted-color: #6b6965;
     font-size: 0.9375rem;
     color: var(--text-muted);
     margin: 0 0 var(--space-lg);
+  }
+
+  @media (max-width: 768px) {
+    margin-top: var(--space-lg);
+    padding: var(--space-lg) var(--space-md);
+    border-radius: var(--radius-md);
+
+    h2 {
+      font-size: 1.125rem;
+    }
+
+    p {
+      font-size: 0.8125rem;
+      margin-bottom: var(--space-md);
+    }
   }
 }
 

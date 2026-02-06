@@ -58,14 +58,28 @@ $text-muted: #6b6965;
   padding: var(--space-xl);
   padding-top: 100px;
 
+  @include respond-down(md) {
+    padding: var(--space-md);
+    padding-top: 80px;
+  }
+
   h2 {
     font-size: 1.5rem;
     margin-bottom: var(--space-md);
+
+    @include respond-down(md) {
+      font-size: 1.25rem;
+    }
   }
 
   p {
     color: $ivory-muted;
     margin-bottom: var(--space-xl);
+
+    @include respond-down(md) {
+      font-size: 0.875rem;
+      margin-bottom: var(--space-lg);
+    }
   }
 }
 
@@ -76,6 +90,11 @@ $text-muted: #6b6965;
   display: flex;
   align-items: flex-end;
   padding: 100px var(--space-lg) var(--space-3xl);
+
+  @include respond-down(md) {
+    min-height: 45vh;
+    padding: 80px var(--space-md) var(--space-xl);
+  }
 
   &__image {
     position: absolute;
@@ -112,6 +131,10 @@ $text-muted: #6b6965;
     justify-content: flex-start;
     align-items: center;
     margin-bottom: var(--space-lg);
+
+    @include respond-down(md) {
+      margin-bottom: var(--space-md);
+    }
   }
 
   &__category {
@@ -130,6 +153,10 @@ $text-muted: #6b6965;
     font-weight: 700;
     line-height: 1.2;
     margin-bottom: var(--space-lg);
+
+    @include respond-down(md) {
+      margin-bottom: var(--space-md);
+    }
   }
 
   &__meta {
@@ -139,6 +166,10 @@ $text-muted: #6b6965;
     gap: var(--space-sm);
     font-size: 0.9375rem;
     color: $ivory-muted;
+
+    @include respond-down(md) {
+      font-size: 0.8125rem;
+    }
   }
 
   &__separator {
@@ -157,6 +188,10 @@ $text-muted: #6b6965;
   padding: var(--space-3xl) var(--space-lg);
   background: $bg-section;
 
+  @include respond-down(md) {
+    padding: var(--space-xl) var(--space-md);
+  }
+
   &__container {
     max-width: 800px;
     margin: 0 auto;
@@ -165,6 +200,10 @@ $text-muted: #6b6965;
 
 .article-body {
   margin-bottom: var(--space-3xl);
+
+  @include respond-down(md) {
+    margin-bottom: var(--space-xl);
+  }
 }
 
 // Prose styles for article content
@@ -173,6 +212,11 @@ $text-muted: #6b6965;
   line-height: 1.8;
   color: $ivory;
 
+  @include respond-down(md) {
+    font-size: 0.9375rem;
+    line-height: 1.7;
+  }
+
   h2 {
     font-family: var(--font-display);
     font-size: 1.75rem;
@@ -180,6 +224,12 @@ $text-muted: #6b6965;
     margin-top: var(--space-2xl);
     margin-bottom: var(--space-md);
     color: $ivory;
+
+    @include respond-down(md) {
+      font-size: 1.25rem;
+      margin-top: var(--space-xl);
+      margin-bottom: var(--space-sm);
+    }
   }
 
   h3 {
@@ -189,11 +239,21 @@ $text-muted: #6b6965;
     margin-top: var(--space-xl);
     margin-bottom: var(--space-md);
     color: $ivory;
+
+    @include respond-down(md) {
+      font-size: 1.125rem;
+      margin-top: var(--space-lg);
+      margin-bottom: var(--space-sm);
+    }
   }
 
   p {
     margin-bottom: var(--space-md);
     color: $ivory-muted;
+
+    @include respond-down(md) {
+      margin-bottom: var(--space-sm);
+    }
   }
 
   strong {
@@ -216,10 +276,19 @@ $text-muted: #6b6965;
     margin-bottom: var(--space-md);
     padding-left: var(--space-xl);
     color: $ivory-muted;
+
+    @include respond-down(md) {
+      padding-left: var(--space-lg);
+      margin-bottom: var(--space-sm);
+    }
   }
 
   li {
     margin-bottom: var(--space-sm);
+
+    @include respond-down(md) {
+      margin-bottom: var(--space-xs);
+    }
   }
 
   blockquote {
@@ -228,6 +297,11 @@ $text-muted: #6b6965;
     margin: var(--space-xl) 0;
     font-style: italic;
     color: $ivory-muted;
+
+    @include respond-down(md) {
+      padding-left: var(--space-md);
+      margin: var(--space-lg) 0;
+    }
   }
 
   table {
@@ -235,10 +309,19 @@ $text-muted: #6b6965;
     border-collapse: collapse;
     margin: var(--space-xl) 0;
 
+    @include respond-down(md) {
+      margin: var(--space-lg) 0;
+      font-size: 0.8125rem;
+    }
+
     th, td {
       padding: var(--space-sm) var(--space-md);
       border: 1px solid rgba($gold, 0.2);
       text-align: left;
+
+      @include respond-down(md) {
+        padding: var(--space-xs) var(--space-sm);
+      }
     }
 
     th {
@@ -268,6 +351,11 @@ $text-muted: #6b6965;
     overflow-x: auto;
     margin: var(--space-xl) 0;
 
+    @include respond-down(md) {
+      padding: var(--space-md);
+      margin: var(--space-lg) 0;
+    }
+
     code {
       background: none;
       padding: 0;
@@ -285,14 +373,31 @@ $text-muted: #6b6965;
   border: 1px solid rgba($gold, 0.1);
   border-radius: var(--radius-lg);
 
+  @include respond-down(md) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-sm);
+    padding: var(--space-md);
+    border-radius: var(--radius-md);
+  }
+
   > span {
     font-size: 0.875rem;
     color: $ivory-muted;
+
+    @include respond-down(md) {
+      font-size: 0.8125rem;
+    }
   }
 
   &__buttons {
     display: flex;
     gap: var(--space-sm);
+
+    @include respond-down(md) {
+      flex-wrap: wrap;
+      gap: var(--space-xs);
+    }
   }
 
   &__btn {
@@ -304,6 +409,11 @@ $text-muted: #6b6965;
     font-size: 0.8125rem;
     cursor: pointer;
     transition: all var(--transition-fast);
+
+    @include respond-down(md) {
+      padding: var(--space-xs) var(--space-sm);
+      font-size: 0.75rem;
+    }
 
     &:hover {
       background: $gold;
@@ -318,6 +428,10 @@ $text-muted: #6b6965;
   padding: var(--space-3xl) var(--space-lg);
   background: $bg-dark;
 
+  @include respond-down(md) {
+    padding: var(--space-xl) var(--space-md);
+  }
+
   &__container {
     max-width: 1200px;
     margin: 0 auto;
@@ -329,12 +443,21 @@ $text-muted: #6b6965;
     font-weight: 700;
     text-align: center;
     margin-bottom: var(--space-2xl);
+
+    @include respond-down(md) {
+      font-size: 1.25rem;
+      margin-bottom: var(--space-lg);
+    }
   }
 
   &__grid {
     display: grid;
     grid-template-columns: 1fr;
     gap: var(--space-lg);
+
+    @include respond-down(md) {
+      gap: var(--space-md);
+    }
 
     @include respond-to(md) {
       grid-template-columns: repeat(3, 1fr);
@@ -348,6 +471,10 @@ $text-muted: #6b6965;
   border-radius: var(--radius-lg);
   overflow: hidden;
   transition: all 0.4s ease;
+
+  @include respond-down(md) {
+    border-radius: var(--radius-md);
+  }
 
   &:hover {
     transform: translateY(-4px);
@@ -371,6 +498,10 @@ $text-muted: #6b6965;
 
   &__content {
     padding: var(--space-md);
+
+    @include respond-down(md) {
+      padding: var(--space-sm) var(--space-md);
+    }
   }
 
   &__category {
@@ -383,6 +514,10 @@ $text-muted: #6b6965;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     margin-bottom: var(--space-sm);
+
+    @include respond-down(md) {
+      margin-bottom: var(--space-xs);
+    }
   }
 
   &__title {
@@ -395,6 +530,11 @@ $text-muted: #6b6965;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+
+    @include respond-down(md) {
+      font-size: 0.875rem;
+      margin-bottom: var(--space-xs);
+    }
   }
 
   &__reading {
@@ -411,6 +551,10 @@ $text-muted: #6b6965;
   padding: var(--space-3xl) var(--space-lg);
   background: $bg-section;
 
+  @include respond-down(md) {
+    padding: var(--space-xl) var(--space-md);
+  }
+
   &__container {
     max-width: 600px;
     margin: 0 auto;
@@ -420,16 +564,30 @@ $text-muted: #6b6965;
     border: 1px solid rgba($gold, 0.2);
     border-radius: var(--radius-xl);
 
+    @include respond-down(md) {
+      padding: var(--space-lg);
+      border-radius: var(--radius-md);
+    }
+
     h2 {
       font-family: var(--font-display);
       font-size: 1.5rem;
       font-weight: 700;
       margin-bottom: var(--space-sm);
+
+      @include respond-down(md) {
+        font-size: 1.125rem;
+      }
     }
 
     p {
       color: $ivory-muted;
       margin-bottom: var(--space-xl);
+
+      @include respond-down(md) {
+        font-size: 0.875rem;
+        margin-bottom: var(--space-lg);
+      }
     }
   }
 }
@@ -447,6 +605,11 @@ $text-muted: #6b6965;
   transition: all 0.3s ease;
   cursor: pointer;
 
+  @include respond-down(md) {
+    padding: var(--space-sm) var(--space-lg);
+    font-size: 0.8125rem;
+  }
+
   &--primary {
     background: $gold;
     color: $bg-dark;
@@ -460,6 +623,11 @@ $text-muted: #6b6965;
   &--lg {
     padding: var(--space-md) var(--space-2xl);
     font-size: 1rem;
+
+    @include respond-down(md) {
+      padding: var(--space-sm) var(--space-xl);
+      font-size: 0.875rem;
+    }
   }
 }
 

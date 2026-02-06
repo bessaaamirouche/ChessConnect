@@ -168,17 +168,65 @@ $text-muted: #6b6965;
 }
 
 // Responsive
-@media (max-width: 640px) {
+@media (max-width: 768px) {
+  .legal-header {
+    padding: 100px var(--space-md) var(--space-lg);
+
+    &__title {
+      font-size: clamp(1.25rem, 5vw, 1.75rem);
+      margin-bottom: var(--space-sm);
+    }
+
+    &__date {
+      font-size: 0.8125rem;
+    }
+  }
+
+  .legal-content {
+    padding: var(--space-lg) var(--space-md) var(--space-xl);
+  }
+
   .prose {
-    font-size: 0.9375rem;
+    font-size: 0.875rem;
+    line-height: 1.7;
+
+    section {
+      margin-bottom: var(--space-lg);
+      padding-bottom: var(--space-lg);
+    }
+
+    h2 {
+      font-size: 1.125rem;
+      margin-bottom: var(--space-md);
+      gap: var(--space-xs);
+    }
+
+    h3 {
+      font-size: 1rem;
+      margin-top: var(--space-lg);
+      margin-bottom: var(--space-sm);
+    }
+
+    p {
+      margin-bottom: var(--space-sm);
+    }
+
+    ul, ol {
+      margin-bottom: var(--space-sm);
+      padding-left: var(--space-lg);
+    }
+
+    li {
+      margin-bottom: 4px;
+    }
 
     table {
       font-size: 0.8125rem;
+      margin: var(--space-md) 0;
 
       th, td {
         padding: var(--space-xs) var(--space-sm);
       }
     }
   }
-
 }

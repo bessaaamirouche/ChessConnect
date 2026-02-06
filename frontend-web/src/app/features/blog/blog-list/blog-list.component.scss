@@ -23,6 +23,10 @@ $text-muted: #6b6965;
   background: linear-gradient(180deg, $bg-dark 0%, $bg-section 100%);
   text-align: center;
 
+  @include respond-down(md) {
+    padding: 100px var(--space-md) var(--space-xl);
+  }
+
   &__container {
     max-width: 800px;
     margin: 0 auto;
@@ -37,11 +41,19 @@ $text-muted: #6b6965;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+
+    @include respond-down(md) {
+      margin-bottom: var(--space-sm);
+    }
   }
 
   &__subtitle {
     font-size: 1.125rem;
     color: $ivory-muted;
+
+    @include respond-down(md) {
+      font-size: 0.9375rem;
+    }
   }
 }
 
@@ -50,6 +62,10 @@ $text-muted: #6b6965;
   padding: var(--space-xl) var(--space-lg);
   background: $bg-section;
   border-bottom: 1px solid rgba($gold, 0.1);
+
+  @include respond-down(md) {
+    padding: var(--space-md) var(--space-md);
+  }
 
   &__container {
     max-width: 1200px;
@@ -115,6 +131,10 @@ $text-muted: #6b6965;
 // Articles Section
 .articles-section {
   padding: var(--space-3xl) var(--space-lg);
+
+  @include respond-down(md) {
+    padding: var(--space-xl) var(--space-md);
+  }
 }
 
 .articles-container {
@@ -126,6 +146,10 @@ $text-muted: #6b6965;
   display: grid;
   grid-template-columns: 1fr;
   gap: var(--space-xl);
+
+  @include respond-down(md) {
+    gap: var(--space-md);
+  }
 
   @include respond-to(md) {
     grid-template-columns: repeat(2, 1fr);
@@ -143,6 +167,10 @@ $text-muted: #6b6965;
   border-radius: var(--radius-xl);
   overflow: hidden;
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+
+  @include respond-down(md) {
+    border-radius: var(--radius-md);
+  }
 
   &:hover {
     transform: translateY(-8px);
@@ -172,6 +200,10 @@ $text-muted: #6b6965;
 
   &__content {
     padding: var(--space-lg);
+
+    @include respond-down(md) {
+      padding: var(--space-md);
+    }
   }
 
   &__category {
@@ -184,6 +216,10 @@ $text-muted: #6b6965;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     margin-bottom: var(--space-md);
+
+    @include respond-down(md) {
+      margin-bottom: var(--space-sm);
+    }
   }
 
   &__title {
@@ -197,6 +233,10 @@ $text-muted: #6b6965;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+
+    @include respond-down(md) {
+      font-size: 1.125rem;
+    }
   }
 
   &__excerpt {
@@ -208,6 +248,12 @@ $text-muted: #6b6965;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
+
+    @include respond-down(md) {
+      font-size: 0.8125rem;
+      line-height: 1.5;
+      margin-bottom: var(--space-sm);
+    }
   }
 
   &__meta {
@@ -216,6 +262,11 @@ $text-muted: #6b6965;
     gap: var(--space-md);
     font-size: 0.8125rem;
     color: $text-muted;
+
+    @include respond-down(md) {
+      font-size: 0.75rem;
+      gap: var(--space-sm);
+    }
   }
 
   &__reading {
@@ -229,6 +280,10 @@ $text-muted: #6b6965;
 .loading {
   text-align: center;
   padding: var(--space-3xl);
+
+  @include respond-down(md) {
+    padding: var(--space-xl);
+  }
 
   &__spinner {
     width: 40px;
@@ -256,6 +311,10 @@ $text-muted: #6b6965;
   text-align: center;
   padding: var(--space-3xl);
   color: $ivory-muted;
+
+  @include respond-down(md) {
+    padding: var(--space-xl);
+  }
 }
 
 // Pagination
@@ -266,6 +325,11 @@ $text-muted: #6b6965;
   gap: var(--space-md);
   margin-top: var(--space-3xl);
   flex-wrap: wrap;
+
+  @include respond-down(md) {
+    margin-top: var(--space-xl);
+    gap: var(--space-sm);
+  }
 
   &__btn {
     display: flex;
@@ -279,6 +343,11 @@ $text-muted: #6b6965;
     font-size: 0.875rem;
     cursor: pointer;
     transition: all var(--transition-fast);
+
+    @include respond-down(md) {
+      padding: var(--space-xs) var(--space-md);
+      font-size: 0.8125rem;
+    }
 
     &:hover:not(:disabled) {
       background: rgba($gold, 0.2);
@@ -309,6 +378,12 @@ $text-muted: #6b6965;
     font-size: 0.875rem;
     cursor: pointer;
     transition: all var(--transition-fast);
+
+    @include respond-down(md) {
+      width: 32px;
+      height: 32px;
+      font-size: 0.8125rem;
+    }
 
     &:hover {
       background: rgba($gold, 0.1);

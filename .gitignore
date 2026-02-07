@@ -53,4 +53,5 @@ logs/
 # =========================
 backups/*.sql.gz
 backups/*.sql
+backups/*.sha256
 !backups/.gitkeep

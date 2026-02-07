@@ -842,7 +842,11 @@
       "pay": "Pay",
       "processing": "Loading..."
     },
-    "creditTopUp": "Credit top-up"
+    "creditTopUp": "Credit top-up",
+    "topUpSuccess": {
+      "title": "Top-up successful",
+      "message": "Your top-up of {{amount}} has been completed successfully."
+    }
   },
   "subscription": {
     "title": "Subscription",

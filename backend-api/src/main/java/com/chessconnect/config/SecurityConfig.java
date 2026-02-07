@@ -32,12 +32,15 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final UserDetailsService userDetailsService;
     private final com.chessconnect.security.RateLimitingFilter rateLimitingFilter;
+    private final com.chessconnect.security.MaintenanceFilter maintenanceFilter;
 
     public SecurityConfig(JwtAuthenticationFilter jwtAuthFilter, UserDetailsService userDetailsService,
-                          com.chessconnect.security.RateLimitingFilter rateLimitingFilter) {
+                          com.chessconnect.security.RateLimitingFilter rateLimitingFilter,
+                          com.chessconnect.security.MaintenanceFilter maintenanceFilter) {
         this.jwtAuthFilter = jwtAuthFilter;
         this.userDetailsService = userDetailsService;
         this.rateLimitingFilter = rateLimitingFilter;
+        this.maintenanceFilter = maintenanceFilter;
     }
 
     @Bean
@@ -51,6 +54,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/auth/**").permitAll()
                         .requestMatchers("/ratings/teacher/**").permitAll()
                         .requestMatchers("/public/**").permitAll()
+                        .requestMatchers("/teachers/admin/**").hasRole("ADMIN")
                         .requestMatchers("/teachers/**").permitAll()
                         .requestMatchers("/payments/webhooks/**").permitAll()
                         .requestMatchers("/payments/config").permitAll()
@@ -59,7 +63,7 @@ public class SecurityConfig {
                         .requestMatchers("/payments/checkout/lesson/confirm").permitAll()
                         .requestMatchers("/progress/levels/**").permitAll()
                         .requestMatchers("/availabilities/teacher/**").permitAll()
-                        .requestMatchers("/payments/admin/**").permitAll()
+                        .requestMatchers("/payments/admin/**").hasRole("ADMIN")
                         .requestMatchers("/contact/**").permitAll()
                         .requestMatchers("/recordings/webhook").permitAll()
                         .requestMatchers("/push/vapid-key").permitAll()
@@ -70,6 +74,7 @@ public class SecurityConfig {
                         .requestMatchers("/error").permitAll()
                         .requestMatchers("/tracking/**").permitAll()
                         .requestMatchers("/programme/public/**").permitAll()
+                        .requestMatchers("/maintenance/**").permitAll()
                         // Actuator endpoints
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers("/actuator/health/**").permitAll()
@@ -83,6 +88,7 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authenticationProvider(authenticationProvider())
+                .addFilterBefore(maintenanceFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(rateLimitingFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 

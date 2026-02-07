@@ -32,6 +32,10 @@ public class AuthService {
 
     private static final Logger log = LoggerFactory.getLogger(AuthService.class);
 
+    /** Internal result containing both the JWT (for cookie) and the public response (for body). */
+    public record LoginResult(String token, AuthResponse response) {}
+
+
     private final UserRepository userRepository;
     private final ProgressRepository progressRepository;
     private final PasswordEncoder passwordEncoder;
@@ -62,6 +66,11 @@ public class AuthService {
     public RegisterResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.email())) {
             throw new IllegalArgumentException("Cet email est deja utilise");
+        }
+
+        // Security: only STUDENT and TEACHER roles are allowed via registration
+        if (request.role() != UserRole.STUDENT && request.role() != UserRole.TEACHER) {
+            throw new IllegalArgumentException("Role invalide");
         }
 
         User user = new User();
@@ -119,7 +128,7 @@ public class AuthService {
     }
 
     @Transactional
-    public AuthResponse login(LoginRequest request, String clientIp) {
+    public LoginResult login(LoginRequest request, String clientIp) {
         String email = request.email();
 
         // Check if account is locked due to too many failed attempts
@@ -174,19 +183,19 @@ public class AuthService {
 
         log.info("Successful login: userId={}, role={}, ip={}", user.getId(), user.getRole(), clientIp);
 
-        return new AuthResponse(
-                token,
+        AuthResponse authResponse = new AuthResponse(
                 user.getId(),
                 user.getEmail(),
                 user.getFirstName(),
                 user.getLastName(),
                 user.getRole()
         );
+        return new LoginResult(token, authResponse);
     }
 
     // Backward compatibility method
     @Transactional
-    public AuthResponse login(LoginRequest request) {
+    public LoginResult login(LoginRequest request) {
         return login(request, "unknown");
     }
 
@@ -197,7 +206,7 @@ public class AuthService {
         return email.substring(0, 2) + "***" + email.substring(atIndex);
     }
 
-    public AuthResponse adminLogin(AdminLoginRequest request) {
+    public LoginResult adminLogin(AdminLoginRequest request) {
         // Authenticate via standard auth manager (uses DB credentials)
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.username(), request.password())
@@ -224,13 +233,13 @@ public class AuthService {
         UserDetailsImpl userDetails = new UserDetailsImpl(admin);
         String token = jwtService.generateToken(userDetails);
 
-        return new AuthResponse(
-                token,
+        AuthResponse authResponse = new AuthResponse(
                 admin.getId(),
                 admin.getEmail(),
                 admin.getFirstName(),
                 admin.getLastName(),
                 admin.getRole()
         );
+        return new LoginResult(token, authResponse);
     }
 }

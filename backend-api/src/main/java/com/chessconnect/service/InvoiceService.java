@@ -35,12 +35,12 @@ public class InvoiceService {
 
     private static final Logger log = LoggerFactory.getLogger(InvoiceService.class);
 
-    // Platform info for invoices (from KBIS)
+    // Platform info for invoices - TODO: fill with your company details
     private static final String PLATFORM_NAME = "Mychess.fr";
-    private static final String PLATFORM_OWNER = "CANDLE";
-    private static final String PLATFORM_ADDRESS = "10 rue de Penthievre, 75008 Paris";
-    private static final String PLATFORM_SIREN = "834 446 510";
-    private static final String PLATFORM_RCS = "R.C.S. Paris";
+    private static final String PLATFORM_OWNER = "[Raison sociale à compléter]";
+    private static final String PLATFORM_ADDRESS = "[Adresse à compléter]";
+    private static final String PLATFORM_SIREN = "[SIREN à compléter]";
+    private static final String PLATFORM_RCS = "[RCS à compléter]";
     private static final String PLATFORM_EMAIL = "support@mychess.fr";
     private static final String PLATFORM_WEBSITE = "www.mychess.fr";
 
@@ -858,7 +858,7 @@ public class InvoiceService {
 
         // VAT mention
         Paragraph vatMention = new Paragraph(
-                "TVA non applicable, art. 293 B du CGI",
+                "[Mention TVA à compléter]",
                 legalFont
         );
         document.add(vatMention);

@@ -65,6 +65,8 @@ stripe:
 app:
   frontend-url: ${FRONTEND_URL:http://localhost:4200}
   name: Mychess
+  maintenance:
+    enabled: ${MAINTENANCE_MODE:false}
   admin:
     email: ${ADMIN_EMAIL:support@mychess.fr}
 
@@ -204,5 +206,5 @@ logging:
 management:
   endpoint:
     health:
-      show-details: always
-      show-components: always
+      show-details: when_authorized
+      show-components: when_authorized

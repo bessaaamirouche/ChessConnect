@@ -253,8 +253,8 @@ public class UserController {
                 .bio(user.getBio())
                 .avatarUrl(user.getAvatarUrl())
                 .languages(TeacherProfileResponse.parseLanguages(user.getLanguages()))
-                .iban(user.getIban())
-                .bic(user.getBic())
+                .iban(maskIban(user.getIban()))
+                .bic(maskBic(user.getBic()))
                 .accountHolderName(user.getAccountHolderName())
                 .siret(user.getSiret())
                 .companyName(user.getCompanyName())
@@ -263,5 +263,15 @@ public class UserController {
                 .emailRemindersEnabled(user.getEmailRemindersEnabled())
                 .pushNotificationsEnabled(user.getPushNotificationsEnabled())
                 .build();
+    }
+
+    private String maskIban(String iban) {
+        if (iban == null || iban.length() < 8) return iban;
+        return iban.substring(0, 4) + "****" + iban.substring(iban.length() - 4);
+    }
+
+    private String maskBic(String bic) {
+        if (bic == null || bic.length() < 4) return bic;
+        return bic.substring(0, 4) + "****";
     }
 }

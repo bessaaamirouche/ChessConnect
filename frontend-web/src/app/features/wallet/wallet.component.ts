@@ -1,10 +1,11 @@
-import { Component, OnInit, signal, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, OnInit, signal, ChangeDetectionStrategy, inject, ChangeDetectorRef, ApplicationRef } from '@angular/core';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { WalletService, CreditTransaction } from '../../core/services/wallet.service';
 import { AuthService } from '../../core/services/auth.service';
 import { PaymentService } from '../../core/services/payment.service';
 import { UrlValidatorService } from '../../core/services/url-validator.service';
+
 import { EmbeddedCheckoutComponent } from '../../shared/embedded-checkout/embedded-checkout.component';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { TranslateModule } from '@ngx-translate/core';
@@ -55,7 +56,6 @@ export class WalletComponent implements OnInit {
   showCheckout = signal(false);
   checkoutClientSecret = signal<string | null>(null);
   checkoutSessionId = signal<string | null>(null);
-
   topUpOptions: TopUpOption[] = [
     { amountCents: 5000, label: '50 €' },
     { amountCents: 10000, label: '100 €', popular: true },
@@ -63,6 +63,8 @@ export class WalletComponent implements OnInit {
   ];
 
   private urlValidator = inject(UrlValidatorService);
+  private cdr = inject(ChangeDetectorRef);
+  private appRef = inject(ApplicationRef);
 
   constructor(
     public walletService: WalletService,
@@ -79,7 +81,7 @@ export class WalletComponent implements OnInit {
     // Check for top-up result
     this.route.queryParams.subscribe(params => {
       if (params['topup'] === 'success' && params['session_id']) {
-        this.confirmTopUp(params['session_id']);
+        this.confirmTopUp(params['session_id'], 0);
       }
     });
   }
@@ -158,27 +160,39 @@ export class WalletComponent implements OnInit {
   onCheckoutCompleted(): void {
     const sessionId = this.checkoutSessionId();
     this.closeCheckout();
+    this.cdr.detectChanges();
 
     if (sessionId) {
-      this.confirmTopUp(sessionId);
+      setTimeout(() => {
+        this.confirmTopUp(sessionId, 0);
+      }, 2000);
     }
   }
 
-  private confirmTopUp(sessionId: string): void {
+  private confirmTopUp(sessionId: string, attempt: number): void {
     this.walletService.confirmTopUp(sessionId).subscribe({
       next: (response) => {
         if (response.success) {
-          // Reload wallet and transactions
-          this.walletService.loadWallet().subscribe();
-          this.walletService.loadTransactions().subscribe();
+          // confirmTopUp already updates walletSignal via tap() in the service,
+          // so only reload transactions for the new line item
+          this.walletService.loadTransactions().subscribe(() => {
+            this.cdr.detectChanges();
+            this.appRef.tick();
+          });
+        } else if (attempt < 3) {
+          setTimeout(() => this.confirmTopUp(sessionId, attempt + 1), 2000);
+          return;
         }
-        // Clear query params
         this.router.navigate([], {
           relativeTo: this.route,
           queryParams: {}
         });
       },
       error: () => {
+        if (attempt < 3) {
+          setTimeout(() => this.confirmTopUp(sessionId, attempt + 1), 2000);
+          return;
+        }
         this.router.navigate([], {
           relativeTo: this.route,
           queryParams: {}

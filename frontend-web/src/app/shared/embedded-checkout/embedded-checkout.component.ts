@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, signal, PLATFORM_ID, Inject, ElementRef, ViewChild, ViewEncapsulation } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, signal, PLATFORM_ID, Inject, ElementRef, ViewChild, ViewEncapsulation, ApplicationRef, ChangeDetectorRef } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { heroXMark, heroCreditCard } from '@ng-icons/heroicons/outline';
@@ -196,10 +196,17 @@ export class EmbeddedCheckoutComponent implements OnInit, OnDestroy {
   private checkout: StripeEmbeddedCheckout | null = null;
   private isBrowser: boolean;
 
+  private appRef: ApplicationRef;
+  private cdr: ChangeDetectorRef;
+
   constructor(
     private stripeService: StripeService,
+    appRef: ApplicationRef,
+    cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) platformId: Object
   ) {
+    this.appRef = appRef;
+    this.cdr = cdr;
     this.isBrowser = isPlatformBrowser(platformId);
   }
 
@@ -229,6 +236,8 @@ export class EmbeddedCheckoutComponent implements OnInit, OnDestroy {
         clientSecret: this.clientSecret,
         onComplete: () => {
           this.completed.emit();
+          this.cdr.detectChanges();
+          this.appRef.tick();
         }
       });
 

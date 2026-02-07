@@ -3,6 +3,7 @@ import { RouterOutlet } from '@angular/router';
 import { ToastComponent } from './shared/toast/toast.component';
 import { GlobalDialogComponent } from './shared/global-dialog/global-dialog.component';
 import { CookieConsentComponent } from './shared/cookie-consent/cookie-consent.component';
+import { MaintenanceBannerComponent } from './shared/maintenance-banner/maintenance-banner.component';
 import { AuthService } from './core/services/auth.service';
 import { SseService } from './core/services/sse.service';
 import { InactivityService } from './core/services/inactivity.service';
@@ -14,9 +15,10 @@ import { LanguageService } from './core/services/language.service';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, ToastComponent, GlobalDialogComponent, CookieConsentComponent],
+  imports: [RouterOutlet, ToastComponent, GlobalDialogComponent, CookieConsentComponent, MaintenanceBannerComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
+    <app-maintenance-banner></app-maintenance-banner>
     <main id="main-content">
       <router-outlet></router-outlet>
     </main>

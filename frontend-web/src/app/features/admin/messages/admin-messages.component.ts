@@ -634,11 +634,20 @@ export class AdminMessagesComponent implements OnInit {
   }
 
   highlightSearch(content: string): string {
-    if (!this.searchQuery.trim()) return content;
+    if (!this.searchQuery.trim()) return this.escapeHtml(content);
 
+    const escaped = this.escapeHtml(content);
     const query = this.searchQuery.trim();
     const regex = new RegExp(`(${this.escapeRegex(query)})`, 'gi');
-    return content.replace(regex, '<span class="highlight">$1</span>');
+    return escaped.replace(regex, '<span class="highlight">$1</span>');
+  }
+
+  private escapeHtml(str: string): string {
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
   }
 
   private escapeRegex(str: string): string {

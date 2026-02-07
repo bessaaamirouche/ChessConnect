@@ -10,6 +10,8 @@ import java.util.List;
 public interface CreditTransactionRepository extends JpaRepository<CreditTransaction, Long> {
     List<CreditTransaction> findByUserIdOrderByCreatedAtDesc(Long userId);
 
+    boolean existsByStripePaymentIntentId(String stripePaymentIntentId);
+
     List<CreditTransaction> findByLessonId(Long lessonId);
 
     void deleteByUserId(Long userId);

@@ -78,6 +78,12 @@ Apres le premier demarrage, creez un compte via l'interface:
 
 ## Fonctionnalites
 
+### Mode Maintenance
+- **Backend** : `MaintenanceController` expose `/api/maintenance/status`
+- **Backend** : `MaintenanceFilter` bloque les operations sensibles quand le mode est actif
+- **Frontend** : `MaintenanceService` interroge le statut et affiche une banniere d'alerte
+- **Config** : `app.maintenance.enabled=true/false` dans `application.yml` ou variable d'environnement
+
 ### Fonctionnalites Principales
 - **Inscription Joueur/Coach** : Creation de compte avec roles et badges visuels
 - **Premier Cours Offert** : Les nouveaux joueurs beneficient d'un premier cours gratuit
@@ -248,7 +254,7 @@ Systeme de credit pour les joueurs :
 
 Systeme de facturation conforme :
 - **Generation automatique** : Facture PDF a chaque paiement (cours ou credit wallet)
-- **Mentions legales** : CANDLE (SIREN, TVA non applicable art. 293B CGI)
+- **Mentions legales** : Infos entreprise configurables dans InvoiceService.java
 - **Avoirs (Credit Notes)** : Generation automatique lors des remboursements
 - **Filtres par date** : Recherche par plage de dates dans l'historique
 - **Telechargement PDF** : Ouverture dans un nouvel onglet
@@ -442,6 +448,11 @@ Module d'exercice contre myChessBot accessible depuis l'historique des cours :
 | POST    | `/webhook`               | Webhook Jibri                      | Non     |
 | GET     | `/video/{lessonId}`      | Recuperer la video d'un cours      | JWT     |
 
+### Maintenance (`/api/maintenance`)
+| Methode | Endpoint    | Description                        | Auth |
+|---------|-------------|------------------------------------|------|
+| GET     | `/status`   | Statut du mode maintenance         | Non  |
+
 ## Variables d'Environnement
 
 Creer un fichier `.env` a la racine du projet (voir `.env.example`) :
@@ -527,11 +538,20 @@ ADMIN_EMAIL=support@mychess.fr
 - **Masquage IBAN** : Les IBAN sont masques dans les reponses API
 - **Webhook Validation** : HMAC-SHA256 pour Jibri et Stripe
 - **ACL Videos** : Seul le student/teacher/admin d'un cours peut acceder a son enregistrement
+- **Jitsi Room ACL** : Verification que l'utilisateur est participant du cours avant de generer un token Jitsi
+- **Wallet Pessimistic Lock** : Verrou pessimiste (`SELECT FOR UPDATE`) pour eviter les race conditions sur le solde
+- **Wallet Idempotency** : Protection contre le rejeu des paiements Stripe (verification `stripePaymentIntentId`)
+- **Admin endpoints securises** : `/teachers/admin/**` et `/payments/admin/**` restreints au role ADMIN
+- **Trusted Proxy RFC 1918** : Validation correcte des plages 172.16-31.x.x
+- **Mode Maintenance** : Filtre global pour bloquer les operations sensibles en maintenance
 
 ### Frontend
-- **CSP Headers** : Content-Security-Policy complete
+- **CSP Headers** : Content-Security-Policy complete (domaines specifiques mychess.fr, Bunny CDN)
 - **XSS Protection** : Sanitization whitelist avec DOMParser
 - **Container non-root** : Le frontend s'execute avec un utilisateur non-privilegie
+- **HSTS** : Strict-Transport-Security active
+- **Server Tokens Off** : Version nginx masquee
+- **Security Headers sur assets** : X-Content-Type-Options et X-Frame-Options sur les fichiers caches
 
 ## Performance
 
@@ -592,11 +612,11 @@ docker compose down -v
 
 | Hash | Description |
 |------|-------------|
+| 7b8d60d | Replace contact@mychess.fr with support@mychess.fr, add SIRET to legal pages |
+| bfc8c71 | Improve mobile responsive styles across public pages |
+| 141f2bf | Add /links page and unified footer across all public pages |
+| a6ed1f0 | Refactor navbar/footer into shared components, misc improvements |
+| ebf39c5 | Add optional ELO rating field for coaches |
+| 74ac416 | Add UUID support for public coach profile URLs |
 | 6d3245b | Close all programme accordion levels by default |
 | 7b68d95 | Fix missing i18n translation keys |
-| 41e39fc | Misc improvements and fixes |
-| 2dedfd2 | Add internationalization (i18n) support with French/English |
-| 4ac9a85 | Add video library feature for Premium users |
-| 6321e7f | Add video thumbnail generation |
-| ec8994e | Add SSE for real-time notifications |
-| d3dcc3d | Add video progress tracking, Bunny CDN, premium trial |

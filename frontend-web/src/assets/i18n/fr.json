@@ -842,7 +842,11 @@
       "pay": "Payer",
       "processing": "Chargement…"
     },
-    "creditTopUp": "Recharge de crédit"
+    "creditTopUp": "Recharge de crédit",
+    "topUpSuccess": {
+      "title": "Recharge effectuée",
+      "message": "La recharge de {{amount}} a été effectuée avec succès."
+    }
   },
   "subscription": {
     "title": "Abonnement",

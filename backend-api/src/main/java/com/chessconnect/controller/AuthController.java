@@ -55,16 +55,16 @@ public class AuthController {
             HttpServletRequest httpRequest,
             HttpServletResponse response) {
         String clientIp = getClientIp(httpRequest);
-        AuthResponse authResponse = authService.login(request, clientIp);
-        setAuthCookie(response, authResponse.token());
-        return ResponseEntity.ok(authResponse);
+        var loginResult = authService.login(request, clientIp);
+        setAuthCookie(response, loginResult.token());
+        return ResponseEntity.ok(loginResult.response());
     }
 
     @PostMapping("/admin-login")
     public ResponseEntity<AuthResponse> adminLogin(@Valid @RequestBody AdminLoginRequest request, HttpServletResponse response) {
-        AuthResponse authResponse = authService.adminLogin(request);
-        setAuthCookie(response, authResponse.token());
-        return ResponseEntity.ok(authResponse);
+        var loginResult = authService.adminLogin(request);
+        setAuthCookie(response, loginResult.token());
+        return ResponseEntity.ok(loginResult.response());
     }
 
     @PostMapping("/logout")
@@ -110,13 +110,19 @@ public class AuthController {
     }
 
     private boolean isTrustedProxy(String ip) {
-        return ip != null && (
-            ip.equals("127.0.0.1") ||
-            ip.equals("::1") ||
-            ip.startsWith("10.") ||
-            ip.startsWith("172.") ||
-            ip.startsWith("192.168.")
-        );
+        if (ip == null) return false;
+        if (ip.equals("127.0.0.1") || ip.equals("::1")) return true;
+        if (ip.startsWith("10.") || ip.startsWith("192.168.")) return true;
+        // RFC 1918: 172.16.0.0/12 = 172.16.x.x through 172.31.x.x only
+        if (ip.startsWith("172.")) {
+            try {
+                int second = Integer.parseInt(ip.split("\\.")[1]);
+                return second >= 16 && second <= 31;
+            } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
+                return false;
+            }
+        }
+        return false;
     }
 
     @PostMapping("/forgot-password")

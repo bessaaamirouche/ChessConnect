@@ -156,6 +156,12 @@ public class WalletService {
      */
     @Transactional
     public WalletResponse confirmTopUp(Long userId, int amountCents, String stripePaymentIntentId) {
+        // Idempotency check: prevent replay of the same payment
+        if (stripePaymentIntentId != null && transactionRepository.existsByStripePaymentIntentId(stripePaymentIntentId)) {
+            log.warn("Duplicate top-up attempt for paymentIntent {}", stripePaymentIntentId);
+            return getWallet(userId);
+        }
+
         StudentWallet wallet = getOrCreateWallet(userId);
 
         wallet.addCredit(amountCents);
@@ -180,11 +186,51 @@ public class WalletService {
     }
 
     /**
+     * Atomically check balance and deduct credit under pessimistic lock.
+     * Prevents race conditions (TOCTOU) on concurrent booking requests.
+     */
+    @Transactional
+    public void checkAndDeductCredit(Long userId, int amountCents) {
+        StudentWallet wallet = walletRepository.findByUserIdForUpdate(userId)
+                .orElseGet(() -> getOrCreateWallet(userId));
+
+        if (!wallet.hasEnoughCredit(amountCents)) {
+            throw new IllegalArgumentException("Crédit insuffisant. Solde actuel: " +
+                    String.format("%.2f€", wallet.getBalanceCents() / 100.0));
+        }
+
+        wallet.deductCredit(amountCents);
+        walletRepository.save(wallet);
+
+        log.info("Credit reserved for user {}: {} cents. New balance: {} cents",
+                userId, amountCents, wallet.getBalanceCents());
+    }
+
+    /**
+     * Record the deduction transaction linked to a specific lesson.
+     */
+    @Transactional
+    public void linkDeductionToLesson(Long userId, Lesson lesson, int amountCents) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        CreditTransaction transaction = new CreditTransaction();
+        transaction.setUser(user);
+        transaction.setLesson(lesson);
+        transaction.setTransactionType(CreditTransactionType.LESSON_PAYMENT);
+        transaction.setAmountCents(amountCents);
+        transaction.setDescription("Cours avec " + lesson.getTeacher().getFullName());
+        transactionRepository.save(transaction);
+    }
+
+    /**
      * Deduct credit for a lesson payment.
      */
     @Transactional
     public void deductCreditForLesson(Long userId, Lesson lesson, int amountCents) {
-        StudentWallet wallet = getOrCreateWallet(userId);
+        // Use pessimistic lock to prevent race conditions (TOCTOU)
+        StudentWallet wallet = walletRepository.findByUserIdForUpdate(userId)
+                .orElseGet(() -> getOrCreateWallet(userId));
 
         if (!wallet.hasEnoughCredit(amountCents)) {
             throw new IllegalArgumentException("Insufficient credit balance");

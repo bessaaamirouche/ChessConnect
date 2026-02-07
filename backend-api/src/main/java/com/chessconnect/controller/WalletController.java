@@ -222,16 +222,10 @@ public class WalletController {
                     .orElseThrow(() -> new RuntimeException("Teacher not found"));
             int lessonPrice = teacher.getHourlyRateCents();
 
-            // Check if user has enough credit
-            if (!walletService.hasEnoughCredit(userId, lessonPrice)) {
-                return ResponseEntity.badRequest().body(Map.of(
-                        "success", false,
-                        "error", "Crédit insuffisant. Solde actuel: " +
-                                String.format("%.2f€", walletService.getBalance(userId) / 100.0)
-                ));
-            }
+            // Atomically check and deduct credit (pessimistic lock prevents race condition)
+            walletService.checkAndDeductCredit(userId, lessonPrice);
 
-            // Book the lesson
+            // Book the lesson after credit is secured
             BookLessonRequest bookRequest = new BookLessonRequest(
                     request.teacherId(),
                     request.scheduledAt(),
@@ -243,12 +237,11 @@ public class WalletController {
 
             LessonResponse lessonResponse = lessonService.bookLesson(userId, bookRequest);
 
-            // Get the lesson entity
+            // Get the lesson entity and link the transaction
             Lesson lesson = lessonRepository.findById(lessonResponse.id())
                     .orElseThrow(() -> new RuntimeException("Lesson not found after booking"));
 
-            // Deduct credit
-            walletService.deductCreditForLesson(userId, lesson, lessonPrice);
+            walletService.linkDeductionToLesson(userId, lesson, lessonPrice);
 
             // Create payment record for tracking
             User student = userRepository.findById(userId)

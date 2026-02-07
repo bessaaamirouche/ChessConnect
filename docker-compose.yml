@@ -67,6 +67,8 @@ services:
       VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:-}
       VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY:-}
       VAPID_SUBJECT: ${VAPID_SUBJECT:-mailto:support@mychess.fr}
+      # Maintenance mode
+      MAINTENANCE_MODE: ${MAINTENANCE_MODE:-false}
     ports:
       - "8282:8282"
     volumes:

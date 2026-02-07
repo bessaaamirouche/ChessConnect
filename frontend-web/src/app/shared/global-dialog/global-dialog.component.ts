@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectorRef, effect } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DialogService } from '../../core/services/dialog.service';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
@@ -259,7 +259,19 @@ import {
 })
 export class GlobalDialogComponent {
   dialogService = inject(DialogService);
+  private cdr = inject(ChangeDetectorRef);
   inputValue = '';
+
+  constructor() {
+    // Watch dialog state changes and force re-render, even when triggered outside Angular zone
+    effect(() => {
+      // Read the signal to track it
+      this.dialogService.isOpen();
+      this.dialogService.config();
+      // Force this component to re-render
+      this.cdr.detectChanges();
+    });
+  }
 
   getIcon(): string {
     const variant = this.dialogService.config()?.variant || 'info';

@@ -1,11 +1,13 @@
 #!/bin/bash
 # finalize.sh - Called by Jibri when a recording finishes
 # This script notifies the backend API about the completed recording
+# Sends HMAC-SHA256 signature for webhook authentication
 
 set -e
 
 RECORDING_DIR="$1"
-BACKEND_URL="${BACKEND_WEBHOOK_URL:-https://api.mychess.fr/api/recordings/webhook}"
+BACKEND_URL="${BACKEND_WEBHOOK_URL:-https://mychess.fr/api/recordings/webhook}"
+WEBHOOK_SECRET="${JIBRI_WEBHOOK_SECRET:-}"
 LOG_FILE="/var/log/jibri/finalize.log"
 
 log() {
@@ -30,16 +32,40 @@ log "MP4 file: $MP4_FILE"
 log "Filename: $FILENAME"
 log "Room name: $ROOM_NAME"
 
+# Build JSON payload
+PAYLOAD="{\"filename\": \"$FILENAME\", \"path\": \"$MP4_FILE\", \"room\": \"$ROOM_NAME\"}"
+
+# Compute HMAC-SHA256 signature if secret is configured
+SIGNATURE_HEADER=""
+if [ -n "$WEBHOOK_SECRET" ]; then
+    SIGNATURE=$(echo -n "$PAYLOAD" | openssl dgst -sha256 -hmac "$WEBHOOK_SECRET" | awk '{print $2}')
+    SIGNATURE_HEADER="-H \"X-Jibri-Signature: sha256=$SIGNATURE\""
+    log "HMAC signature computed"
+else
+    log "WARNING: JIBRI_WEBHOOK_SECRET not set - sending without signature"
+fi
+
 # Call the backend webhook
 log "Calling backend webhook at $BACKEND_URL"
 
-RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
-    -H "Content-Type: application/json" \
-    -d "{\"filename\": \"$FILENAME\", \"path\": \"$MP4_FILE\", \"room\": \"$ROOM_NAME\"}" \
-    "$BACKEND_URL" \
-    --max-time 30 \
-    --retry 3 \
-    --retry-delay 5)
+if [ -n "$WEBHOOK_SECRET" ]; then
+    RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
+        -H "Content-Type: application/json" \
+        -H "X-Jibri-Signature: sha256=$SIGNATURE" \
+        -d "$PAYLOAD" \
+        "$BACKEND_URL" \
+        --max-time 30 \
+        --retry 3 \
+        --retry-delay 5)
+else
+    RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
+        -H "Content-Type: application/json" \
+        -d "$PAYLOAD" \
+        "$BACKEND_URL" \
+        --max-time 30 \
+        --retry 3 \
+        --retry-delay 5)
+fi
 
 HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
 BODY=$(echo "$RESPONSE" | sed '$d')

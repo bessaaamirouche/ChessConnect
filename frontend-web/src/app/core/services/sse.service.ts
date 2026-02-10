@@ -58,10 +58,15 @@ export class SseService {
   private reconnectAttempts = 0;
   private reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
   private userRole: 'student' | 'teacher' | null = null;
+  private visibilityHandler: (() => void) | null = null;
+  private wasConnectedBeforeHidden = false;
+  private hiddenDisconnectTimeout: ReturnType<typeof setTimeout> | null = null;
+  private intentionalDisconnect = false;
 
   private readonly MAX_RECONNECT_ATTEMPTS = 10;
-  private readonly INITIAL_RECONNECT_DELAY = 1000; // 1 second
-  private readonly MAX_RECONNECT_DELAY = 30000; // 30 seconds
+  private readonly INITIAL_RECONNECT_DELAY = 3000; // 3 seconds
+  private readonly MAX_RECONNECT_DELAY = 60000; // 60 seconds
+  private readonly HIDDEN_DISCONNECT_DELAY = 30000; // 30s grace before disconnect when tab hidden
 
   private isConnected = signal(false);
   private isConnecting = signal(false);
@@ -83,11 +88,51 @@ export class SseService {
     }
 
     this.userRole = role;
+    this.intentionalDisconnect = false;
     this.doConnect();
+    this.setupVisibilityHandler();
+  }
+
+  private setupVisibilityHandler(): void {
+    if (this.visibilityHandler) return;
+
+    this.visibilityHandler = () => {
+      if (document.hidden) {
+        // Tab hidden — disconnect after grace period to save resources
+        if (this.eventSource) {
+          this.wasConnectedBeforeHidden = true;
+          this.hiddenDisconnectTimeout = setTimeout(() => {
+            console.log('[SSE] Tab hidden for too long, disconnecting');
+            this.cleanupConnection();
+          }, this.HIDDEN_DISCONNECT_DELAY);
+        }
+      } else {
+        // Tab visible again — cancel pending disconnect or reconnect
+        if (this.hiddenDisconnectTimeout) {
+          clearTimeout(this.hiddenDisconnectTimeout);
+          this.hiddenDisconnectTimeout = null;
+        }
+        if (this.wasConnectedBeforeHidden && !this.eventSource && !this.intentionalDisconnect) {
+          console.log('[SSE] Tab visible again, reconnecting');
+          this.reconnectAttempts = 0;
+          this.doConnect();
+        }
+        this.wasConnectedBeforeHidden = false;
+      }
+    };
+
+    document.addEventListener('visibilitychange', this.visibilityHandler);
   }
 
   private doConnect(): void {
     if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    // Don't reconnect if tab is hidden
+    if (document.hidden) {
+      console.log('[SSE] Skipping connect — tab is hidden');
+      this.wasConnectedBeforeHidden = true;
       return;
     }
 
@@ -110,13 +155,15 @@ export class SseService {
     };
 
     // Handle connection error
-    this.eventSource.onerror = (error) => {
+    this.eventSource.onerror = () => {
       this.ngZone.run(() => {
-        console.error('[SSE] Connection error:', error);
+        console.warn('[SSE] Connection error');
         this.isConnected.set(false);
         this.isConnecting.set(false);
-        this.cleanup();
-        this.scheduleReconnect();
+        this.cleanupConnection();
+        if (!this.intentionalDisconnect) {
+          this.scheduleReconnect();
+        }
       });
     };
 
@@ -267,18 +314,25 @@ export class SseService {
 
   private scheduleReconnect(): void {
     if (this.reconnectAttempts >= this.MAX_RECONNECT_ATTEMPTS) {
-      console.error('[SSE] Max reconnect attempts reached. Giving up.');
+      console.warn('[SSE] Max reconnect attempts reached. Giving up.');
       return;
     }
 
-    // Exponential backoff: 1s, 2s, 4s, 8s, 16s, 30s (max)
+    // Don't reconnect if tab is hidden — will reconnect on visibility change
+    if (document.hidden) {
+      console.log('[SSE] Tab hidden, deferring reconnect');
+      this.wasConnectedBeforeHidden = true;
+      return;
+    }
+
+    // Exponential backoff: 3s, 6s, 12s, 24s, 48s, 60s (max)
     const delay = Math.min(
       this.INITIAL_RECONNECT_DELAY * Math.pow(2, this.reconnectAttempts),
       this.MAX_RECONNECT_DELAY
     );
 
     this.reconnectAttempts++;
-    console.log(`[SSE] Scheduling reconnect attempt ${this.reconnectAttempts} in ${delay}ms`);
+    console.log(`[SSE] Scheduling reconnect attempt ${this.reconnectAttempts}/${this.MAX_RECONNECT_ATTEMPTS} in ${delay}ms`);
 
     this.reconnectTimeout = setTimeout(() => {
       this.doConnect();
@@ -286,16 +340,27 @@ export class SseService {
   }
 
   /**
-   * Disconnect from SSE stream.
+   * Disconnect from SSE stream (intentional, no auto-reconnect).
    */
   disconnect(): void {
     console.log('[SSE] Disconnecting...');
-    this.cleanup();
+    this.intentionalDisconnect = true;
+    this.cleanupConnection();
     this.userRole = null;
-    this.reconnectAttempts = this.MAX_RECONNECT_ATTEMPTS; // Prevent auto-reconnect
+    this.wasConnectedBeforeHidden = false;
+
+    if (this.hiddenDisconnectTimeout) {
+      clearTimeout(this.hiddenDisconnectTimeout);
+      this.hiddenDisconnectTimeout = null;
+    }
+
+    if (this.visibilityHandler) {
+      document.removeEventListener('visibilitychange', this.visibilityHandler);
+      this.visibilityHandler = null;
+    }
   }
 
-  private cleanup(): void {
+  private cleanupConnection(): void {
     if (this.reconnectTimeout) {
       clearTimeout(this.reconnectTimeout);
       this.reconnectTimeout = null;

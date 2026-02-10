@@ -32,6 +32,8 @@ export function app(): express.Express {
   console.log(`Proxying /api requests to http://${backendHost}`);
 
   server.use('/api', (req, res) => {
+    const isSse = req.originalUrl.includes('/notifications/stream');
+
     const options = {
       hostname: backendHost.split(':')[0],
       port: parseInt(backendHost.split(':')[1]) || 8282,
@@ -41,13 +43,39 @@ export function app(): express.Express {
     };
 
     const proxyReq = http.request(options, (proxyRes) => {
-      res.writeHead(proxyRes.statusCode || 500, proxyRes.headers);
+      if (isSse) {
+        // SSE: disable response timeout and buffering
+        res.writeHead(proxyRes.statusCode || 500, {
+          ...proxyRes.headers,
+          'Cache-Control': 'no-cache',
+          'X-Accel-Buffering': 'no'
+        });
+        res.flushHeaders();
+      } else {
+        res.writeHead(proxyRes.statusCode || 500, proxyRes.headers);
+      }
       proxyRes.pipe(res);
     });
 
+    if (isSse) {
+      // SSE: disable socket timeouts to keep connection alive
+      proxyReq.setTimeout(0);
+      req.setTimeout(0);
+      res.setTimeout(0);
+      req.socket.setKeepAlive(true);
+
+      // Clean up on client disconnect
+      req.on('close', () => {
+        proxyReq.destroy();
+      });
+    }
+
     proxyReq.on('error', (e) => {
+      if (isSse && req.destroyed) return; // Expected on client disconnect
       console.error('Proxy error:', e);
-      res.status(502).send('Bad Gateway');
+      if (!res.headersSent) {
+        res.status(502).send('Bad Gateway');
+      }
     });
 
     req.pipe(proxyReq);

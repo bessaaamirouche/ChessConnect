@@ -35,6 +35,10 @@ server:
   servlet:
     context-path: /api
 
+spring.mvc:
+  async:
+    request-timeout: 1800000
+
 # File upload configuration
 spring.servlet.multipart:
   enabled: true

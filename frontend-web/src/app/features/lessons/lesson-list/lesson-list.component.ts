@@ -13,6 +13,7 @@ import { LearningPathService } from '../../../core/services/learning-path.servic
 import { WalletService } from '../../../core/services/wallet.service';
 import { PaymentService } from '../../../core/services/payment.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { GroupLessonService } from '../../../core/services/group-lesson.service';
 import { NextCourse } from '../../../core/models/learning-path.model';
 import { LESSON_STATUS_LABELS, Lesson } from '../../../core/models/lesson.model';
 import { ConfirmDialogComponent } from '../../../shared/confirm-dialog/confirm-dialog.component';
@@ -53,7 +54,9 @@ import {
   heroChatBubbleLeftRight,
   heroEllipsisVertical,
   heroCpuChip,
-  heroLockClosed
+  heroLockClosed,
+  heroUserGroup,
+  heroClipboardDocument
 } from '@ng-icons/heroicons/outline';
 import { CHESS_LEVELS, ChessLevel, User } from '../../../core/models/user.model';
 
@@ -99,7 +102,9 @@ export interface PendingValidation {
     heroChatBubbleLeftRight,
     heroEllipsisVertical,
     heroCpuChip,
-    heroLockClosed
+    heroLockClosed,
+    heroUserGroup,
+    heroClipboardDocument
   })],
   templateUrl: './lesson-list.component.html',
   styleUrl: './lesson-list.component.scss'
@@ -237,6 +242,7 @@ export class LessonListComponent implements OnInit, OnDestroy {
     private walletService: WalletService,
     public paymentService: PaymentService,
     private toastService: ToastService,
+    private groupLessonService: GroupLessonService,
     private http: HttpClient,
     private route: ActivatedRoute,
     private router: Router
@@ -350,10 +356,14 @@ export class LessonListComponent implements OnInit, OnDestroy {
     if (reason !== null) {
       this.lessonService.cancelLesson(lessonId, reason as string || undefined).subscribe({
         next: () => {
+          this.toastService.success('Cours annulé');
           // Reload wallet balance after cancellation (for refund)
           if (this.authService.isStudent()) {
             this.walletService.loadBalance().subscribe();
           }
+        },
+        error: (err: any) => {
+          this.toastService.error(err.error?.error || 'Erreur lors de l\'annulation');
         }
       });
     }
@@ -524,36 +534,49 @@ export class LessonListComponent implements OnInit, OnDestroy {
       });
     }
 
-    // Obtenir le token JWT pour Jitsi (avec role moderateur pour les profs)
-    this.jitsiService.getToken(roomName).subscribe({
-      next: (response) => {
-        this.videoCallRoomName.set(roomName);
-        this.videoCallToken.set(response.token);
-        this.videoCallTitle.set(title);
-        this.videoCallDurationMinutes.set(durationMinutes);
-        this.videoCallLessonId.set(lesson.id);
-        this.showVideoCall.set(true);
+    // Obtenir le token JWT pour Jitsi (avec retry)
+    this.fetchJitsiTokenWithRetry(roomName, 3).then((token) => {
+      this.videoCallRoomName.set(roomName);
+      this.videoCallToken.set(token);
+      this.videoCallTitle.set(title);
+      this.videoCallDurationMinutes.set(durationMinutes);
+      this.videoCallLessonId.set(lesson.id);
+      this.showVideoCall.set(true);
 
-        // Start polling for lesson status (students only) to auto-hang up when coach ends
-        if (this.authService.isStudent()) {
-          this.startLessonStatusCheck(lesson.id);
-        }
-      },
-      error: (err) => {
-        console.error('Erreur lors de la génération du token Jitsi:', err);
-        // Fallback sans token
-        this.videoCallRoomName.set(roomName);
-        this.videoCallToken.set('');
-        this.videoCallTitle.set(title);
-        this.videoCallDurationMinutes.set(durationMinutes);
-        this.videoCallLessonId.set(lesson.id);
-        this.showVideoCall.set(true);
-
-        // Start polling for lesson status (students only) to auto-hang up when coach ends
-        if (this.authService.isStudent()) {
-          this.startLessonStatusCheck(lesson.id);
-        }
+      // Start polling for lesson status (students only) to auto-hang up when coach ends
+      if (this.authService.isStudent()) {
+        this.startLessonStatusCheck(lesson.id);
       }
+    }).catch((err) => {
+      console.error('Impossible d\'obtenir le token Jitsi apres plusieurs tentatives:', err);
+      this.toastService.error(
+        'Impossible de rejoindre l\'appel video. Verifiez votre connexion et reessayez.',
+        10000,
+        undefined
+      );
+    });
+  }
+
+  private fetchJitsiTokenWithRetry(roomName: string, maxRetries: number): Promise<string> {
+    return new Promise((resolve, reject) => {
+      let attempt = 0;
+
+      const tryFetch = () => {
+        attempt++;
+        this.jitsiService.getToken(roomName).subscribe({
+          next: (response) => resolve(response.token),
+          error: (err) => {
+            console.warn(`[Jitsi] Token fetch attempt ${attempt}/${maxRetries} failed:`, err.status);
+            if (attempt < maxRetries) {
+              setTimeout(tryFetch, 1500 * attempt);
+            } else {
+              reject(err);
+            }
+          }
+        });
+      };
+
+      tryFetch();
     });
   }
 
@@ -737,7 +760,12 @@ export class LessonListComponent implements OnInit, OnDestroy {
 
     if (confirmed !== null) {
       this.lessonService.deleteLesson(lessonId).subscribe({
-        error: (err) => console.error('Error deleting lesson:', err)
+        next: () => {
+          this.toastService.success('Cours supprimé');
+        },
+        error: (err: any) => {
+          this.toastService.error(err.error?.error || 'Erreur lors de la suppression');
+        }
       });
     }
   }
@@ -793,6 +821,81 @@ export class LessonListComponent implements OnInit, OnDestroy {
         }
       }
     });
+  }
+
+  // Group lesson methods
+  linkCopied = signal(false);
+
+  // Deadline resolution
+  showDeadlineModal = signal(false);
+  deadlineLessonId = signal<number | null>(null);
+  resolvingDeadline = signal(false);
+
+  copyInvitationLink(token: string): void {
+    const url = `${window.location.origin}/join/${token}`;
+    navigator.clipboard.writeText(url).then(() => {
+      this.linkCopied.set(true);
+      setTimeout(() => this.linkCopied.set(false), 2000);
+    });
+  }
+
+  openDeadlineModal(lessonId: number): void {
+    this.deadlineLessonId.set(lessonId);
+    this.showDeadlineModal.set(true);
+  }
+
+  closeDeadlineModal(): void {
+    this.showDeadlineModal.set(false);
+    this.deadlineLessonId.set(null);
+  }
+
+  resolveDeadline(choice: 'PAY_FULL' | 'CANCEL'): void {
+    const lessonId = this.deadlineLessonId();
+    if (!lessonId) return;
+    this.resolvingDeadline.set(true);
+
+    this.groupLessonService.resolveDeadline(lessonId, choice).subscribe({
+      next: () => {
+        this.resolvingDeadline.set(false);
+        this.closeDeadlineModal();
+        this.toastService.success(
+          choice === 'CANCEL' ? 'Cours annulé et remboursements effectués' : 'Cours converti en cours privé'
+        );
+        this.lessonService.loadUpcomingLessons().subscribe();
+        this.walletService.loadBalance().subscribe();
+      },
+      error: (err: any) => {
+        this.resolvingDeadline.set(false);
+        this.toastService.error(err.error?.error || 'Erreur');
+      }
+    });
+  }
+
+  async leaveGroupLesson(lessonId: number): Promise<void> {
+    const reason = await this.confirmDialog.open({
+      title: 'Quitter le cours en groupe',
+      message: 'Êtes-vous sûr de vouloir quitter ce cours en groupe ?',
+      confirmText: 'Quitter',
+      cancelText: 'Retour',
+      type: 'danger',
+      icon: 'warning',
+      showInput: true,
+      inputLabel: 'Raison (optionnel)',
+      inputPlaceholder: 'Ex: Indisponibilité...'
+    });
+
+    if (reason !== null) {
+      this.groupLessonService.leaveGroupLesson(lessonId, reason as string || undefined).subscribe({
+        next: () => {
+          this.toastService.success('Vous avez quitté le cours');
+          this.lessonService.loadUpcomingLessons().subscribe();
+          this.walletService.loadBalance().subscribe();
+        },
+        error: (err: any) => {
+          this.toastService.error(err.error?.error || 'Erreur');
+        }
+      });
+    }
   }
 
   toggleEmailReminders(): void {

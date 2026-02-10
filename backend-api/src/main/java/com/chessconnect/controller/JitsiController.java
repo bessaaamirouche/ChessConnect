@@ -4,6 +4,7 @@ import com.chessconnect.dto.jitsi.JitsiTokenResponse;
 import com.chessconnect.model.Lesson;
 import com.chessconnect.model.User;
 import com.chessconnect.model.enums.UserRole;
+import com.chessconnect.repository.LessonParticipantRepository;
 import com.chessconnect.repository.LessonRepository;
 import com.chessconnect.repository.UserRepository;
 import com.chessconnect.service.JitsiTokenService;
@@ -19,16 +20,20 @@ import java.util.regex.Pattern;
 @RequestMapping("/jitsi")
 public class JitsiController {
 
-    private static final Pattern ROOM_PATTERN = Pattern.compile("^mychess-lesson-(\\d+)$");
+    // Matches both formats: "mychess-lesson-{id}" and "chessconnect-{id}-{timestamp}"
+    private static final Pattern ROOM_PATTERN = Pattern.compile("^(?:mychess-lesson|chessconnect)-(\\d+)(?:-\\d+)?$");
 
     private final JitsiTokenService jitsiTokenService;
     private final UserRepository userRepository;
     private final LessonRepository lessonRepository;
+    private final LessonParticipantRepository participantRepository;
 
-    public JitsiController(JitsiTokenService jitsiTokenService, UserRepository userRepository, LessonRepository lessonRepository) {
+    public JitsiController(JitsiTokenService jitsiTokenService, UserRepository userRepository,
+                           LessonRepository lessonRepository, LessonParticipantRepository participantRepository) {
         this.jitsiTokenService = jitsiTokenService;
         this.userRepository = userRepository;
         this.lessonRepository = lessonRepository;
+        this.participantRepository = participantRepository;
     }
 
     @GetMapping("/token")
@@ -45,8 +50,14 @@ public class JitsiController {
             Long lessonId = Long.parseLong(matcher.group(1));
             Lesson lesson = lessonRepository.findById(lessonId).orElse(null);
             if (lesson != null && user.getRole() != UserRole.ADMIN) {
-                boolean isParticipant = lesson.getStudent().getId().equals(user.getId())
-                        || lesson.getTeacher().getId().equals(user.getId());
+                boolean isTeacher = lesson.getTeacher().getId().equals(user.getId());
+                boolean isParticipant;
+                if (Boolean.TRUE.equals(lesson.getIsGroupLesson())) {
+                    // For group lessons, check the participants table
+                    isParticipant = isTeacher || participantRepository.existsActiveByLessonIdAndStudentId(lessonId, user.getId());
+                } else {
+                    isParticipant = isTeacher || lesson.getStudent().getId().equals(user.getId());
+                }
                 if (!isParticipant) {
                     return ResponseEntity.status(403).build();
                 }

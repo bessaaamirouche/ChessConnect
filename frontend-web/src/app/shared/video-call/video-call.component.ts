@@ -1,7 +1,7 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, signal, PLATFORM_ID, Inject, ElementRef, ViewChild, AfterViewInit, inject, HostListener } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, signal, PLATFORM_ID, Inject, ElementRef, ViewChild, AfterViewInit, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
-import { heroXMark, heroVideoCamera } from '@ng-icons/heroicons/outline';
+import { heroXMark, heroVideoCamera, heroPhone } from '@ng-icons/heroicons/outline';
 import { ToastService } from '../../core/services/toast.service';
 
 declare var JitsiMeetExternalAPI: any;
@@ -10,9 +10,9 @@ declare var JitsiMeetExternalAPI: any;
   selector: 'app-video-call',
   standalone: true,
   imports: [NgIconComponent],
-  viewProviders: [provideIcons({ heroXMark, heroVideoCamera })],
+  viewProviders: [provideIcons({ heroXMark, heroVideoCamera, heroPhone })],
   template: `
-    <div class="video-call-overlay" (click)="onClose()">
+    <div class="video-call-overlay">
       <div class="video-call-container" role="dialog" aria-modal="true" aria-labelledby="video-call-title" (click)="$event.stopPropagation()">
         <div class="video-call-header">
           <div class="video-call-header__info">
@@ -31,7 +31,20 @@ declare var JitsiMeetExternalAPI: any;
             </button>
           </div>
         </div>
-        <div class="video-call-content" #jitsiContainer></div>
+        @if (hasLeft()) {
+          <div class="video-call-rejoin">
+            <div class="video-call-rejoin__content">
+              <ng-icon name="heroPhone" size="48" class="video-call-rejoin__icon"></ng-icon>
+              <h3 class="video-call-rejoin__title">Vous avez quitté l'appel</h3>
+              <p class="video-call-rejoin__subtitle">Le cours est toujours en cours</p>
+              <button class="video-call-rejoin__btn" (click)="rejoin()">
+                <ng-icon name="heroVideoCamera" size="20"></ng-icon>
+                Rejoindre l'appel
+              </button>
+            </div>
+          </div>
+        }
+        <div class="video-call-content" [class.hidden]="hasLeft()" #jitsiContainer></div>
       </div>
     </div>
   `,
@@ -104,6 +117,66 @@ declare var JitsiMeetExternalAPI: any;
       flex: 1;
       position: relative;
       background: #000;
+
+      &.hidden {
+        display: none;
+      }
+    }
+
+    .video-call-rejoin {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0d0d0f;
+
+      &__content {
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      &__icon {
+        color: var(--text-muted);
+        opacity: 0.5;
+      }
+
+      &__title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0;
+      }
+
+      &__subtitle {
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+        margin: 0;
+      }
+
+      &__btn {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        background: var(--gold-400, #d4a84b);
+        color: #000;
+        border: none;
+        border-radius: var(--radius-md);
+        font-size: 0.9375rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        &:hover {
+          background: var(--gold-300, #e0b85c);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(212, 168, 75, 0.3);
+        }
+      }
     }
 
     .recording-badge {
@@ -146,15 +219,12 @@ export class VideoCallComponent implements OnInit, OnDestroy, AfterViewInit {
   @Output() closed = new EventEmitter<void>();
 
   isRecording = signal(false);
+  hasLeft = signal(false);
   private isBrowser: boolean;
   private api: any = null;
   private recordingStarted = false;
   private toastService = inject(ToastService);
 
-  @HostListener('document:keydown.escape')
-  onEscapeKey(): void {
-    this.onClose();
-  }
 
   constructor(
     @Inject(PLATFORM_ID) platformId: Object
@@ -162,7 +232,11 @@ export class VideoCallComponent implements OnInit, OnDestroy, AfterViewInit {
     this.isBrowser = isPlatformBrowser(platformId);
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    if (this.isBrowser) {
+      document.body.classList.add('video-call-active');
+    }
+  }
 
   ngAfterViewInit(): void {
     if (this.isBrowser) {
@@ -178,6 +252,9 @@ export class VideoCallComponent implements OnInit, OnDestroy, AfterViewInit {
     if (this.api) {
       this.api.dispose();
       this.api = null;
+    }
+    if (this.isBrowser) {
+      document.body.classList.remove('video-call-active');
     }
   }
 
@@ -198,6 +275,8 @@ export class VideoCallComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private initJitsiMeet(): void {
+    this.hasLeft.set(false);
+
     const options = {
       roomName: this.roomName,
       parentNode: this.jitsiContainer.nativeElement,
@@ -220,8 +299,8 @@ export class VideoCallComponent implements OnInit, OnDestroy, AfterViewInit {
         SHOW_BRAND_WATERMARK: false,
         DEFAULT_BACKGROUND: '#1e1e24',
         TOOLBAR_BUTTONS: [
-          'camera', 'chat', 'closedcaptions', 'desktop', 'fullscreen',
-          'fodeviceselection', 'hangup', 'microphone', 'participants-pane',
+          'camera', 'closedcaptions', 'desktop', 'fullscreen',
+          'fodeviceselection', 'microphone', 'participants-pane',
           'profile', 'raisehand', 'recording', 'security', 'select-background',
           'settings', 'tileview', 'videoquality'
         ]
@@ -258,8 +337,14 @@ export class VideoCallComponent implements OnInit, OnDestroy, AfterViewInit {
     });
 
     this.api.addListener('readyToClose', () => {
-      console.log('[Jitsi] Ready to close');
-      this.onClose();
+      console.log('[Jitsi] Ready to close - showing rejoin screen');
+      // Don't close the modal, show rejoin screen instead
+      if (this.api) {
+        this.api.dispose();
+        this.api = null;
+      }
+      this.isRecording.set(false);
+      this.hasLeft.set(true);
     });
 
     this.api.addListener('errorOccurred', (error: any) => {
@@ -281,10 +366,15 @@ export class VideoCallComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
+  rejoin(): void {
+    // Clear the container and reinitialize Jitsi
+    if (this.jitsiContainer?.nativeElement) {
+      this.jitsiContainer.nativeElement.innerHTML = '';
+    }
+    this.initJitsiMeet();
+  }
+
   onClose(): void {
-    // Ne pas arrêter l'enregistrement quand on quitte temporairement
-    // L'enregistrement continuera tant qu'il y a des participants dans la room
-    // Il sera arrêté automatiquement par Jibri quand la room sera vide
     if (this.api) {
       this.api.dispose();
       this.api = null;

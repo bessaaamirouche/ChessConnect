@@ -115,6 +115,10 @@ export const routes: Routes = [
     ]
   },
   {
+    path: 'join/:token',
+    loadComponent: () => import('./features/lessons/join-group-lesson/join-group-lesson.component').then(m => m.JoinGroupLessonComponent)
+  },
+  {
     path: 'book/:teacherId',
     canActivate: [authGuard, studentGuard],
     loadComponent: () => import('./features/lessons/book-lesson/book-lesson.component').then(m => m.BookLessonComponent)

@@ -18,6 +18,7 @@ import com.chessconnect.model.Course;
 import com.chessconnect.repository.CourseRepository;
 import com.chessconnect.repository.CreditTransactionRepository;
 import com.chessconnect.repository.InvoiceRepository;
+import com.chessconnect.repository.LessonParticipantRepository;
 import com.chessconnect.repository.LessonRepository;
 import com.chessconnect.repository.PaymentRepository;
 import com.chessconnect.repository.ProgressRepository;
@@ -55,6 +56,7 @@ public class LessonService {
     private static final int TEACHER_CONFIRMATION_HOURS = 24; // Teacher must confirm within 24h
 
     private final LessonRepository lessonRepository;
+    private final LessonParticipantRepository participantRepository;
     private final UserRepository userRepository;
     private final ProgressRepository progressRepository;
     private final PaymentRepository paymentRepository;
@@ -69,9 +71,11 @@ public class LessonService {
     private final PendingValidationService pendingValidationService;
     private final BunnyStorageService bunnyStorageService;
     private final ApplicationEventPublisher eventPublisher;
+    private GroupLessonService groupLessonService;
 
     public LessonService(
             LessonRepository lessonRepository,
+            LessonParticipantRepository participantRepository,
             UserRepository userRepository,
             ProgressRepository progressRepository,
             PaymentRepository paymentRepository,
@@ -88,6 +92,7 @@ public class LessonService {
             ApplicationEventPublisher eventPublisher
     ) {
         this.lessonRepository = lessonRepository;
+        this.participantRepository = participantRepository;
         this.userRepository = userRepository;
         this.progressRepository = progressRepository;
         this.paymentRepository = paymentRepository;
@@ -102,6 +107,12 @@ public class LessonService {
         this.pendingValidationService = pendingValidationService;
         this.bunnyStorageService = bunnyStorageService;
         this.eventPublisher = eventPublisher;
+    }
+
+    // Setter injection to break circular dependency with GroupLessonService
+    @org.springframework.beans.factory.annotation.Autowired
+    public void setGroupLessonService(GroupLessonService groupLessonService) {
+        this.groupLessonService = groupLessonService;
     }
 
     @Transactional
@@ -198,6 +209,11 @@ public class LessonService {
         boolean isTeacher = lesson.getTeacher().getId().equals(userId);
         boolean isStudent = lesson.getStudent().getId().equals(userId);
 
+        // For group lessons, check if user is a participant
+        if (!isStudent && Boolean.TRUE.equals(lesson.getIsGroupLesson())) {
+            isStudent = participantRepository.existsActiveByLessonIdAndStudentId(lessonId, userId);
+        }
+
         if (!isTeacher && !isStudent && user.getRole() != UserRole.ADMIN) {
             throw new IllegalArgumentException("Not authorized to update this lesson");
         }
@@ -222,6 +238,12 @@ public class LessonService {
                 throw new IllegalArgumentException("Impossible d'annuler un cours deja commence");
             }
             String cancelledBy = isTeacher ? "TEACHER" : "STUDENT";
+
+            // For group lessons cancelled by teacher, refund all participants
+            if (Boolean.TRUE.equals(lesson.getIsGroupLesson()) && isTeacher && groupLessonService != null) {
+                groupLessonService.cancelGroupByTeacher(lesson, request.cancellationReason());
+            }
+
             handleLessonCancellation(lesson, cancelledBy, request.cancellationReason());
         }
 
@@ -232,17 +254,22 @@ public class LessonService {
                 lesson.setTeacherObservations(request.teacherObservations());
             }
 
-            // Credit teacher earnings (only if not already credited)
-            if (!Boolean.TRUE.equals(lesson.getEarningsCredited())) {
-                teacherBalanceService.creditEarningsForCompletedLesson(lesson);
-                lesson.setEarningsCredited(true);
-            }
+            // For group lessons, use group-specific completion logic
+            if (Boolean.TRUE.equals(lesson.getIsGroupLesson()) && groupLessonService != null) {
+                groupLessonService.handleGroupLessonCompletion(lesson);
+            } else {
+                // Credit teacher earnings (only if not already credited)
+                if (!Boolean.TRUE.equals(lesson.getEarningsCredited())) {
+                    teacherBalanceService.creditEarningsForCompletedLesson(lesson);
+                    lesson.setEarningsCredited(true);
+                }
 
-            Progress progress = progressRepository.findByStudentId(lesson.getStudent().getId())
-                    .orElse(null);
-            if (progress != null) {
-                progress.recordCompletedLesson();
-                progressRepository.save(progress);
+                Progress progress = progressRepository.findByStudentId(lesson.getStudent().getId())
+                        .orElse(null);
+                if (progress != null) {
+                    progress.recordCompletedLesson();
+                    progressRepository.save(progress);
+                }
             }
 
             // Advance student to next course in the programme
@@ -295,13 +322,26 @@ public class LessonService {
                     lesson.getScheduledAt().format(DATE_FORMATTER)
             );
 
-            // Notify student
-            eventPublisher.publishEvent(new NotificationEvent(
-                    this,
-                    NotificationEvent.EventType.LESSON_STATUS_CHANGED,
-                    lesson.getStudent().getId(),
-                    payload
-            ));
+            // For group lessons, notify all participants
+            if (Boolean.TRUE.equals(lesson.getIsGroupLesson())) {
+                var participants = participantRepository.findByLessonIdAndStatus(lesson.getId(), "ACTIVE");
+                for (var participant : participants) {
+                    eventPublisher.publishEvent(new NotificationEvent(
+                            this,
+                            NotificationEvent.EventType.LESSON_STATUS_CHANGED,
+                            participant.getStudent().getId(),
+                            payload
+                    ));
+                }
+            } else {
+                // Notify student
+                eventPublisher.publishEvent(new NotificationEvent(
+                        this,
+                        NotificationEvent.EventType.LESSON_STATUS_CHANGED,
+                        lesson.getStudent().getId(),
+                        payload
+                ));
+            }
 
             // Notify teacher
             eventPublisher.publishEvent(new NotificationEvent(
@@ -316,8 +356,15 @@ public class LessonService {
     }
 
     public List<LessonResponse> getUpcomingLessonsForStudent(Long studentId) {
-        return lessonRepository.findUpcomingLessonsForStudent(studentId, LocalDateTime.now())
-                .stream()
+        // Private lessons where student is the direct student
+        List<Lesson> privateLessons = lessonRepository.findUpcomingLessonsForStudent(studentId, LocalDateTime.now());
+
+        // Group lessons where student is a participant
+        List<Lesson> groupLessons = participantRepository.findUpcomingGroupLessonsForStudent(studentId);
+
+        return Stream.concat(privateLessons.stream(), groupLessons.stream())
+                .distinct()
+                .sorted(Comparator.comparing(Lesson::getScheduledAt))
                 .map(LessonResponse::from)
                 .toList();
     }
@@ -337,6 +384,15 @@ public class LessonService {
         List<Lesson> lessons = isTeacher
                 ? lessonRepository.findByTeacherIdOrderByScheduledAtDesc(userId)
                 : lessonRepository.findByStudentIdOrderByScheduledAtDesc(userId);
+
+        // For students, also include group lessons where they were a participant
+        if (!isTeacher) {
+            List<Lesson> groupHistory = participantRepository.findHistoryGroupLessonsForStudent(userId);
+            lessons = Stream.concat(lessons.stream(), groupHistory.stream())
+                    .distinct()
+                    .sorted(Comparator.comparing(Lesson::getScheduledAt).reversed())
+                    .toList();
+        }
 
         // History = lessons where the scheduled date has passed, excluding soft-deleted ones
         LocalDateTime now = LocalDateTime.now();
@@ -358,7 +414,15 @@ public class LessonService {
         Lesson lesson = lessonRepository.findById(lessonId)
                 .orElseThrow(() -> new IllegalArgumentException("Lesson not found"));
 
-        if (!lesson.getStudent().getId().equals(userId) && !lesson.getTeacher().getId().equals(userId)) {
+        boolean authorized = lesson.getStudent().getId().equals(userId)
+                || lesson.getTeacher().getId().equals(userId);
+
+        // For group lessons, also check participants table
+        if (!authorized && Boolean.TRUE.equals(lesson.getIsGroupLesson())) {
+            authorized = participantRepository.existsActiveByLessonIdAndStudentId(lessonId, userId);
+        }
+
+        if (!authorized) {
             throw new IllegalArgumentException("Not authorized to view this lesson");
         }
 
@@ -408,6 +472,12 @@ public class LessonService {
         // Only allow deletion by student or teacher involved
         boolean isTeacher = lesson.getTeacher().getId().equals(userId);
         boolean isStudent = lesson.getStudent().getId().equals(userId);
+
+        // For group lessons, also check if user is a participant
+        if (!isStudent && Boolean.TRUE.equals(lesson.getIsGroupLesson())) {
+            isStudent = participantRepository.existsByLessonIdAndStudentId(lesson.getId(), userId);
+        }
+
         if (!isTeacher && !isStudent) {
             throw new IllegalArgumentException("Not authorized to delete this lesson");
         }
@@ -679,6 +749,13 @@ public class LessonService {
         lesson.setCancellationReason(reason);
         lesson.setCancelledBy(cancelledBy);
         lesson.setCancelledAt(LocalDateTime.now());
+
+        // For group lessons, refunds are handled by cancelGroupByTeacher/cancelParticipant
+        // Skip handlePaidLessonCancellation to avoid NonUniqueResultException
+        // (group lessons have multiple payments per lesson)
+        if (Boolean.TRUE.equals(lesson.getIsGroupLesson())) {
+            return;
+        }
 
         // Process refund for paid lessons
         handlePaidLessonCancellation(lesson, cancelledBy);

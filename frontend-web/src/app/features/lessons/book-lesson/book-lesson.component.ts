@@ -12,6 +12,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { LearningPathService } from '../../../core/services/learning-path.service';
 import { ProgrammeService, ProgrammeCourse } from '../../../core/services/programme.service';
 import { UrlValidatorService } from '../../../core/services/url-validator.service';
+import { GroupLessonService } from '../../../core/services/group-lesson.service';
 import { TimeSlot } from '../../../core/models/availability.model';
 import { Course, GradeWithCourses } from '../../../core/models/learning-path.model';
 import { ChessLevel, CHESS_LEVELS } from '../../../core/models/user.model';
@@ -99,6 +100,36 @@ export class BookLessonComponent implements OnInit {
   selectedCourse = signal<Course | null>(null);
   payWithCreditSignal = signal(false);
 
+  // Group lesson
+  isGroupMode = signal(false);
+  groupSize = signal<2 | 3>(2);
+  groupCreatedToken = signal<string | null>(null);
+  linkCopied = signal(false);
+
+  // Group price calculation (matches backend GroupPricingCalculator)
+  groupPricePerPerson = computed(() => {
+    const teacher = this.teacherService.selectedTeacher();
+    if (!teacher?.hourlyRateCents) return 0;
+    const size = this.groupSize();
+    const rate = size === 2 ? 0.60 : 0.45;
+    return Math.round(teacher.hourlyRateCents * rate);
+  });
+
+  groupSavingsPercent = computed(() => {
+    return this.groupSize() === 2 ? 40 : 55;
+  });
+
+  // Effective price (private or group)
+  effectivePrice = computed(() => {
+    if (this.isGroupMode()) return this.groupPricePerPerson();
+    const teacher = this.teacherService.selectedTeacher();
+    return teacher?.hourlyRateCents || 0;
+  });
+
+  canPayGroupWithCredit = computed(() => {
+    return this.walletService.hasEnoughCredit(this.groupPricePerPerson());
+  });
+
   // Embedded checkout
   showCheckout = signal(false);
   checkoutClientSecret = signal<string | null>(null);
@@ -166,7 +197,8 @@ export class BookLessonComponent implements OnInit {
     public walletService: WalletService,
     public authService: AuthService,
     public learningPathService: LearningPathService,
-    public programmeService: ProgrammeService
+    public programmeService: ProgrammeService,
+    private groupLessonService: GroupLessonService
   ) {
     this.bookingForm = this.fb.group({
       notes: ['']
@@ -286,6 +318,25 @@ export class BookLessonComponent implements OnInit {
     this.payWithCreditSignal.set(value);
   }
 
+  toggleGroupMode(value: boolean): void {
+    this.isGroupMode.set(value);
+    this.groupCreatedToken.set(null);
+  }
+
+  setGroupSize(size: 2 | 3): void {
+    this.groupSize.set(size);
+  }
+
+  copyInvitationLink(): void {
+    const token = this.groupCreatedToken();
+    if (!token) return;
+    const url = `${window.location.origin}/join/${token}`;
+    navigator.clipboard.writeText(url).then(() => {
+      this.linkCopied.set(true);
+      setTimeout(() => this.linkCopied.set(false), 2000);
+    });
+  }
+
   isSlotSelected(slot: TimeSlot): boolean {
     const selected = this.selectedSlot();
     return selected !== null &&
@@ -304,6 +355,34 @@ export class BookLessonComponent implements OnInit {
     const courseId = currentCourse.id;
 
     this.loading.set(true);
+
+    // Group lesson mode
+    if (this.isGroupMode()) {
+      this.groupLessonService.createGroupLesson({
+        teacherId: teacher.id,
+        scheduledAt,
+        durationMinutes: 60,
+        notes: notes || '',
+        targetGroupSize: this.groupSize(),
+        courseId
+      }).subscribe({
+        next: (response: any) => {
+          if (response.success) {
+            this.groupCreatedToken.set(response.invitationToken);
+            this.success.set(true);
+            this.loading.set(false);
+            // Reload wallet balance
+            this.walletService.loadBalance().subscribe();
+          } else {
+            this.loading.set(false);
+          }
+        },
+        error: () => {
+          this.loading.set(false);
+        }
+      });
+      return;
+    }
 
     // Pay with credit
     if (this.payWithCreditSignal() && this.canPayWithCredit()) {

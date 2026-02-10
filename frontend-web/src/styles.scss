@@ -26,3 +26,12 @@
 
 // Mobile optimizations (loaded last to override)
 @import 'styles/mobile';
+
+// Hide sidebar during video call
+body.video-call-active {
+  .sidebar,
+  .mobile-header,
+  .sidebar-overlay {
+    display: none !important;
+  }
+}

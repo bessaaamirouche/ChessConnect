@@ -73,6 +73,8 @@ services:
       - "8282:8282"
     volumes:
       - uploads_data:/app/uploads
+      - /var/jibri/recordings:/var/jibri/recordings
+      - /tmp/video-concat:/tmp/video-concat
     depends_on:
       postgres:
         condition: service_healthy

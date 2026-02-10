@@ -277,7 +277,7 @@
       <div class="auth-card__footer">
         <p>
           {{ 'auth.login.noAccount' | translate }}
-          <a routerLink="/register" class="text-gold">{{ 'auth.login.createAccount' | translate }}</a>
+          <a routerLink="/register" [queryParams]="returnUrl ? { returnUrl: returnUrl } : {}" class="text-gold">{{ 'auth.login.createAccount' | translate }}</a>
         </p>
       </div>
     }

@@ -53,7 +53,7 @@
               {{ 'auth.emailVerification.resendButton' | translate }}
             }
           </button>
-          <a routerLink="/login" class="btn btn--primary btn--block">
+          <a routerLink="/login" [queryParams]="returnUrl ? { returnUrl: returnUrl } : {}" class="btn btn--primary btn--block">
             <ng-icon name="heroArrowRight"></ng-icon>
             {{ 'auth.emailVerification.goToLogin' | translate }}
           </a>
@@ -333,7 +333,7 @@
     <div class="auth-card__footer">
       <p>
         {{ 'auth.signup.hasAccount' | translate }}
-        <a routerLink="/login" class="text-gold">{{ 'auth.signup.login' | translate }}</a>
+        <a routerLink="/login" [queryParams]="returnUrl ? { returnUrl: returnUrl } : {}" class="text-gold">{{ 'auth.signup.login' | translate }}</a>
       </p>
     </div>
     }

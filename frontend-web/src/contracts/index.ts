@@ -31,6 +31,12 @@ export type CourseStatus = 'LOCKED' | 'IN_PROGRESS' | 'PENDING_VALIDATION' | 'CO
 
 export type DayOfWeek = 'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY' | 'FRIDAY' | 'SATURDAY' | 'SUNDAY';
 
+export type GroupLessonStatus = 'OPEN' | 'FULL' | 'DEADLINE_PASSED';
+
+export type ParticipantRole = 'CREATOR' | 'PARTICIPANT';
+
+export type ParticipantStatus = 'ACTIVE' | 'CANCELLED';
+
 // ============================================================================
 // AUTH
 // ============================================================================
@@ -192,6 +198,13 @@ export interface LessonResponse {
   courseId?: number;
   courseTitle?: string;
   courseGrade?: string;
+  // Group lesson fields
+  isGroupLesson?: boolean;
+  maxParticipants?: number;
+  groupStatus?: GroupLessonStatus;
+  currentParticipantCount?: number;
+  invitationToken?: string;
+  participants?: ParticipantSummary[];
 }
 
 export interface BookLessonRequest {
@@ -683,4 +696,60 @@ export interface Page<T> {
   totalPages: number;
   size: number;
   number: number;
+}
+
+// ============================================================================
+// GROUP LESSONS
+// ============================================================================
+
+export interface ParticipantSummary {
+  displayName: string;
+  role: ParticipantRole;
+}
+
+export interface BookGroupLessonRequest {
+  teacherId: number;
+  scheduledAt: string;
+  durationMinutes?: number;
+  notes?: string;
+  targetGroupSize: number;
+  courseId?: number;
+}
+
+export interface JoinGroupLessonRequest {
+  token: string;
+}
+
+export interface ResolveDeadlineRequest {
+  choice: 'PAY_FULL' | 'CANCEL';
+}
+
+export interface GroupInvitationResponse {
+  token: string;
+  lessonId: number;
+  teacherFirstName: string;
+  teacherLastInitial: string;
+  teacherAvatarUrl?: string;
+  scheduledAt: string;
+  durationMinutes: number;
+  targetGroupSize: number;
+  currentParticipantCount: number;
+  spotsRemaining: number;
+  pricePerPersonCents: number;
+  deadline: string;
+  isExpired: boolean;
+  isFull: boolean;
+  participants: ParticipantSummary[];
+}
+
+export interface GroupLessonResponse {
+  lesson: LessonResponse;
+  isGroupLesson: boolean;
+  maxParticipants: number;
+  groupStatus: GroupLessonStatus;
+  currentParticipantCount: number;
+  pricePerPersonCents: number;
+  invitationToken: string;
+  deadline: string;
+  participants: ParticipantSummary[];
 }

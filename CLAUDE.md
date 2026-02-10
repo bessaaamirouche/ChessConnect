@@ -84,6 +84,22 @@ Apres le premier demarrage, creez un compte via l'interface:
 - **Frontend** : `MaintenanceService` interroge le statut et affiche une banniere d'alerte
 - **Config** : `app.maintenance.enabled=true/false` dans `application.yml` ou variable d'environnement
 
+### Enregistrement Video et Concatenation
+- **Probleme resolu (2026-02-08)** : Les enregistrements multiples ecrasaient les precedents
+- **Solution** : Systeme de concatenation automatique avec FFmpeg
+- **Fonctionnement** :
+  - Jibri cree plusieurs segments quand les participants quittent/rejoignent
+  - Chaque segment est stocke dans `recording_segments` (JSON array)
+  - Scheduler concatene automatiquement 60 min apres le cours
+  - Upload de la video finale sur Bunny CDN
+  - Isolation stricte : chaque cours a ses propres segments
+- **Fichiers cles** :
+  - `VideoConcatenationService.java` - Service de concatenation FFmpeg
+  - `VideoConcatenationScheduler.java` - Scheduler (toutes les 10 min)
+  - `RecordingController.java` - Accumulation des segments
+  - Migration `V23__add_recording_segments.sql`
+- **Rapport d'analyse** : Voir `log_20h-20h45.log` pour l'analyse detaillee des problemes detectes le 2026-02-08
+
 ### Fonctionnalites Principales
 - **Inscription Joueur/Coach** : Creation de compte avec roles et badges visuels
 - **Premier Cours Offert** : Les nouveaux joueurs beneficient d'un premier cours gratuit

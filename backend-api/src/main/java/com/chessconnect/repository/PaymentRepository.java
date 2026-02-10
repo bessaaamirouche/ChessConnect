@@ -24,6 +24,9 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
     Optional<Payment> findByLessonId(Long lessonId);
 
+    @Query("SELECT p FROM Payment p WHERE p.lesson.id = :lessonId AND p.payer.id = :payerId")
+    Optional<Payment> findByLessonIdAndPayerId(@Param("lessonId") Long lessonId, @Param("payerId") Long payerId);
+
     List<Payment> findByPayerIdAndStatus(Long payerId, PaymentStatus status);
 
     @Query("SELECT p FROM Payment p WHERE p.teacher.id = :teacherId AND p.status = 'COMPLETED' " +

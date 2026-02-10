@@ -14,27 +14,9 @@ export class MaintenanceService {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly http = inject(HttpClient);
 
-  private maintenanceMode = signal(false);
-  private maintenanceMessage = signal('');
+  private maintenanceMode = signal(true);
+  private maintenanceMessage = signal('mychess est actuellement en maintenance. Les réservations et paiements sont temporairement suspendus.');
 
   readonly isMaintenanceMode = this.maintenanceMode.asReadonly();
   readonly message = this.maintenanceMessage.asReadonly();
-
-  constructor() {
-    if (isPlatformBrowser(this.platformId)) {
-      this.checkStatus();
-    }
-  }
-
-  private checkStatus(): void {
-    this.http.get<MaintenanceStatus>('/api/maintenance/status').subscribe({
-      next: (status) => {
-        this.maintenanceMode.set(status.enabled);
-        this.maintenanceMessage.set(status.message);
-      },
-      error: () => {
-        // If we can't reach the API, don't show maintenance banner
-      }
-    });
-  }
 }

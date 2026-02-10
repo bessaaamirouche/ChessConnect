@@ -108,8 +108,9 @@ public class RecordingController {
         String filename = payload.get("filename");
         String roomName = payload.get("room");
         String videoUrl = payload.get("url");
+        String filePath = payload.get("path");
 
-        log.info("Recording webhook received: room={}, filename={}, url={}", roomName, filename, videoUrl);
+        log.info("Recording webhook received: room={}, filename={}, path={}", roomName, filename, filePath);
 
         // Validate required fields
         if (roomName == null || filename == null) {
@@ -142,8 +143,38 @@ public class RecordingController {
             return ResponseEntity.ok().body("Lesson not found");
         }
 
-        // Find the local video file
-        File localFile = findRecordingFile(lessonId);
+        // Use the exact file path from the webhook (Jibri uses UUID directories, not room names)
+        File localFile = null;
+        if (filePath != null && !filePath.isBlank()) {
+            try {
+                File candidateFile = new File(filePath);
+                // Security: ensure the path is under the recordings base directory
+                String canonicalPath = candidateFile.getCanonicalPath();
+                String basePath = new File(RECORDINGS_BASE_PATH).getCanonicalPath();
+                if (candidateFile.exists() && candidateFile.isFile() && canonicalPath.startsWith(basePath)) {
+                    localFile = candidateFile;
+                    log.info("Using file from webhook path: {} ({}KB)", filePath, localFile.length() / 1024);
+                } else {
+                    log.warn("Webhook path not valid or not under recordings dir: {}", filePath);
+                }
+            } catch (Exception e) {
+                log.warn("Error validating webhook file path: {}", e.getMessage());
+            }
+        }
+        // Fallback: search by lesson ID pattern (legacy)
+        if (localFile == null) {
+            localFile = findRecordingFile(lessonId);
+        }
+
+        // Pre-compute video title while still in JPA session (avoids LazyInitializationException in async thread)
+        String videoTitle = "Cours " + lessonId;
+        try {
+            videoTitle = "Cours " + lessonId + " - " + lesson.getTeacher().getFirstName()
+                    + " & " + (lesson.getStudent() != null ? lesson.getStudent().getFirstName() : "Groupe");
+        } catch (Exception e) {
+            // Lazy loading might fail, use simple title
+        }
+        final String finalVideoTitle = videoTitle;
 
         // Priority 1: Upload to Bunny Storage CDN (simple file hosting)
         if (bunnyStorageService.isConfigured() && localFile != null && localFile.exists()) {
@@ -158,29 +189,28 @@ public class RecordingController {
                     String cdnUrl = bunnyStorageService.uploadRecording(fileBytes, cdnFilename);
 
                     if (cdnUrl != null) {
-                        lesson.setRecordingUrl(cdnUrl);
-                        lessonRepository.save(lesson);
-                        log.info("Recording uploaded to Bunny CDN for lesson {}: {}", finalLessonId, cdnUrl);
+                        // Re-fetch lesson to avoid race conditions with concurrent webhooks
+                        Lesson freshLesson = lessonRepository.findById(finalLessonId).orElse(null);
+                        if (freshLesson == null) return;
 
-                        // Generate thumbnail from local file before deleting it
-                        thumbnailService.generateThumbnailFromLocalFile(finalLessonId, finalLocalFile);
-
-                        // Delete local file after successful upload
-                        try {
-                            Files.deleteIfExists(finalLocalFile.toPath());
-                            log.debug("Deleted local recording file after CDN upload: {}", finalLocalFile.getPath());
-                        } catch (Exception e) {
-                            log.warn("Could not delete local file after CDN upload: {}", e.getMessage());
+                        freshLesson.addRecordingSegment(cdnUrl);
+                        if (freshLesson.getRecordingUrl() == null) {
+                            freshLesson.setRecordingUrl(cdnUrl);
                         }
+
+                        lessonRepository.save(freshLesson);
+                        log.info("Recording segment added for lesson {} (total segments: {}): {}",
+                                finalLessonId, freshLesson.getRecordingSegmentsList().size(), cdnUrl);
+
+                        // Generate thumbnail from local file (keep file for concatenation)
+                        thumbnailService.generateThumbnailFromLocalFile(finalLessonId, finalLocalFile);
                     } else {
                         log.warn("Failed to upload to Bunny CDN, trying Bunny Stream for lesson {}", finalLessonId);
-                        // Fall back to Bunny Stream
-                        uploadToBunnyStreamFallback(lesson, finalLocalFile, finalLessonId, videoUrl, roomName, filename);
+                        uploadToBunnyStreamFallback(finalVideoTitle, finalLocalFile, finalLessonId, videoUrl, roomName, filename);
                     }
                 } catch (Exception e) {
                     log.error("Error uploading to Bunny CDN for lesson {}", finalLessonId, e);
-                    // Fall back to Bunny Stream
-                    uploadToBunnyStreamFallback(lesson, finalLocalFile, finalLessonId, videoUrl, roomName, filename);
+                    uploadToBunnyStreamFallback(finalVideoTitle, finalLocalFile, finalLessonId, videoUrl, roomName, filename);
                 }
             });
 
@@ -191,8 +221,9 @@ public class RecordingController {
         // Priority 2: Upload to Bunny Stream if Bunny Storage not configured
         if (bunnyStreamService.isConfigured() && localFile != null && localFile.exists()) {
             final Long finalLessonId = lessonId;
+            final File finalLocalFile = localFile;
             CompletableFuture.runAsync(() -> {
-                uploadToBunnyStreamFallback(lesson, localFile, finalLessonId, videoUrl, roomName, filename);
+                uploadToBunnyStreamFallback(finalVideoTitle, finalLocalFile, finalLessonId, videoUrl, roomName, filename);
             });
 
             log.info("Recording upload to Bunny Stream initiated for lesson {}", lessonId);
@@ -206,35 +237,58 @@ public class RecordingController {
             return ResponseEntity.badRequest().body("Invalid video URL");
         }
 
-        lesson.setRecordingUrl(recordingUrl);
-        lessonRepository.save(lesson);
+        // Re-fetch lesson to avoid race conditions
+        Lesson freshLesson = lessonRepository.findById(lessonId).orElse(lesson);
 
-        log.info("Recording linked to lesson {}: {}", lessonId, recordingUrl);
-        return ResponseEntity.ok().body("Recording linked to lesson " + lessonId);
+        freshLesson.addRecordingSegment(recordingUrl);
+        if (freshLesson.getRecordingUrl() == null) {
+            freshLesson.setRecordingUrl(recordingUrl);
+        }
+
+        lessonRepository.save(freshLesson);
+
+        log.info("Recording segment added for lesson {} (total segments: {}): {}",
+                lessonId, freshLesson.getRecordingSegmentsList().size(), recordingUrl);
+        return ResponseEntity.ok().body("Recording segment added for lesson " + lessonId);
     }
 
     /**
      * Fallback method to upload to Bunny Stream if Bunny Storage fails.
+     * @param videoTitle pre-computed title (avoids LazyInitializationException in async threads)
      */
-    private void uploadToBunnyStreamFallback(Lesson lesson, File localFile, Long lessonId,
+    private void uploadToBunnyStreamFallback(String videoTitle, File localFile, Long lessonId,
                                               String videoUrl, String roomName, String filename) {
         try {
             if (bunnyStreamService.isConfigured()) {
-                String title = "Cours " + lessonId + " - " + lesson.getTeacher().getFirstName() + " & " + lesson.getStudent().getFirstName();
-                String bunnyUrl = bunnyStreamService.uploadAndGetUrl(title, localFile);
+                String bunnyUrl = bunnyStreamService.uploadAndGetUrl(videoTitle, localFile);
                 if (bunnyUrl != null) {
-                    lesson.setRecordingUrl(bunnyUrl);
+                    // Re-fetch lesson after potentially long upload
+                    Lesson lesson = lessonRepository.findById(lessonId).orElse(null);
+                    if (lesson == null) return;
+
+                    lesson.addRecordingSegment(bunnyUrl);
+                    if (lesson.getRecordingUrl() == null) {
+                        lesson.setRecordingUrl(bunnyUrl);
+                    }
+
                     lessonRepository.save(lesson);
-                    log.info("Recording uploaded to Bunny Stream for lesson {}: {}", lessonId, bunnyUrl);
+                    log.info("Recording segment added for lesson {} (total segments: {}): {}",
+                            lessonId, lesson.getRecordingSegmentsList().size(), bunnyUrl);
                     return;
                 }
             }
 
             // Final fallback to local URL
             log.warn("Failed to upload to Bunny Stream, keeping local URL for lesson {}", lessonId);
+            Lesson lesson = lessonRepository.findById(lessonId).orElse(null);
+            if (lesson == null) return;
+
             String localUrl = sanitizeAndValidateUrl(videoUrl, roomName, filename);
             if (localUrl != null) {
-                lesson.setRecordingUrl(localUrl);
+                lesson.addRecordingSegment(localUrl);
+                if (lesson.getRecordingUrl() == null) {
+                    lesson.setRecordingUrl(localUrl);
+                }
                 lessonRepository.save(lesson);
             }
         } catch (Exception e) {
@@ -361,38 +415,34 @@ public class RecordingController {
             return null;
         }
 
-        // Search for directories matching patterns:
-        // - "Lesson-{id}"
-        // - "ChessConnect_Lesson-{id}"
-        // - "chessconnect-{id}-*" (old format with timestamp)
-        // - "mychess-lesson-{id}"
-        File[] matchingDirs = baseDir.listFiles((dir, name) -> {
-            if (name.equals("Lesson-" + lessonId)) return true;
-            if (name.equals("ChessConnect_Lesson-" + lessonId)) return true;
-            if (name.startsWith("chessconnect-" + lessonId + "-")) return true;
-            if (name.equals("mychess-lesson-" + lessonId)) return true;
-            return false;
-        });
+        // Filename patterns to match (Jibri uses UUID directories, so match by filename)
+        String chessconnectPrefix = "chessconnect-" + lessonId + "-";
+        String mychessPrefix = "mychess-lesson-" + lessonId;
 
-        if (matchingDirs == null || matchingDirs.length == 0) {
+        // Scan ALL subdirectories for mp4 files matching the lesson ID
+        File[] allDirs = baseDir.listFiles(File::isDirectory);
+        if (allDirs == null) {
             return null;
         }
 
-        // Find the most recent directory (in case of multiple recordings)
-        File latestDir = matchingDirs[0];
-        for (File dir : matchingDirs) {
-            if (dir.lastModified() > latestDir.lastModified()) {
-                latestDir = dir;
+        File latestFile = null;
+        for (File directory : allDirs) {
+            File[] mp4Files = directory.listFiles((dir, name) ->
+                name.endsWith(".mp4") && (
+                    name.startsWith(chessconnectPrefix) ||
+                    name.startsWith(mychessPrefix)
+                )
+            );
+            if (mp4Files != null) {
+                for (File mp4File : mp4Files) {
+                    if (latestFile == null || mp4File.lastModified() > latestFile.lastModified()) {
+                        latestFile = mp4File;
+                    }
+                }
             }
         }
 
-        // Find mp4 file in the directory
-        File[] mp4Files = latestDir.listFiles((dir, name) -> name.endsWith(".mp4"));
-        if (mp4Files != null && mp4Files.length > 0) {
-            return mp4Files[0];
-        }
-
-        return null;
+        return latestFile;
     }
 
     private Long extractLessonId(String roomName) {

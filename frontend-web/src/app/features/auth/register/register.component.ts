@@ -1,6 +1,6 @@
 import { Component, signal, ChangeDetectionStrategy, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth.service';
 import { SeoService } from '../../../core/services/seo.service';
@@ -63,6 +63,7 @@ export class RegisterComponent {
   minBirthYear = 1920;
   maxBirthYear = new Date().getFullYear();
   showPassword = signal(false);
+  returnUrl: string | null = null;
 
   togglePassword(): void {
     this.showPassword.update(v => !v);
@@ -71,8 +72,10 @@ export class RegisterComponent {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {
+    this.returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
     this.seoService.setRegisterPage();
     this.registerForm = this.fb.group({
       firstName: ['', [Validators.required, Validators.minLength(2), nameValidator]],

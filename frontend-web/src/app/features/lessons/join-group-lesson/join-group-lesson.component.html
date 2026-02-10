@@ -1,0 +1,196 @@
+<div class="join-page">
+  <div class="join-container">
+
+    @if (loading()) {
+      <div class="join-card join-card--centered">
+        <div class="spinner-wrapper">
+          <span class="spinner spinner--lg"></span>
+        </div>
+      </div>
+    } @else if (success()) {
+      <div class="join-card join-card--centered join-card--success">
+        <div class="status-icon status-icon--success">&#10004;</div>
+        <h2>{{ 'group_lesson.joinSuccess' | translate }}</h2>
+        <p class="text-secondary">{{ 'booking.redirecting' | translate }}</p>
+      </div>
+    } @else if (alreadyJoined()) {
+      <div class="join-card join-card--centered">
+        <div class="status-icon status-icon--info">
+          <ng-icon name="heroUserGroup" size="48"></ng-icon>
+        </div>
+        <h2>{{ 'group_lesson.alreadyJoined' | translate }}</h2>
+        <div class="action-buttons">
+          <a routerLink="/lessons" class="btn btn--primary">{{ 'lessons.title' | translate }}</a>
+        </div>
+      </div>
+    } @else if (error()) {
+      <div class="join-card join-card--centered join-card--error">
+        <div class="status-icon status-icon--error">&#10006;</div>
+        @if (error() === 'expired') {
+          <h2>{{ 'group_lesson.expired' | translate }}</h2>
+        } @else {
+          <h2>{{ error() }}</h2>
+        }
+        <div class="action-buttons">
+          <a routerLink="/" class="btn btn--ghost">{{ 'nav.home' | translate }}</a>
+        </div>
+      </div>
+    } @else {
+      @if (invitation(); as inv) {
+        <div class="join-card">
+          <div class="card-header">
+            <div class="card-badge">
+              <ng-icon name="heroUserGroup" size="16"></ng-icon>
+              <span>{{ 'group_lesson.title' | translate }}</span>
+            </div>
+            <h1>{{ 'group_lesson.join' | translate }}</h1>
+          </div>
+
+          <!-- Teacher -->
+          <div class="teacher-section">
+            <div class="teacher-avatar">
+              <span>{{ teacherInitials() }}</span>
+            </div>
+            <div class="teacher-info">
+              <span class="teacher-label">{{ 'group_lesson.teacherLabel' | translate }}</span>
+              <span class="teacher-name">{{ teacherDisplayName() }}</span>
+            </div>
+          </div>
+
+          <!-- Details Grid -->
+          <div class="details-grid">
+            <div class="detail-item">
+              <div class="detail-icon">
+                <ng-icon name="heroCalendarDays" size="20"></ng-icon>
+              </div>
+              <div class="detail-content">
+                <span class="detail-label">{{ 'group_lesson.dateLabel' | translate }}</span>
+                <span class="detail-value">{{ formattedDate() }}</span>
+              </div>
+            </div>
+
+            <div class="detail-item">
+              <div class="detail-icon">
+                <ng-icon name="heroClock" size="20"></ng-icon>
+              </div>
+              <div class="detail-content">
+                <span class="detail-label">{{ 'group_lesson.durationLabel' | translate }}</span>
+                <span class="detail-value">{{ formattedTime() }} ({{ inv.durationMinutes }} min)</span>
+              </div>
+            </div>
+
+            <div class="detail-item">
+              <div class="detail-icon">
+                <ng-icon name="heroTicket" size="20"></ng-icon>
+              </div>
+              <div class="detail-content">
+                <span class="detail-label">{{ 'group_lesson.pricePerPerson' | translate }}</span>
+                <span class="detail-value detail-value--gold">{{ formattedPrice() }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Spots remaining -->
+          <div class="spots-section">
+            @if (inv.isFull) {
+              <div class="spots-badge spots-badge--full">
+                {{ 'group_lesson.full' | translate }}
+              </div>
+            } @else if (inv.isExpired) {
+              <div class="spots-badge spots-badge--expired">
+                {{ 'group_lesson.expired' | translate }}
+              </div>
+            } @else {
+              <div class="spots-badge spots-badge--open">
+                {{ 'group_lesson.spotsRemaining' | translate:{ count: inv.spotsRemaining } }}
+              </div>
+              <span class="deadline-text">
+                {{ 'group_lesson.deadline' | translate }}: {{ formattedDeadline() }}
+              </span>
+            }
+          </div>
+
+          <!-- Participants -->
+          @if (inv.participants.length > 0) {
+            <div class="participants-section">
+              <h3>{{ 'group_lesson.participantsLabel' | translate }} ({{ inv.participants.length }}/{{ inv.targetGroupSize }})</h3>
+              <div class="participants-list">
+                @for (p of inv.participants; track p.displayName) {
+                  <div class="participant-item">
+                    <div class="participant-avatar">
+                      {{ p.displayName.charAt(0).toUpperCase() }}
+                    </div>
+                    <span class="participant-name">{{ p.displayName }}</span>
+                    @if (p.role === 'CREATOR') {
+                      <span class="creator-badge">{{ 'group_lesson.createdBy' | translate }}</span>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          <!-- Action Buttons -->
+          @if (!inv.isFull && !inv.isExpired) {
+            <div class="action-section">
+              @if (!authService.isAuthenticated()) {
+                <button class="btn btn--primary btn--full" (click)="goToLogin()">
+                  <ng-icon name="heroArrowRightOnRectangle" size="20"></ng-icon>
+                  {{ 'group_lesson.loginToJoin' | translate }}
+                </button>
+              } @else {
+                <!-- Wallet balance info -->
+                <div class="wallet-info">
+                  <ng-icon name="heroWallet" size="18"></ng-icon>
+                  <span>{{ 'booking.walletBalance' | translate }}: {{ formattedBalance() }}</span>
+                </div>
+
+                @if (canPayWithCredit()) {
+                  <button
+                    class="btn btn--gold btn--full"
+                    (click)="joinWithCredit()"
+                    [disabled]="joining()">
+                    @if (joining()) {
+                      <span class="spinner spinner--sm"></span>
+                      {{ 'group_lesson.joining' | translate }}
+                    } @else {
+                      <ng-icon name="heroWallet" size="20"></ng-icon>
+                      {{ 'group_lesson.joinWithCredit' | translate }}
+                    }
+                  </button>
+                  <div class="payment-separator">
+                    <span>{{ 'login.or' | translate }}</span>
+                  </div>
+                }
+
+                <button
+                  class="btn btn--primary btn--full"
+                  (click)="joinWithCard()"
+                  [disabled]="joining()">
+                  @if (joining() && !canPayWithCredit()) {
+                    <span class="spinner spinner--sm"></span>
+                    {{ 'group_lesson.joining' | translate }}
+                  } @else {
+                    <ng-icon name="heroCreditCard" size="20"></ng-icon>
+                    {{ 'group_lesson.joinWithCard' | translate }}
+                  }
+                </button>
+              }
+            </div>
+          }
+        </div>
+      }
+    }
+
+  </div>
+</div>
+
+<!-- Embedded Stripe Checkout -->
+@if (showCheckout() && checkoutClientSecret()) {
+  <app-embedded-checkout
+    [clientSecret]="checkoutClientSecret()!"
+    title="Paiement - Cours en groupe"
+    (closed)="closeCheckout()"
+    (completed)="onCheckoutCompleted()">
+  </app-embedded-checkout>
+}

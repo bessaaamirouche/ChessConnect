@@ -1,5 +1,6 @@
 package com.chessconnect.dto.lesson;
 
+import com.chessconnect.dto.group.ParticipantSummary;
 import com.chessconnect.model.Course;
 import com.chessconnect.model.Lesson;
 import com.chessconnect.model.Progress;
@@ -7,6 +8,7 @@ import com.chessconnect.model.User;
 import com.chessconnect.model.enums.LessonStatus;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public record LessonResponse(
         Long id,
@@ -38,7 +40,14 @@ public record LessonResponse(
         LocalDateTime createdAt,
         Long courseId,
         String courseTitle,
-        String courseGrade
+        String courseGrade,
+        // Group lesson fields (null for private lessons)
+        Boolean isGroupLesson,
+        Integer maxParticipants,
+        String groupStatus,
+        Integer currentParticipantCount,
+        String invitationToken,
+        List<ParticipantSummary> participants
 ) {
     public static LessonResponse from(Lesson lesson) {
         User student = lesson.getStudent();
@@ -49,6 +58,11 @@ public record LessonResponse(
         Long courseId = course != null ? course.getId() : null;
         String courseTitle = course != null ? course.getTitle() : null;
         String courseGrade = course != null ? course.getGrade().name() : null;
+
+        Boolean isGroup = Boolean.TRUE.equals(lesson.getIsGroupLesson());
+        List<ParticipantSummary> participants = isGroup
+                ? lesson.getActiveParticipants().stream().map(ParticipantSummary::from).toList()
+                : null;
 
         return new LessonResponse(
                 lesson.getId(),
@@ -80,7 +94,13 @@ public record LessonResponse(
                 lesson.getCreatedAt(),
                 courseId,
                 courseTitle,
-                courseGrade
+                courseGrade,
+                isGroup ? true : null,
+                isGroup ? lesson.getMaxParticipants() : null,
+                isGroup ? lesson.getGroupStatus() : null,
+                isGroup ? lesson.getActiveParticipantCount() : null,
+                null, // invitationToken - set by caller when needed
+                participants
         );
     }
 }

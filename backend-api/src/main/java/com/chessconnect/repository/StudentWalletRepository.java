@@ -16,4 +16,6 @@ public interface StudentWalletRepository extends JpaRepository<StudentWallet, Lo
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT w FROM StudentWallet w WHERE w.user.id = :userId")
     Optional<StudentWallet> findByUserIdForUpdate(Long userId);
+
+    void deleteByUserId(Long userId);
 }

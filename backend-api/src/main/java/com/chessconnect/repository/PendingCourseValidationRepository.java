@@ -21,4 +21,8 @@ public interface PendingCourseValidationRepository extends JpaRepository<Pending
     boolean existsByLessonId(Long lessonId);
 
     int countByTeacherIdAndDismissedFalse(Long teacherId);
+
+    void deleteByTeacherId(Long teacherId);
+
+    void deleteByStudentId(Long studentId);
 }

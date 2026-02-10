@@ -31,7 +31,7 @@ import { MaintenanceService } from '../../core/services/maintenance.service';
       right: 0;
       z-index: 999;
 
-      display: flex;
+      display: none;
       justify-content: center;
 
       padding: 1rem 1.5rem;

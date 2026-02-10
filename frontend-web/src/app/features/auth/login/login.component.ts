@@ -1,6 +1,6 @@
 import { Component, signal, ChangeDetectionStrategy, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth.service';
 import { SeoService } from '../../../core/services/seo.service';
@@ -30,6 +30,8 @@ export class LoginComponent {
   contactError = signal<string | null>(null);
   showPassword = signal(false);
 
+  returnUrl: string | null = null;
+
   // Email verification
   emailNotVerified = signal(false);
   unverifiedEmail = signal<string | null>(null);
@@ -44,8 +46,10 @@ export class LoginComponent {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {
+    this.returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
     this.seoService.setLoginPage();
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -78,7 +82,7 @@ export class LoginComponent {
           this.loading.set(false);
           return;
         }
-        this.router.navigate([this.authService.getRedirectRoute()]);
+        this.router.navigateByUrl(this.returnUrl || this.authService.getRedirectRoute());
       },
       error: (err) => {
         if (err.error?.code === 'ACCOUNT_SUSPENDED') {

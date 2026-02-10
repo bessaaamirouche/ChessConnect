@@ -75,6 +75,9 @@ public class SecurityConfig {
                         .requestMatchers("/tracking/**").permitAll()
                         .requestMatchers("/programme/public/**").permitAll()
                         .requestMatchers("/maintenance/**").permitAll()
+                        // Group lessons - public endpoints
+                        .requestMatchers(HttpMethod.GET, "/group-lessons/invitation/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/group-lessons/join/confirm").permitAll()
                         // Actuator endpoints
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers("/actuator/health/**").permitAll()

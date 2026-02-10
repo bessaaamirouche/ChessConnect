@@ -18,6 +18,7 @@ import com.chessconnect.repository.LessonRepository;
 import com.chessconnect.repository.PaymentRepository;
 import com.chessconnect.repository.UserRepository;
 import com.chessconnect.security.UserDetailsImpl;
+import com.chessconnect.service.GroupLessonService;
 import com.chessconnect.service.InvoiceService;
 import com.chessconnect.service.LessonService;
 import com.chessconnect.service.StripeService;
@@ -55,6 +56,7 @@ public class PaymentController {
     private final LessonRepository lessonRepository;
     private final LessonService lessonService;
     private final InvoiceService invoiceService;
+    private final GroupLessonService groupLessonService;
 
     public PaymentController(
             StripeService stripeService,
@@ -63,7 +65,8 @@ public class PaymentController {
             UserRepository userRepository,
             LessonRepository lessonRepository,
             LessonService lessonService,
-            InvoiceService invoiceService
+            InvoiceService invoiceService,
+            GroupLessonService groupLessonService
     ) {
         this.stripeService = stripeService;
         this.subscriptionService = subscriptionService;
@@ -72,6 +75,7 @@ public class PaymentController {
         this.lessonRepository = lessonRepository;
         this.lessonService = lessonService;
         this.invoiceService = invoiceService;
+        this.groupLessonService = groupLessonService;
     }
 
     // Get Stripe publishable key
@@ -311,7 +315,16 @@ public class PaymentController {
             String stripeSubscriptionId = session.getSubscription();
 
             // Activate subscription
-            SubscriptionPlan plan = SubscriptionPlan.valueOf(planName);
+            SubscriptionPlan plan;
+            try {
+                plan = SubscriptionPlan.valueOf(planName);
+            } catch (IllegalArgumentException e) {
+                log.error("Invalid subscription plan in Stripe metadata: {}", planName);
+                return ResponseEntity.badRequest().body(Map.of(
+                        "success", false,
+                        "error", "Plan d'abonnement invalide"
+                ));
+            }
             var subscription = subscriptionService.activateSubscription(stripeSubscriptionId, userId, plan);
 
             log.info("Subscription {} activated for student {} after payment confirmation", subscription.getId(), userId);
@@ -379,10 +392,32 @@ public class PaymentController {
             Long userId = Long.parseLong(userIdStr);
 
             // Extract lesson details from metadata
+            String notes = metadata.get("notes");
+
+            // Detect group lesson join sessions (notes starts with "GROUP_JOIN:")
+            if (notes != null && notes.startsWith("GROUP_JOIN:")) {
+                String groupToken = notes.substring("GROUP_JOIN:".length()).trim();
+                log.info("Detected group join payment for user {} with token {}", userId, groupToken);
+                try {
+                    var groupResponse = groupLessonService.joinAfterStripePayment(userId, groupToken);
+                    return ResponseEntity.ok(Map.of(
+                            "success", true,
+                            "lessonId", groupResponse.lesson().id(),
+                            "message", "Vous avez rejoint le cours !"
+                    ));
+                } catch (IllegalArgumentException e) {
+                    String msg = e.getMessage();
+                    if (msg != null && (msg.contains("already a participant") || msg.contains("already full"))) {
+                        // Already joined (likely via embedded checkout onComplete callback)
+                        return ResponseEntity.ok(Map.of("success", true, "message", "Vous avez rejoint le cours !"));
+                    }
+                    throw e;
+                }
+            }
+
             Long teacherId = Long.parseLong(metadata.get("teacher_id"));
             LocalDateTime scheduledAt = LocalDateTime.parse(metadata.get("scheduled_at"));
             int durationMinutes = Integer.parseInt(metadata.get("duration_minutes"));
-            String notes = metadata.get("notes");
             String courseIdStr = metadata.get("course_id");
             Long courseId = (courseIdStr != null && !courseIdStr.isEmpty()) ? Long.parseLong(courseIdStr) : null;
 
@@ -499,7 +534,18 @@ public class PaymentController {
 
             if ("subscription".equals(mode)) {
                 Long userId = Long.parseLong(metadata.get("user_id"));
-                SubscriptionPlan plan = SubscriptionPlan.valueOf(metadata.get("plan"));
+                String planStr = metadata.get("plan");
+                if (planStr == null) {
+                    log.error("Missing plan in subscription webhook metadata");
+                    return;
+                }
+                SubscriptionPlan plan;
+                try {
+                    plan = SubscriptionPlan.valueOf(planStr);
+                } catch (IllegalArgumentException e) {
+                    log.error("Invalid subscription plan in webhook metadata: {}", planStr);
+                    return;
+                }
                 String stripeSubId = session.getSubscription();
 
                 subscriptionService.activateSubscription(stripeSubId, userId, plan);

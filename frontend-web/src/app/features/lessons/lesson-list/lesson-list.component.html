@@ -71,10 +71,28 @@
                 <h4>
                   @if (authService.isStudent()) {
                     {{ 'lessons.details.with' | translate }} {{ lesson.teacherName }}
+                  } @else if (lesson.isGroupLesson && lesson.participants && lesson.participants.length > 0) {
+                    {{ 'lessons.details.with' | translate }} {{ lesson.participants[0].displayName }}
+                    @if (lesson.participants.length > 1) {
+                      <span class="group-others"> +{{ lesson.participants.length - 1 }}</span>
+                    }
                   } @else {
                     {{ 'lessons.details.with' | translate }} {{ lesson.studentName }}
                   }
                 </h4>
+                @if (lesson.isGroupLesson && lesson.participants && lesson.participants.length > 1 && authService.isTeacher()) {
+                  <div class="group-participants-list">
+                    @for (p of lesson.participants; track p.displayName) {
+                      <span class="group-participant-chip">
+                        <ng-icon name="heroUser" size="12"></ng-icon>
+                        {{ p.displayName }}
+                        @if (p.role === 'CREATOR') {
+                          <small class="creator-tag">{{ 'group_lesson.creator' | translate }}</small>
+                        }
+                      </span>
+                    }
+                  </div>
+                }
                 @if (authService.isTeacher()) {
                   <div class="lesson-card__student-info">
                     @if (lesson.studentLevel) {
@@ -125,6 +143,15 @@
                   @if (lesson.isFromSubscription) {
                     <span class="badge badge--gold">Abo</span>
                   }
+                  @if (lesson.isGroupLesson) {
+                    <span class="badge badge--group">
+                      <ng-icon name="heroUserGroup" size="12"></ng-icon>
+                      {{ 'group_lesson.groupBadgeCount' | translate:{ current: lesson.currentParticipantCount || 1, max: lesson.maxParticipants || 3 } }}
+                    </span>
+                  }
+                  @if (lesson.isGroupLesson && lesson.groupStatus === 'DEADLINE_PASSED' && authService.isStudent()) {
+                    <span class="badge badge--warning">{{ 'group_lesson.deadlinePassed' | translate }}</span>
+                  }
                 </div>
               </div>
 
@@ -148,10 +175,27 @@
                     {{ 'lessons.complete' | translate }}
                   </button>
                 }
-                @if (lesson.status !== 'CANCELLED' && lesson.status !== 'COMPLETED') {
-                  <button class="btn btn--ghost btn--sm" (click)="cancelLesson(lesson.id)">
-                    {{ 'common.cancel' | translate }}
+                @if (lesson.isGroupLesson && lesson.invitationToken && lesson.groupStatus === 'OPEN' && authService.isStudent()) {
+                  <button class="btn btn--ghost btn--sm" (click)="copyInvitationLink(lesson.invitationToken!)" [title]="'group_lesson.invite' | translate">
+                    <ng-icon name="heroClipboardDocument" size="16"></ng-icon>
+                    {{ linkCopied() ? ('group_lesson.linkCopied' | translate) : ('group_lesson.invite' | translate) }}
                   </button>
+                }
+                @if (lesson.isGroupLesson && lesson.groupStatus === 'DEADLINE_PASSED' && authService.isStudent()) {
+                  <button class="btn btn--primary btn--sm" (click)="openDeadlineModal(lesson.id)">
+                    {{ 'group_lesson.resolveDeadline' | translate }}
+                  </button>
+                }
+                @if (lesson.status !== 'CANCELLED' && lesson.status !== 'COMPLETED') {
+                  @if (lesson.isGroupLesson && authService.isStudent()) {
+                    <button class="btn btn--ghost btn--sm" (click)="leaveGroupLesson(lesson.id)">
+                      {{ 'group_lesson.leaveGroup' | translate }}
+                    </button>
+                  } @else {
+                    <button class="btn btn--ghost btn--sm" (click)="cancelLesson(lesson.id)">
+                      {{ 'common.cancel' | translate }}
+                    </button>
+                  }
                 }
                 @if (lesson.status === 'CANCELLED') {
                   @if (lesson.cancellationReason) {
@@ -275,6 +319,11 @@
                   <div class="history-card__person">
                     @if (authService.isStudent()) {
                       {{ lesson.teacherName }}
+                    } @else if (lesson.isGroupLesson && lesson.participants && lesson.participants.length > 0) {
+                      {{ lesson.participants[0].displayName }}
+                      @if (lesson.participants.length > 1) {
+                        <span class="group-others"> +{{ lesson.participants.length - 1 }}</span>
+                      }
                     } @else {
                       {{ lesson.studentName }}
                     }
@@ -287,6 +336,12 @@
                 <span class="badge badge--sm" [class]="statusLabels[lesson.status].cssClass">
                   {{ getStatusLabel(lesson) }}
                 </span>
+                @if (lesson.isGroupLesson) {
+                  <span class="badge badge--sm badge--group">
+                    <ng-icon name="heroUserGroup" size="10"></ng-icon>
+                    {{ 'group_lesson.groupBadge' | translate }}
+                  </span>
+                }
                 <div class="history-card__dropdown">
                   <button
                     class="history-card__dropdown-trigger"
@@ -514,6 +569,45 @@
             {{ 'common.save' | translate }}
           }
         </button>
+      </div>
+    </div>
+  }
+
+  <!-- Group Deadline Resolution Modal -->
+  @if (showDeadlineModal()) {
+    <div class="modal-overlay" (click)="closeDeadlineModal()"></div>
+    <div class="complete-modal">
+      <div class="complete-modal__header">
+        <h3>{{ 'group_lesson.resolveDeadline' | translate }}</h3>
+        <button class="complete-modal__close" (click)="closeDeadlineModal()">
+          <ng-icon name="heroXMark" size="20"></ng-icon>
+        </button>
+      </div>
+      <div class="complete-modal__content">
+        <div class="deadline-options">
+          <button
+            class="deadline-option"
+            [disabled]="resolvingDeadline()"
+            (click)="resolveDeadline('PAY_FULL')"
+          >
+            <strong>{{ 'group_lesson.payFull' | translate }}</strong>
+            <span>{{ 'group_lesson.payFullDesc' | translate:{ amount: '' } }}</span>
+          </button>
+          <button
+            class="deadline-option deadline-option--danger"
+            [disabled]="resolvingDeadline()"
+            (click)="resolveDeadline('CANCEL')"
+          >
+            <strong>{{ 'group_lesson.cancelGroup' | translate }}</strong>
+            <span>{{ 'group_lesson.cancelGroupDesc' | translate }}</span>
+          </button>
+        </div>
+        @if (resolvingDeadline()) {
+          <div class="deadline-loading">
+            <span class="spinner spinner--sm"></span>
+            {{ 'group_lesson.resolving' | translate }}
+          </div>
+        }
       </div>
     </div>
   }

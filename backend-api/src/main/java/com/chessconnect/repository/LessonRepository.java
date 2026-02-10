@@ -42,6 +42,7 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
     @Query(value = "SELECT * FROM lessons l WHERE l.teacher_id = :teacherId " +
            "AND (l.scheduled_at + (l.duration_minutes * INTERVAL '1 minute')) >= :dateTime " +
            "AND l.status IN ('PENDING', 'CONFIRMED', 'CANCELLED') " +
+           "AND (l.deleted_by_teacher IS NULL OR l.deleted_by_teacher = false) " +
            "ORDER BY l.scheduled_at ASC", nativeQuery = true)
     List<Lesson> findUpcomingLessonsForTeacher(
             @Param("teacherId") Long teacherId,
@@ -51,6 +52,7 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
     @Query(value = "SELECT * FROM lessons l WHERE l.student_id = :studentId " +
            "AND (l.scheduled_at + (l.duration_minutes * INTERVAL '1 minute')) >= :dateTime " +
            "AND l.status IN ('PENDING', 'CONFIRMED', 'CANCELLED') " +
+           "AND (l.deleted_by_student IS NULL OR l.deleted_by_student = false) " +
            "ORDER BY l.scheduled_at ASC", nativeQuery = true)
     List<Lesson> findUpcomingLessonsForStudent(
             @Param("studentId") Long studentId,
@@ -185,6 +187,15 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
             @Param("dateFrom") LocalDateTime dateFrom,
             @Param("dateTo") LocalDateTime dateTo
     );
+
+    // Group lessons: find open groups approaching deadline
+    @Query("SELECT l FROM Lesson l WHERE l.isGroupLesson = true AND l.groupStatus = 'OPEN' AND l.scheduledAt BETWEEN :now AND :deadline AND l.status IN ('PENDING', 'CONFIRMED')")
+    List<Lesson> findGroupLessonsApproachingDeadline(@Param("now") LocalDateTime now, @Param("deadline") LocalDateTime deadline);
+
+    // Pessimistic lock on lesson for concurrent join prevention
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT l FROM Lesson l WHERE l.id = :id")
+    java.util.Optional<Lesson> findByIdForUpdate(@Param("id") Long id);
 
     // Admin: Find lessons with messages/notes for review
     @Query("SELECT l FROM Lesson l " +

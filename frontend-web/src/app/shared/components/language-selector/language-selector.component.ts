@@ -15,7 +15,6 @@ import { LanguageService, Language } from '../../../core/services/language.servi
         aria-haspopup="true"
       >
         <span class="language-flag">{{ getCurrentFlag() }}</span>
-        <span class="language-code">{{ languageService.currentLang().toUpperCase() }}</span>
         <svg class="chevron" [class.open]="isOpen" viewBox="0 0 20 20" fill="currentColor">
           <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
         </svg>
@@ -68,10 +67,6 @@ import { LanguageService, Language } from '../../../core/services/language.servi
       line-height: 1;
     }
 
-    .language-code {
-      font-size: 0.875rem;
-      font-weight: 500;
-    }
 
     .chevron {
       width: 1rem;

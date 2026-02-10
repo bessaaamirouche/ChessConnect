@@ -8,8 +8,20 @@
       @if (success()) {
         <div class="success-card text-center">
           <div class="success-icon">&#10004;</div>
-          <h2 class="heading-3">{{ 'booking.success.title' | translate }}</h2>
-          <p class="text-secondary">{{ 'booking.redirecting' | translate }}</p>
+          @if (groupCreatedToken()) {
+            <h2 class="heading-3">{{ 'group_lesson.createSuccess' | translate }}</h2>
+            <p class="text-secondary">{{ 'group_lesson.shareLink' | translate }}</p>
+            <div class="invitation-link-box">
+              <code class="invitation-link-box__url">{{ 'https://mychess.fr/join/' + groupCreatedToken() }}</code>
+              <button class="btn btn--primary btn--sm" (click)="copyInvitationLink()">
+                {{ linkCopied() ? ('group_lesson.linkCopied' | translate) : ('group_lesson.copyLink' | translate) }}
+              </button>
+            </div>
+            <a routerLink="/lessons" class="btn btn--ghost" style="margin-top: 16px;">{{ 'booking.success.viewLesson' | translate }}</a>
+          } @else {
+            <h2 class="heading-3">{{ 'booking.success.title' | translate }}</h2>
+            <p class="text-secondary">{{ 'booking.redirecting' | translate }}</p>
+          }
         </div>
       } @else if (teacherService.selectedTeacher()) {
         <div class="booking-content">
@@ -36,8 +48,70 @@
             </div>
           </div>
 
-          <!-- Payment Info -->
-          <div class="subscription-info">
+          <!-- Lesson Type Toggle (Private / Group) -->
+          <div class="lesson-type-toggle">
+            <button
+              type="button"
+              class="lesson-type-btn"
+              [class.lesson-type-btn--active]="!isGroupMode()"
+              (click)="toggleGroupMode(false)"
+            >
+              {{ 'group_lesson.private' | translate }}
+            </button>
+            <button
+              type="button"
+              class="lesson-type-btn"
+              [class.lesson-type-btn--active]="isGroupMode()"
+              (click)="toggleGroupMode(true)"
+            >
+              {{ 'group_lesson.group' | translate }}
+            </button>
+          </div>
+
+          @if (isGroupMode()) {
+            <!-- Group Size Selector -->
+            <div class="group-size-selector">
+              <label class="group-size-selector__label">{{ 'group_lesson.groupSize' | translate }}</label>
+              <div class="group-size-selector__options">
+                <button
+                  type="button"
+                  class="group-size-btn"
+                  [class.group-size-btn--active]="groupSize() === 2"
+                  (click)="setGroupSize(2)"
+                >
+                  {{ 'group_lesson.groupSizeLabel2' | translate }}
+                  <span class="group-size-btn__savings">-40%</span>
+                </button>
+                <button
+                  type="button"
+                  class="group-size-btn"
+                  [class.group-size-btn--active]="groupSize() === 3"
+                  (click)="setGroupSize(3)"
+                >
+                  {{ 'group_lesson.groupSizeLabel3' | translate }}
+                  <span class="group-size-btn__savings">-55%</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Group Price Info -->
+            <div class="subscription-info">
+              <div class="subscription-info__card subscription-info__card--payment">
+                <span class="subscription-info__icon"><ng-icon name="heroBanknotes" size="18"></ng-icon></span>
+                <div>
+                  <strong>{{ 'group_lesson.pricePerPerson' | translate }}</strong>
+                  <p>{{ formatPrice(groupPricePerPerson()) }}</p>
+                </div>
+              </div>
+            </div>
+
+            <p class="group-deadline-info">
+              <ng-icon name="heroArrowPath" size="14"></ng-icon>
+              {{ 'group_lesson.deadlineInfo' | translate }}
+            </p>
+          } @else {
+            <!-- Payment Info (private lesson) -->
+            <div class="subscription-info">
               <div class="subscription-info__card subscription-info__card--payment">
                 <span class="subscription-info__icon"><ng-icon name="heroBanknotes" size="18"></ng-icon></span>
                 <div>
@@ -46,6 +120,7 @@
                 </div>
               </div>
             </div>
+          }
 
             <!-- Wallet Balance -->
             @if (walletService.balance() > 0) {
@@ -198,26 +273,30 @@
             <!-- Price Summary -->
             <div class="price-summary">
               <div class="price-summary__row">
-                <span>{{ 'booking.price' | translate }}</span>
+                <span>{{ isGroupMode() ? ('group_lesson.pricePerPerson' | translate) : ('booking.price' | translate) }}</span>
                 <span class="price-summary__value">
-                  {{ formatPrice(teacherService.selectedTeacher()?.hourlyRateCents) }}
+                  {{ formatPrice(effectivePrice()) }}
                 </span>
               </div>
+              @if (isGroupMode()) {
+                <div class="price-summary__row price-summary__row--savings">
+                  <span>{{ 'group_lesson.savings' | translate:{ percent: groupSavingsPercent() } }}</span>
+                </div>
+              }
             </div>
 
             <button
               type="submit"
               class="btn btn--block btn--primary"
-              [class.btn--credit]="payWithCreditSignal() && canPayWithCredit()"
-              [disabled]="!selectedSlot() || !programmeService.currentCourse() || loading()"
+              [class.btn--credit]="!isGroupMode() && payWithCreditSignal() && canPayWithCredit()"
+              [disabled]="!selectedSlot() || !programmeService.currentCourse() || loading() || (isGroupMode() && !canPayGroupWithCredit())"
             >
               @if (loading()) {
                 <span class="spinner spinner--sm"></span>
-                @if (payWithCreditSignal() && canPayWithCredit()) {
-                  {{ 'booking.processing' | translate }}
-                } @else {
-                  {{ 'booking.redirecting' | translate }}
-                }
+                {{ 'booking.processing' | translate }}
+              } @else if (isGroupMode()) {
+                <ng-icon name="heroWallet" size="18"></ng-icon>
+                {{ 'group_lesson.group' | translate }} — {{ formatPrice(groupPricePerPerson()) }}
               } @else {
                 @if (payWithCreditSignal() && canPayWithCredit()) {
                   <ng-icon name="heroWallet" size="18"></ng-icon>
@@ -228,6 +307,12 @@
                 }
               }
               </button>
+            @if (isGroupMode() && !canPayGroupWithCredit()) {
+              <p class="group-insufficient-balance">
+                {{ 'group_lesson.insufficientBalance' | translate }} —
+                <a routerLink="/wallet">{{ 'booking.addFunds' | translate }}</a>
+              </p>
+            }
           </form>
         </div>
       } @else {

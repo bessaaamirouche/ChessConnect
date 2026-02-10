@@ -173,8 +173,8 @@ export class WalletComponent implements OnInit {
     this.walletService.confirmTopUp(sessionId).subscribe({
       next: (response) => {
         if (response.success) {
-          // confirmTopUp already updates walletSignal via tap() in the service,
-          // so only reload transactions for the new line item
+          // Reload full wallet (balance + stats) and transactions
+          this.walletService.loadWallet().subscribe();
           this.walletService.loadTransactions().subscribe(() => {
             this.cdr.detectChanges();
             this.appRef.tick();

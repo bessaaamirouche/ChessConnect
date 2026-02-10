@@ -58,6 +58,12 @@ public class AdminService {
     private final CreditTransactionRepository creditTransactionRepository;
     private final EmailVerificationTokenRepository emailVerificationTokenRepository;
     private final PageViewRepository pageViewRepository;
+    private final StudentWalletRepository studentWalletRepository;
+    private final LessonParticipantRepository lessonParticipantRepository;
+    private final GroupInvitationRepository groupInvitationRepository;
+    private final PushSubscriptionRepository pushSubscriptionRepository;
+    private final VideoWatchProgressRepository videoWatchProgressRepository;
+    private final PendingCourseValidationRepository pendingCourseValidationRepository;
 
     public AdminService(
             UserRepository userRepository,
@@ -81,7 +87,13 @@ public class AdminService {
             UserNotificationRepository userNotificationRepository,
             CreditTransactionRepository creditTransactionRepository,
             EmailVerificationTokenRepository emailVerificationTokenRepository,
-            PageViewRepository pageViewRepository
+            PageViewRepository pageViewRepository,
+            StudentWalletRepository studentWalletRepository,
+            LessonParticipantRepository lessonParticipantRepository,
+            GroupInvitationRepository groupInvitationRepository,
+            PushSubscriptionRepository pushSubscriptionRepository,
+            VideoWatchProgressRepository videoWatchProgressRepository,
+            PendingCourseValidationRepository pendingCourseValidationRepository
     ) {
         this.userRepository = userRepository;
         this.lessonRepository = lessonRepository;
@@ -105,6 +117,12 @@ public class AdminService {
         this.creditTransactionRepository = creditTransactionRepository;
         this.emailVerificationTokenRepository = emailVerificationTokenRepository;
         this.pageViewRepository = pageViewRepository;
+        this.studentWalletRepository = studentWalletRepository;
+        this.lessonParticipantRepository = lessonParticipantRepository;
+        this.groupInvitationRepository = groupInvitationRepository;
+        this.pushSubscriptionRepository = pushSubscriptionRepository;
+        this.videoWatchProgressRepository = videoWatchProgressRepository;
+        this.pendingCourseValidationRepository = pendingCourseValidationRepository;
     }
 
     /**
@@ -295,33 +313,66 @@ public class AdminService {
         creditTransactionRepository.deleteByLessonTeacherId(userId);
         log.debug("Deleted credit transactions for user {}", userId);
 
-        // 10. Nullify lesson references in invoices (preserves invoices for accounting)
+        // 10. Pending course validations
+        pendingCourseValidationRepository.deleteByTeacherId(userId);
+        pendingCourseValidationRepository.deleteByStudentId(userId);
+        log.debug("Deleted pending course validations for user {}", userId);
+
+        // 11. Lesson participants and group invitations (FK to lessons)
+        lessonParticipantRepository.deleteByStudentId(userId);
+        groupInvitationRepository.deleteByCreatedById(userId);
+        log.debug("Deleted lesson participants and group invitations for user {}", userId);
+
+        // 12. Nullify lesson references in invoices (preserves invoices for accounting)
         invoiceRepository.nullifyLessonByStudentId(userId);
         invoiceRepository.nullifyLessonByTeacherId(userId);
         log.debug("Nullified lesson references in invoices for user {}", userId);
 
-        // 11. Lessons (as student or teacher) - must be after all FK references are removed
+        // 13. Clean up lesson-related FKs (participants, invitations) for ALL lessons of this user
+        List<Lesson> userLessons = new java.util.ArrayList<>();
+        userLessons.addAll(lessonRepository.findByStudentIdOrderByScheduledAtDesc(userId));
+        userLessons.addAll(lessonRepository.findByTeacherIdOrderByScheduledAtDesc(userId));
+        for (Lesson lesson : userLessons) {
+            lessonParticipantRepository.deleteByLessonId(lesson.getId());
+            groupInvitationRepository.deleteByLessonId(lesson.getId());
+            pendingCourseValidationRepository.deleteByLessonId(lesson.getId());
+        }
+        log.debug("Deleted lesson participants/invitations/validations for user {}'s lessons", userId);
+
+        // 14. Lessons (as student or teacher) - must be after all FK references are removed
         lessonRepository.deleteByStudentId(userId);
         lessonRepository.deleteByTeacherId(userId);
         log.debug("Deleted lessons for user {}", userId);
 
-        // 12. Subscriptions
+        // 14. Subscriptions
         subscriptionRepository.deleteByStudentId(userId);
         log.debug("Deleted subscriptions for user {}", userId);
 
-        // 13. Progress
+        // 15. Progress
         progressRepository.deleteByStudentId(userId);
         log.debug("Deleted progress for user {}", userId);
 
-        // 14. User notifications
+        // 16. User notifications
         userNotificationRepository.deleteByUserId(userId);
         log.debug("Deleted notifications for user {}", userId);
 
-        // 15. Page views (analytics)
+        // 17. Page views (analytics)
         pageViewRepository.deleteByUserId(userId);
         log.debug("Deleted page views for user {}", userId);
 
-        // 16. Finally delete the user
+        // 18. Video watch progress
+        videoWatchProgressRepository.deleteByUserId(userId);
+        log.debug("Deleted video watch progress for user {}", userId);
+
+        // 19. Push subscriptions
+        pushSubscriptionRepository.deleteByUserId(userId);
+        log.debug("Deleted push subscriptions for user {}", userId);
+
+        // 20. Student wallet
+        studentWalletRepository.deleteByUserId(userId);
+        log.debug("Deleted student wallet for user {}", userId);
+
+        // 21. Finally delete the user
         userRepository.delete(user);
         log.info("User {} deleted successfully", userId);
     }

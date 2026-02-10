@@ -1385,3 +1385,108 @@
     border-top: 1px solid var(--border-subtle);
   }
 }
+
+// Group participants list (teacher view)
+.group-others {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--gold-400);
+}
+
+.group-participants-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.group-participant-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+
+  ng-icon {
+    color: var(--text-muted);
+  }
+}
+
+.creator-tag {
+  font-size: 0.625rem;
+  font-weight: 500;
+  color: var(--gold-400);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+// Group lesson badge
+.badge--group {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(#d4a84b, 0.15);
+  color: #d4a84b;
+  border: 1px solid rgba(#d4a84b, 0.3);
+}
+
+.badge--warning {
+  background: rgba(#f59e0b, 0.15);
+  color: #f59e0b;
+  border: 1px solid rgba(#f59e0b, 0.3);
+}
+
+// Deadline resolution modal options
+.deadline-options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.deadline-option {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--space-md);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  background: var(--bg-tertiary);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.2s, background 0.2s;
+
+  &:hover {
+    border-color: var(--gold-400, #d4a84b);
+    background: rgba(#d4a84b, 0.05);
+  }
+
+  strong {
+    color: var(--text-primary);
+    font-size: 0.95rem;
+  }
+
+  span {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+  }
+
+  &--danger {
+    &:hover {
+      border-color: #ef4444;
+      background: rgba(#ef4444, 0.05);
+    }
+  }
+}
+
+.deadline-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  color: var(--text-muted);
+}

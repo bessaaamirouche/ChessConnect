@@ -16,4 +16,6 @@ public interface VideoWatchProgressRepository extends JpaRepository<VideoWatchPr
     @Modifying
     @Transactional
     void deleteByUserIdAndLessonId(Long userId, Long lessonId);
+
+    void deleteByUserId(Long userId);
 }

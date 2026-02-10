@@ -3,6 +3,8 @@ package com.chessconnect.model;
 import com.chessconnect.model.enums.LessonStatus;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "lessons", indexes = {
@@ -112,12 +114,28 @@ public class Lesson {
     @Column(name = "thumbnail_url")
     private String thumbnailUrl;
 
+    @Column(name = "recording_segments", columnDefinition = "TEXT")
+    private String recordingSegments; // JSON array of segment URLs before concatenation
+
     @Column(name = "teacher_joined_at")
     private LocalDateTime teacherJoinedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id")
     private Course course;
+
+    // Group lesson fields
+    @Column(name = "is_group_lesson", nullable = false)
+    private Boolean isGroupLesson = false;
+
+    @Column(name = "max_participants")
+    private Integer maxParticipants = 1;
+
+    @Column(name = "group_status")
+    private String groupStatus;
+
+    @OneToMany(mappedBy = "lesson", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<LessonParticipant> participants = new ArrayList<>();
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -180,7 +198,9 @@ public class Lesson {
     }
 
     public Integer getCommissionCents() { return commissionCents; }
+    public void setCommissionCents(Integer commissionCents) { this.commissionCents = commissionCents; }
     public Integer getTeacherEarningsCents() { return teacherEarningsCents; }
+    public void setTeacherEarningsCents(Integer teacherEarningsCents) { this.teacherEarningsCents = teacherEarningsCents; }
 
     public Boolean getIsFromSubscription() { return isFromSubscription; }
     public void setIsFromSubscription(Boolean isFromSubscription) { this.isFromSubscription = isFromSubscription; }
@@ -233,6 +253,9 @@ public class Lesson {
     public String getThumbnailUrl() { return thumbnailUrl; }
     public void setThumbnailUrl(String thumbnailUrl) { this.thumbnailUrl = thumbnailUrl; }
 
+    public String getRecordingSegments() { return recordingSegments; }
+    public void setRecordingSegments(String recordingSegments) { this.recordingSegments = recordingSegments; }
+
     public LocalDateTime getTeacherJoinedAt() { return teacherJoinedAt; }
     public void setTeacherJoinedAt(LocalDateTime teacherJoinedAt) { this.teacherJoinedAt = teacherJoinedAt; }
 
@@ -241,4 +264,64 @@ public class Lesson {
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
+
+    // Recording segments helpers
+    public List<String> getRecordingSegmentsList() {
+        if (recordingSegments == null || recordingSegments.isBlank()) {
+            return new ArrayList<>();
+        }
+        try {
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            return mapper.readValue(recordingSegments, new com.fasterxml.jackson.core.type.TypeReference<List<String>>() {});
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
+    }
+
+    public void addRecordingSegment(String segmentUrl) {
+        List<String> segments = getRecordingSegmentsList();
+        if (!segments.contains(segmentUrl)) {
+            segments.add(segmentUrl);
+            try {
+                com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+                this.recordingSegments = mapper.writeValueAsString(segments);
+            } catch (Exception e) {
+                // Log error but don't throw
+            }
+        }
+    }
+
+    public boolean hasMultipleSegments() {
+        return getRecordingSegmentsList().size() > 1;
+    }
+
+    // Group lesson getters/setters
+    public Boolean getIsGroupLesson() { return isGroupLesson; }
+    public void setIsGroupLesson(Boolean isGroupLesson) { this.isGroupLesson = isGroupLesson; }
+
+    public Integer getMaxParticipants() { return maxParticipants; }
+    public void setMaxParticipants(Integer maxParticipants) { this.maxParticipants = maxParticipants; }
+
+    public String getGroupStatus() { return groupStatus; }
+    public void setGroupStatus(String groupStatus) { this.groupStatus = groupStatus; }
+
+    public List<LessonParticipant> getParticipants() { return participants; }
+    public void setParticipants(List<LessonParticipant> participants) { this.participants = participants; }
+
+    // Group lesson helpers
+    public List<LessonParticipant> getActiveParticipants() {
+        return participants.stream()
+                .filter(p -> "ACTIVE".equals(p.getStatus()))
+                .toList();
+    }
+
+    public int getActiveParticipantCount() {
+        return (int) participants.stream()
+                .filter(p -> "ACTIVE".equals(p.getStatus()))
+                .count();
+    }
+
+    public boolean isGroupFull() {
+        return getActiveParticipantCount() >= maxParticipants;
+    }
 }

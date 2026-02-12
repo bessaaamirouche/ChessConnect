@@ -1,7 +1,7 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, signal, computed, inject } from '@angular/core';
+
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { heroUserGroup, heroCalendarDays, heroClock, heroTicket, heroWallet, heroArrowRightOnRectangle, heroCreditCard } from '@ng-icons/heroicons/outline';
 import { GroupLessonService } from '../../../core/services/group-lesson.service';
@@ -11,20 +11,19 @@ import { EmbeddedCheckoutComponent } from '../../../shared/embedded-checkout/emb
 import { GroupInvitationResponse } from '@contracts';
 
 @Component({
-  selector: 'app-join-group-lesson',
-  standalone: true,
-  imports: [CommonModule, RouterLink, TranslateModule, NgIconComponent, EmbeddedCheckoutComponent],
-  viewProviders: [provideIcons({
-    heroUserGroup,
-    heroCalendarDays,
-    heroClock,
-    heroTicket,
-    heroWallet,
-    heroArrowRightOnRectangle,
-    heroCreditCard
-  })],
-  templateUrl: './join-group-lesson.component.html',
-  styleUrl: './join-group-lesson.component.scss'
+    selector: 'app-join-group-lesson',
+    imports: [RouterLink, TranslateModule, NgIconComponent, EmbeddedCheckoutComponent],
+    viewProviders: [provideIcons({
+            heroUserGroup,
+            heroCalendarDays,
+            heroClock,
+            heroTicket,
+            heroWallet,
+            heroArrowRightOnRectangle,
+            heroCreditCard
+        })],
+    templateUrl: './join-group-lesson.component.html',
+    styleUrl: './join-group-lesson.component.scss'
 })
 export class JoinGroupLessonComponent implements OnInit {
   loading = signal(true);
@@ -105,6 +104,8 @@ export class JoinGroupLessonComponent implements OnInit {
     });
   });
 
+  private translate = inject(TranslateService);
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -117,7 +118,7 @@ export class JoinGroupLessonComponent implements OnInit {
     this.token = this.route.snapshot.paramMap.get('token') || '';
 
     if (!this.token) {
-      this.error.set('Token invalide');
+      this.error.set(this.translate.instant('errors.tokenInvalid'));
       this.loading.set(false);
       return;
     }
@@ -142,7 +143,7 @@ export class JoinGroupLessonComponent implements OnInit {
         } else if (err.status === 410 || err.status === 404) {
           this.error.set('expired');
         } else {
-          this.error.set(err.error?.error || 'Une erreur est survenue');
+          this.error.set(err.error?.error || this.translate.instant('errors.generic'));
         }
         this.loading.set(false);
       }
@@ -165,7 +166,7 @@ export class JoinGroupLessonComponent implements OnInit {
         if (err.status === 409) {
           this.alreadyJoined.set(true);
         } else {
-          this.error.set(err.error?.error || 'Erreur lors de la tentative de rejoindre le cours');
+          this.error.set(err.error?.error || this.translate.instant('errors.joiningLesson'));
         }
         this.joining.set(false);
       }
@@ -189,7 +190,7 @@ export class JoinGroupLessonComponent implements OnInit {
         if (err.status === 409) {
           this.alreadyJoined.set(true);
         } else {
-          this.error.set(err.error?.error || 'Erreur lors de la creation du paiement');
+          this.error.set(err.error?.error || this.translate.instant('errors.checkoutCreate'));
         }
         this.joining.set(false);
       }
@@ -217,7 +218,7 @@ export class JoinGroupLessonComponent implements OnInit {
           }, 2000);
         },
         error: (err) => {
-          this.error.set(err.error?.error || 'Erreur lors de la confirmation du paiement');
+          this.error.set(err.error?.error || this.translate.instant('errors.paymentConfirm'));
           this.joining.set(false);
         }
       });

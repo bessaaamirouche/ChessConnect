@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TeacherService } from '../../../core/services/teacher.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { FavoriteService } from '../../../core/services/favorite.service';
@@ -10,17 +10,17 @@ import { StructuredDataService } from '../../../core/services/structured-data.se
 import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
-  selector: 'app-teacher-profile',
-  standalone: true,
-  imports: [RouterLink, TranslateModule],
-  templateUrl: './teacher-profile.component.html',
-  styleUrl: './teacher-profile.component.scss'
+    selector: 'app-teacher-profile',
+    imports: [RouterLink, TranslateModule],
+    templateUrl: './teacher-profile.component.html',
+    styleUrl: './teacher-profile.component.scss'
 })
 export class TeacherProfileComponent implements OnInit {
   private seoService = inject(SeoService);
   private structuredDataService = inject(StructuredDataService);
   private favoriteService = inject(FavoriteService);
   private toastService = inject(ToastService);
+  private translate = inject(TranslateService);
   paymentService = inject(PaymentService);
 
   isFavorite = signal(false);
@@ -41,8 +41,8 @@ export class TeacherProfileComponent implements OnInit {
         this.seoService.setTeacherProfilePage(teacher);
         this.structuredDataService.setTeacherSchema(teacher);
         this.structuredDataService.setBreadcrumbSchema([
-          { name: 'Accueil', url: 'https://mychess.fr/' },
-          { name: 'Coachs', url: 'https://mychess.fr/coaches' },
+          { name: this.translate.instant('legal.home'), url: 'https://mychess.fr/' },
+          { name: this.translate.instant('breadcrumbs.coaches'), url: 'https://mychess.fr/coaches' },
           { name: `${teacher.firstName} ${teacher.lastName}`, url: `https://mychess.fr/coaches/${teacher.uuid}` }
         ]);
       });
@@ -68,12 +68,12 @@ export class TeacherProfileComponent implements OnInit {
       this.favoriteService.removeFavorite(this.teacherId).subscribe(() => {
         this.isFavorite.set(false);
         this.notifyEnabled.set(false);
-        this.toastService.info('Retiré des favoris');
+        this.toastService.info(this.translate.instant('success.removedFromFavorites'));
       });
     } else {
       this.favoriteService.addFavorite(this.teacherId).subscribe(() => {
         this.isFavorite.set(true);
-        this.toastService.success('Ajouté aux favoris');
+        this.toastService.success(this.translate.instant('success.addedToFavorites'));
       });
     }
   }
@@ -85,9 +85,9 @@ export class TeacherProfileComponent implements OnInit {
     this.favoriteService.updateNotifications(this.teacherId, newValue).subscribe(() => {
       this.notifyEnabled.set(newValue);
       if (newValue) {
-        this.toastService.success('Vous serez notifié des nouveaux créneaux');
+        this.toastService.success(this.translate.instant('success.notificationsEnabled'));
       } else {
-        this.toastService.info('Notifications désactivées');
+        this.toastService.info(this.translate.instant('success.notificationsDisabled'));
       }
     });
   }

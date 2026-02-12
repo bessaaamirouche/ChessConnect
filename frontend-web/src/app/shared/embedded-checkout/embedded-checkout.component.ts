@@ -1,23 +1,23 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, signal, PLATFORM_ID, Inject, ElementRef, ViewChild, ViewEncapsulation, ApplicationRef, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, PLATFORM_ID, ElementRef, ViewEncapsulation, ApplicationRef, ChangeDetectorRef, input, output, viewChild, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { heroXMark, heroCreditCard } from '@ng-icons/heroicons/outline';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { StripeService } from '../../core/services/stripe.service';
 import { StripeEmbeddedCheckout } from '@stripe/stripe-js';
 
 @Component({
-  selector: 'app-embedded-checkout',
-  standalone: true,
-  imports: [NgIconComponent],
-  viewProviders: [provideIcons({ heroXMark, heroCreditCard })],
-  encapsulation: ViewEncapsulation.None,
-  template: `
+    selector: 'app-embedded-checkout',
+    imports: [NgIconComponent, TranslateModule],
+    viewProviders: [provideIcons({ heroXMark, heroCreditCard })],
+    encapsulation: ViewEncapsulation.None,
+    template: `
     <div class="checkout-overlay" (click)="onClose()">
       <div class="checkout-container" (click)="$event.stopPropagation()">
         <div class="checkout-header">
           <div class="checkout-header__info">
             <ng-icon name="heroCreditCard" size="20"></ng-icon>
-            <span>{{ title }}</span>
+            <span>{{ title() }}</span>
           </div>
           <button class="checkout-header__close" (click)="onClose()">
             <ng-icon name="heroXMark" size="24"></ng-icon>
@@ -27,13 +27,13 @@ import { StripeEmbeddedCheckout } from '@stripe/stripe-js';
           @if (loading()) {
             <div class="checkout-loading">
               <span class="spinner spinner--lg"></span>
-              <p>Chargement du formulaire de paiement...</p>
+              <p>{{ 'checkout.loading' | translate }}</p>
             </div>
           }
           @if (error()) {
             <div class="checkout-error">
               <p>{{ error() }}</p>
-              <button class="btn btn--primary" (click)="onClose()">Fermer</button>
+              <button class="btn btn--primary" (click)="onClose()">{{ 'common.close' | translate }}</button>
             </div>
           }
           <div #checkoutContainer id="checkout-container"></div>
@@ -41,7 +41,7 @@ import { StripeEmbeddedCheckout } from '@stripe/stripe-js';
       </div>
     </div>
   `,
-  styles: [`
+    styles: [`
     app-embedded-checkout .checkout-overlay {
       position: fixed;
       top: 0;
@@ -183,35 +183,27 @@ import { StripeEmbeddedCheckout } from '@stripe/stripe-js';
   `]
 })
 export class EmbeddedCheckoutComponent implements OnInit, OnDestroy {
-  @ViewChild('checkoutContainer', { static: true }) checkoutContainer!: ElementRef;
+  readonly checkoutContainer = viewChild.required<ElementRef>('checkoutContainer');
 
-  @Input() clientSecret!: string;
-  @Input() title = 'Paiement';
-  @Output() closed = new EventEmitter<void>();
-  @Output() completed = new EventEmitter<void>();
+  readonly clientSecret = input.required<string>();
+  readonly title = input('Paiement');
+  readonly closed = output<void>();
+  readonly completed = output<void>();
 
   loading = signal(true);
   error = signal<string | null>(null);
 
   private checkout: StripeEmbeddedCheckout | null = null;
-  private isBrowser: boolean;
+  private platformId = inject(PLATFORM_ID);
+  private isBrowser = isPlatformBrowser(this.platformId);
 
-  private appRef: ApplicationRef;
-  private cdr: ChangeDetectorRef;
-
-  constructor(
-    private stripeService: StripeService,
-    appRef: ApplicationRef,
-    cdr: ChangeDetectorRef,
-    @Inject(PLATFORM_ID) platformId: Object
-  ) {
-    this.appRef = appRef;
-    this.cdr = cdr;
-    this.isBrowser = isPlatformBrowser(platformId);
-  }
+  private stripeService = inject(StripeService);
+  private appRef = inject(ApplicationRef);
+  private cdr = inject(ChangeDetectorRef);
+  private translate = inject(TranslateService);
 
   async ngOnInit(): Promise<void> {
-    if (this.isBrowser && this.clientSecret) {
+    if (this.isBrowser && this.clientSecret()) {
       await this.initCheckout();
     }
   }
@@ -227,14 +219,15 @@ export class EmbeddedCheckoutComponent implements OnInit, OnDestroy {
       const stripe = await this.stripeService.getStripe();
 
       if (!stripe) {
-        this.error.set('Impossible de charger Stripe');
+        this.error.set(this.translate.instant('errors.loadStripe'));
         this.loading.set(false);
         return;
       }
 
       this.checkout = await stripe.initEmbeddedCheckout({
-        clientSecret: this.clientSecret,
+        clientSecret: this.clientSecret(),
         onComplete: () => {
+          // TODO: The 'emit' function requires a mandatory void argument
           this.completed.emit();
           this.cdr.detectChanges();
           this.appRef.tick();
@@ -245,7 +238,7 @@ export class EmbeddedCheckoutComponent implements OnInit, OnDestroy {
       this.loading.set(false);
     } catch (err) {
       console.error('Error initializing checkout:', err);
-      this.error.set('Erreur lors du chargement du formulaire de paiement');
+      this.error.set(this.translate.instant('errors.loadPaymentForm'));
       this.loading.set(false);
     }
   }
@@ -254,6 +247,7 @@ export class EmbeddedCheckoutComponent implements OnInit, OnDestroy {
     if (this.checkout) {
       this.checkout.destroy();
     }
+    // TODO: The 'emit' function requires a mandatory void argument
     this.closed.emit();
   }
 }

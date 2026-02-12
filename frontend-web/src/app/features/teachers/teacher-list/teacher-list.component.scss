@@ -633,8 +633,13 @@ $sidebar-collapsed-width: 95px;
     }
 
     @include respond-down(sm) {
-      .btn--ghost {
-        display: none;
+      flex-direction: column;
+      gap: var(--space-xs);
+
+      .btn {
+        padding: 6px 10px;
+        font-size: 0.75rem;
+        text-align: center;
       }
     }
   }

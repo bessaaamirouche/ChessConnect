@@ -1,6 +1,7 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap, catchError, of } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
 
 export interface ProgrammeCourse {
   id: number;
@@ -56,6 +57,8 @@ export class ProgrammeService {
     return levels;
   });
 
+  private translate = inject(TranslateService);
+
   constructor(private http: HttpClient) {}
 
   loadCourses(): Observable<ProgrammeCourse[]> {
@@ -72,7 +75,7 @@ export class ProgrammeService {
         this.loadingSignal.set(false);
       }),
       catchError(error => {
-        this.errorSignal.set(error.error?.message || 'Erreur de chargement');
+        this.errorSignal.set(error.error?.message || this.translate.instant('errors.programmeLoad'));
         this.loadingSignal.set(false);
         return of([]);
       })

@@ -1,32 +1,32 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, signal, PLATFORM_ID, Inject, ElementRef, ViewChild, AfterViewInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, PLATFORM_ID, ElementRef, AfterViewInit, inject, input, output, viewChild } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { heroXMark, heroVideoCamera, heroPhone } from '@ng-icons/heroicons/outline';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastService } from '../../core/services/toast.service';
 
 declare var JitsiMeetExternalAPI: any;
 
 @Component({
-  selector: 'app-video-call',
-  standalone: true,
-  imports: [NgIconComponent],
-  viewProviders: [provideIcons({ heroXMark, heroVideoCamera, heroPhone })],
-  template: `
+    selector: 'app-video-call',
+    imports: [NgIconComponent, TranslateModule],
+    viewProviders: [provideIcons({ heroXMark, heroVideoCamera, heroPhone })],
+    template: `
     <div class="video-call-overlay">
       <div class="video-call-container" role="dialog" aria-modal="true" aria-labelledby="video-call-title" (click)="$event.stopPropagation()">
         <div class="video-call-header">
           <div class="video-call-header__info">
             <ng-icon name="heroVideoCamera" size="20" aria-hidden="true"></ng-icon>
-            <span id="video-call-title">{{ title }}</span>
+            <span id="video-call-title">{{ title() }}</span>
             @if (isRecording()) {
               <span class="recording-badge" aria-live="polite">
                 <span class="recording-dot" aria-hidden="true"></span>
-                Enregistrement
+                {{ 'videoCallLabels.recording' | translate }}
               </span>
             }
           </div>
           <div class="video-call-header__actions">
-            <button class="video-call-header__close" (click)="onClose()" title="Quitter la réunion" aria-label="Fermer la visioconférence">
+            <button class="video-call-header__close" (click)="onClose()" [title]="'videoCallLabels.leaveCall' | translate" [attr.aria-label]="'videoCallLabels.closeCall' | translate">
               <ng-icon name="heroXMark" size="24" aria-hidden="true"></ng-icon>
             </button>
           </div>
@@ -35,11 +35,11 @@ declare var JitsiMeetExternalAPI: any;
           <div class="video-call-rejoin">
             <div class="video-call-rejoin__content">
               <ng-icon name="heroPhone" size="48" class="video-call-rejoin__icon"></ng-icon>
-              <h3 class="video-call-rejoin__title">Vous avez quitté l'appel</h3>
-              <p class="video-call-rejoin__subtitle">Le cours est toujours en cours</p>
+              <h3 class="video-call-rejoin__title">{{ 'videoCallLabels.leftCall' | translate }}</h3>
+              <p class="video-call-rejoin__subtitle">{{ 'videoCallLabels.lessonInProgress' | translate }}</p>
               <button class="video-call-rejoin__btn" (click)="rejoin()">
                 <ng-icon name="heroVideoCamera" size="20"></ng-icon>
-                Rejoindre l'appel
+                {{ 'videoCallLabels.rejoinCall' | translate }}
               </button>
             </div>
           </div>
@@ -48,7 +48,7 @@ declare var JitsiMeetExternalAPI: any;
       </div>
     </div>
   `,
-  styles: [`
+    styles: [`
     .video-call-overlay {
       position: fixed;
       top: 0;
@@ -208,29 +208,25 @@ declare var JitsiMeetExternalAPI: any;
   `]
 })
 export class VideoCallComponent implements OnInit, OnDestroy, AfterViewInit {
-  @ViewChild('jitsiContainer', { static: false }) jitsiContainer!: ElementRef;
+  readonly jitsiContainer = viewChild.required<ElementRef>('jitsiContainer');
 
-  @Input() roomName!: string;
-  @Input() userName!: string;
-  @Input() title = 'Cours d\'échecs';
-  @Input() isTeacher = false;
-  @Input() jwtToken?: string;
-  @Input() durationMinutes = 60;
-  @Output() closed = new EventEmitter<void>();
+  readonly roomName = input.required<string>();
+  readonly userName = input.required<string>();
+  readonly title = input('Cours d\'échecs');
+  readonly isTeacher = input(false);
+  readonly recordingEnabled = input(false);
+  readonly jwtToken = input<string>();
+  readonly durationMinutes = input(60);
+  readonly closed = output<void>();
 
   isRecording = signal(false);
   hasLeft = signal(false);
-  private isBrowser: boolean;
+  private platformId = inject(PLATFORM_ID);
+  private isBrowser = isPlatformBrowser(this.platformId);
   private api: any = null;
   private recordingStarted = false;
   private toastService = inject(ToastService);
-
-
-  constructor(
-    @Inject(PLATFORM_ID) platformId: Object
-  ) {
-    this.isBrowser = isPlatformBrowser(platformId);
-  }
+  private translateService = inject(TranslateService);
 
   ngOnInit(): void {
     if (this.isBrowser) {
@@ -278,9 +274,9 @@ export class VideoCallComponent implements OnInit, OnDestroy, AfterViewInit {
     this.hasLeft.set(false);
 
     const options = {
-      roomName: this.roomName,
-      parentNode: this.jitsiContainer.nativeElement,
-      jwt: this.jwtToken || undefined,
+      roomName: this.roomName(),
+      parentNode: this.jitsiContainer().nativeElement,
+      jwt: this.jwtToken() || undefined,
       configOverwrite: {
         prejoinPageEnabled: false,
         startWithAudioMuted: false,
@@ -306,7 +302,7 @@ export class VideoCallComponent implements OnInit, OnDestroy, AfterViewInit {
         ]
       },
       userInfo: {
-        displayName: this.userName
+        displayName: this.userName()
       }
     };
 
@@ -318,8 +314,8 @@ export class VideoCallComponent implements OnInit, OnDestroy, AfterViewInit {
     this.api.addListener('videoConferenceJoined', (data: any) => {
       console.log('[Jitsi] Conference joined:', data);
 
-      // Auto-start recording if teacher (with delay to ensure connection is stable)
-      if (this.isTeacher && !this.recordingStarted) {
+      // Auto-start recording if teacher and recording is enabled (student is premium)
+      if (this.isTeacher() && this.recordingEnabled() && !this.recordingStarted) {
         setTimeout(() => {
           this.startRecording();
         }, 3000);
@@ -332,7 +328,7 @@ export class VideoCallComponent implements OnInit, OnDestroy, AfterViewInit {
 
       if (status.on) {
         this.recordingStarted = true;
-        this.toastService.show('L\'enregistrement de votre cours a démarré', 'info');
+        this.toastService.show(this.translateService.instant('videoCallLabels.recordingStarted'), 'info');
       }
     });
 
@@ -368,8 +364,9 @@ export class VideoCallComponent implements OnInit, OnDestroy, AfterViewInit {
 
   rejoin(): void {
     // Clear the container and reinitialize Jitsi
-    if (this.jitsiContainer?.nativeElement) {
-      this.jitsiContainer.nativeElement.innerHTML = '';
+    const jitsiContainer = this.jitsiContainer();
+    if (jitsiContainer?.nativeElement) {
+      jitsiContainer.nativeElement.innerHTML = '';
     }
     this.initJitsiMeet();
   }
@@ -379,6 +376,7 @@ export class VideoCallComponent implements OnInit, OnDestroy, AfterViewInit {
       this.api.dispose();
       this.api = null;
     }
+    // TODO: The 'emit' function requires a mandatory void argument
     this.closed.emit();
   }
 }

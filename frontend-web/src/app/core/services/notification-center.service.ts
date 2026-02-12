@@ -1,6 +1,7 @@
 import { Injectable, signal, computed, inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
+import { TranslateService } from '@ngx-translate/core';
 
 export interface AppNotification {
   id: string;
@@ -32,6 +33,7 @@ export class NotificationCenterService {
 
   private http = inject(HttpClient);
   private platformId = inject(PLATFORM_ID);
+  private translate = inject(TranslateService);
   private notificationsSignal = signal<AppNotification[]>([]);
   private currentUserId: number | null = null;
   private knownBackendIds = new Set<number>();
@@ -283,11 +285,11 @@ export class NotificationCenterService {
     const hours = Math.floor(diff / 3600000);
     const days = Math.floor(diff / 86400000);
 
-    if (minutes < 1) return "A l'instant";
-    if (minutes < 60) return `Il y a ${minutes} min`;
-    if (hours < 24) return `Il y a ${hours}h`;
-    if (days === 1) return 'Hier';
-    if (days < 7) return `Il y a ${days} jours`;
+    if (minutes < 1) return this.translate.instant('relativeTime.justNow');
+    if (minutes < 60) return this.translate.instant('relativeTime.minutesAgo', { count: minutes });
+    if (hours < 24) return this.translate.instant('relativeTime.hoursAgo', { count: hours });
+    if (days === 1) return this.translate.instant('relativeTime.yesterday');
+    if (days < 7) return this.translate.instant('relativeTime.daysAgo', { count: days });
 
     return new Date(date).toLocaleDateString('fr-FR', {
       day: 'numeric',

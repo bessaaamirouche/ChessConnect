@@ -5,6 +5,9 @@
 
 set -e
 
+# Load environment variables (Jibri subprocess doesn't inherit systemd env)
+[ -f /etc/jibri/env ] && . /etc/jibri/env
+
 RECORDING_DIR="$1"
 BACKEND_URL="${BACKEND_WEBHOOK_URL:-https://mychess.fr/api/recordings/webhook}"
 WEBHOOK_SECRET="${JIBRI_WEBHOOK_SECRET:-}"

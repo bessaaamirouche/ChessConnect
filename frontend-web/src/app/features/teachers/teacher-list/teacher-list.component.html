@@ -101,7 +101,7 @@
           <span class="section-header__count">{{ favoriteTeachers().length }}</span>
         </div>
         <div class="teachers-grid teachers-grid--favorites">
-          @for (teacher of favoriteTeachers(); track teacher.id) {
+          @for (teacher of favoritePagination.paginatedItems(); track teacher.id) {
             <div class="teacher-card teacher-card--favorite">
               <div class="teacher-card__header">
                 <div class="avatar-container">
@@ -143,6 +143,16 @@
             </div>
           }
         </div>
+
+        <app-pagination
+          [currentPage]="favoritePagination.currentPage()"
+          [totalPages]="favoritePagination.totalPages()"
+          [totalItems]="favoritePagination.totalItems()"
+          [startItem]="favoritePagination.startItem()"
+          [endItem]="favoritePagination.endItem()"
+          [visiblePages]="favoritePagination.visiblePages()"
+          (pageChange)="favoritePagination.goToPage($event)"
+        />
       }
 
       <!-- Tous les Coachs Section -->
@@ -154,7 +164,7 @@
           </div>
         }
         <div class="teachers-grid">
-          @for (teacher of filteredTeachers(); track teacher.id) {
+          @for (teacher of teacherPagination.paginatedItems(); track teacher.id) {
             <div class="teacher-card">
               <div class="teacher-card__header">
                 <div class="avatar-container">
@@ -204,6 +214,16 @@
             </div>
           }
         </div>
+
+        <app-pagination
+          [currentPage]="teacherPagination.currentPage()"
+          [totalPages]="teacherPagination.totalPages()"
+          [totalItems]="teacherPagination.totalItems()"
+          [startItem]="teacherPagination.startItem()"
+          [endItem]="teacherPagination.endItem()"
+          [visiblePages]="teacherPagination.visiblePages()"
+          (pageChange)="teacherPagination.goToPage($event)"
+        />
       }
     }
   </main>

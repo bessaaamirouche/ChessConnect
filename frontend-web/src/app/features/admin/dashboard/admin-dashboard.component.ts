@@ -1,7 +1,8 @@
-import { Component, OnInit, OnDestroy, signal, inject } from '@angular/core';
-import { CommonModule, DecimalPipe } from '@angular/common';
+import { Component, OnInit, DestroyRef, signal, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { TranslateModule } from '@ngx-translate/core';
 import { AdminService, AdminStatsResponse, AnalyticsResponse } from '../../../core/services/admin.service';
 import { AdminStateService } from '../../../core/services/admin-state.service';
 import { RegistrationsChartComponent } from './components/registrations-chart.component';
@@ -13,63 +14,62 @@ import { Chart, registerables } from 'chart.js';
 Chart.register(...registerables);
 
 @Component({
-  selector: 'app-admin-dashboard',
-  standalone: true,
-  imports: [
-    CommonModule,
-    RouterLink,
-    DecimalPipe,
-    RegistrationsChartComponent,
-    SubscriptionsChartComponent,
-    VisitsChartComponent
-  ],
-  template: `
+    selector: 'app-admin-dashboard',
+    imports: [
+        RouterLink,
+        DecimalPipe,
+        TranslateModule,
+        RegistrationsChartComponent,
+        SubscriptionsChartComponent,
+        VisitsChartComponent
+    ],
+    template: `
     <div class="admin-dashboard">
       <header class="page-header">
-        <h1>Tableau de bord</h1>
-        <p class="text-secondary">Vue d'ensemble de la plateforme</p>
+        <h1>{{ 'admin.dashboard.title' | translate }}</h1>
+        <p class="text-secondary">{{ 'admin.dashboard.subtitle' | translate }}</p>
       </header>
 
       @if (loading()) {
-        <div class="loading">Chargement...</div>
+        <div class="loading">{{ 'common.loading' | translate }}</div>
       } @else if (stats()) {
         <div class="stats-grid">
           <div class="stat-card">
-            <span class="stat-card__label">Utilisateurs</span>
+            <span class="stat-card__label">{{ 'admin.dashboard.users' | translate }}</span>
             <span class="stat-card__value">{{ stats()!.totalUsers | number }}</span>
             <span class="stat-card__detail">
-              {{ stats()!.totalStudents }} joueurs / {{ stats()!.totalTeachers }} profs
+              {{ stats()!.totalStudents }} {{ 'admin.dashboard.playersCoaches' | translate : { totalTeachers: stats()!.totalTeachers } }}
             </span>
           </div>
 
           <div class="stat-card">
-            <span class="stat-card__label">Abonnements actifs</span>
+            <span class="stat-card__label">{{ 'admin.dashboard.activeSubscriptions' | translate }}</span>
             <span class="stat-card__value">{{ stats()!.activeSubscriptions | number }}</span>
           </div>
 
           <div class="stat-card">
-            <span class="stat-card__label">Cours total</span>
+            <span class="stat-card__label">{{ 'admin.dashboard.totalLessons' | translate }}</span>
             <span class="stat-card__value">{{ stats()!.totalLessons | number }}</span>
             <span class="stat-card__detail">
-              {{ stats()!.lessonsThisMonth }} ce mois
+              {{ stats()!.lessonsThisMonth }} {{ 'admin.dashboard.thisMonth' | translate }}
             </span>
           </div>
 
           <div class="stat-card stat-card--gold">
-            <span class="stat-card__label">Chiffre d'affaires total</span>
+            <span class="stat-card__label">{{ 'admin.dashboard.totalRevenue' | translate }}</span>
             <span class="stat-card__value">{{ formatCents(stats()!.totalRevenueCents) }}</span>
             <span class="stat-card__detail">
-              {{ formatCents(stats()!.revenueThisMonthCents) }} ce mois
+              {{ formatCents(stats()!.revenueThisMonthCents) }} {{ 'admin.dashboard.thisMonth' | translate }}
             </span>
           </div>
         </div>
 
         <!-- Analytics Charts Section -->
         <section class="analytics-section">
-          <h2>Analytiques</h2>
+          <h2>{{ 'admin.dashboard.analytics' | translate }}</h2>
 
           @if (analyticsLoading()) {
-            <div class="analytics-loading">Chargement des graphiques...</div>
+            <div class="analytics-loading">{{ 'admin.dashboard.loadingCharts' | translate }}</div>
           } @else if (analytics()) {
             <div class="charts-grid">
               <app-registrations-chart
@@ -96,22 +96,22 @@ Chart.register(...registerables);
         </section>
 
         <div class="quick-actions">
-          <h2>Actions rapides</h2>
+          <h2>{{ 'admin.dashboard.quickActions' | translate }}</h2>
           <div class="action-grid">
-            <a routerLink="/admin/users" class="action-card">
-              <span class="action-card__title">Gérer les utilisateurs</span>
-              <span class="action-card__desc">Voir, suspendre ou réactiver des comptes</span>
+            <a routerLink="/mint/users" class="action-card">
+              <span class="action-card__title">{{ 'admin.dashboard.manageUsers' | translate }}</span>
+              <span class="action-card__desc">{{ 'admin.dashboard.manageUsersDesc' | translate }}</span>
             </a>
-            <a routerLink="/admin/accounting" class="action-card">
-              <span class="action-card__title">Comptabilité</span>
-              <span class="action-card__desc">Revenus, commissions et soldes coachs</span>
+            <a routerLink="/mint/accounting" class="action-card">
+              <span class="action-card__title">{{ 'admin.dashboard.accounting' | translate }}</span>
+              <span class="action-card__desc">{{ 'admin.dashboard.accountingDesc' | translate }}</span>
             </a>
           </div>
         </div>
       }
     </div>
   `,
-  styles: [`
+    styles: [`
     .admin-dashboard {
       max-width: 1200px;
     }
@@ -303,7 +303,7 @@ Chart.register(...registerables);
     }
   `]
 })
-export class AdminDashboardComponent implements OnInit, OnDestroy {
+export class AdminDashboardComponent implements OnInit {
   stats = signal<AdminStatsResponse | null>(null);
   analytics = signal<AnalyticsResponse | null>(null);
   loading = signal(true);
@@ -311,7 +311,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   selectedPeriod = signal<'day' | 'week' | 'month'>('day');
 
   private adminStateService = inject(AdminStateService);
-  private stateSubscription?: Subscription;
+  private destroyRef = inject(DestroyRef);
 
   constructor(private adminService: AdminService) {}
 
@@ -320,7 +320,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     this.loadAnalytics();
 
     // Subscribe to data changes from other admin components
-    this.stateSubscription = this.adminStateService.onDataChange$.subscribe((change) => {
+    this.adminStateService.onDataChange$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((change) => {
       // Refresh stats when users or other data changes
       if (change.type === 'user' || change.type === 'all') {
         this.loadStats();
@@ -330,10 +330,6 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
         this.loadAnalytics();
       }
     });
-  }
-
-  ngOnDestroy(): void {
-    this.stateSubscription?.unsubscribe();
   }
 
   loadStats(): void {

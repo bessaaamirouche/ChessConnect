@@ -1,8 +1,9 @@
-import { Injectable, signal, PLATFORM_ID, Inject } from '@angular/core';
+import { Injectable, signal, PLATFORM_ID, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { loadStripe, Stripe } from '@stripe/stripe-js';
 import { firstValueFrom } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
 
 @Injectable({
   providedIn: 'root'
@@ -10,17 +11,13 @@ import { firstValueFrom } from 'rxjs';
 export class StripeService {
   private stripe: Stripe | null = null;
   private publishableKey: string | null = null;
-  private isBrowser: boolean;
+  private platformId = inject(PLATFORM_ID);
+  private isBrowser = isPlatformBrowser(this.platformId);
+  private http = inject(HttpClient);
+  private translate = inject(TranslateService);
 
   loading = signal(false);
   error = signal<string | null>(null);
-
-  constructor(
-    private http: HttpClient,
-    @Inject(PLATFORM_ID) platformId: Object
-  ) {
-    this.isBrowser = isPlatformBrowser(platformId);
-  }
 
   async getStripe(): Promise<Stripe | null> {
     if (!this.isBrowser) {
@@ -39,7 +36,7 @@ export class StripeService {
         this.publishableKey = config.publishableKey;
       } catch (error) {
         console.error('Failed to load Stripe config:', error);
-        this.error.set('Impossible de charger la configuration de paiement');
+        this.error.set(this.translate.instant('errors.loadPaymentConfig'));
         return null;
       }
     }

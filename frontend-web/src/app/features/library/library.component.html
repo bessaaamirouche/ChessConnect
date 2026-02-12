@@ -113,7 +113,7 @@
   <!-- Video Grid -->
   @if (!loading() && !error() && filteredVideos().length > 0) {
     <div class="videos-grid">
-      @for (video of filteredVideos(); track video.id) {
+      @for (video of pagination.paginatedItems(); track video.id) {
         <div class="video-card" (click)="playVideo(video)">
           <div class="thumbnail-container">
             <img
@@ -156,6 +156,15 @@
         </div>
       }
     </div>
+    <app-pagination
+      [currentPage]="pagination.currentPage()"
+      [totalPages]="pagination.totalPages()"
+      [totalItems]="pagination.totalItems()"
+      [startItem]="pagination.startItem()"
+      [endItem]="pagination.endItem()"
+      [visiblePages]="pagination.visiblePages()"
+      (pageChange)="pagination.goToPage($event)"
+    />
   }
 </div>
 

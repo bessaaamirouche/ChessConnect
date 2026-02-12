@@ -31,7 +31,7 @@ public class Invoice {
     // For LESSON_INVOICE: the student who paid
     // For COMMISSION_INVOICE: the teacher who receives the commission invoice
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "customer_id", nullable = false)
+    @JoinColumn(name = "customer_id")
     private User customer;
 
     // For LESSON_INVOICE: the teacher who provided the service
@@ -39,6 +39,19 @@ public class Invoice {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "issuer_id")
     private User issuer;
+
+    // Denormalized fields - preserved when user accounts are deleted (legal: 10 year retention)
+    @Column(name = "customer_name")
+    private String customerName;
+
+    @Column(name = "customer_email")
+    private String customerEmail;
+
+    @Column(name = "issuer_name")
+    private String issuerName;
+
+    @Column(name = "issuer_email")
+    private String issuerEmail;
 
     // Related lesson (optional, for context)
     @ManyToOne(fetch = FetchType.LAZY)
@@ -178,4 +191,56 @@ public class Invoice {
     public void setIssuedAt(LocalDateTime issuedAt) { this.issuedAt = issuedAt; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
+
+    public String getCustomerName() { return customerName; }
+    public void setCustomerName(String customerName) { this.customerName = customerName; }
+
+    public String getCustomerEmail() { return customerEmail; }
+    public void setCustomerEmail(String customerEmail) { this.customerEmail = customerEmail; }
+
+    public String getIssuerName() { return issuerName; }
+    public void setIssuerName(String issuerName) { this.issuerName = issuerName; }
+
+    public String getIssuerEmail() { return issuerEmail; }
+    public void setIssuerEmail(String issuerEmail) { this.issuerEmail = issuerEmail; }
+
+    /**
+     * Get display name for customer - uses denormalized field as fallback when User is deleted.
+     */
+    public String getCustomerDisplayName() {
+        if (customer != null) {
+            return customer.getFirstName() + " " + customer.getLastName();
+        }
+        return customerName != null ? customerName : "Compte supprime";
+    }
+
+    /**
+     * Get display email for customer - uses denormalized field as fallback.
+     */
+    public String getCustomerDisplayEmail() {
+        if (customer != null) {
+            return customer.getEmail();
+        }
+        return customerEmail != null ? customerEmail : "";
+    }
+
+    /**
+     * Get display name for issuer - uses denormalized field as fallback when User is deleted.
+     */
+    public String getIssuerDisplayName() {
+        if (issuer != null) {
+            return issuer.getFirstName() + " " + issuer.getLastName();
+        }
+        return issuerName != null ? issuerName : "mychess";
+    }
+
+    /**
+     * Get display email for issuer - uses denormalized field as fallback.
+     */
+    public String getIssuerDisplayEmail() {
+        if (issuer != null) {
+            return issuer.getEmail();
+        }
+        return issuerEmail != null ? issuerEmail : "";
+    }
 }

@@ -5,11 +5,10 @@ import { HttpClient } from '@angular/common/http';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
-  selector: 'app-reset-password',
-  standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, TranslateModule],
-  templateUrl: './reset-password.component.html',
-  styleUrl: './reset-password.component.scss'
+    selector: 'app-reset-password',
+    imports: [ReactiveFormsModule, RouterLink, TranslateModule],
+    templateUrl: './reset-password.component.html',
+    styleUrl: './reset-password.component.scss'
 })
 export class ResetPasswordComponent implements OnInit {
   form: FormGroup;

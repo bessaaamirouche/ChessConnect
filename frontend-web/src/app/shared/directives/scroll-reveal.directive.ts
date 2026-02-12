@@ -1,11 +1,11 @@
 import {
   Directive,
   ElementRef,
-  Input,
   OnInit,
   OnDestroy,
   inject,
-  PLATFORM_ID
+  PLATFORM_ID,
+  input
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 
@@ -26,10 +26,10 @@ export class ScrollRevealDirective implements OnInit, OnDestroy {
   private platformId = inject(PLATFORM_ID);
   private observer: IntersectionObserver | null = null;
 
-  @Input('appScrollReveal') animation: RevealAnimation = 'fade-up';
-  @Input() revealDelay = 0;
-  @Input() revealThreshold = 0.15;
-  @Input() revealOnce = false; // Changed to false for reverse animations by default
+  readonly animation = input<RevealAnimation>('fade-up', { alias: "appScrollReveal" });
+  readonly revealDelay = input(0);
+  readonly revealThreshold = input(0.15);
+  readonly revealOnce = input(false); // Changed to false for reverse animations by default
 
   ngOnInit(): void {
     if (!isPlatformBrowser(this.platformId)) {
@@ -57,11 +57,11 @@ export class ScrollRevealDirective implements OnInit, OnDestroy {
       'scale-up': 'reveal-scale-up'
     };
 
-    element.classList.add(classMap[this.animation] || 'reveal-up');
+    element.classList.add(classMap[this.animation()] || 'reveal-up');
 
     // Apply delay if specified
-    if (this.revealDelay > 0) {
-      element.style.transitionDelay = `${this.revealDelay}ms`;
+    if (this.revealDelay() > 0) {
+      element.style.transitionDelay = `${this.revealDelay()}ms`;
     }
   }
 
@@ -69,7 +69,7 @@ export class ScrollRevealDirective implements OnInit, OnDestroy {
     const options: IntersectionObserverInit = {
       root: null,
       rootMargin: '50px 0px -100px 0px', // More margin for smoother reveal/hide
-      threshold: this.revealThreshold
+      threshold: this.revealThreshold()
     };
 
     this.observer = new IntersectionObserver((entries) => {
@@ -77,17 +77,17 @@ export class ScrollRevealDirective implements OnInit, OnDestroy {
         if (entry.isIntersecting) {
           entry.target.classList.add('reveal--visible');
 
-          if (this.revealOnce) {
+          if (this.revealOnce()) {
             this.observer?.unobserve(entry.target);
           }
-        } else if (!this.revealOnce) {
+        } else if (!this.revealOnce()) {
           // Reset the delay to 0 when hiding for immediate effect
           (entry.target as HTMLElement).style.transitionDelay = '0ms';
           entry.target.classList.remove('reveal--visible');
           // Restore delay after hiding
           setTimeout(() => {
-            if (this.revealDelay > 0) {
-              (entry.target as HTMLElement).style.transitionDelay = `${this.revealDelay}ms`;
+            if (this.revealDelay() > 0) {
+              (entry.target as HTMLElement).style.transitionDelay = `${this.revealDelay()}ms`;
             }
           }, 50);
         }
@@ -110,8 +110,8 @@ export class StaggerRevealDirective implements OnInit, OnDestroy {
   private platformId = inject(PLATFORM_ID);
   private observer: IntersectionObserver | null = null;
 
-  @Input() staggerThreshold = 0.1;
-  @Input() staggerOnce = false; // Changed to false for reverse animations
+  readonly staggerThreshold = input(0.1);
+  readonly staggerOnce = input(false); // Changed to false for reverse animations
 
   ngOnInit(): void {
     if (!isPlatformBrowser(this.platformId)) {
@@ -132,7 +132,7 @@ export class StaggerRevealDirective implements OnInit, OnDestroy {
     const options: IntersectionObserverInit = {
       root: null,
       rootMargin: '50px 0px -100px 0px',
-      threshold: this.staggerThreshold
+      threshold: this.staggerThreshold()
     };
 
     this.observer = new IntersectionObserver((entries) => {
@@ -140,10 +140,10 @@ export class StaggerRevealDirective implements OnInit, OnDestroy {
         if (entry.isIntersecting) {
           entry.target.classList.add('stagger--visible');
 
-          if (this.staggerOnce) {
+          if (this.staggerOnce()) {
             this.observer?.unobserve(entry.target);
           }
-        } else if (!this.staggerOnce) {
+        } else if (!this.staggerOnce()) {
           entry.target.classList.remove('stagger--visible');
         }
       });
@@ -166,8 +166,8 @@ export class ParallaxDirective implements OnInit, OnDestroy {
   private scrollListener: (() => void) | null = null;
   private rafId: number | null = null;
 
-  @Input() parallaxSpeed = 0.5;
-  @Input() parallaxDirection: 'up' | 'down' = 'up';
+  readonly parallaxSpeed = input(0.5);
+  readonly parallaxDirection = input<'up' | 'down'>('up');
 
   ngOnInit(): void {
     if (!isPlatformBrowser(this.platformId)) {
@@ -210,9 +210,9 @@ export class ParallaxDirective implements OnInit, OnDestroy {
     const scrolled = window.scrollY;
     const elementTop = rect.top + scrolled;
     const relativeScroll = scrolled - elementTop + windowHeight;
-    const movement = relativeScroll * this.parallaxSpeed * 0.1;
+    const movement = relativeScroll * this.parallaxSpeed() * 0.1;
 
-    const direction = this.parallaxDirection === 'up' ? -1 : 1;
+    const direction = this.parallaxDirection() === 'up' ? -1 : 1;
     element.style.transform = `translateY(${movement * direction}px)`;
   }
 }

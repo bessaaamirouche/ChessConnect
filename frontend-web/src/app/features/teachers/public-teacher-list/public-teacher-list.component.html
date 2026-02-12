@@ -105,7 +105,7 @@
       </div>
     } @else {
       <div class="teachers-grid">
-        @for (teacher of filteredTeachers(); track teacher.id) {
+        @for (teacher of pagination.paginatedItems(); track teacher.id) {
           <a [routerLink]="['/coaches', teacher.uuid]" class="teacher-card">
             <div class="teacher-card__header">
               <div class="avatar">
@@ -148,6 +148,16 @@
           </a>
         }
       </div>
+
+      <app-pagination
+        [currentPage]="pagination.currentPage()"
+        [totalPages]="pagination.totalPages()"
+        [totalItems]="pagination.totalItems()"
+        [startItem]="pagination.startItem()"
+        [endItem]="pagination.endItem()"
+        [visiblePages]="pagination.visiblePages()"
+        (pageChange)="pagination.goToPage($event)"
+      />
     }
 
     <!-- CTA Section -->

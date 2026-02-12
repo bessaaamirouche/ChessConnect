@@ -1,24 +1,22 @@
-import { Component, computed, inject, signal, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, computed, DestroyRef, inject, signal, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterOutlet } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Subscription } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
 import { WalletService } from '../../core/services/wallet.service';
 import { AppSidebarComponent, SidebarSection, SidebarItem } from '../../shared/components/app-sidebar/app-sidebar.component';
 
 @Component({
-  selector: 'app-user-layout',
-  standalone: true,
-  imports: [CommonModule, RouterOutlet, AppSidebarComponent, TranslateModule],
-  templateUrl: './user-layout.component.html',
-  styleUrl: './user-layout.component.scss'
+    selector: 'app-user-layout',
+    imports: [RouterOutlet, AppSidebarComponent, TranslateModule],
+    templateUrl: './user-layout.component.html',
+    styleUrl: './user-layout.component.scss'
 })
-export class UserLayoutComponent implements OnInit, OnDestroy {
+export class UserLayoutComponent implements OnInit {
   private authService = inject(AuthService);
   private walletService = inject(WalletService);
   private translate = inject(TranslateService);
-  private langSubscription?: Subscription;
+  private destroyRef = inject(DestroyRef);
 
   sidebarCollapsed = signal(false);
   private currentLang = signal(this.translate.currentLang || this.translate.defaultLang);
@@ -34,13 +32,9 @@ export class UserLayoutComponent implements OnInit, OnDestroy {
     }
 
     // Subscribe to language changes to trigger sidebar recomputation
-    this.langSubscription = this.translate.onLangChange.subscribe(event => {
+    this.translate.onLangChange.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(event => {
       this.currentLang.set(event.lang);
     });
-  }
-
-  ngOnDestroy(): void {
-    this.langSubscription?.unsubscribe();
   }
 
   sidebarSections = computed<SidebarSection[]>(() => {
@@ -54,11 +48,11 @@ export class UserLayoutComponent implements OnInit, OnDestroy {
       sections.push({
         title: this.translate.instant('sidebar.admin'),
         items: [
-          { label: this.translate.instant('sidebar.overview'), icon: 'heroChartBarSquare', route: '/admin/dashboard' },
-          { label: this.translate.instant('sidebar.users'), icon: 'heroUsers', route: '/admin/users' },
-          { label: this.translate.instant('sidebar.lessons'), icon: 'heroCalendarDays', route: '/admin/lessons' },
-          { label: this.translate.instant('sidebar.accounting'), icon: 'heroBanknotes', route: '/admin/accounting' },
-          { label: this.translate.instant('sidebar.invoices'), icon: 'heroDocumentText', route: '/admin/invoices' }
+          { label: this.translate.instant('sidebar.overview'), icon: 'heroChartBarSquare', route: '/mint/dashboard' },
+          { label: this.translate.instant('sidebar.users'), icon: 'heroUsers', route: '/mint/users' },
+          { label: this.translate.instant('sidebar.lessons'), icon: 'heroCalendarDays', route: '/mint/lessons' },
+          { label: this.translate.instant('sidebar.accounting'), icon: 'heroBanknotes', route: '/mint/accounting' },
+          { label: this.translate.instant('sidebar.invoices'), icon: 'heroDocumentText', route: '/mint/invoices' }
         ]
       });
     }

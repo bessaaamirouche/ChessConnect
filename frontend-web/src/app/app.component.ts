@@ -13,11 +13,10 @@ import { PushNotificationService } from './core/services/push-notification.servi
 import { LanguageService } from './core/services/language.service';
 
 @Component({
-  selector: 'app-root',
-  standalone: true,
-  imports: [RouterOutlet, ToastComponent, GlobalDialogComponent, CookieConsentComponent, MaintenanceBannerComponent],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
+    selector: 'app-root',
+    imports: [RouterOutlet, ToastComponent, GlobalDialogComponent, CookieConsentComponent, MaintenanceBannerComponent],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    template: `
     <app-maintenance-banner></app-maintenance-banner>
     <main id="main-content">
       <router-outlet></router-outlet>
@@ -26,7 +25,7 @@ import { LanguageService } from './core/services/language.service';
     <app-global-dialog></app-global-dialog>
     <app-cookie-consent></app-cookie-consent>
   `,
-  styles: []
+    styles: []
 })
 export class AppComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
@@ -64,7 +63,7 @@ export class AppComponent implements OnInit, OnDestroy {
         this.inactivityService.stopWatching();
         this.presenceService.stopHeartbeat();
       }
-    }, { allowSignalWrites: true });
+    });
   }
 
   ngOnInit(): void {

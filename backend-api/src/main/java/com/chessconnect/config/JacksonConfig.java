@@ -12,7 +12,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -37,6 +39,10 @@ public class JacksonConfig {
             SimpleModule module = new SimpleModule("LocalDateTimeTimezoneModule");
             module.addSerializer(LocalDateTime.class, new LocalDateTimeWithOffsetSerializer());
             module.addDeserializer(LocalDateTime.class, new FlexibleLocalDateTimeDeserializer());
+            module.addSerializer(LocalTime.class, new LocalTimeSerializer());
+            module.addDeserializer(LocalTime.class, new LocalTimeDeserializer());
+            module.addSerializer(LocalDate.class, new LocalDateSerializer());
+            module.addDeserializer(LocalDate.class, new LocalDateDeserializer());
             builder.modules(module);
         };
     }
@@ -75,6 +81,34 @@ public class JacksonConfig {
 
             // Parse without offset (e.g., "2026-02-10T20:00:00")
             return LocalDateTime.parse(text);
+        }
+    }
+
+    static class LocalTimeSerializer extends JsonSerializer<LocalTime> {
+        @Override
+        public void serialize(LocalTime value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+            gen.writeString(value.format(DateTimeFormatter.ISO_LOCAL_TIME));
+        }
+    }
+
+    static class LocalTimeDeserializer extends JsonDeserializer<LocalTime> {
+        @Override
+        public LocalTime deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+            return LocalTime.parse(p.getText().trim());
+        }
+    }
+
+    static class LocalDateSerializer extends JsonSerializer<LocalDate> {
+        @Override
+        public void serialize(LocalDate value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+            gen.writeString(value.format(DateTimeFormatter.ISO_LOCAL_DATE));
+        }
+    }
+
+    static class LocalDateDeserializer extends JsonDeserializer<LocalDate> {
+        @Override
+        public LocalDate deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+            return LocalDate.parse(p.getText().trim());
         }
     }
 }

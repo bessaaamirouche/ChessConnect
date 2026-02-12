@@ -482,7 +482,7 @@ public class ArticleDataInitializer implements CommandLineRunner {
                - Nom et prenom
                - Email
                - Mot de passe securise
-               - Tarif horaire (entre 30€ et 80€ recommande)
+               - Tarif horaire (libre, au choix du coach)
                - Bio : presentez-vous en quelques lignes
                - Langues parlees
 
@@ -604,7 +604,7 @@ public class ArticleDataInitializer implements CommandLineRunner {
             Nous recommandons un niveau ELO minimum de 1600, mais l'experience pedagogique compte aussi beaucoup.
 
             **Puis-je fixer mon propre tarif ?**
-            Oui, vous etes libre de fixer votre tarif horaire entre 30€ et 80€.
+            Oui, vous etes libre de fixer votre tarif horaire sans restriction.
 
             **Comment sont geres les annulations ?**
             - Joueur annule > 24h avant : remboursement 100%

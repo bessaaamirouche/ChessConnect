@@ -302,10 +302,12 @@ public class AdminService {
             log.debug("Deleted teacher balance for teacher {}", userId);
         }
 
-        // 8. Invoices (as customer or issuer)
-        invoiceRepository.deleteByCustomerId(userId);
-        invoiceRepository.deleteByIssuerId(userId);
-        log.debug("Deleted invoices for user {}", userId);
+        // 8. Invoices - PRESERVE for legal compliance (10 year retention, Code de commerce Art. L123-22)
+        // Nullify FK references but keep denormalized name/email fields
+        invoiceRepository.nullifyOriginalInvoiceByUserId(userId);
+        invoiceRepository.nullifyCustomerId(userId);
+        invoiceRepository.nullifyIssuerId(userId);
+        log.debug("Nullified user references in invoices for user {} (invoices preserved for legal retention)", userId);
 
         // 9. Credit transactions (references lessons, must be before lesson deletion)
         creditTransactionRepository.deleteByUserId(userId);

@@ -1,12 +1,12 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
-  selector: 'app-not-found',
-  standalone: true,
-  imports: [RouterLink],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
+    selector: 'app-not-found',
+    imports: [RouterLink, TranslateModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    template: `
     <div class="not-found">
       <div class="not-found__content">
         <div class="not-found__icon" aria-hidden="true">
@@ -18,10 +18,10 @@ import { RouterLink } from '@angular/router';
           </svg>
         </div>
 
-        <h1 class="not-found__title">Page introuvable</h1>
-        <p class="not-found__code">Erreur 404</p>
+        <h1 class="not-found__title">{{ 'notFound.title' | translate }}</h1>
+        <p class="not-found__code">{{ 'notFound.errorCode' | translate }}</p>
         <p class="not-found__message">
-          Oups ! La page que vous recherchez n'existe pas ou a ete deplacee.
+          {{ 'notFound.description' | translate }}
         </p>
 
         <div class="not-found__actions">
@@ -30,19 +30,19 @@ import { RouterLink } from '@angular/router';
               <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
               <polyline points="9 22 9 12 15 12 15 22"></polyline>
             </svg>
-            Retour a l'accueil
+            {{ 'notFound.backToHome' | translate }}
           </a>
           <a routerLink="/teachers" class="btn btn--ghost btn--lg">
-            Voir nos coachs
+            {{ 'notFound.viewCoaches' | translate }}
           </a>
         </div>
 
         <div class="not-found__suggestions">
-          <p>Suggestions :</p>
+          <p>{{ 'notFound.suggestions' | translate }}</p>
           <ul>
-            <li><a routerLink="/blog">Consulter nos articles</a></li>
-            <li><a routerLink="/register">Creer un compte</a></li>
-            <li><a routerLink="/login">Se connecter</a></li>
+            <li><a routerLink="/blog">{{ 'notFound.readArticles' | translate }}</a></li>
+            <li><a routerLink="/register">{{ 'notFound.createAccount' | translate }}</a></li>
+            <li><a routerLink="/login">{{ 'notFound.signIn' | translate }}</a></li>
           </ul>
         </div>
       </div>
@@ -52,7 +52,7 @@ import { RouterLink } from '@angular/router';
       </a>
     </div>
   `,
-  styles: [`
+    styles: [`
     .not-found {
       min-height: 100vh;
       min-height: 100dvh;

@@ -7,12 +7,11 @@ import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { heroCheckCircle, heroXCircle, heroArrowRight } from '@ng-icons/heroicons/outline';
 
 @Component({
-  selector: 'app-verify-email',
-  standalone: true,
-  imports: [RouterLink, NgIconComponent, TranslateModule],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  viewProviders: [provideIcons({ heroCheckCircle, heroXCircle, heroArrowRight })],
-  template: `
+    selector: 'app-verify-email',
+    imports: [RouterLink, NgIconComponent, TranslateModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    viewProviders: [provideIcons({ heroCheckCircle, heroXCircle, heroArrowRight })],
+    template: `
     <div class="auth-page">
       <a routerLink="/" class="auth-page__logo">
         <img src="assets/logo.webp" alt="mychess" class="auth-page__logo-img">
@@ -57,7 +56,7 @@ import { heroCheckCircle, heroXCircle, heroArrowRight } from '@ng-icons/heroicon
       </div>
     </div>
   `,
-  styles: [`
+    styles: [`
     .auth-page {
       min-height: 100vh;
       display: flex;

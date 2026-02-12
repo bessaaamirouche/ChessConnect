@@ -1,6 +1,7 @@
-import { Component, signal, ChangeDetectionStrategy, HostListener } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, signal, ChangeDetectionStrategy, HostListener, inject } from '@angular/core';
+
 import { FormsModule } from '@angular/forms';
+import { TranslateService } from '@ngx-translate/core';
 import { FocusTrapDirective } from '../directives/focus-trap.directive';
 
 export interface ConfirmDialogConfig {
@@ -16,11 +17,10 @@ export interface ConfirmDialogConfig {
 }
 
 @Component({
-  selector: 'app-confirm-dialog',
-  standalone: true,
-  imports: [CommonModule, FormsModule, FocusTrapDirective],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
+    selector: 'app-confirm-dialog',
+    imports: [FormsModule, FocusTrapDirective],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    template: `
     @if (isOpen()) {
       <div class="dialog-backdrop" (click)="cancel()">
         <div
@@ -80,7 +80,7 @@ export interface ConfirmDialogConfig {
           <!-- Actions -->
           <div class="dialog__actions">
             <button class="dialog__btn dialog__btn--secondary" (click)="cancel()">
-              {{ config().cancelText || 'Annuler' }}
+              {{ config().cancelText || defaultCancelText }}
             </button>
             <button
               class="dialog__btn"
@@ -88,14 +88,14 @@ export interface ConfirmDialogConfig {
               [class.dialog__btn--primary]="config().type !== 'danger'"
               (click)="confirm()"
             >
-              {{ config().confirmText || 'Confirmer' }}
+              {{ config().confirmText || defaultConfirmText }}
             </button>
           </div>
         </div>
       </div>
     }
   `,
-  styles: [`
+    styles: [`
     .dialog-backdrop {
       position: fixed;
       inset: 0;
@@ -301,7 +301,16 @@ export class ConfirmDialogComponent {
   });
   inputValue = '';
 
+  private translateService = inject(TranslateService);
   private resolvePromise: ((value: boolean | string | null) => void) | null = null;
+
+  get defaultCancelText(): string {
+    return this.translateService.instant('common.cancel');
+  }
+
+  get defaultConfirmText(): string {
+    return this.translateService.instant('common.confirm');
+  }
 
   @HostListener('document:keydown.escape')
   onEscapeKey(): void {

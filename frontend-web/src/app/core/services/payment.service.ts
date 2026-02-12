@@ -1,6 +1,7 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap, catchError, of } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
 import { Subscription, SubscriptionPlan, SubscriptionPlanDetails } from '../models/subscription.model';
 
 export interface CheckoutSessionResponse {
@@ -89,6 +90,8 @@ export class PaymentService {
   // Check if user is eligible for free trial
   readonly canStartFreeTrial = () => this.freeTrialStatusSignal()?.eligible ?? false;
 
+  private translate = inject(TranslateService);
+
   constructor(private http: HttpClient) {}
 
   loadPlans(): Observable<SubscriptionPlanResponseDto[]> {
@@ -109,7 +112,7 @@ export class PaymentService {
       tap(() => this.loadingSignal.set(false)),
       catchError(error => {
         this.loadingSignal.set(false);
-        this.errorSignal.set('Erreur lors de la création de la session de paiement');
+        this.errorSignal.set(this.translate.instant('errors.checkoutCreate'));
         throw error;
       })
     );
@@ -123,7 +126,7 @@ export class PaymentService {
       tap(() => this.loadingSignal.set(false)),
       catchError(error => {
         this.loadingSignal.set(false);
-        this.errorSignal.set('Erreur lors de la création de la session de paiement');
+        this.errorSignal.set(this.translate.instant('errors.checkoutCreate'));
         throw error;
       })
     );
@@ -165,7 +168,7 @@ export class PaymentService {
       }),
       catchError(error => {
         this.loadingSignal.set(false);
-        this.errorSignal.set('Erreur lors de l\'annulation de l\'abonnement');
+        this.errorSignal.set(this.translate.instant('errors.subscriptionCancel'));
         throw error;
       })
     );
@@ -267,7 +270,7 @@ export class PaymentService {
       }),
       catchError(error => {
         this.loadingSignal.set(false);
-        this.errorSignal.set('Erreur lors du démarrage de l\'essai gratuit');
+        this.errorSignal.set(this.translate.instant('errors.freeTrialStart'));
         throw error;
       })
     );

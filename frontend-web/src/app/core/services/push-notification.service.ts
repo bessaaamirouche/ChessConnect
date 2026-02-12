@@ -2,6 +2,7 @@ import { Injectable, inject, signal, PLATFORM_ID, Inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common'; // Ajout de isPlatformBrowser
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
 
 export interface PushSubscriptionStatus {
   enabled: boolean;
@@ -15,6 +16,7 @@ export interface PushSubscriptionStatus {
 export class PushNotificationService {
   private http = inject(HttpClient);
   private platformId = inject(PLATFORM_ID); // Injection de la plateforme
+  private translate = inject(TranslateService);
 
   // Service worker registration
   private swRegistration: ServiceWorkerRegistration | null = null;
@@ -76,7 +78,7 @@ export class PushNotificationService {
       console.log('[Push] Initialized successfully');
     } catch (err) {
       console.error('[Push] Failed to initialize:', err);
-      this.error.set('Failed to initialize push notifications');
+      this.error.set(this.translate.instant('errors.pushInitFailed'));
     }
   }
 
@@ -157,7 +159,7 @@ export class PushNotificationService {
    */
   async subscribe(): Promise<boolean> {
     if (!this.supported() || !this.swRegistration || !this.vapidPublicKey) {
-      this.error.set('Push notifications not available');
+      this.error.set(this.translate.instant('errors.pushNotAvailable'));
       return false;
     }
 
@@ -169,7 +171,7 @@ export class PushNotificationService {
       if (this.permission() !== 'granted') {
         const granted = await this.requestPermission();
         if (!granted) {
-          this.error.set('Permission denied');
+          this.error.set(this.translate.instant('errors.pushPermissionDenied'));
           this.loading.set(false);
           return false;
         }
@@ -286,7 +288,7 @@ export class PushNotificationService {
    * Convert URL-safe base64 string to Uint8Array.
    * Used for VAPID public key conversion.
    */
-  private urlBase64ToUint8Array(base64String: string): Uint8Array {
+  private urlBase64ToUint8Array(base64String: string): Uint8Array<ArrayBuffer> {
     const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
     const base64 = (base64String + padding)
       .replace(/-/g, '+')

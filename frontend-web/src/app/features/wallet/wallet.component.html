@@ -64,7 +64,7 @@
       </div>
     } @else {
       <div class="transactions-list">
-        @for (transaction of walletService.transactions(); track transaction.id) {
+        @for (transaction of pagination.paginatedItems(); track transaction.id) {
           <div class="transaction-item" [class]="getTransactionClass(transaction.transactionType)">
             <div class="transaction-item__icon">
               <ng-icon [name]="getTransactionIcon(transaction.transactionType)" size="24"></ng-icon>
@@ -83,6 +83,15 @@
           </div>
         }
       </div>
+      <app-pagination
+        [currentPage]="pagination.currentPage()"
+        [totalPages]="pagination.totalPages()"
+        [totalItems]="pagination.totalItems()"
+        [startItem]="pagination.startItem()"
+        [endItem]="pagination.endItem()"
+        [visiblePages]="pagination.visiblePages()"
+        (pageChange)="pagination.goToPage($event)"
+      />
     }
   </section>
 

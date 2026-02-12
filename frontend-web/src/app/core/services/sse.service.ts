@@ -1,5 +1,6 @@
 import { Injectable, inject, signal, NgZone, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import { TranslateService } from '@ngx-translate/core';
 import { ToastService } from './toast.service';
 import { NotificationCenterService } from './notification-center.service';
 
@@ -53,6 +54,7 @@ export class SseService {
   private notificationCenter = inject(NotificationCenterService);
   private ngZone = inject(NgZone);
   private platformId = inject(PLATFORM_ID);
+  private translate = inject(TranslateService);
 
   private eventSource: EventSource | null = null;
   private reconnectAttempts = 0;
@@ -271,45 +273,45 @@ export class SseService {
     if (this.userRole === 'student') {
       // Student receives notification about their lesson
       if (payload.newStatus === 'CONFIRMED') {
-        const message = `M. ${payload.teacherName} a confirme votre cours`;
+        const message = this.translate.instant('realTimeNotifications.lessonConfirmedMsg', { name: payload.teacherName });
         this.toastService.success(message, 8000, '/lessons');
-        this.notificationCenter.success('Cours confirme', message, '/lessons');
+        this.notificationCenter.success(this.translate.instant('realTimeNotifications.lessonConfirmed'), message, '/lessons');
       } else if (payload.newStatus === 'CANCELLED') {
-        const message = `M. ${payload.teacherName} a annule votre cours`;
+        const message = this.translate.instant('realTimeNotifications.lessonCancelledByCoach', { name: payload.teacherName });
         this.toastService.error(message, 10000, '/lessons');
-        this.notificationCenter.error('Cours annule', message, '/lessons');
+        this.notificationCenter.error(this.translate.instant('realTimeNotifications.lessonCancelled'), message, '/lessons');
       }
     } else if (this.userRole === 'teacher') {
       // Teacher receives notification about cancellation by student
       if (payload.newStatus === 'CANCELLED') {
-        const message = `${payload.studentName} a annule son cours`;
+        const message = this.translate.instant('realTimeNotifications.lessonCancelledByPlayer', { name: payload.studentName });
         this.toastService.error(message, 10000, '/lessons');
-        this.notificationCenter.error('Cours annule', message, '/lessons');
+        this.notificationCenter.error(this.translate.instant('realTimeNotifications.lessonCancelled'), message, '/lessons');
       }
     }
   }
 
   private handleLessonBooked(payload: SseLessonStatusPayload): void {
     // This is only sent to teachers
-    const message = `Nouvelle reservation de ${payload.studentName}`;
+    const message = this.translate.instant('realTimeNotifications.newBookingMsg', { name: payload.studentName });
     this.toastService.info(message, 8000, '/lessons');
-    this.notificationCenter.info('Nouvelle reservation', message, '/lessons');
+    this.notificationCenter.info(this.translate.instant('realTimeNotifications.newBooking'), message, '/lessons');
   }
 
   private handleNewAvailability(payload: SseAvailabilityPayload): void {
     // This is only sent to students who have this teacher as favorite
-    const message = `M. ${payload.teacherName} vient d'ajouter une disponibilite`;
+    const message = this.translate.instant('realTimeNotifications.newAvailabilityMsg', { name: payload.teacherName });
     const link = `/book/${payload.teacherId}`;
     this.toastService.info(message, 8000, link);
-    this.notificationCenter.info('Nouvelle disponibilite', message, link);
+    this.notificationCenter.info(this.translate.instant('realTimeNotifications.newAvailability'), message, link);
   }
 
   private handleTeacherJoined(payload: SseTeacherJoinedPayload): void {
     // This is only sent to students
-    const message = `M. ${payload.teacherName} vous attend dans l'appel video`;
+    const message = this.translate.instant('realTimeNotifications.videoCallMsg', { name: payload.teacherName });
     const link = `/lessons?openCall=${payload.lessonId}`;
     this.toastService.success(message, 15000, link);
-    this.notificationCenter.success('Appel video', message, link);
+    this.notificationCenter.success(this.translate.instant('realTimeNotifications.videoCall'), message, link);
   }
 
   private scheduleReconnect(): void {

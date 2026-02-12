@@ -1,21 +1,20 @@
-import { Component, EventEmitter, Input, Output, signal, HostListener, inject } from '@angular/core';
+import { Component, signal, HostListener, inject, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { RatingService, CreateRatingRequest } from '../../core/services/rating.service';
 import { FocusTrapDirective } from '../directives/focus-trap.directive';
 
 @Component({
-  selector: 'app-rating-modal',
-  standalone: true,
-  imports: [FormsModule, FocusTrapDirective, TranslateModule],
-  templateUrl: './rating-modal.component.html',
-  styleUrl: './rating-modal.component.scss'
+    selector: 'app-rating-modal',
+    imports: [FormsModule, FocusTrapDirective, TranslateModule],
+    templateUrl: './rating-modal.component.html',
+    styleUrl: './rating-modal.component.scss'
 })
 export class RatingModalComponent {
-  @Input() lessonId!: number;
-  @Input() teacherName = '';
-  @Output() close = new EventEmitter<void>();
-  @Output() rated = new EventEmitter<void>();
+  readonly lessonId = input.required<number>();
+  readonly teacherName = input('');
+  readonly close = output<void>();
+  readonly rated = output<void>();
 
   selectedStars = signal(0);
   hoveredStars = signal(0);
@@ -58,7 +57,7 @@ export class RatingModalComponent {
     this.error.set(null);
 
     const request: CreateRatingRequest = {
-      lessonId: this.lessonId,
+      lessonId: this.lessonId(),
       stars: this.selectedStars(),
       comment: this.comment.trim() || undefined
     };
@@ -66,6 +65,7 @@ export class RatingModalComponent {
     this.ratingService.createRating(request).subscribe({
       next: () => {
         this.loading.set(false);
+        // TODO: The 'emit' function requires a mandatory void argument
         this.rated.emit();
       },
       error: (err) => {
@@ -76,6 +76,7 @@ export class RatingModalComponent {
   }
 
   onClose(): void {
+    // TODO: The 'emit' function requires a mandatory void argument
     this.close.emit();
   }
 

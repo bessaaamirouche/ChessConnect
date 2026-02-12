@@ -1,19 +1,19 @@
 import { Component, OnInit, signal, inject, computed, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AdminService, UserListResponse, Page } from '../../../core/services/admin.service';
 import { AdminStateService } from '../../../core/services/admin-state.service';
 import { DialogService } from '../../../core/services/dialog.service';
 
 @Component({
-  selector: 'app-user-list',
-  standalone: true,
-  imports: [CommonModule, FormsModule, DatePipe],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
+    selector: 'app-user-list',
+    imports: [FormsModule, DatePipe, TranslateModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    template: `
     <div class="user-list">
       <header class="page-header">
-        <h1>Utilisateurs</h1>
+        <h1>{{ 'admin.users.title' | translate }}</h1>
       </header>
 
       <!-- Tabs -->
@@ -29,23 +29,23 @@ import { DialogService } from '../../../core/services/dialog.service';
             <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
             <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
           </svg>
-          Utilisateurs
+          {{ 'admin.users.title' | translate }}
           @if (activeUsersCount() > 0) {
             <span class="tab-count">{{ activeUsersCount() }}</span>
           }
         </button>
         <button
-          class="tab tab--blacklist"
-          [class.active]="activeTab() === 'blacklist'"
-          (click)="switchTab('blacklist')"
+          class="tab tab--suspended"
+          [class.active]="activeTab() === 'suspended'"
+          (click)="switchTab('suspended')"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="10"></circle>
             <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
           </svg>
-          Blacklist
-          @if (blacklistCount() > 0) {
-            <span class="tab-count tab-count--danger">{{ blacklistCount() }}</span>
+          {{ 'admin.users.suspended' | translate }}
+          @if (suspendedCount() > 0) {
+            <span class="tab-count tab-count--danger">{{ suspendedCount() }}</span>
           }
         </button>
       </div>
@@ -61,7 +61,7 @@ import { DialogService } from '../../../core/services/dialog.service';
             type="text"
             [(ngModel)]="searchQuery"
             (input)="onSearchChange()"
-            placeholder="Rechercher par nom, prenom, email..."
+            [placeholder]="'admin.users.searchPlaceholder' | translate"
             class="search-input"
           >
           @if (searchQuery) {
@@ -69,20 +69,20 @@ import { DialogService } from '../../../core/services/dialog.service';
           }
         </div>
         <select [(ngModel)]="roleFilter" (change)="loadUsers(0)" class="input input--sm">
-          <option value="">Tous les roles</option>
-          <option value="STUDENT">Joueurs</option>
-          <option value="TEACHER">Coachs</option>
+          <option value="">{{ 'admin.users.allRoles' | translate }}</option>
+          <option value="STUDENT">{{ 'admin.users.players' | translate }}</option>
+          <option value="TEACHER">{{ 'admin.users.coaches' | translate }}</option>
         </select>
       </div>
 
       @if (loading()) {
-        <div class="loading">Chargement...</div>
+        <div class="loading">{{ 'common.loading' | translate }}</div>
       } @else {
         <!-- Active Users Tab -->
         @if (activeTab() === 'users') {
           <div class="table-container">
             <div class="table-header">
-              <span class="results-count">{{ filteredActiveUsers().length }} utilisateur(s) actif(s)</span>
+              <span class="results-count">{{ filteredActiveUsers().length }} {{ 'admin.users.activeUsers' | translate }}</span>
             </div>
             @if (filteredActiveUsers().length === 0) {
               <div class="empty-state">
@@ -92,18 +92,18 @@ import { DialogService } from '../../../core/services/dialog.service';
                   <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
                   <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                 </svg>
-                <p>Aucun utilisateur actif trouvé</p>
+                <p>{{ 'admin.users.noActiveUsers' | translate }}</p>
               </div>
             } @else {
               <table class="table">
                 <thead>
                   <tr>
-                    <th>Utilisateur</th>
-                    <th>Role</th>
-                    <th>Cours</th>
-                    <th>Inscription</th>
-                    <th>Dernière connexion</th>
-                    <th>Actions</th>
+                    <th>{{ 'admin.users.user' | translate }}</th>
+                    <th>{{ 'admin.users.role' | translate }}</th>
+                    <th>{{ 'admin.users.lessons' | translate }}</th>
+                    <th>{{ 'admin.users.registration' | translate }}</th>
+                    <th>{{ 'admin.users.lastLogin' | translate }}</th>
+                    <th>{{ 'admin.users.actions' | translate }}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -126,7 +126,7 @@ import { DialogService } from '../../../core/services/dialog.service';
                         @if (user.lastLoginAt) {
                           {{ user.lastLoginAt | date:'dd/MM/yyyy HH:mm' }}
                         } @else {
-                          <span class="text-muted">Jamais</span>
+                          <span class="text-muted">{{ 'admin.users.never' | translate }}</span>
                         }
                       </td>
                       <td>
@@ -135,19 +135,19 @@ import { DialogService } from '../../../core/services/dialog.service';
                             class="action-btn action-btn--suspend"
                             (click)="suspendUser(user)"
                             [disabled]="actionLoading()"
-                            title="Ajouter a la blacklist"
+                            [title]="'admin.users.suspendUser' | translate"
                           >
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                               <circle cx="12" cy="12" r="10"></circle>
                               <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
                             </svg>
-                            Blacklister
+                            {{ 'admin.users.suspendBtn' | translate }}
                           </button>
                           <button
                             class="action-btn action-btn--delete"
                             (click)="deleteUser(user)"
                             [disabled]="actionLoading()"
-                            title="Supprimer définitivement"
+                            [title]="'admin.users.deletePermanently' | translate"
                           >
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                               <polyline points="3 6 5 6 21 6"></polyline>
@@ -155,7 +155,7 @@ import { DialogService } from '../../../core/services/dialog.service';
                               <line x1="10" y1="11" x2="10" y2="17"></line>
                               <line x1="14" y1="11" x2="14" y2="17"></line>
                             </svg>
-                            Supprimer
+                            {{ 'admin.users.deleteBtn' | translate }}
                           </button>
                         </div>
                       </td>
@@ -167,34 +167,34 @@ import { DialogService } from '../../../core/services/dialog.service';
           </div>
         }
 
-        <!-- Blacklist Tab -->
-        @if (activeTab() === 'blacklist') {
-          <div class="table-container table-container--blacklist">
-            <div class="table-header table-header--blacklist">
-              <span class="results-count">{{ filteredBlacklistedUsers().length }} utilisateur(s) blacklisté(s)</span>
+        <!-- Suspended Tab -->
+        @if (activeTab() === 'suspended') {
+          <div class="table-container table-container--suspended">
+            <div class="table-header table-header--suspended">
+              <span class="results-count">{{ filteredSuspendedUsers().length }} {{ 'admin.users.suspendedUsers' | translate }}</span>
             </div>
-            @if (filteredBlacklistedUsers().length === 0) {
+            @if (filteredSuspendedUsers().length === 0) {
               <div class="empty-state">
                 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                   <polyline points="22 4 12 14.01 9 11.01"></polyline>
                 </svg>
-                <p>Aucun utilisateur blacklisté</p>
+                <p>{{ 'admin.users.noSuspendedUsers' | translate }}</p>
               </div>
             } @else {
               <table class="table">
                 <thead>
                   <tr>
-                    <th>Utilisateur</th>
-                    <th>Role</th>
-                    <th>Cours</th>
-                    <th>Inscription</th>
-                    <th>Dernière connexion</th>
-                    <th>Actions</th>
+                    <th>{{ 'admin.users.user' | translate }}</th>
+                    <th>{{ 'admin.users.role' | translate }}</th>
+                    <th>{{ 'admin.users.lessons' | translate }}</th>
+                    <th>{{ 'admin.users.registration' | translate }}</th>
+                    <th>{{ 'admin.users.lastLogin' | translate }}</th>
+                    <th>{{ 'admin.users.actions' | translate }}</th>
                   </tr>
                 </thead>
                 <tbody>
-                  @for (user of filteredBlacklistedUsers(); track user.id) {
+                  @for (user of filteredSuspendedUsers(); track user.id) {
                     <tr>
                       <td>
                         <div class="user-info">
@@ -213,7 +213,7 @@ import { DialogService } from '../../../core/services/dialog.service';
                         @if (user.lastLoginAt) {
                           {{ user.lastLoginAt | date:'dd/MM/yyyy HH:mm' }}
                         } @else {
-                          <span class="text-muted">Jamais</span>
+                          <span class="text-muted">{{ 'admin.users.never' | translate }}</span>
                         }
                       </td>
                       <td>
@@ -222,19 +222,19 @@ import { DialogService } from '../../../core/services/dialog.service';
                             class="action-btn action-btn--activate"
                             (click)="activateUser(user)"
                             [disabled]="actionLoading()"
-                            title="Retirer de la blacklist"
+                            [title]="'admin.users.unsuspendUser' | translate"
                           >
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                               <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                               <polyline points="22 4 12 14.01 9 11.01"></polyline>
                             </svg>
-                            Réactiver
+                            {{ 'admin.users.reactivate' | translate }}
                           </button>
                           <button
                             class="action-btn action-btn--delete"
                             (click)="deleteUser(user)"
                             [disabled]="actionLoading()"
-                            title="Supprimer définitivement"
+                            [title]="'admin.users.deletePermanently' | translate"
                           >
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                               <polyline points="3 6 5 6 21 6"></polyline>
@@ -242,7 +242,7 @@ import { DialogService } from '../../../core/services/dialog.service';
                               <line x1="10" y1="11" x2="10" y2="17"></line>
                               <line x1="14" y1="11" x2="14" y2="17"></line>
                             </svg>
-                            Supprimer
+                            {{ 'admin.users.deleteBtn' | translate }}
                           </button>
                         </div>
                       </td>
@@ -261,22 +261,22 @@ import { DialogService } from '../../../core/services/dialog.service';
               [disabled]="currentPage() === 0"
               (click)="loadUsers(currentPage() - 1)"
             >
-              Précédent
+              {{ 'admin.users.previous' | translate }}
             </button>
-            <span>Page {{ currentPage() + 1 }} / {{ users()!.totalPages }}</span>
+            <span>{{ 'admin.users.page' | translate }} {{ currentPage() + 1 }} / {{ users()!.totalPages }}</span>
             <button
               class="btn btn--sm btn--ghost"
               [disabled]="currentPage() >= users()!.totalPages - 1"
               (click)="loadUsers(currentPage() + 1)"
             >
-              Suivant
+              {{ 'admin.users.next' | translate }}
             </button>
           </div>
         }
       }
     </div>
   `,
-  styles: [`
+    styles: [`
     .page-header {
       display: flex;
       justify-content: space-between;
@@ -342,7 +342,7 @@ import { DialogService } from '../../../core/services/dialog.service';
         }
       }
 
-      &--blacklist.active {
+      &--suspended.active {
         color: #ef4444;
         border-bottom-color: #ef4444;
       }
@@ -387,7 +387,7 @@ import { DialogService } from '../../../core/services/dialog.service';
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
 
-      &--blacklist {
+      &--suspended {
         border: 1px solid rgba(239, 68, 68, 0.2);
       }
     }
@@ -400,7 +400,7 @@ import { DialogService } from '../../../core/services/dialog.service';
       background: var(--bg-tertiary);
       border-bottom: 0.0625rem solid var(--border-subtle);
 
-      &--blacklist {
+      &--suspended {
         background: rgba(239, 68, 68, 0.05);
         border-bottom-color: rgba(239, 68, 68, 0.15);
       }
@@ -705,12 +705,13 @@ export class UserListComponent implements OnInit {
   loading = signal(true);
   actionLoading = signal(false);
   currentPage = signal(0);
-  activeTab = signal<'users' | 'blacklist'>('users');
+  activeTab = signal<'users' | 'suspended'>('users');
   roleFilter = '';
   searchQuery = '';
 
   private dialogService = inject(DialogService);
   private adminStateService = inject(AdminStateService);
+  private translate = inject(TranslateService);
 
   // Count of active users
   activeUsersCount = computed(() => {
@@ -718,8 +719,8 @@ export class UserListComponent implements OnInit {
     return allUsers.filter(u => !u.isSuspended).length;
   });
 
-  // Count of blacklisted users
-  blacklistCount = computed(() => {
+  // Count of suspended users
+  suspendedCount = computed(() => {
     const allUsers = this.users()?.content || [];
     return allUsers.filter(u => u.isSuspended).length;
   });
@@ -731,11 +732,11 @@ export class UserListComponent implements OnInit {
     return this.filterBySearch(activeUsers);
   });
 
-  // Filtered blacklisted users based on search query
-  filteredBlacklistedUsers = computed(() => {
+  // Filtered suspended users based on search query
+  filteredSuspendedUsers = computed(() => {
     const allUsers = this.users()?.content || [];
-    const blacklistedUsers = allUsers.filter(u => u.isSuspended);
-    return this.filterBySearch(blacklistedUsers);
+    const suspendedUsers = allUsers.filter(u => u.isSuspended);
+    return this.filterBySearch(suspendedUsers);
   });
 
   constructor(private adminService: AdminService) {}
@@ -758,7 +759,7 @@ export class UserListComponent implements OnInit {
     });
   }
 
-  switchTab(tab: 'users' | 'blacklist'): void {
+  switchTab(tab: 'users' | 'suspended'): void {
     this.activeTab.set(tab);
   }
 
@@ -786,19 +787,21 @@ export class UserListComponent implements OnInit {
   }
 
   getRoleLabel(role: string): string {
-    const labels: Record<string, string> = {
-      STUDENT: 'Joueur',
-      TEACHER: 'Coach',
+    const keys: Record<string, string> = {
+      STUDENT: 'admin.users.players',
+      TEACHER: 'admin.users.coaches',
       ADMIN: 'Admin'
     };
-    return labels[role] || role;
+    if (role === 'ADMIN') return 'Admin';
+    return keys[role] ? this.translate.instant(keys[role]) : role;
   }
 
   async suspendUser(user: UserListResponse): Promise<void> {
+    const name = `${user.firstName} ${user.lastName}`;
     const reason = await this.dialogService.prompt(
-      `Pourquoi blacklister ${user.firstName} ${user.lastName} ?`,
-      'Ajouter à la blacklist',
-      { inputLabel: 'Motif', inputPlaceholder: 'Ex: Comportement inapproprié...', variant: 'warning' }
+      this.translate.instant('admin.users.suspendReason', { name }),
+      this.translate.instant('admin.users.suspendUser'),
+      { inputLabel: this.translate.instant('admin.users.suspendMotif'), inputPlaceholder: this.translate.instant('admin.users.suspendPlaceholder'), variant: 'warning' }
     );
     if (!reason) return;
 
@@ -811,7 +814,7 @@ export class UserListComponent implements OnInit {
       },
       error: () => {
         this.actionLoading.set(false);
-        this.dialogService.alert('Erreur lors de la suspension', 'Erreur', { variant: 'danger' });
+        this.dialogService.alert(this.translate.instant('errors.suspendUser'), this.translate.instant('status.error'), { variant: 'danger' });
       }
     });
   }
@@ -826,21 +829,22 @@ export class UserListComponent implements OnInit {
       },
       error: () => {
         this.actionLoading.set(false);
-        this.dialogService.alert('Erreur lors de la réactivation', 'Erreur', { variant: 'danger' });
+        this.dialogService.alert(this.translate.instant('errors.reactivateUser'), this.translate.instant('status.error'), { variant: 'danger' });
       }
     });
   }
 
   async deleteUser(user: UserListResponse): Promise<void> {
+    const name = `${user.firstName} ${user.lastName}`;
     // First check wallet balance for students
     if (user.role === 'STUDENT') {
       this.adminService.getUserWallet(user.id).subscribe({
         next: async (wallet) => {
           if (wallet.balanceCents > 0) {
             const confirmWithWallet = await this.dialogService.confirm(
-              `${user.firstName} ${user.lastName} a ${wallet.balanceFormatted} dans son portefeuille.\n\nLe solde sera automatiquement enregistre pour remboursement manuel (virement bancaire).\n\nVoulez-vous continuer ?`,
-              'Supprimer avec solde',
-              { confirmText: 'Supprimer et enregistrer remboursement', cancelText: 'Annuler', variant: 'danger' }
+              this.translate.instant('admin.users.walletWarning', { name, balance: wallet.balanceFormatted }),
+              this.translate.instant('admin.users.deleteWithBalance'),
+              { confirmText: this.translate.instant('admin.users.deleteAndRefund'), cancelText: this.translate.instant('common.cancel'), variant: 'danger' }
             );
             if (confirmWithWallet) {
               this.performDelete(user);
@@ -860,10 +864,11 @@ export class UserListComponent implements OnInit {
   }
 
   private async confirmAndDelete(user: UserListResponse): Promise<void> {
+    const name = `${user.firstName} ${user.lastName}`;
     const confirmed = await this.dialogService.confirm(
-      `Êtes-vous sûr de vouloir supprimer définitivement ${user.firstName} ${user.lastName} ?\n\nCette action est irréversible et supprimera toutes les données associées.`,
-      'Supprimer l\'utilisateur',
-      { confirmText: 'Supprimer définitivement', cancelText: 'Annuler', variant: 'danger' }
+      this.translate.instant('admin.users.deleteConfirm', { name }),
+      this.translate.instant('admin.users.deleteUser'),
+      { confirmText: this.translate.instant('admin.users.deleteConfirmBtn'), cancelText: this.translate.instant('common.cancel'), variant: 'danger' }
     );
     if (confirmed) {
       this.performDelete(user);
@@ -881,18 +886,18 @@ export class UserListComponent implements OnInit {
         if (response.requiresManualRefund) {
           const amount = (response.refundedAmountCents / 100).toFixed(2);
           this.dialogService.alert(
-            `Utilisateur supprimé.\n\n${amount} EUR à rembourser manuellement par virement bancaire.`,
-            'Remboursement requis',
+            this.translate.instant('admin.users.refundMessage', { amount }),
+            this.translate.instant('admin.users.refundRequired'),
             { variant: 'warning' }
           );
         } else {
-          this.dialogService.alert('Utilisateur supprimé avec succès.', 'Succès', { variant: 'success' });
+          this.dialogService.alert(this.translate.instant('admin.users.userDeleted'), this.translate.instant('status.success'), { variant: 'success' });
         }
       },
       error: (err) => {
         this.actionLoading.set(false);
-        const message = err.error?.message || 'Erreur lors de la suppression';
-        this.dialogService.alert(message, 'Erreur', { variant: 'danger' });
+        const message = err.error?.message || this.translate.instant('errors.deleteUser');
+        this.dialogService.alert(message, this.translate.instant('status.error'), { variant: 'danger' });
       }
     });
   }

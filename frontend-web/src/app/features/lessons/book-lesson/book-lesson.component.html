@@ -131,7 +131,7 @@
                     <strong>{{ 'booking.wallet' | translate }}</strong>
                     <p class="wallet-info__balance">{{ 'booking.walletBalance' | translate }}: {{ walletService.formatPrice(walletService.balance()) }}</p>
                   </div>
-                  @if (canPayWithCredit()) {
+                  @if (isGroupMode() ? canPayGroupWithCredit() : canPayWithCredit()) {
                     <label class="wallet-info__toggle">
                       <input
                         type="checkbox"
@@ -288,15 +288,20 @@
             <button
               type="submit"
               class="btn btn--block btn--primary"
-              [class.btn--credit]="!isGroupMode() && payWithCreditSignal() && canPayWithCredit()"
-              [disabled]="!selectedSlot() || !programmeService.currentCourse() || loading() || (isGroupMode() && !canPayGroupWithCredit())"
+              [class.btn--credit]="payWithCreditSignal() && (isGroupMode() ? canPayGroupWithCredit() : canPayWithCredit())"
+              [disabled]="!selectedSlot() || !programmeService.currentCourse() || loading()"
             >
               @if (loading()) {
                 <span class="spinner spinner--sm"></span>
                 {{ 'booking.processing' | translate }}
               } @else if (isGroupMode()) {
-                <ng-icon name="heroWallet" size="18"></ng-icon>
-                {{ 'group_lesson.group' | translate }} — {{ formatPrice(groupPricePerPerson()) }}
+                @if (payWithCreditSignal() && canPayGroupWithCredit()) {
+                  <ng-icon name="heroWallet" size="18"></ng-icon>
+                  {{ 'group_lesson.group' | translate }} — {{ formatPrice(groupPricePerPerson()) }}
+                } @else {
+                  <ng-icon name="heroCreditCard" size="18"></ng-icon>
+                  {{ 'group_lesson.payWithCard' | translate }} — {{ formatPrice(groupPricePerPerson()) }}
+                }
               } @else {
                 @if (payWithCreditSignal() && canPayWithCredit()) {
                   <ng-icon name="heroWallet" size="18"></ng-icon>
@@ -307,12 +312,6 @@
                 }
               }
               </button>
-            @if (isGroupMode() && !canPayGroupWithCredit()) {
-              <p class="group-insufficient-balance">
-                {{ 'group_lesson.insufficientBalance' | translate }} —
-                <a routerLink="/wallet">{{ 'booking.addFunds' | translate }}</a>
-              </p>
-            }
           </form>
         </div>
       } @else {

@@ -1,6 +1,7 @@
 import {
   Component, OnInit, OnDestroy, signal, computed,
-  ViewChild, ChangeDetectionStrategy
+  ChangeDetectionStrategy,
+  viewChild
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -17,19 +18,18 @@ import { Exercise, DIFFICULTY_LABELS } from '../../core/models/exercise.model';
 type GameStatus = 'loading' | 'playing' | 'player_won' | 'ai_won' | 'draw';
 
 @Component({
-  selector: 'app-exercise',
-  standalone: true,
-  imports: [RouterLink, NgIconComponent, ChessBoardComponent, TranslateModule],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  viewProviders: [provideIcons({
-    heroArrowLeft, heroCpuChip, heroTrophy, heroClock,
-    heroExclamationTriangle, heroCheckCircle, heroXCircle
-  })],
-  templateUrl: './exercise.component.html',
-  styleUrl: './exercise.component.scss'
+    selector: 'app-exercise',
+    imports: [RouterLink, NgIconComponent, ChessBoardComponent, TranslateModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    viewProviders: [provideIcons({
+            heroArrowLeft, heroCpuChip, heroTrophy, heroClock,
+            heroExclamationTriangle, heroCheckCircle, heroXCircle
+        })],
+    templateUrl: './exercise.component.html',
+    styleUrl: './exercise.component.scss'
 })
 export class ExerciseComponent implements OnInit, OnDestroy {
-  @ViewChild('chessBoard') chessBoard!: ChessBoardComponent;
+  readonly chessBoard = viewChild.required<ChessBoardComponent>('chessBoard');
 
   exercise = signal<Exercise | null>(null);
   gameStatus = signal<GameStatus>('loading');
@@ -121,7 +121,7 @@ export class ExerciseComponent implements OnInit, OnDestroy {
 
     // AI's turn
     this.isPlayerTurn.set(false);
-    this.chessBoard?.setMovable(false);
+    this.chessBoard()?.setMovable(false);
 
     // Small delay before AI move for better UX
     setTimeout(() => this.makeAIMove(), 300);
@@ -143,8 +143,9 @@ export class ExerciseComponent implements OnInit, OnDestroy {
           : undefined;
 
         // Make move on board
-        if (this.chessBoard) {
-          this.chessBoard.makeMove(from, to, promotion);
+        const chessBoard = this.chessBoard();
+        if (chessBoard) {
+          chessBoard.makeMove(from, to, promotion);
           this.moveHistory.update(history => [...history, result.bestMove]);
 
           // Update engine position
@@ -160,23 +161,24 @@ export class ExerciseComponent implements OnInit, OnDestroy {
 
           // Player's turn
           this.isPlayerTurn.set(true);
-          this.chessBoard.setMovable(true);
+          chessBoard.setMovable(true);
         }
       }
     } catch (error) {
       console.error('AI move error:', error);
       // Recover by enabling player moves
       this.isPlayerTurn.set(true);
-      this.chessBoard?.setMovable(true);
+      this.chessBoard()?.setMovable(true);
     }
   }
 
   private checkGameOver(): boolean {
-    if (!this.chessBoard) return false;
+    const chessBoard = this.chessBoard();
+    if (!chessBoard) return false;
 
-    if (this.chessBoard.isCheckmate()) {
+    if (chessBoard.isCheckmate()) {
       const playerColor = this.exercise()?.playerColor || 'white';
-      const currentTurn = this.chessBoard.getTurn();
+      const currentTurn = chessBoard.getTurn();
 
       // If it's the losing side's turn during checkmate
       if (currentTurn !== playerColor) {
@@ -186,13 +188,13 @@ export class ExerciseComponent implements OnInit, OnDestroy {
         // AI delivered checkmate
         this.gameStatus.set('ai_won');
       }
-      this.chessBoard.setMovable(false);
+      chessBoard.setMovable(false);
       return true;
     }
 
-    if (this.chessBoard.isDraw() || this.chessBoard.isStalemate()) {
+    if (chessBoard.isDraw() || chessBoard.isStalemate()) {
       this.gameStatus.set('draw');
-      this.chessBoard.setMovable(false);
+      chessBoard.setMovable(false);
       return true;
     }
 
@@ -206,8 +208,9 @@ export class ExerciseComponent implements OnInit, OnDestroy {
     this.gameStatus.set('playing');
     this.moveHistory.set([]);
 
-    if (this.chessBoard) {
-      this.chessBoard.setPosition(exercise.startingFen);
+    const chessBoard = this.chessBoard();
+    if (chessBoard) {
+      chessBoard.setPosition(exercise.startingFen);
     }
 
     this.engineService.newGame();
@@ -215,7 +218,7 @@ export class ExerciseComponent implements OnInit, OnDestroy {
 
     if (exercise.playerColor === 'white') {
       this.isPlayerTurn.set(true);
-      this.chessBoard?.setMovable(true);
+      chessBoard?.setMovable(true);
     } else {
       this.isPlayerTurn.set(false);
       setTimeout(() => this.makeAIMove(), 500);
@@ -224,7 +227,7 @@ export class ExerciseComponent implements OnInit, OnDestroy {
 
   onResign(): void {
     this.gameStatus.set('ai_won');
-    this.chessBoard?.setMovable(false);
+    this.chessBoard()?.setMovable(false);
   }
 
   goBack(): void {

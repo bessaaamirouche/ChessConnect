@@ -7,12 +7,11 @@ import { SeoService } from '../../../core/services/seo.service';
 import { ContactService } from '../../../core/services/contact.service';
 
 @Component({
-  selector: 'app-login',
-  standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, TranslateModule],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './login.component.html',
-  styleUrl: './login.component.scss'
+    selector: 'app-login',
+    imports: [ReactiveFormsModule, RouterLink, TranslateModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    templateUrl: './login.component.html',
+    styleUrl: './login.component.scss'
 })
 export class LoginComponent {
   private seoService = inject(SeoService);

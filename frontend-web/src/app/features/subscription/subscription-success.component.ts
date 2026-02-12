@@ -4,47 +4,46 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { PaymentService } from '../../core/services/payment.service';
 
 @Component({
-  selector: 'app-subscription-success',
-  standalone: true,
-  imports: [RouterLink, TranslateModule],
-  template: `
+    selector: 'app-subscription-success',
+    imports: [RouterLink, TranslateModule],
+    template: `
     <div class="result-page">
       <div class="result-card result-card--success">
         @if (loading()) {
           <div class="result-card__icon">
             <span class="spinner spinner--lg"></span>
           </div>
-          <h1>Activation de l'abonnement...</h1>
-          <p>Veuillez patienter pendant que nous activons votre abonnement Premium.</p>
+          <h1>{{ 'subscriptionSuccess.activating' | translate }}</h1>
+          <p>{{ 'subscriptionSuccess.pleaseWait' | translate }}</p>
         } @else if (verified()) {
           <div class="result-card__icon result-card__icon--premium">✨</div>
-          <h1>Bienvenue chez les Premium !</h1>
-          <p>Félicitations ! Votre abonnement <strong>{{ planName() }}</strong> est maintenant actif.</p>
+          <h1>{{ 'subscriptionSuccess.welcome' | translate }}</h1>
+          <p>{{ 'subscriptionSuccess.congratulations' | translate }}</p>
           <div class="result-card__features">
-            <p><strong>Vos avantages exclusifs :</strong></p>
+            <p><strong>{{ 'subscriptionSuccess.exclusiveBenefits' | translate }}</strong></p>
             <ul>
-              <li>✓ Revisionnage illimité de vos cours</li>
-              <li>✓ Notifications prioritaires des coachs favoris</li>
-              <li>✓ Badge Premium sur votre profil</li>
+              <li>✓ {{ 'subscriptionSuccess.unlimitedReplay' | translate }}</li>
+              <li>✓ {{ 'subscriptionSuccess.priorityNotifications' | translate }}</li>
+              <li>✓ {{ 'subscriptionSuccess.premiumBadge' | translate }}</li>
             </ul>
           </div>
           <div class="result-card__actions">
-            <a routerLink="/teachers" class="btn btn--primary btn--lg">Réserver un cours</a>
-            <a routerLink="/dashboard" class="btn btn--ghost">Aller au dashboard</a>
+            <a routerLink="/teachers" class="btn btn--primary btn--lg">{{ 'subscriptionSuccess.bookLesson' | translate }}</a>
+            <a routerLink="/dashboard" class="btn btn--ghost">{{ 'subscriptionSuccess.goToDashboard' | translate }}</a>
           </div>
         } @else {
           <div class="result-card__icon result-card__icon--error">✕</div>
-          <h1>Erreur</h1>
-          <p>{{ error() || 'Une erreur est survenue lors de l\\'activation de l\\'abonnement.' }}</p>
+          <h1>{{ 'status.error' | translate }}</h1>
+          <p>{{ error() || ('errors.subscriptionActivate' | translate) }}</p>
           <div class="result-card__actions">
-            <a routerLink="/subscription" class="btn btn--primary">Réessayer</a>
-            <a routerLink="/dashboard" class="btn btn--ghost">Aller au dashboard</a>
+            <a routerLink="/subscription" class="btn btn--primary">{{ 'common.retry' | translate }}</a>
+            <a routerLink="/dashboard" class="btn btn--ghost">{{ 'subscriptionSuccess.goToDashboard' | translate }}</a>
           </div>
         }
       </div>
     </div>
   `,
-  styles: [`
+    styles: [`
     .result-page {
       min-height: 100vh;
       display: flex;

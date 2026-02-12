@@ -308,7 +308,7 @@
             </div>
           } @else {
             <div class="history-grid">
-          @for (lesson of filteredHistory(); track lesson.id) {
+          @for (lesson of historyPagination.paginatedItems(); track lesson.id) {
             <div class="history-card" [class.history-card--has-recording]="lesson.recordingUrl">
               <div class="history-card__header">
                 <div class="history-card__date-block">
@@ -433,6 +433,16 @@
             </div>
           }
             </div>
+
+            <app-pagination
+              [currentPage]="historyPagination.currentPage()"
+              [totalPages]="historyPagination.totalPages()"
+              [totalItems]="historyPagination.totalItems()"
+              [startItem]="historyPagination.startItem()"
+              [endItem]="historyPagination.endItem()"
+              [visiblePages]="historyPagination.visiblePages()"
+              (pageChange)="historyPagination.goToPage($event)"
+            />
           }
         </div>
       </section>
@@ -523,6 +533,7 @@
       [userName]="authService.currentUser()?.firstName + ' ' + authService.currentUser()?.lastName"
       [title]="videoCallTitle()"
       [isTeacher]="authService.isTeacher()"
+      [recordingEnabled]="videoCallRecordingEnabled()"
       [jwtToken]="videoCallToken()"
       [durationMinutes]="videoCallDurationMinutes()"
       (closed)="closeVideoCall()"

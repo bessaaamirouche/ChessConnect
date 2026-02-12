@@ -1,7 +1,7 @@
 import { Component, signal, ChangeDetectionStrategy, inject, OnInit, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {
   heroAcademicCap,
   heroChevronDown,
@@ -38,29 +38,29 @@ interface Level {
 }
 
 @Component({
-  selector: 'app-programme',
-  standalone: true,
-  imports: [CommonModule, NgIconComponent, TranslateModule],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  viewProviders: [provideIcons({
-    heroAcademicCap,
-    heroChevronDown,
-    heroChevronRight,
-    heroBookOpen,
-    heroTrophy,
-    heroStar,
-    heroCheckCircle,
-    heroArrowLeft,
-    heroArrowRight,
-    heroPlay
-  })],
-  templateUrl: './programme.component.html',
-  styleUrl: './programme.component.scss'
+    selector: 'app-programme',
+    imports: [NgIconComponent, TranslateModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    viewProviders: [provideIcons({
+            heroAcademicCap,
+            heroChevronDown,
+            heroChevronRight,
+            heroBookOpen,
+            heroTrophy,
+            heroStar,
+            heroCheckCircle,
+            heroArrowLeft,
+            heroArrowRight,
+            heroPlay
+        })],
+    templateUrl: './programme.component.html',
+    styleUrl: './programme.component.scss'
 })
 export class ProgrammeComponent implements OnInit {
   private authService = inject(AuthService);
   private programmeService = inject(ProgrammeService);
   private toastService = inject(ToastService);
+  private translate = inject(TranslateService);
 
   expandedLevels = signal<Set<string>>(new Set());
   expandedCourses = signal<Set<number>>(new Set());
@@ -83,11 +83,6 @@ export class ProgrammeComponent implements OnInit {
         const current = courses.find(c => c.isCurrent);
         if (current) {
           this.currentCourseId.set(current.id);
-          // Auto-expand the level containing the current course
-          const level = this.levels.find(l => l.courses.some(c => c.id === current.id));
-          if (level) {
-            this.expandedLevels.set(new Set([level.code]));
-          }
         }
         this.loading.set(false);
       },
@@ -101,9 +96,9 @@ export class ProgrammeComponent implements OnInit {
     this.programmeService.setCurrentCourse(courseId).subscribe({
       next: (course) => {
         this.currentCourseId.set(course.id);
-        this.toastService.success(`Cours de départ défini : ${course.title}`);
+        this.toastService.success(this.translate.instant('success.startCourseSet', { title: course.title }));
       },
-      error: () => this.toastService.error('Erreur lors de la sélection du cours')
+      error: () => this.toastService.error(this.translate.instant('errors.courseSelection'))
     });
   }
 
@@ -113,9 +108,9 @@ export class ProgrammeComponent implements OnInit {
     this.programmeService.goBackToPreviousCourse().subscribe({
       next: (course) => {
         this.currentCourseId.set(course.id);
-        this.toastService.success(`Retour au cours : ${course.title}`);
+        this.toastService.success(this.translate.instant('success.backToCourse', { title: course.title }));
       },
-      error: () => this.toastService.error('Erreur lors du retour au cours précédent')
+      error: () => this.toastService.error(this.translate.instant('errors.previousCourse'))
     });
   }
 
@@ -138,18 +133,18 @@ export class ProgrammeComponent implements OnInit {
 
   getCurrentLevelName(): string {
     const currentId = this.currentCourseId();
-    const levelNames: Record<string, string> = {
-      'A': 'Débutant',
-      'B': 'Intermédiaire',
-      'C': 'Avancé',
-      'D': 'Expert'
+    const levelKeys: Record<string, string> = {
+      'A': 'evaluation.levels.beginner',
+      'B': 'evaluation.levels.intermediate',
+      'C': 'evaluation.levels.advanced',
+      'D': 'evaluation.levels.expert'
     };
     for (const level of this.levels) {
       if (level.courses.some(c => c.id === currentId)) {
-        return levelNames[level.code] || level.code;
+        return this.translate.instant(levelKeys[level.code] || level.code);
       }
     }
-    return 'Débutant';
+    return this.translate.instant('evaluation.levels.beginner');
   }
 
   levels: Level[] = [

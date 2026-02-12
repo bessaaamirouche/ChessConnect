@@ -287,6 +287,162 @@ public class GroupLessonController {
     }
 
     /**
+     * Create Stripe checkout to create a group lesson (alternative to wallet).
+     */
+    @PostMapping("/checkout")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<?> createCheckout(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @Valid @RequestBody BookGroupLessonRequest request
+    ) {
+        try {
+            User teacher = userRepository.findById(request.teacherId())
+                    .orElseThrow(() -> new RuntimeException("Teacher not found"));
+
+            int pricePerPerson = GroupPricingCalculator.calculateParticipantPrice(
+                    teacher.getHourlyRateCents(), request.targetGroupSize());
+
+            User student = userRepository.findById(userDetails.getId())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            String sanitizedName = teacher.getFullName().replaceAll("[^a-zA-ZÀ-ÿ\\s\\-']", "").trim();
+            if (sanitizedName.isEmpty()) sanitizedName = "Coach";
+            String description = String.format("Cours en groupe avec %s", sanitizedName);
+
+            // Encode group info in notes: "GROUP_CREATE:<targetGroupSize>"
+            String notesWithGroup = "GROUP_CREATE:" + request.targetGroupSize();
+
+            int durationMinutes = request.durationMinutes() != null ? request.durationMinutes() : 60;
+
+            Session session = stripeService.createLessonPaymentSession(
+                    student,
+                    teacher.getId(),
+                    pricePerPerson,
+                    description,
+                    request.scheduledAt().toString(),
+                    durationMinutes,
+                    notesWithGroup,
+                    true, // embedded
+                    request.courseId()
+            );
+
+            return ResponseEntity.ok(CheckoutSessionResponse.builder()
+                    .sessionId(session.getId())
+                    .publishableKey(stripeService.getPublishableKey())
+                    .clientSecret(session.getClientSecret())
+                    .build());
+
+        } catch (StripeException e) {
+            log.error("Stripe error creating group lesson checkout", e);
+            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(Map.of(
+                    "success", false,
+                    "error", "Erreur de paiement"
+            ));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "error", e.getMessage()
+            ));
+        }
+    }
+
+    /**
+     * Confirm Stripe payment for creating a group lesson.
+     */
+    @PostMapping("/create/confirm")
+    public ResponseEntity<Map<String, Object>> confirmCreatePayment(@RequestParam String sessionId) {
+        try {
+            Session session = stripeService.retrieveSession(sessionId);
+
+            if (!"paid".equals(session.getPaymentStatus())) {
+                return ResponseEntity.badRequest().body(Map.of(
+                        "success", false,
+                        "error", "Le paiement n'a pas ete effectue"
+                ));
+            }
+
+            Map<String, String> metadata = session.getMetadata();
+            String userIdStr = metadata.get("user_id");
+            if (userIdStr == null) {
+                return ResponseEntity.badRequest().body(Map.of(
+                        "success", false,
+                        "error", "Identifiant utilisateur introuvable"
+                ));
+            }
+            Long userId = Long.parseLong(userIdStr);
+
+            // Extract group size from notes "GROUP_CREATE:<size>"
+            String notes = metadata.get("notes");
+            if (notes == null || !notes.startsWith("GROUP_CREATE:")) {
+                return ResponseEntity.badRequest().body(Map.of(
+                        "success", false,
+                        "error", "Session invalide pour un cours en groupe"
+                ));
+            }
+            int targetGroupSize = Integer.parseInt(notes.substring("GROUP_CREATE:".length()).trim());
+
+            Long teacherId = Long.parseLong(metadata.get("teacher_id"));
+            LocalDateTime scheduledAt = LocalDateTime.parse(metadata.get("scheduled_at"));
+            int durationMinutes = Integer.parseInt(metadata.get("duration_minutes"));
+            String courseIdStr = metadata.get("course_id");
+            Long courseId = (courseIdStr != null && !courseIdStr.isEmpty()) ? Long.parseLong(courseIdStr) : null;
+
+            // Build request and create the group lesson (no wallet deduction — Stripe already charged)
+            BookGroupLessonRequest request = new BookGroupLessonRequest(
+                    teacherId, scheduledAt, durationMinutes, null, targetGroupSize, courseId
+            );
+            GroupLessonResponse response = groupLessonService.createGroupLesson(userId, request);
+
+            // Create payment record with Stripe payment intent
+            User student = userRepository.findById(userId).orElseThrow();
+            User teacher = userRepository.findById(teacherId).orElseThrow();
+            Lesson lesson = lessonRepository.findById(response.lesson().id()).orElseThrow();
+
+            int pricePerPerson = GroupPricingCalculator.calculateParticipantPrice(
+                    teacher.getHourlyRateCents(), targetGroupSize);
+            String paymentIntentId = session.getPaymentIntent();
+
+            Payment payment = new Payment();
+            payment.setPayer(student);
+            payment.setTeacher(teacher);
+            payment.setLesson(lesson);
+            payment.setPaymentType(PaymentType.ONE_TIME_LESSON);
+            payment.setAmountCents(pricePerPerson);
+            payment.setStripePaymentIntentId(paymentIntentId);
+            payment.setStatus(PaymentStatus.COMPLETED);
+            payment.setProcessedAt(LocalDateTime.now());
+            paymentRepository.save(payment);
+
+            // Generate invoice
+            if (paymentIntentId != null && pricePerPerson > 0) {
+                invoiceService.generateInvoicesForPayment(
+                        paymentIntentId, userId, teacherId, lesson.getId(), pricePerPerson, false
+                );
+            }
+
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "lessonId", response.lesson().id(),
+                    "invitationToken", response.invitationToken(),
+                    "message", "Cours en groupe cree avec succes"
+            ));
+
+        } catch (StripeException e) {
+            log.error("Stripe error confirming group create payment", e);
+            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(Map.of(
+                    "success", false,
+                    "error", "Erreur de verification du paiement"
+            ));
+        } catch (Exception e) {
+            log.error("Error confirming group create payment", e);
+            return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "error", e.getMessage()
+            ));
+        }
+    }
+
+    /**
      * Creator resolves the deadline (PAY_FULL or CANCEL).
      */
     @PostMapping("/{id}/resolve-deadline")

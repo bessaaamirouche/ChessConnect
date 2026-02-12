@@ -1,8 +1,8 @@
 import { Component, OnInit, signal, computed, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TeacherService } from '../../../core/services/teacher.service';
 import { LessonService } from '../../../core/services/lesson.service';
 import { AvailabilityService } from '../../../core/services/availability.service';
@@ -13,6 +13,7 @@ import { LearningPathService } from '../../../core/services/learning-path.servic
 import { ProgrammeService, ProgrammeCourse } from '../../../core/services/programme.service';
 import { UrlValidatorService } from '../../../core/services/url-validator.service';
 import { GroupLessonService } from '../../../core/services/group-lesson.service';
+import { DialogService } from '../../../core/services/dialog.service';
 import { TimeSlot } from '../../../core/models/availability.model';
 import { Course, GradeWithCourses } from '../../../core/models/learning-path.model';
 import { ChessLevel, CHESS_LEVELS } from '../../../core/models/user.model';
@@ -40,54 +41,54 @@ import {
 } from '@ng-icons/heroicons/outline';
 
 @Component({
-  selector: 'app-book-lesson',
-  standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule, TranslateModule, NgIconComponent, EmbeddedCheckoutComponent, AppSidebarComponent],
-  viewProviders: [provideIcons({
-    heroTicket,
-    heroCreditCard,
-    heroBanknotes,
-    heroChartBarSquare,
-    heroCalendarDays,
-    heroTrophy,
-    heroAcademicCap,
-    heroUserCircle,
-    heroArrowRightOnRectangle,
-    heroArrowLeft,
-    heroGift,
-    heroSparkles,
-    heroWallet,
-    heroDocumentText,
-    heroBookOpen,
-    heroCheckCircle,
-    heroArrowPath
-  })],
-  templateUrl: './book-lesson.component.html',
-  styleUrl: './book-lesson.component.scss'
+    selector: 'app-book-lesson',
+    imports: [RouterLink, ReactiveFormsModule, TranslateModule, NgIconComponent, EmbeddedCheckoutComponent, AppSidebarComponent],
+    viewProviders: [provideIcons({
+            heroTicket,
+            heroCreditCard,
+            heroBanknotes,
+            heroChartBarSquare,
+            heroCalendarDays,
+            heroTrophy,
+            heroAcademicCap,
+            heroUserCircle,
+            heroArrowRightOnRectangle,
+            heroArrowLeft,
+            heroGift,
+            heroSparkles,
+            heroWallet,
+            heroDocumentText,
+            heroBookOpen,
+            heroCheckCircle,
+            heroArrowPath
+        })],
+    templateUrl: './book-lesson.component.html',
+    styleUrl: './book-lesson.component.scss'
 })
 export class BookLessonComponent implements OnInit {
+  private translate = inject(TranslateService);
   bookingForm: FormGroup;
   sidebarCollapsed = signal(false);
 
   sidebarSections = computed<SidebarSection[]>(() => {
     const menuItems: any[] = [
-      { label: 'Mon Espace', icon: 'heroChartBarSquare', route: '/dashboard' },
-      { label: 'Mes Cours', icon: 'heroCalendarDays', route: '/lessons' },
-      { label: 'Ma Progression', icon: 'heroBookOpen', route: '/programme' },
-      { label: 'Trouver un Coach', icon: 'heroAcademicCap', route: '/teachers', active: true }
+      { label: this.translate.instant('sidebar.dashboard'), icon: 'heroChartBarSquare', route: '/dashboard' },
+      { label: this.translate.instant('sidebar.myLessons'), icon: 'heroCalendarDays', route: '/lessons' },
+      { label: this.translate.instant('sidebar.myProgress'), icon: 'heroBookOpen', route: '/programme' },
+      { label: this.translate.instant('sidebar.findCoach'), icon: 'heroAcademicCap', route: '/teachers', active: true }
     ];
 
     const compteItems: any[] = [
-      { label: 'Parametres', icon: 'heroUserCircle', route: '/settings' },
-      { label: 'Mon Solde', icon: 'heroWallet', route: '/wallet' },
-      { label: 'Abonnement', icon: 'heroCreditCard', route: '/subscription' },
-      { label: 'Mes Factures', icon: 'heroDocumentText', route: '/invoices' },
-      { label: 'Déconnexion', icon: 'heroArrowRightOnRectangle', action: () => this.logout() }
+      { label: this.translate.instant('sidebar.settings'), icon: 'heroUserCircle', route: '/settings' },
+      { label: this.translate.instant('sidebar.wallet'), icon: 'heroWallet', route: '/wallet' },
+      { label: this.translate.instant('sidebar.subscription'), icon: 'heroCreditCard', route: '/subscription' },
+      { label: this.translate.instant('sidebar.invoices'), icon: 'heroDocumentText', route: '/invoices' },
+      { label: this.translate.instant('sidebar.logout'), icon: 'heroArrowRightOnRectangle', action: () => this.logout() }
     ];
 
     return [
-      { title: 'Menu', items: menuItems },
-      { title: 'Compte', items: compteItems }
+      { title: this.translate.instant('sidebar.menu'), items: menuItems },
+      { title: this.translate.instant('sidebar.account'), items: compteItems }
     ];
   });
 
@@ -104,6 +105,7 @@ export class BookLessonComponent implements OnInit {
   isGroupMode = signal(false);
   groupSize = signal<2 | 3>(2);
   groupCreatedToken = signal<string | null>(null);
+  groupStripeCheckout = signal(false);
   linkCopied = signal(false);
 
   // Group price calculation (matches backend GroupPricingCalculator)
@@ -198,7 +200,8 @@ export class BookLessonComponent implements OnInit {
     public authService: AuthService,
     public learningPathService: LearningPathService,
     public programmeService: ProgrammeService,
-    private groupLessonService: GroupLessonService
+    private groupLessonService: GroupLessonService,
+    private dialogService: DialogService
   ) {
     this.bookingForm = this.fb.group({
       notes: ['']
@@ -321,10 +324,18 @@ export class BookLessonComponent implements OnInit {
   toggleGroupMode(value: boolean): void {
     this.isGroupMode.set(value);
     this.groupCreatedToken.set(null);
+    // Auto-enable wallet if sufficient balance
+    if (value) {
+      this.payWithCreditSignal.set(this.canPayGroupWithCredit());
+    }
   }
 
   setGroupSize(size: 2 | 3): void {
     this.groupSize.set(size);
+    // Re-check wallet toggle when group size changes
+    if (this.isGroupMode()) {
+      this.payWithCreditSignal.set(this.canPayGroupWithCredit());
+    }
   }
 
   copyInvitationLink(): void {
@@ -358,29 +369,7 @@ export class BookLessonComponent implements OnInit {
 
     // Group lesson mode
     if (this.isGroupMode()) {
-      this.groupLessonService.createGroupLesson({
-        teacherId: teacher.id,
-        scheduledAt,
-        durationMinutes: 60,
-        notes: notes || '',
-        targetGroupSize: this.groupSize(),
-        courseId
-      }).subscribe({
-        next: (response: any) => {
-          if (response.success) {
-            this.groupCreatedToken.set(response.invitationToken);
-            this.success.set(true);
-            this.loading.set(false);
-            // Reload wallet balance
-            this.walletService.loadBalance().subscribe();
-          } else {
-            this.loading.set(false);
-          }
-        },
-        error: () => {
-          this.loading.set(false);
-        }
-      });
+      this.handleGroupSubmit(teacher, scheduledAt, notes, courseId);
       return;
     }
 
@@ -442,6 +431,71 @@ export class BookLessonComponent implements OnInit {
     });
   }
 
+  private async handleGroupSubmit(teacher: any, scheduledAt: string, notes: string, courseId: number): Promise<void> {
+    const priceFormatted = this.formatPrice(this.groupPricePerPerson());
+    const useWallet = this.payWithCreditSignal() && this.canPayGroupWithCredit();
+    const confirmMessage = useWallet
+      ? this.translate.instant('group_lesson.confirmWallet', { amount: priceFormatted })
+      : this.translate.instant('group_lesson.confirmCard', { amount: priceFormatted });
+
+    const confirmed = await this.dialogService.confirm(
+      confirmMessage,
+      this.translate.instant('group_lesson.confirmTitle'),
+      { confirmText: this.translate.instant('common.confirm'), variant: 'info' }
+    );
+
+    if (!confirmed) {
+      this.loading.set(false);
+      return;
+    }
+
+    const request = {
+      teacherId: teacher.id,
+      scheduledAt,
+      durationMinutes: 60,
+      notes: notes || '',
+      targetGroupSize: this.groupSize(),
+      courseId
+    };
+
+    // Wallet flow
+    if (useWallet) {
+      this.groupLessonService.createGroupLesson(request).subscribe({
+        next: (response: any) => {
+          if (response.success) {
+            this.groupCreatedToken.set(response.invitationToken);
+            this.success.set(true);
+            this.loading.set(false);
+            this.walletService.loadBalance().subscribe();
+          } else {
+            this.loading.set(false);
+          }
+        },
+        error: () => {
+          this.loading.set(false);
+        }
+      });
+      return;
+    }
+
+    // Stripe flow
+    this.groupStripeCheckout.set(true);
+    this.groupLessonService.createGroupCheckout(request).subscribe({
+      next: (response) => {
+        if (response.clientSecret) {
+          this.checkoutClientSecret.set(response.clientSecret);
+          this.checkoutSessionId.set(response.sessionId);
+          this.showCheckout.set(true);
+          this.loading.set(false);
+        }
+      },
+      error: () => {
+        this.groupStripeCheckout.set(false);
+        this.loading.set(false);
+      }
+    });
+  }
+
   closeCheckout(): void {
     this.showCheckout.set(false);
     this.checkoutClientSecret.set(null);
@@ -452,8 +506,25 @@ export class BookLessonComponent implements OnInit {
     const sessionId = this.checkoutSessionId();
     this.closeCheckout();
 
-    if (sessionId) {
-      // Navigate to success page to confirm payment
+    if (sessionId && this.groupStripeCheckout()) {
+      // Group create: confirm payment and show success with invitation link
+      this.groupStripeCheckout.set(false);
+      this.groupLessonService.confirmCreatePayment(sessionId).subscribe({
+        next: (response: any) => {
+          if (response.success) {
+            this.groupCreatedToken.set(response.invitationToken);
+            this.success.set(true);
+          }
+        },
+        error: () => {
+          // Fallback: navigate to payment success page
+          this.router.navigate(['/lessons/payment/success'], {
+            queryParams: { session_id: sessionId }
+          });
+        }
+      });
+    } else if (sessionId) {
+      // Private lesson: redirect to success page
       this.router.navigate(['/lessons/payment/success'], {
         queryParams: { session_id: sessionId }
       });

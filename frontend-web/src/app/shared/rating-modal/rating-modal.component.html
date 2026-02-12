@@ -6,7 +6,7 @@
     </div>
 
     <div class="modal__body">
-      <p class="teacher-name">{{ 'rating.subtitle' | translate }} <strong>{{ teacherName }}</strong></p>
+      <p class="teacher-name">{{ 'rating.subtitle' | translate }} <strong>{{ teacherName() }}</strong></p>
 
       <div class="alert-inline-container" aria-live="polite">
         <div class="alert-inline alert-inline--error" [class.alert-inline--visible]="error()" role="alert">

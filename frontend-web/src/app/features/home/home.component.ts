@@ -33,33 +33,32 @@ import {
 } from '@ng-icons/heroicons/outline';
 
 @Component({
-  selector: 'app-home',
-  standalone: true,
-  imports: [
-    RouterLink,
-    NgIconComponent,
-    ScrollRevealDirective,
-    StaggerRevealDirective,
-    TranslateModule,
-    PublicNavbarComponent,
-    FooterComponent
-  ],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  viewProviders: [provideIcons({
-    heroUserGroup,
-    heroAcademicCap,
-    heroVideoCamera,
-    heroClock,
-    heroShieldCheck,
-    heroTrophy,
-    heroArrowRight,
-    heroGift,
-    heroXMark,
-    heroChartBar,
-    heroEnvelope
-  })],
-  templateUrl: './home.component.html',
-  styleUrl: './home.component.scss'
+    selector: 'app-home',
+    imports: [
+        RouterLink,
+        NgIconComponent,
+        ScrollRevealDirective,
+        StaggerRevealDirective,
+        TranslateModule,
+        PublicNavbarComponent,
+        FooterComponent
+    ],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    viewProviders: [provideIcons({
+            heroUserGroup,
+            heroAcademicCap,
+            heroVideoCamera,
+            heroClock,
+            heroShieldCheck,
+            heroTrophy,
+            heroArrowRight,
+            heroGift,
+            heroXMark,
+            heroChartBar,
+            heroEnvelope
+        })],
+    templateUrl: './home.component.html',
+    styleUrl: './home.component.scss'
 })
 export class HomeComponent implements OnInit, OnDestroy {
   private seoService = inject(SeoService);

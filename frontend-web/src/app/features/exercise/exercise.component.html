@@ -8,7 +8,7 @@
     @if (exercise()) {
       <div class="exercise-header__info">
         <h1>{{ exercise()!.courseTitle || (('exercise.trainingLevel' | translate) + ' ' + (exercise()!.chessLevel || ('exercise.difficulty.beginner' | translate))) }}</h1>
-        <p class="lesson-meta">{{ 'exercise.botMode' | translate }} {{ difficultyLabels[exercise()!.difficultyLevel].label }}</p>
+        <p class="lesson-meta">{{ 'exercise.botMode' | translate }} {{ difficultyLabels[exercise()!.difficultyLevel].labelKey | translate }}</p>
         <div class="exercise-badges">
           <span
             class="difficulty-badge"
@@ -16,7 +16,7 @@
             [style.color]="difficultyLabels[exercise()!.difficultyLevel].color"
           >
             <ng-icon name="heroCpuChip" size="14"></ng-icon>
-            {{ difficultyLabels[exercise()!.difficultyLevel].label }}
+            {{ difficultyLabels[exercise()!.difficultyLevel].labelKey | translate }}
           </span>
           @if (engineService.thinking()) {
             <span class="thinking-badge">

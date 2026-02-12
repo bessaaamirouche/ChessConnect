@@ -27,7 +27,7 @@ public class JitsiTokenService {
     @Value("${jitsi.domain:meet.mychess.fr}")
     private String jitsiDomain;
 
-    public String generateToken(User user, String roomName) {
+    public String generateToken(User user, String roomName, boolean recordingEnabled) {
         // Utiliser seulement les 32 premiers caractères pour garantir HS256
         String secret256 = appSecret.length() > 32 ? appSecret.substring(0, 32) : appSecret;
         SecretKey key = Keys.hmacShaKeyFor(secret256.getBytes(StandardCharsets.UTF_8));
@@ -50,7 +50,7 @@ public class JitsiTokenService {
 
         // Features autorisees
         Map<String, Object> features = new HashMap<>();
-        features.put("recording", isModerator); // Seul le moderateur peut enregistrer
+        features.put("recording", isModerator && recordingEnabled); // Enregistrement uniquement si le joueur est Premium
         features.put("livestreaming", false);
         features.put("transcription", false);
         features.put("outbound-call", false);

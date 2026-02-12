@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, OnInit, signal, computed, ChangeDetectionStrategy, inject, effect, untracked } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -9,15 +9,16 @@ import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { heroMagnifyingGlass, heroXMark, heroAcademicCap } from '@ng-icons/heroicons/outline';
 import { LanguageSelectorComponent } from '../../../shared/components/language-selector/language-selector.component';
 import { FooterComponent } from '../../../shared/components/footer/footer.component';
+import { paginate } from '../../../core/utils/pagination';
+import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 
 @Component({
-  selector: 'app-public-teacher-list',
-  standalone: true,
-  imports: [RouterLink, NgIconComponent, FormsModule, TranslateModule, LanguageSelectorComponent, FooterComponent],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  viewProviders: [provideIcons({ heroMagnifyingGlass, heroXMark, heroAcademicCap })],
-  templateUrl: './public-teacher-list.component.html',
-  styleUrl: './public-teacher-list.component.scss'
+    selector: 'app-public-teacher-list',
+    imports: [RouterLink, NgIconComponent, FormsModule, TranslateModule, LanguageSelectorComponent, FooterComponent, PaginationComponent],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    viewProviders: [provideIcons({ heroMagnifyingGlass, heroXMark, heroAcademicCap })],
+    templateUrl: './public-teacher-list.component.html',
+    styleUrl: './public-teacher-list.component.scss'
 })
 export class PublicTeacherListComponent implements OnInit {
   private seoService = inject(SeoService);
@@ -43,7 +44,14 @@ export class PublicTeacherListComponent implements OnInit {
     }).sort((a, b) => a.firstName.localeCompare(b.firstName));
   });
 
-  constructor(public teacherService: TeacherService) {}
+  pagination = paginate(this.filteredTeachers, 10);
+
+  constructor(public teacherService: TeacherService) {
+    effect(() => {
+      this.filteredTeachers();
+      untracked(() => this.pagination.currentPage.set(0));
+    });
+  }
 
   ngOnInit(): void {
     this.seoService.setTeachersListPage();

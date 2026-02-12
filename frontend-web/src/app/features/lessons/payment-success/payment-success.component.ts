@@ -1,15 +1,14 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { PaymentService } from '../../../core/services/payment.service';
 
 @Component({
-  selector: 'app-payment-success',
-  standalone: true,
-  imports: [CommonModule, RouterLink, TranslateModule],
-  templateUrl: './payment-success.component.html',
-  styleUrl: './payment-success.component.scss'
+    selector: 'app-payment-success',
+    imports: [RouterLink, TranslateModule],
+    templateUrl: './payment-success.component.html',
+    styleUrl: './payment-success.component.scss'
 })
 export class PaymentSuccessComponent implements OnInit {
   loading = signal(true);

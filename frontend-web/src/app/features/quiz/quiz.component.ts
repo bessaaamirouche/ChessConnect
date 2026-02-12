@@ -17,19 +17,18 @@ import {
 type QuizStep = 'intro' | 'questions' | 'result';
 
 @Component({
-  selector: 'app-quiz',
-  standalone: true,
-  imports: [RouterLink, NgIconComponent, TranslateModule],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  viewProviders: [provideIcons({
-    heroArrowLeft,
-    heroArrowRight,
-    heroCheckCircle,
-    heroXCircle,
-    heroPlayCircle
-  })],
-  templateUrl: './quiz.component.html',
-  styleUrl: './quiz.component.scss'
+    selector: 'app-quiz',
+    imports: [RouterLink, NgIconComponent, TranslateModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    viewProviders: [provideIcons({
+            heroArrowLeft,
+            heroArrowRight,
+            heroCheckCircle,
+            heroXCircle,
+            heroPlayCircle
+        })],
+    templateUrl: './quiz.component.html',
+    styleUrl: './quiz.component.scss'
 })
 export class QuizComponent implements OnInit {
   step = signal<QuizStep>('intro');

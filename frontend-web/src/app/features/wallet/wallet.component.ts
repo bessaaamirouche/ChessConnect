@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, ChangeDetectionStrategy, inject, ChangeDetectorRef, ApplicationRef } from '@angular/core';
+import { Component, OnInit, signal, ChangeDetectionStrategy, inject, ChangeDetectorRef, ApplicationRef, effect, untracked } from '@angular/core';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { WalletService, CreditTransaction } from '../../core/services/wallet.service';
@@ -6,6 +6,8 @@ import { AuthService } from '../../core/services/auth.service';
 import { PaymentService } from '../../core/services/payment.service';
 import { UrlValidatorService } from '../../core/services/url-validator.service';
 
+import { paginate } from '../../core/utils/pagination';
+import { PaginationComponent } from '../../shared/components/pagination/pagination.component';
 import { EmbeddedCheckoutComponent } from '../../shared/embedded-checkout/embedded-checkout.component';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { TranslateModule } from '@ngx-translate/core';
@@ -28,23 +30,22 @@ interface TopUpOption {
 }
 
 @Component({
-  selector: 'app-wallet',
-  standalone: true,
-  imports: [RouterLink, DatePipe, NgIconComponent, EmbeddedCheckoutComponent, TranslateModule],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  viewProviders: [provideIcons({
-    heroWallet,
-    heroArrowUpCircle,
-    heroArrowDownCircle,
-    heroPlusCircle,
-    heroCheck,
-    heroArrowPath,
-    heroBanknotes,
-    heroCalendarDays,
-    heroReceiptRefund
-  })],
-  templateUrl: './wallet.component.html',
-  styleUrl: './wallet.component.scss'
+    selector: 'app-wallet',
+    imports: [RouterLink, DatePipe, NgIconComponent, EmbeddedCheckoutComponent, TranslateModule, PaginationComponent],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    viewProviders: [provideIcons({
+            heroWallet,
+            heroArrowUpCircle,
+            heroArrowDownCircle,
+            heroPlusCircle,
+            heroCheck,
+            heroArrowPath,
+            heroBanknotes,
+            heroCalendarDays,
+            heroReceiptRefund
+        })],
+    templateUrl: './wallet.component.html',
+    styleUrl: './wallet.component.scss'
 })
 export class WalletComponent implements OnInit {
   showTopUpModal = signal(false);
@@ -66,13 +67,20 @@ export class WalletComponent implements OnInit {
   private cdr = inject(ChangeDetectorRef);
   private appRef = inject(ApplicationRef);
 
+  pagination = paginate(this.walletService.transactions, 10);
+
   constructor(
     public walletService: WalletService,
     public authService: AuthService,
     private paymentService: PaymentService,
     private route: ActivatedRoute,
     private router: Router
-  ) {}
+  ) {
+    effect(() => {
+      this.walletService.transactions();
+      untracked(() => this.pagination.currentPage.set(0));
+    });
+  }
 
   ngOnInit(): void {
     this.walletService.loadWallet().subscribe();

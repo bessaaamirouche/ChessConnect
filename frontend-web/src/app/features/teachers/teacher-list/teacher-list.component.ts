@@ -1,12 +1,14 @@
-import { Component, OnInit, signal, computed, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, OnInit, signal, computed, ChangeDetectionStrategy, inject, effect, untracked } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TeacherService } from '../../../core/services/teacher.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { FavoriteService } from '../../../core/services/favorite.service';
 import { SeoService } from '../../../core/services/seo.service';
 import { AppSidebarComponent, SidebarSection } from '../../../shared/components/app-sidebar/app-sidebar.component';
+import { paginate } from '../../../core/utils/pagination';
+import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   heroAcademicCap,
@@ -24,62 +26,62 @@ import {
 } from '@ng-icons/heroicons/outline';
 
 @Component({
-  selector: 'app-teacher-list',
-  standalone: true,
-  imports: [RouterLink, NgIconComponent, FormsModule, AppSidebarComponent, TranslateModule],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  viewProviders: [provideIcons({
-    heroAcademicCap,
-    heroChartBarSquare,
-    heroCalendarDays,
-    heroClipboardDocumentList,
-    heroTrophy,
-    heroCreditCard,
-    heroUserCircle,
-    heroArrowRightOnRectangle,
-    heroMagnifyingGlass,
-    heroXMark,
-    heroBookOpen,
-    heroWallet
-  })],
-  templateUrl: './teacher-list.component.html',
-  styleUrl: './teacher-list.component.scss'
+    selector: 'app-teacher-list',
+    imports: [RouterLink, NgIconComponent, FormsModule, AppSidebarComponent, TranslateModule, PaginationComponent],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    viewProviders: [provideIcons({
+            heroAcademicCap,
+            heroChartBarSquare,
+            heroCalendarDays,
+            heroClipboardDocumentList,
+            heroTrophy,
+            heroCreditCard,
+            heroUserCircle,
+            heroArrowRightOnRectangle,
+            heroMagnifyingGlass,
+            heroXMark,
+            heroBookOpen,
+            heroWallet
+        })],
+    templateUrl: './teacher-list.component.html',
+    styleUrl: './teacher-list.component.scss'
 })
 export class TeacherListComponent implements OnInit {
   private seoService = inject(SeoService);
+  private translate = inject(TranslateService);
 
   sidebarCollapsed = signal(false);
 
   sidebarSections = computed<SidebarSection[]>(() => {
     const menuItems: any[] = [
-      { label: 'Mon Espace', icon: 'heroChartBarSquare', route: '/dashboard' },
-      { label: 'Mes Cours', icon: 'heroCalendarDays', route: '/lessons' }
+      { label: this.translate.instant('sidebar.dashboard'), icon: 'heroChartBarSquare', route: '/dashboard' },
+      { label: this.translate.instant('sidebar.myLessons'), icon: 'heroCalendarDays', route: '/lessons' }
     ];
 
     if (this.authService.isTeacher()) {
-      menuItems.push({ label: 'Mes Disponibilités', icon: 'heroClipboardDocumentList', route: '/availability' });
+      menuItems.push({ label: this.translate.instant('sidebar.myAvailability'), icon: 'heroClipboardDocumentList', route: '/availability' });
     }
 
     if (this.authService.isStudent()) {
-      menuItems.push({ label: 'Ma Progression', icon: 'heroBookOpen', route: '/programme' });
-      menuItems.push({ label: 'Trouver un Coach', icon: 'heroAcademicCap', route: '/teachers', active: true });
+      menuItems.push({ label: this.translate.instant('sidebar.myProgress'), icon: 'heroBookOpen', route: '/programme' });
+      menuItems.push({ label: this.translate.instant('sidebar.findCoach'), icon: 'heroAcademicCap', route: '/teachers', active: true });
     }
 
     const compteItems: any[] = [
-      { label: 'Parametres', icon: 'heroUserCircle', route: '/settings' }
+      { label: this.translate.instant('sidebar.settings'), icon: 'heroUserCircle', route: '/settings' }
     ];
 
     if (this.authService.isStudent()) {
-      compteItems.push({ label: 'Mon Solde', icon: 'heroWallet', route: '/wallet' });
-      compteItems.push({ label: 'Abonnement', icon: 'heroCreditCard', route: '/subscription' });
+      compteItems.push({ label: this.translate.instant('sidebar.wallet'), icon: 'heroWallet', route: '/wallet' });
+      compteItems.push({ label: this.translate.instant('sidebar.subscription'), icon: 'heroCreditCard', route: '/subscription' });
     }
 
-    compteItems.push({ label: 'Mes Factures', icon: 'heroDocumentText', route: '/invoices' });
-    compteItems.push({ label: 'Déconnexion', icon: 'heroArrowRightOnRectangle', action: () => this.logout() });
+    compteItems.push({ label: this.translate.instant('sidebar.invoices'), icon: 'heroDocumentText', route: '/invoices' });
+    compteItems.push({ label: this.translate.instant('sidebar.logout'), icon: 'heroArrowRightOnRectangle', action: () => this.logout() });
 
     return [
-      { title: 'Menu', items: menuItems },
-      { title: 'Compte', items: compteItems }
+      { title: this.translate.instant('sidebar.menu'), items: menuItems },
+      { title: this.translate.instant('sidebar.account'), items: compteItems }
     ];
   });
 
@@ -144,11 +146,23 @@ export class TeacherListComponent implements OnInit {
     return this.favoriteTeachers().length + this.filteredTeachers().length;
   });
 
+  favoritePagination = paginate(this.favoriteTeachers, 10);
+  teacherPagination = paginate(this.filteredTeachers, 10);
+
   constructor(
     public teacherService: TeacherService,
     public authService: AuthService,
     public favoriteService: FavoriteService
-  ) {}
+  ) {
+    effect(() => {
+      this.favoriteTeachers();
+      untracked(() => this.favoritePagination.currentPage.set(0));
+    });
+    effect(() => {
+      this.filteredTeachers();
+      untracked(() => this.teacherPagination.currentPage.set(0));
+    });
+  }
 
   ngOnInit(): void {
     this.seoService.setTeachersListPage();

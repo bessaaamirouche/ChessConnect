@@ -52,11 +52,11 @@ export interface ArticlePage {
   last: boolean;
 }
 
-export const ARTICLE_CATEGORIES: Record<string, { label: string; color: string }> = {
-  debutant: { label: 'Débutant', color: '#78716c' },
-  strategie: { label: 'Stratégie', color: '#3b82f6' },
-  progression: { label: 'Progression', color: '#22c55e' },
-  conseils: { label: 'Conseils', color: '#a855f7' },
-  enfants: { label: 'Enfants', color: '#f59e0b' },
-  coach: { label: 'Coach', color: '#ec4899' }
+export const ARTICLE_CATEGORIES: Record<string, { labelKey: string; color: string }> = {
+  debutant: { labelKey: 'blog.categories.beginner', color: '#78716c' },
+  strategie: { labelKey: 'blog.categories.strategy', color: '#3b82f6' },
+  progression: { labelKey: 'blog.categories.progression', color: '#22c55e' },
+  conseils: { labelKey: 'blog.categories.advice', color: '#a855f7' },
+  enfants: { labelKey: 'blog.categories.children', color: '#f59e0b' },
+  coach: { labelKey: 'blog.categories.coach', color: '#ec4899' }
 };

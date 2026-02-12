@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, signal, ChangeDetectionStrategy, viewChild, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../core/services/auth.service';
@@ -14,7 +14,7 @@ import { LESSON_STATUS_LABELS, Lesson } from '../../core/models/lesson.model';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {
   heroCalendarDays,
   heroTrophy,
@@ -28,26 +28,26 @@ import {
 } from '@ng-icons/heroicons/outline';
 
 @Component({
-  selector: 'app-dashboard',
-  standalone: true,
-  imports: [RouterLink, DatePipe, DecimalPipe, ConfirmDialogComponent, NgIconComponent, TranslateModule],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  viewProviders: [provideIcons({
-    heroCalendarDays,
-    heroTrophy,
-    heroCreditCard,
-    heroCheckCircle,
-    heroBanknotes,
-    heroArrowTrendingUp,
-    heroCheck,
-    heroSparkles,
-    heroExclamationTriangle
-  })],
-  templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.scss'
+    selector: 'app-dashboard',
+    imports: [RouterLink, DatePipe, DecimalPipe, ConfirmDialogComponent, NgIconComponent, TranslateModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    viewProviders: [provideIcons({
+            heroCalendarDays,
+            heroTrophy,
+            heroCreditCard,
+            heroCheckCircle,
+            heroBanknotes,
+            heroArrowTrendingUp,
+            heroCheck,
+            heroSparkles,
+            heroExclamationTriangle
+        })],
+    templateUrl: './dashboard.component.html',
+    styleUrl: './dashboard.component.scss'
 })
 export class DashboardComponent implements OnInit {
-  @ViewChild('confirmDialog') confirmDialog!: ConfirmDialogComponent;
+  readonly confirmDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+  private translate = inject(TranslateService);
 
   statusLabels = LESSON_STATUS_LABELS;
 
@@ -104,16 +104,16 @@ export class DashboardComponent implements OnInit {
   }
 
   async cancelLesson(lessonId: number): Promise<void> {
-    const reason = await this.confirmDialog.open({
-      title: 'Annuler le cours',
-      message: 'Êtes-vous sûr de vouloir annuler ce cours ?',
-      confirmText: 'Annuler le cours',
-      cancelText: 'Retour',
+    const reason = await this.confirmDialog().open({
+      title: this.translate.instant('dashboard.cancelDialog.title'),
+      message: this.translate.instant('dashboard.cancelDialog.message'),
+      confirmText: this.translate.instant('dashboard.cancelDialog.confirmText'),
+      cancelText: this.translate.instant('dashboard.cancelDialog.cancelText'),
       type: 'danger',
       icon: 'warning',
       showInput: true,
-      inputLabel: 'Raison de l\'annulation (optionnel)',
-      inputPlaceholder: 'Ex: Indisponibilité...'
+      inputLabel: this.translate.instant('dashboard.cancelDialog.inputLabel'),
+      inputPlaceholder: this.translate.instant('dashboard.cancelDialog.inputPlaceholder')
     });
 
     if (reason !== null) {
@@ -193,14 +193,14 @@ export class DashboardComponent implements OnInit {
 
     const amountCents = amount * 100;
     if (amountCents > balance.availableBalanceCents) {
-      this.withdrawError.set('Le montant dépasse votre solde disponible');
+      this.withdrawError.set(this.translate.instant('errors.insufficientBalance'));
       return;
     }
 
     const confirmed = await this.dialogService.confirm(
-      `Voulez-vous retirer ${amount} EUR vers votre compte bancaire ?`,
-      'Retirer mes gains',
-      { confirmText: 'Retirer', cancelText: 'Annuler', variant: 'info' }
+      this.translate.instant('settings.stripe.withdrawConfirmMessage', { amount }),
+      this.translate.instant('settings.stripe.withdrawTitle'),
+      { confirmText: this.translate.instant('common.withdraw'), cancelText: this.translate.instant('common.cancel'), variant: 'info' }
     );
     if (!confirmed) return;
 
@@ -211,7 +211,7 @@ export class DashboardComponent implements OnInit {
       next: (response) => {
         this.withdrawing.set(false);
         if (response.success) {
-          this.withdrawSuccess.set(`Retrait de ${this.formatCents(response.amountCents || 0)} effectué !`);
+          this.withdrawSuccess.set(this.translate.instant('success.withdrawalDone', { amount: this.formatCents(response.amountCents || 0) }));
           this.teacherService.getMyBalance().subscribe({
             next: (balance) => {
               const maxAmount = Math.floor(balance.availableBalanceCents / 100);
@@ -220,12 +220,12 @@ export class DashboardComponent implements OnInit {
           });
           setTimeout(() => this.withdrawSuccess.set(null), 5000);
         } else {
-          this.withdrawError.set(response.message || 'Erreur lors du retrait');
+          this.withdrawError.set(response.message || this.translate.instant('errors.withdrawal'));
         }
       },
       error: (err) => {
         this.withdrawing.set(false);
-        this.withdrawError.set(err.error?.message || 'Erreur lors du retrait');
+        this.withdrawError.set(err.error?.message || this.translate.instant('errors.withdrawal'));
       }
     });
   }

@@ -5,11 +5,10 @@ import { HttpClient } from '@angular/common/http';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
-  selector: 'app-forgot-password',
-  standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, TranslateModule],
-  templateUrl: './forgot-password.component.html',
-  styleUrl: './forgot-password.component.scss'
+    selector: 'app-forgot-password',
+    imports: [ReactiveFormsModule, RouterLink, TranslateModule],
+    templateUrl: './forgot-password.component.html',
+    styleUrl: './forgot-password.component.scss'
 })
 export class ForgotPasswordComponent {
   form: FormGroup;

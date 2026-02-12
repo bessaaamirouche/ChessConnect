@@ -1,4 +1,5 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 
 export interface DialogConfig {
   title: string;
@@ -23,6 +24,8 @@ interface DialogState {
   providedIn: 'root'
 })
 export class DialogService {
+  private translate = inject(TranslateService);
+
   private state = signal<DialogState>({
     isOpen: false,
     config: null,
@@ -43,8 +46,8 @@ export class DialogService {
           type: 'confirm',
           title,
           message,
-          confirmText: options?.confirmText || 'Confirmer',
-          cancelText: options?.cancelText || 'Annuler',
+          confirmText: options?.confirmText || this.translate.instant('common.confirm'),
+          cancelText: options?.cancelText || this.translate.instant('common.cancel'),
           variant: options?.variant || 'info'
         },
         resolve: (value) => resolve(value as boolean)
@@ -63,7 +66,7 @@ export class DialogService {
           type: 'alert',
           title,
           message,
-          confirmText: options?.confirmText || 'OK',
+          confirmText: options?.confirmText || this.translate.instant('common.ok'),
           variant: options?.variant || 'info'
         },
         resolve: () => resolve()
@@ -82,8 +85,8 @@ export class DialogService {
           type: 'prompt',
           title,
           message,
-          confirmText: options?.confirmText || 'Valider',
-          cancelText: options?.cancelText || 'Annuler',
+          confirmText: options?.confirmText || this.translate.instant('common.ok'),
+          cancelText: options?.cancelText || this.translate.instant('common.cancel'),
           inputLabel: options?.inputLabel,
           inputPlaceholder: options?.inputPlaceholder || '',
           inputValue: options?.inputValue || '',

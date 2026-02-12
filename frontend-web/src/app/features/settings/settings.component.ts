@@ -1,5 +1,5 @@
 import { Component, OnInit, signal, ChangeDetectionStrategy, inject, computed, HostListener, ElementRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
 
 // Custom validator for names - allows only letters, spaces, hyphens, and apostrophes
@@ -42,26 +42,25 @@ import {
 } from '@ng-icons/heroicons/outline';
 
 @Component({
-  selector: 'app-settings',
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, NgIconComponent, DateInputComponent, LanguageSelectorComponent, TranslateModule],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  viewProviders: [provideIcons({
-    heroChartBarSquare,
-    heroCalendarDays,
-    heroClipboardDocumentList,
-    heroTrophy,
-    heroCreditCard,
-    heroAcademicCap,
-    heroUserCircle,
-    heroArrowRightOnRectangle,
-    heroTrash,
-    heroExclamationTriangle,
-    heroArrowUpOnSquare,
-    heroLink
-  })],
-  templateUrl: './settings.component.html',
-  styleUrl: './settings.component.scss'
+    selector: 'app-settings',
+    imports: [ReactiveFormsModule, RouterLink, NgIconComponent, DateInputComponent, LanguageSelectorComponent, TranslateModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    viewProviders: [provideIcons({
+            heroChartBarSquare,
+            heroCalendarDays,
+            heroClipboardDocumentList,
+            heroTrophy,
+            heroCreditCard,
+            heroAcademicCap,
+            heroUserCircle,
+            heroArrowRightOnRectangle,
+            heroTrash,
+            heroExclamationTriangle,
+            heroArrowUpOnSquare,
+            heroLink
+        })],
+    templateUrl: './settings.component.html',
+    styleUrl: './settings.component.scss'
 })
 export class SettingsComponent implements OnInit {
   profileForm: FormGroup;

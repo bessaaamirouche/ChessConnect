@@ -63,20 +63,7 @@ public class LibraryController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        // Check if user has premium access (subscription OR active trial)
-        boolean hasPremiumAccess = user.hasActivePremiumTrial();
-
-        // Also check if user has an active subscription
-        if (!hasPremiumAccess) {
-            hasPremiumAccess = user.getSubscriptions() != null &&
-                              user.getSubscriptions().stream()
-                                  .anyMatch(s -> Boolean.TRUE.equals(s.getIsActive()));
-        }
-
-        if (!hasPremiumAccess) {
-            log.warn("User {} attempted to access library without premium access", user.getId());
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
+        // All students can access their library (videos recorded during their premium period are kept)
 
         // Calculate date range based on period or explicit dates
         LocalDateTime dateFromTime = null;

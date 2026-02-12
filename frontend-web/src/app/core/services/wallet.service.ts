@@ -1,6 +1,7 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap, catchError, of } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
 import { CheckoutSessionResponse } from './payment.service';
 
 export interface WalletInfo {
@@ -60,6 +61,8 @@ export class WalletService {
   // Use computed signals for proper reactivity
   readonly balance = computed(() => this.walletSignal()?.balanceCents ?? 0);
   readonly hasCredit = computed(() => this.balance() > 0);
+
+  private translate = inject(TranslateService);
 
   constructor(private http: HttpClient) {}
 
@@ -121,7 +124,7 @@ export class WalletService {
       tap(() => this.loadingSignal.set(false)),
       catchError(error => {
         this.loadingSignal.set(false);
-        this.errorSignal.set('Erreur lors de la création de la session de paiement');
+        this.errorSignal.set(this.translate.instant('errors.checkoutCreate'));
         throw error;
       })
     );
@@ -162,7 +165,7 @@ export class WalletService {
       }),
       catchError(error => {
         this.loadingSignal.set(false);
-        this.errorSignal.set(error.error?.error || 'Erreur lors de la réservation');
+        this.errorSignal.set(error.error?.error || this.translate.instant('errors.bookingCreate'));
         throw error;
       })
     );
@@ -182,9 +185,9 @@ export class WalletService {
 
   getTransactionTypeLabel(type: string): string {
     switch (type) {
-      case 'TOPUP': return 'Recharge';
-      case 'LESSON_PAYMENT': return 'Cours';
-      case 'REFUND': return 'Remboursement';
+      case 'TOPUP': return this.translate.instant('wallet.types.credit');
+      case 'LESSON_PAYMENT': return this.translate.instant('wallet.types.lesson');
+      case 'REFUND': return this.translate.instant('wallet.types.refund');
       default: return type;
     }
   }

@@ -1,5 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, signal, computed, effect, untracked } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
@@ -17,35 +16,37 @@ import {
 } from '@ng-icons/heroicons/outline';
 import { InvoiceService, Invoice } from '../../core/services/invoice.service';
 import { AuthService } from '../../core/services/auth.service';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { paginate, PaginationState } from '../../core/utils/pagination';
+import { PaginationComponent } from '../../shared/components/pagination/pagination.component';
 
 type FilterType = 'all' | 'received' | 'issued';
 type SortField = 'date' | 'amount' | 'number';
 type SortOrder = 'asc' | 'desc';
 
 @Component({
-  selector: 'app-invoices',
-  standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, NgIconComponent],
-  providers: [
-    provideIcons({
-      heroDocumentText,
-      heroArrowDownTray,
-      heroArrowPath,
-      heroArrowUpRight,
-      heroArrowDownLeft,
-      heroMagnifyingGlass,
-      heroChevronUp,
-      heroChevronDown,
-      heroChevronUpDown,
-      heroXMark
-    })
-  ],
-  template: `
+    selector: 'app-invoices',
+    imports: [FormsModule, RouterModule, NgIconComponent, TranslateModule, PaginationComponent],
+    providers: [
+        provideIcons({
+            heroDocumentText,
+            heroArrowDownTray,
+            heroArrowPath,
+            heroArrowUpRight,
+            heroArrowDownLeft,
+            heroMagnifyingGlass,
+            heroChevronUp,
+            heroChevronDown,
+            heroChevronUpDown,
+            heroXMark
+        })
+    ],
+    template: `
     <div class="invoices-container">
       <header class="page-header">
         <div class="header-content">
-          <h1>Mes Factures</h1>
-          <p class="subtitle">Consultez et téléchargez vos factures</p>
+          <h1>{{ 'invoices.myTitle' | translate }}</h1>
+          <p class="subtitle">{{ 'invoices.mySubtitle' | translate }}</p>
         </div>
       </header>
 
@@ -56,7 +57,7 @@ type SortOrder = 'asc' | 'desc';
           <ng-icon name="heroMagnifyingGlass"></ng-icon>
           <input
             type="text"
-            placeholder="Rechercher..."
+            [placeholder]="'common.search' | translate"
             [ngModel]="searchQuery()"
             (ngModelChange)="searchQuery.set($event)"
           >
@@ -70,11 +71,11 @@ type SortOrder = 'asc' | 'desc';
         <!-- Date Range -->
         <div class="date-filters">
           <div class="date-input">
-            <label>Du</label>
+            <label>{{ 'invoices.filter.from' | translate }}</label>
             <input type="date" [value]="dateFrom()" (change)="dateFrom.set($any($event.target).value)">
           </div>
           <div class="date-input">
-            <label>Au</label>
+            <label>{{ 'invoices.filter.to' | translate }}</label>
             <input type="date" [value]="dateTo()" (change)="dateTo.set($any($event.target).value)">
           </div>
           @if (dateFrom() || dateTo()) {
@@ -91,14 +92,14 @@ type SortOrder = 'asc' | 'desc';
             [class.active]="activeFilter() === 'all'"
             (click)="setFilter('all')"
           >
-            Toutes
+            {{ 'common.all' | translate }}
           </button>
           <button
             class="filter-btn"
             [class.active]="activeFilter() === 'received'"
             (click)="setFilter('received')"
           >
-            Reçues
+            {{ 'invoices.filterReceived' | translate }}
           </button>
           @if (isTeacher()) {
             <button
@@ -106,7 +107,7 @@ type SortOrder = 'asc' | 'desc';
               [class.active]="activeFilter() === 'issued'"
               (click)="setFilter('issued')"
             >
-              Émises
+              {{ 'invoices.filterIssued' | translate }}
             </button>
           }
         </div>
@@ -116,7 +117,7 @@ type SortOrder = 'asc' | 'desc';
       @if (loading()) {
         <div class="loading-state">
           <ng-icon name="heroArrowPath" class="spin"></ng-icon>
-          <span>Chargement des factures...</span>
+          <span>{{ 'common.loading' | translate }}</span>
         </div>
       }
 
@@ -124,47 +125,47 @@ type SortOrder = 'asc' | 'desc';
       @if (!loading() && filteredAndSortedInvoices().length === 0) {
         <div class="empty-state">
           <ng-icon name="heroDocumentText" class="empty-icon"></ng-icon>
-          <h3>Aucune facture</h3>
-          <p>Aucune facture ne correspond à vos critères</p>
+          <h3>{{ 'invoices.noInvoices' | translate }}</h3>
+          <p>{{ 'invoices.noMatchingCriteria' | translate }}</p>
         </div>
       }
 
       <!-- Invoices Table -->
-      @if (!loading() && filteredAndSortedInvoices().length > 0) {
+      @if (!loading() && pagination.totalItems() > 0) {
         <div class="table-container">
           <table class="invoices-table">
             <thead>
               <tr>
                 <th class="sortable" (click)="toggleSort('number')">
-                  <span>Numéro</span>
+                  <span>{{ 'invoices.columnNumber' | translate }}</span>
                   <ng-icon [name]="getSortIcon('number')"></ng-icon>
                 </th>
-                <th>Type</th>
+                <th>{{ 'invoices.columnType' | translate }}</th>
                 <th class="sortable" (click)="toggleSort('date')">
-                  <span>Date</span>
+                  <span>{{ 'invoices.columns.date' | translate }}</span>
                   <ng-icon [name]="getSortIcon('date')"></ng-icon>
                 </th>
-                <th>Description</th>
+                <th>{{ 'invoices.columns.description' | translate }}</th>
                 <th class="sortable" (click)="toggleSort('amount')">
-                  <span>Montant</span>
+                  <span>{{ 'invoices.columns.amount' | translate }}</span>
                   <ng-icon [name]="getSortIcon('amount')"></ng-icon>
                 </th>
-                <th>Statut</th>
+                <th>{{ 'invoices.columns.status' | translate }}</th>
                 <th>PDF</th>
               </tr>
             </thead>
             <tbody>
-              @for (invoice of filteredAndSortedInvoices(); track invoice.id) {
+              @for (invoice of pagination.paginatedItems(); track invoice.id) {
                 <tr>
                   <td class="invoice-number">{{ invoice.invoiceNumber }}</td>
                   <td>
                     <div class="type-cell">
                       @if (invoice.isReceived) {
                         <ng-icon name="heroArrowDownLeft" class="type-icon received"></ng-icon>
-                        <span>Reçue</span>
+                        <span>{{ 'invoices.filterReceived' | translate }}</span>
                       } @else {
                         <ng-icon name="heroArrowUpRight" class="type-icon issued"></ng-icon>
-                        <span>Émise</span>
+                        <span>{{ 'invoices.filterIssued' | translate }}</span>
                       }
                     </div>
                   </td>
@@ -176,7 +177,7 @@ type SortOrder = 'asc' | 'desc';
                   <td class="amount">{{ formatCents(invoice.totalCents) }}</td>
                   <td>
                     <span class="status-badge" [class.paid]="invoice.status === 'PAID'">
-                      {{ invoice.status === 'PAID' ? 'Payée' : 'En attente' }}
+                      {{ invoice.status === 'PAID' ? ('invoices.status.paid' | translate) : ('invoices.status.pending' | translate) }}
                     </span>
                   </td>
                   <td>
@@ -184,7 +185,7 @@ type SortOrder = 'asc' | 'desc';
                       class="pdf-btn"
                       (click)="downloadPdf(invoice)"
                       [disabled]="downloadingId() === invoice.id"
-                      title="Télécharger PDF"
+                      [title]="'invoices.download' | translate"
                     >
                       @if (downloadingId() === invoice.id) {
                         <ng-icon name="heroArrowPath" class="spin"></ng-icon>
@@ -199,14 +200,19 @@ type SortOrder = 'asc' | 'desc';
           </table>
         </div>
 
-        <!-- Results count -->
-        <div class="results-info">
-          {{ filteredAndSortedInvoices().length }} facture(s) sur {{ invoices().length }}
-        </div>
+        <app-pagination
+          [currentPage]="pagination.currentPage()"
+          [totalPages]="pagination.totalPages()"
+          [totalItems]="pagination.totalItems()"
+          [startItem]="pagination.startItem()"
+          [endItem]="pagination.endItem()"
+          [visiblePages]="pagination.visiblePages()"
+          (pageChange)="pagination.goToPage($event)"
+        />
       }
     </div>
   `,
-  styles: [`
+    styles: [`
     .invoices-container {
       max-width: 1100px;
       margin: 0 auto;
@@ -555,13 +561,6 @@ type SortOrder = 'asc' | 'desc';
       }
     }
 
-    .results-info {
-      margin-top: 1rem;
-      text-align: center;
-      font-size: 0.875rem;
-      color: rgba(255, 255, 255, 0.4);
-    }
-
     @media (max-width: 768px) {
       .invoices-container {
         padding: 1rem;
@@ -661,6 +660,15 @@ export class InvoicesComponent implements OnInit {
 
     return result;
   });
+
+  pagination = paginate(this.filteredAndSortedInvoices, 10);
+
+  constructor() {
+    effect(() => {
+      this.filteredAndSortedInvoices();
+      untracked(() => this.pagination.currentPage.set(0));
+    });
+  }
 
   ngOnInit(): void {
     this.loadInvoices();

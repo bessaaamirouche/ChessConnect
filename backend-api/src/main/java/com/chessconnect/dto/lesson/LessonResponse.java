@@ -64,6 +64,24 @@ public record LessonResponse(
                 ? lesson.getActiveParticipants().stream().map(ParticipantSummary::from).toList()
                 : null;
 
+        // For group lessons, compute finances from actual participant payments
+        Integer displayPrice = lesson.getPriceCents();
+        Integer displayCommission = lesson.getCommissionCents();
+        Integer displayEarnings = lesson.getTeacherEarningsCents();
+        if (isGroup && participants != null && !participants.isEmpty()) {
+            int totalCollected = lesson.getActiveParticipants().stream()
+                    .mapToInt(p -> p.getPricePaidCents())
+                    .sum();
+            if (totalCollected > 0) {
+                displayPrice = totalCollected;
+                int totalCommission = lesson.getActiveParticipants().stream()
+                        .mapToInt(p -> p.getCommissionCents())
+                        .sum();
+                displayCommission = totalCommission;
+                displayEarnings = totalCollected - totalCommission;
+            }
+        }
+
         return new LessonResponse(
                 lesson.getId(),
                 student.getId(),
@@ -77,9 +95,9 @@ public record LessonResponse(
                 lesson.getDurationMinutes(),
                 lesson.getZoomLink(),
                 lesson.getStatus(),
-                lesson.getPriceCents(),
-                lesson.getCommissionCents(),
-                lesson.getTeacherEarningsCents(),
+                displayPrice,
+                displayCommission,
+                displayEarnings,
                 lesson.getIsFromSubscription(),
                 lesson.getNotes(),
                 lesson.getCancellationReason(),

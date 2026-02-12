@@ -4,11 +4,10 @@ import { TranslateModule } from '@ngx-translate/core';
 import { SeoService } from '../../core/services/seo.service';
 
 @Component({
-  selector: 'app-links',
-  standalone: true,
-  imports: [TranslateModule, RouterLink],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
+    selector: 'app-links',
+    imports: [TranslateModule, RouterLink],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    template: `
     <div class="links-page">
       <div class="links-page__container">
         <img src="assets/logo.webp" alt="myChess" class="links-page__logo" loading="lazy">
@@ -36,7 +35,7 @@ import { SeoService } from '../../core/services/seo.service';
       </div>
     </div>
   `,
-  styles: [`
+    styles: [`
     @use '../../../styles/variables' as *;
 
     .links-page {

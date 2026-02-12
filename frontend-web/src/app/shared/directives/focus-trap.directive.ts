@@ -1,4 +1,4 @@
-import { Directive, ElementRef, OnInit, OnDestroy, Input, booleanAttribute } from '@angular/core';
+import { Directive, ElementRef, OnInit, OnDestroy, booleanAttribute, input } from '@angular/core';
 
 /**
  * Focus Trap Directive
@@ -10,7 +10,7 @@ import { Directive, ElementRef, OnInit, OnDestroy, Input, booleanAttribute } fro
   standalone: true
 })
 export class FocusTrapDirective implements OnInit, OnDestroy {
-  @Input({ transform: booleanAttribute }) appFocusTrap = true; // Enable/disable the trap
+  readonly appFocusTrap = input(true, { transform: booleanAttribute }); // Enable/disable the trap
 
   private focusableElements: HTMLElement[] = [];
   private firstFocusable: HTMLElement | null = null;
@@ -30,7 +30,7 @@ export class FocusTrapDirective implements OnInit, OnDestroy {
   constructor(private el: ElementRef<HTMLElement>) {}
 
   ngOnInit(): void {
-    if (!this.appFocusTrap) return;
+    if (!this.appFocusTrap()) return;
 
     // Store the previously focused element
     this.previouslyFocused = document.activeElement as HTMLElement;

@@ -174,7 +174,7 @@ public class InvoiceController {
                 .orElseThrow(() -> new RuntimeException("Invoice not found"));
 
         // Security check
-        boolean isCustomer = invoice.getCustomer().getId().equals(userDetails.getId());
+        boolean isCustomer = invoice.getCustomer() != null && invoice.getCustomer().getId().equals(userDetails.getId());
         boolean isIssuer = invoice.getIssuer() != null && invoice.getIssuer().getId().equals(userDetails.getId());
 
         if (!isCustomer && !isIssuer) {
@@ -186,6 +186,7 @@ public class InvoiceController {
 
     /**
      * Map Invoice entity to API response.
+     * Uses denormalized fields as fallback when user accounts have been deleted.
      */
     private Map<String, Object> mapInvoiceToResponse(Invoice invoice, Long currentUserId) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
@@ -198,6 +199,8 @@ public class InvoiceController {
             if (invoice.getIssuer().getCompanyName() != null) {
                 issuerName = invoice.getIssuer().getCompanyName();
             }
+        } else if (invoice.getIssuerName() != null) {
+            issuerName = invoice.getIssuerName();
         } else {
             issuerName = "mychess";
         }
@@ -208,6 +211,8 @@ public class InvoiceController {
             if (invoice.getCustomer().getCompanyName() != null && !invoice.getCustomer().getCompanyName().isBlank()) {
                 customerName = invoice.getCustomer().getCompanyName();
             }
+        } else if (invoice.getCustomerName() != null) {
+            customerName = invoice.getCustomerName();
         }
 
         // Handle potentially null dates
@@ -238,6 +243,7 @@ public class InvoiceController {
 
     /**
      * Map Invoice entity to API response for admin (no currentUserId needed).
+     * Uses denormalized fields as fallback when user accounts have been deleted.
      */
     private Map<String, Object> mapInvoiceToResponseAdmin(Invoice invoice) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
@@ -248,6 +254,8 @@ public class InvoiceController {
             if (invoice.getIssuer().getCompanyName() != null) {
                 issuerName = invoice.getIssuer().getCompanyName();
             }
+        } else if (invoice.getIssuerName() != null) {
+            issuerName = invoice.getIssuerName();
         } else {
             issuerName = "mychess";
         }
@@ -258,6 +266,8 @@ public class InvoiceController {
             if (invoice.getCustomer().getCompanyName() != null && !invoice.getCustomer().getCompanyName().isBlank()) {
                 customerName = invoice.getCustomer().getCompanyName();
             }
+        } else if (invoice.getCustomerName() != null) {
+            customerName = invoice.getCustomerName();
         }
 
         // Handle potentially null dates

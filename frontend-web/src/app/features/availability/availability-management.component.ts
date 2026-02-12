@@ -1,5 +1,5 @@
-import { Component, OnInit, inject, ViewChild, ChangeDetectionStrategy, signal, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, ChangeDetectionStrategy, signal, computed, viewChild } from '@angular/core';
+
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -24,27 +24,26 @@ import {
 } from '@ng-icons/heroicons/outline';
 
 @Component({
-  selector: 'app-availability-management',
-  standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, ConfirmDialogComponent, NgIconComponent, DateInputComponent, TranslateModule],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  viewProviders: [provideIcons({
-    heroChartBarSquare,
-    heroCalendarDays,
-    heroClipboardDocumentList,
-    heroUserCircle,
-    heroArrowRightOnRectangle,
-    heroPlus,
-    heroTrash,
-    heroXMark,
-    heroClock,
-    heroBars3
-  })],
-  templateUrl: './availability-management.component.html',
-  styleUrl: './availability-management.component.scss'
+    selector: 'app-availability-management',
+    imports: [FormsModule, RouterLink, ConfirmDialogComponent, NgIconComponent, DateInputComponent, TranslateModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    viewProviders: [provideIcons({
+            heroChartBarSquare,
+            heroCalendarDays,
+            heroClipboardDocumentList,
+            heroUserCircle,
+            heroArrowRightOnRectangle,
+            heroPlus,
+            heroTrash,
+            heroXMark,
+            heroClock,
+            heroBars3
+        })],
+    templateUrl: './availability-management.component.html',
+    styleUrl: './availability-management.component.scss'
 })
 export class AvailabilityManagementComponent implements OnInit {
-  @ViewChild('confirmDialog') confirmDialog!: ConfirmDialogComponent;
+  readonly confirmDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
 
   private availabilityService = inject(AvailabilityService);
   private seoService = inject(SeoService);
@@ -151,7 +150,7 @@ export class AvailabilityManagementComponent implements OnInit {
   }
 
   async deleteAvailability(id: number): Promise<void> {
-    const confirmed = await this.confirmDialog.open({
+    const confirmed = await this.confirmDialog().open({
       title: this.translateService.instant('availability.confirmDelete.title'),
       message: this.translateService.instant('availability.confirmDelete.message'),
       confirmText: this.translateService.instant('availability.confirmDelete.confirm'),

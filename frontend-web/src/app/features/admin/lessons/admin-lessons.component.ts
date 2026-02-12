@@ -1,16 +1,18 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { Component, OnInit, signal, computed, inject, effect, untracked } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AdminService, AdminLessonResponse } from '../../../core/services/admin.service';
+import { paginate } from '../../../core/utils/pagination';
+import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 
 @Component({
-  selector: 'app-admin-lessons',
-  standalone: true,
-  imports: [CommonModule, DatePipe, FormsModule],
-  template: `
+    selector: 'app-admin-lessons',
+    imports: [DatePipe, FormsModule, TranslateModule, PaginationComponent],
+    template: `
     <div class="admin-lessons">
       <header class="page-header">
-        <h1>Cours</h1>
+        <h1>{{ 'admin.lessons.title' | translate }}</h1>
         <div class="header-controls">
           <div class="search-box">
             <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -20,7 +22,7 @@ import { AdminService, AdminLessonResponse } from '../../../core/services/admin.
             <input
               type="text"
               [(ngModel)]="searchQuery"
-              placeholder="Rechercher coach ou joueur..."
+              [placeholder]="'admin.lessons.searchPlaceholder' | translate"
               class="search-input"
             >
             @if (searchQuery) {
@@ -33,56 +35,65 @@ import { AdminService, AdminLessonResponse } from '../../../core/services/admin.
               [class.tab--active]="activeTab() === 'upcoming'"
               (click)="setTab('upcoming')"
             >
-              À venir ({{ upcomingLessons().length }})
+              {{ 'admin.lessons.upcoming' | translate }} ({{ upcomingLessons().length }})
             </button>
             <button
               class="tab"
               [class.tab--active]="activeTab() === 'completed'"
               (click)="setTab('completed')"
             >
-              Terminés ({{ completedLessons().length }})
+              {{ 'admin.lessons.completed' | translate }} ({{ completedLessons().length }})
             </button>
             <button
               class="tab"
               [class.tab--active]="activeTab() === 'cancelled'"
               (click)="setTab('cancelled')"
             >
-              Annulés ({{ cancelledLessons().length }})
+              {{ 'admin.lessons.cancelled' | translate }} ({{ cancelledLessons().length }})
             </button>
           </div>
         </div>
       </header>
 
       @if (loading()) {
-        <div class="loading">Chargement...</div>
+        <div class="loading">{{ 'common.loading' | translate }}</div>
       } @else {
         <div class="table-container">
           <div class="table-header">
-            <span class="results-count">{{ filteredLessons().length }} résultat(s)</span>
+            <span class="results-count">{{ filteredLessons().length }} {{ 'admin.lessons.results' | translate }}</span>
           </div>
           <table class="table">
             <thead>
               <tr>
-                <th>Date</th>
-                <th>Heure</th>
-                <th>Coach</th>
-                <th>Joueur</th>
-                <th>Statut</th>
-                <th>Prix</th>
-                <th>Actions</th>
+                <th>{{ 'admin.lessons.date' | translate }}</th>
+                <th>{{ 'admin.lessons.time' | translate }}</th>
+                <th>{{ 'admin.lessons.coach' | translate }}</th>
+                <th>{{ 'admin.lessons.player' | translate }}</th>
+                <th>{{ 'admin.lessons.status' | translate }}</th>
+                <th>{{ 'admin.lessons.price' | translate }}</th>
+                <th>{{ 'admin.lessons.actions' | translate }}</th>
               </tr>
             </thead>
             <tbody>
-              @for (lesson of filteredLessons(); track lesson.id) {
+              @for (lesson of pagination.paginatedItems(); track lesson.id) {
                 <tr>
                   <td>{{ lesson.scheduledAt | date:'dd/MM/yyyy' }}</td>
                   <td>{{ lesson.scheduledAt | date:'HH:mm' }}</td>
                   <td>{{ lesson.teacherName }}</td>
                   <td>
                     <div class="student-info">
-                      <span>{{ lesson.studentName }}</span>
-                      @if (lesson.studentLevel) {
-                        <span class="badge badge--level">{{ lesson.studentLevel }}</span>
+                      @if (lesson.isGroupLesson && lesson.participants?.length) {
+                        <div class="participants-list">
+                          @for (p of lesson.participants; track p.displayName) {
+                            <span>{{ p.displayName }}{{ $last ? '' : ', ' }}</span>
+                          }
+                          <span class="badge badge--group">{{ 'admin.lessons.group' | translate }} ({{ lesson.currentParticipantCount }}/{{ lesson.maxParticipants }})</span>
+                        </div>
+                      } @else {
+                        <span>{{ lesson.studentName }}</span>
+                        @if (lesson.studentLevel) {
+                          <span class="badge badge--level">{{ lesson.studentLevel }}</span>
+                        }
                       }
                     </div>
                   </td>
@@ -95,7 +106,7 @@ import { AdminService, AdminLessonResponse } from '../../../core/services/admin.
                     @if (lesson.priceCents) {
                       {{ formatPrice(lesson.priceCents) }}
                       @if (lesson.isFromSubscription) {
-                        <span class="badge badge--subscription">Abo</span>
+                        <span class="badge badge--subscription">{{ 'admin.lessons.subscription' | translate }}</span>
                       }
                     } @else {
                       -
@@ -103,7 +114,7 @@ import { AdminService, AdminLessonResponse } from '../../../core/services/admin.
                   </td>
                   <td>
                     <div class="actions-cell">
-                      <button class="btn-action btn-action--details" (click)="openDetails(lesson)" title="Voir les détails">
+                      <button class="btn-action btn-action--details" (click)="openDetails(lesson)" [title]="'admin.lessons.viewDetails' | translate">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                           <circle cx="12" cy="12" r="10"></circle>
                           <path d="M12 16v-4"></path>
@@ -111,7 +122,7 @@ import { AdminService, AdminLessonResponse } from '../../../core/services/admin.
                         </svg>
                       </button>
                       @if (lesson.status === 'COMPLETED' && lesson.recordingUrl) {
-                        <button class="btn-action btn-action--recording" (click)="openRecording(lesson)" title="Voir l'enregistrement">
+                        <button class="btn-action btn-action--recording" (click)="openRecording(lesson)" [title]="'admin.lessons.viewRecording' | translate">
                           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <polygon points="23 7 16 12 23 17 23 7"></polygon>
                             <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
@@ -124,7 +135,7 @@ import { AdminService, AdminLessonResponse } from '../../../core/services/admin.
               } @empty {
                 <tr>
                   <td colspan="7" class="empty-state">
-                    Aucun cours {{ activeTab() === 'upcoming' ? 'à venir' : (activeTab() === 'completed' ? 'terminé' : 'annulé') }}
+                    {{ getEmptyStateLabel() }}
                   </td>
                 </tr>
               }
@@ -132,21 +143,31 @@ import { AdminService, AdminLessonResponse } from '../../../core/services/admin.
           </table>
         </div>
 
+        <app-pagination
+          [currentPage]="pagination.currentPage()"
+          [totalPages]="pagination.totalPages()"
+          [totalItems]="pagination.totalItems()"
+          [startItem]="pagination.startItem()"
+          [endItem]="pagination.endItem()"
+          [visiblePages]="pagination.visiblePages()"
+          (pageChange)="pagination.goToPage($event)"
+        />
+
         @if (activeTab() === 'completed' && completedLessons().length > 0) {
           <div class="summary-card">
-            <h3>Résumé des cours effectués</h3>
+            <h3>{{ 'admin.lessons.summary' | translate }}</h3>
             <div class="summary-stats">
               <div class="stat">
                 <span class="stat__value">{{ completedLessons().length }}</span>
-                <span class="stat__label">Cours</span>
+                <span class="stat__label">{{ 'admin.lessons.lessons' | translate }}</span>
               </div>
               <div class="stat">
                 <span class="stat__value">{{ formatPrice(totalRevenue()) }}</span>
-                <span class="stat__label">CA Total</span>
+                <span class="stat__label">{{ 'admin.lessons.totalRevenue' | translate }}</span>
               </div>
               <div class="stat">
                 <span class="stat__value">{{ formatPrice(totalCommissions()) }}</span>
-                <span class="stat__label">Commissions</span>
+                <span class="stat__label">{{ 'admin.lessons.commissions' | translate }}</span>
               </div>
             </div>
           </div>
@@ -158,7 +179,7 @@ import { AdminService, AdminLessonResponse } from '../../../core/services/admin.
         <div class="video-player-overlay" (click)="closeVideoPlayer()">
           <div class="video-player-modal" (click)="$event.stopPropagation()">
             <div class="video-player-header">
-              <h3>Enregistrement du cours</h3>
+              <h3>{{ 'admin.lessons.recording' | translate }}</h3>
               <button class="video-player-close" (click)="closeVideoPlayer()">✕</button>
             </div>
             <div class="video-player-content">
@@ -168,7 +189,7 @@ import { AdminService, AdminLessonResponse } from '../../../core/services/admin.
                 autoplay
                 class="video-player"
               >
-                Votre navigateur ne supporte pas la lecture de vidéos.
+                {{ 'admin.lessons.videoNotSupported' | translate }}
               </video>
             </div>
           </div>
@@ -180,54 +201,65 @@ import { AdminService, AdminLessonResponse } from '../../../core/services/admin.
         <div class="detail-overlay" (click)="closeDetails()">
           <div class="detail-modal" (click)="$event.stopPropagation()">
             <div class="detail-header">
-              <h3>Details du cours #{{ selectedLesson()!.id }}</h3>
+              <h3>{{ 'admin.lessons.details' | translate }} #{{ selectedLesson()!.id }}</h3>
               <button class="detail-close" (click)="closeDetails()">✕</button>
             </div>
             <div class="detail-content">
               <div class="detail-section">
-                <h4>Informations générales</h4>
+                <h4>{{ 'admin.lessons.generalInfo' | translate }}</h4>
                 <div class="detail-grid">
                   <div class="detail-item">
-                    <span class="detail-label">Date</span>
+                    <span class="detail-label">{{ 'admin.lessons.date' | translate }}</span>
                     <span class="detail-value">{{ selectedLesson()!.scheduledAt | date:'dd/MM/yyyy HH:mm' }}</span>
                   </div>
                   <div class="detail-item">
-                    <span class="detail-label">Durée</span>
+                    <span class="detail-label">{{ 'admin.lessons.duration' | translate }}</span>
                     <span class="detail-value">{{ selectedLesson()!.durationMinutes }} min</span>
                   </div>
                   <div class="detail-item">
-                    <span class="detail-label">Statut</span>
+                    <span class="detail-label">{{ 'admin.lessons.status' | translate }}</span>
                     <span class="badge" [class]="getStatusClass(selectedLesson()!.status)">
                       {{ getStatusLabel(selectedLesson()!.status) }}
                     </span>
                   </div>
                   <div class="detail-item">
-                    <span class="detail-label">Prix</span>
-                    <span class="detail-value">{{ selectedLesson()!.priceCents ? formatPrice(selectedLesson()!.priceCents!) : 'Gratuit' }}</span>
+                    <span class="detail-label">{{ 'admin.lessons.price' | translate }}</span>
+                    <span class="detail-value">{{ selectedLesson()!.priceCents ? formatPrice(selectedLesson()!.priceCents!) : ('common.free' | translate) }}</span>
                   </div>
                 </div>
               </div>
 
               <div class="detail-section">
-                <h4>Participants</h4>
+                <h4>{{ 'admin.lessons.participants' | translate }}</h4>
                 <div class="detail-grid">
                   <div class="detail-item">
-                    <span class="detail-label">Coach</span>
+                    <span class="detail-label">{{ 'admin.lessons.coach' | translate }}</span>
                     <span class="detail-value">{{ selectedLesson()!.teacherName }}</span>
                   </div>
-                  <div class="detail-item">
-                    <span class="detail-label">Joueur</span>
-                    <span class="detail-value">
-                      {{ selectedLesson()!.studentName }}
-                      @if (selectedLesson()!.studentLevel) {
-                        <span class="badge badge--level">{{ selectedLesson()!.studentLevel }}</span>
-                      }
-                    </span>
-                  </div>
+                  @if (selectedLesson()!.isGroupLesson && selectedLesson()!.participants?.length) {
+                    <div class="detail-item">
+                      <span class="detail-label">{{ 'admin.lessons.players' | translate }} <span class="badge badge--group">{{ 'admin.lessons.group' | translate }} ({{ selectedLesson()!.currentParticipantCount }}/{{ selectedLesson()!.maxParticipants }})</span></span>
+                      <span class="detail-value">
+                        @for (p of selectedLesson()!.participants!; track p.displayName) {
+                          {{ p.displayName }}{{ $last ? '' : ', ' }}
+                        }
+                      </span>
+                    </div>
+                  } @else {
+                    <div class="detail-item">
+                      <span class="detail-label">{{ 'admin.lessons.player' | translate }}</span>
+                      <span class="detail-value">
+                        {{ selectedLesson()!.studentName }}
+                        @if (selectedLesson()!.studentLevel) {
+                          <span class="badge badge--level">{{ selectedLesson()!.studentLevel }}</span>
+                        }
+                      </span>
+                    </div>
+                  }
                   @if (selectedLesson()!.studentAge) {
                     <div class="detail-item">
-                      <span class="detail-label">Age</span>
-                      <span class="detail-value">{{ selectedLesson()!.studentAge }} ans</span>
+                      <span class="detail-label">{{ 'admin.lessons.age' | translate }}</span>
+                      <span class="detail-value">{{ selectedLesson()!.studentAge }}</span>
                     </div>
                   }
                   @if (selectedLesson()!.studentElo) {
@@ -241,21 +273,21 @@ import { AdminService, AdminLessonResponse } from '../../../core/services/admin.
 
               @if (selectedLesson()!.status === 'CANCELLED') {
                 <div class="detail-section detail-section--warning">
-                  <h4>Annulation</h4>
+                  <h4>{{ 'admin.lessons.cancellation' | translate }}</h4>
                   <div class="detail-grid">
                     <div class="detail-item">
-                      <span class="detail-label">Annulé par</span>
+                      <span class="detail-label">{{ 'admin.lessons.cancelledBy' | translate }}</span>
                       <span class="detail-value">{{ getCancelledByLabel(selectedLesson()!.cancelledBy) }}</span>
                     </div>
                     @if (selectedLesson()!.cancellationReason) {
                       <div class="detail-item detail-item--full">
-                        <span class="detail-label">Raison</span>
+                        <span class="detail-label">{{ 'admin.lessons.reason' | translate }}</span>
                         <span class="detail-value">{{ selectedLesson()!.cancellationReason }}</span>
                       </div>
                     }
                     @if (selectedLesson()!.refundedAmountCents) {
                       <div class="detail-item">
-                        <span class="detail-label">Remboursement</span>
+                        <span class="detail-label">{{ 'admin.lessons.refund' | translate }}</span>
                         <span class="detail-value">{{ formatPrice(selectedLesson()!.refundedAmountCents!) }} ({{ selectedLesson()!.refundPercentage }}%)</span>
                       </div>
                     }
@@ -265,17 +297,17 @@ import { AdminService, AdminLessonResponse } from '../../../core/services/admin.
 
               @if (selectedLesson()!.teacherObservations) {
                 <div class="detail-section">
-                  <h4>Observations du coach</h4>
+                  <h4>{{ 'admin.lessons.coachObservations' | translate }}</h4>
                   <p class="detail-text">{{ selectedLesson()!.teacherObservations }}</p>
                 </div>
               }
 
               @if (selectedLesson()!.zoomLink) {
                 <div class="detail-section">
-                  <h4>Lien visioconference</h4>
+                  <h4>{{ 'admin.lessons.videoLink' | translate }}</h4>
                   <div class="detail-link-box">
                     <code>{{ selectedLesson()!.zoomLink }}</code>
-                    <button class="btn-copy" (click)="copyToClipboard(selectedLesson()!.zoomLink!)" title="Copier">
+                    <button class="btn-copy" (click)="copyToClipboard(selectedLesson()!.zoomLink!)" [title]="'admin.lessons.copy' | translate">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
                         <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
@@ -286,18 +318,18 @@ import { AdminService, AdminLessonResponse } from '../../../core/services/admin.
               }
 
               <div class="detail-section">
-                <h4>Finances</h4>
+                <h4>{{ 'admin.lessons.finances' | translate }}</h4>
                 <div class="detail-grid">
                   <div class="detail-item">
-                    <span class="detail-label">Prix total</span>
+                    <span class="detail-label">{{ 'admin.lessons.totalPrice' | translate }}</span>
                     <span class="detail-value">{{ selectedLesson()!.priceCents ? formatPrice(selectedLesson()!.priceCents!) : '-' }}</span>
                   </div>
                   <div class="detail-item">
-                    <span class="detail-label">Commission</span>
+                    <span class="detail-label">{{ 'admin.lessons.commission' | translate }}</span>
                     <span class="detail-value">{{ selectedLesson()!.commissionCents ? formatPrice(selectedLesson()!.commissionCents!) : '-' }}</span>
                   </div>
                   <div class="detail-item">
-                    <span class="detail-label">Gain coach</span>
+                    <span class="detail-label">{{ 'admin.lessons.coachEarnings' | translate }}</span>
                     <span class="detail-value">{{ selectedLesson()!.teacherEarningsCents ? formatPrice(selectedLesson()!.teacherEarningsCents!) : '-' }}</span>
                   </div>
                 </div>
@@ -308,7 +340,7 @@ import { AdminService, AdminLessonResponse } from '../../../core/services/admin.
       }
     </div>
   `,
-  styles: [`
+    styles: [`
     .page-header {
       display: flex;
       justify-content: space-between;
@@ -509,6 +541,14 @@ import { AdminService, AdminLessonResponse } from '../../../core/services/admin.
       display: flex;
       align-items: center;
       gap: var(--space-sm);
+      flex-wrap: wrap;
+    }
+
+    .participants-list {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      flex-wrap: wrap;
     }
 
     .badge {
@@ -548,6 +588,12 @@ import { AdminService, AdminLessonResponse } from '../../../core/services/admin.
       &--subscription {
         background: rgba(212, 168, 75, 0.1);
         color: var(--gold-500);
+        margin-left: var(--space-xs);
+      }
+
+      &--group {
+        background: rgba(99, 102, 241, 0.1);
+        color: #818cf8;
         margin-left: var(--space-xs);
       }
     }
@@ -988,7 +1034,16 @@ export class AdminLessonsComponent implements OnInit {
     });
   });
 
-  constructor(private adminService: AdminService) {}
+  pagination = paginate(this.filteredLessons, 10);
+
+  private translate = inject(TranslateService);
+
+  constructor(private adminService: AdminService) {
+    effect(() => {
+      this.filteredLessons();
+      untracked(() => this.pagination.currentPage.set(0));
+    });
+  }
 
   ngOnInit(): void {
     this.loadLessons();
@@ -1042,13 +1097,22 @@ export class AdminLessonsComponent implements OnInit {
   }
 
   getStatusLabel(status: string): string {
-    const labels: Record<string, string> = {
-      PENDING: 'En attente',
-      CONFIRMED: 'Confirmé',
-      COMPLETED: 'Terminé',
-      CANCELLED: 'Annulé'
+    const keys: Record<string, string> = {
+      PENDING: 'status.pending',
+      CONFIRMED: 'status.confirmed',
+      COMPLETED: 'status.completed',
+      CANCELLED: 'status.cancelled'
     };
-    return labels[status] || status;
+    return keys[status] ? this.translate.instant(keys[status]) : status;
+  }
+
+  getEmptyStateLabel(): string {
+    const keys: Record<string, string> = {
+      upcoming: 'admin.lessons.noUpcoming',
+      completed: 'admin.lessons.noCompleted',
+      cancelled: 'admin.lessons.noCancelled'
+    };
+    return this.translate.instant(keys[this.activeTab()] || 'admin.lessons.noUpcoming');
   }
 
   formatPrice(cents: number): string {
@@ -1086,14 +1150,14 @@ export class AdminLessonsComponent implements OnInit {
   }
 
   getCancelledByLabel(cancelledBy?: string): string {
-    if (!cancelledBy) return 'Inconnu';
-    const labels: Record<string, string> = {
-      STUDENT: 'Le joueur',
-      TEACHER: 'Le coach',
-      SYSTEM: 'Système (auto)',
-      ADMIN: 'Administrateur'
+    if (!cancelledBy) return this.translate.instant('errors.unknownError');
+    const keys: Record<string, string> = {
+      STUDENT: 'admin.lessons.cancelledByPlayer',
+      TEACHER: 'admin.lessons.cancelledByCoach',
+      SYSTEM: 'admin.lessons.cancelledBySystem',
+      ADMIN: 'admin.lessons.cancelledByAdmin'
     };
-    return labels[cancelledBy] || cancelledBy;
+    return keys[cancelledBy] ? this.translate.instant(keys[cancelledBy]) : cancelledBy;
   }
 
   copyToClipboard(text: string): void {

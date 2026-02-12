@@ -1,6 +1,7 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap, catchError, of } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
 import { Progress, ChessLevel, CHESS_LEVELS } from '../models/user.model';
 
 export interface LevelInfo {
@@ -65,6 +66,8 @@ export class ProgressService {
     return Math.min(100, baseProgress + levelProgress);
   });
 
+  private translate = inject(TranslateService);
+
   constructor(private http: HttpClient) {}
 
   loadMyProgress(): Observable<Progress> {
@@ -77,7 +80,7 @@ export class ProgressService {
         this.loadingSignal.set(false);
       }),
       catchError(error => {
-        this.errorSignal.set('Impossible de charger la progression');
+        this.errorSignal.set(this.translate.instant('errors.loadProgress'));
         this.loadingSignal.set(false);
         throw error;
       })

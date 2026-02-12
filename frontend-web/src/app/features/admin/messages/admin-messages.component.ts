@@ -1,5 +1,5 @@
-import { Component, OnInit, signal, computed, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, signal, computed, effect, untracked, ChangeDetectionStrategy, inject } from '@angular/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
@@ -13,6 +13,8 @@ import {
   heroChatBubbleLeftRight,
   heroXMark
 } from '@ng-icons/heroicons/outline';
+import { paginate } from '../../../core/utils/pagination';
+import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 
 interface Message {
   id: number;
@@ -35,28 +37,27 @@ interface FilterOption {
 }
 
 @Component({
-  selector: 'app-admin-messages',
-  standalone: true,
-  imports: [CommonModule, FormsModule, NgIconComponent],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  viewProviders: [provideIcons({
-    heroMagnifyingGlass,
-    heroFunnel,
-    heroArrowPath,
-    heroExclamationTriangle,
-    heroUserCircle,
-    heroAcademicCap,
-    heroChatBubbleLeftRight,
-    heroXMark
-  })],
-  template: `
+    selector: 'app-admin-messages',
+    imports: [FormsModule, NgIconComponent, TranslateModule, PaginationComponent],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    viewProviders: [provideIcons({
+            heroMagnifyingGlass,
+            heroFunnel,
+            heroArrowPath,
+            heroExclamationTriangle,
+            heroUserCircle,
+            heroAcademicCap,
+            heroChatBubbleLeftRight,
+            heroXMark
+        })],
+    template: `
     <div class="messages-page">
       <div class="page-header">
         <div class="page-title">
           <ng-icon name="heroChatBubbleLeftRight" size="24"></ng-icon>
-          <h1>Messages & Notes</h1>
+          <h1>{{ 'admin.messages.title' | translate }}</h1>
         </div>
-        <p class="page-subtitle">Consultez les echanges entre coachs et joueurs</p>
+        <p class="page-subtitle">{{ 'admin.messages.subtitle' | translate }}</p>
       </div>
 
       <!-- Search Bar -->
@@ -65,7 +66,7 @@ interface FilterOption {
         <input
           type="text"
           [(ngModel)]="searchQuery"
-          placeholder="Rechercher dans les messages..."
+          [placeholder]="'admin.messages.searchPlaceholder' | translate"
           class="search-bar__input"
         >
         @if (searchQuery) {
@@ -79,26 +80,26 @@ interface FilterOption {
       <div class="filters-card">
         <div class="filters-row">
           <div class="filter-group">
-            <label>Date debut</label>
+            <label>{{ 'admin.messages.dateFrom' | translate }}</label>
             <input type="date" [(ngModel)]="dateFrom" class="filter-input">
           </div>
           <div class="filter-group">
-            <label>Date fin</label>
+            <label>{{ 'admin.messages.dateTo' | translate }}</label>
             <input type="date" [(ngModel)]="dateTo" class="filter-input">
           </div>
           <div class="filter-group">
-            <label>Coach</label>
+            <label>{{ 'admin.messages.coach' | translate }}</label>
             <select [(ngModel)]="selectedTeacherId" class="filter-input">
-              <option [ngValue]="null">Tous</option>
+              <option [ngValue]="null">{{ 'admin.messages.all' | translate }}</option>
               @for (teacher of teachers(); track teacher.id) {
                 <option [ngValue]="teacher.id">{{ teacher.name }}</option>
               }
             </select>
           </div>
           <div class="filter-group">
-            <label>Joueur</label>
+            <label>{{ 'admin.messages.player' | translate }}</label>
             <select [(ngModel)]="selectedStudentId" class="filter-input">
-              <option [ngValue]="null">Tous</option>
+              <option [ngValue]="null">{{ 'admin.messages.all' | translate }}</option>
               @for (student of students(); track student.id) {
                 <option [ngValue]="student.id">{{ student.name }}</option>
               }
@@ -107,7 +108,7 @@ interface FilterOption {
           <div class="filter-actions">
             <button class="btn btn--primary btn--sm" (click)="loadMessages()">
               <ng-icon name="heroMagnifyingGlass" size="14"></ng-icon>
-              Filtrer
+              {{ 'admin.messages.filter' | translate }}
             </button>
             <button class="btn btn--ghost btn--sm" (click)="resetFilters()">
               <ng-icon name="heroArrowPath" size="14"></ng-icon>
@@ -120,11 +121,11 @@ interface FilterOption {
       <div class="stats-row">
         <div class="stat-badge">
           <span class="stat-badge__value">{{ filteredMessages().length }}</span>
-          <span class="stat-badge__label">message{{ filteredMessages().length > 1 ? 's' : '' }}</span>
+          <span class="stat-badge__label">{{ filteredMessages().length > 1 ? ('admin.messages.messagesPlural' | translate) : ('admin.messages.messages' | translate) }}</span>
         </div>
         @if (searchQuery) {
           <div class="stat-badge stat-badge--secondary">
-            <span class="stat-badge__label">sur {{ messages().length }} total</span>
+            <span class="stat-badge__label">{{ 'admin.messages.total' | translate : { count: messages().length } }}</span>
           </div>
         }
       </div>
@@ -133,17 +134,17 @@ interface FilterOption {
       @if (loading()) {
         <div class="loading-state">
           <div class="spinner"></div>
-          <p>Chargement...</p>
+          <p>{{ 'common.loading' | translate }}</p>
         </div>
       } @else if (error()) {
         <div class="error-state">
           <ng-icon name="heroExclamationTriangle" size="32"></ng-icon>
           <p>{{ error() }}</p>
-          <button class="btn btn--primary btn--sm" (click)="loadMessages()">Reessayer</button>
+          <button class="btn btn--primary btn--sm" (click)="loadMessages()">{{ 'admin.messages.retry' | translate }}</button>
         </div>
       } @else {
         <div class="messages-list">
-          @for (message of filteredMessages(); track message.id) {
+          @for (message of pagination.paginatedItems(); track message.id) {
             <div class="message-row" [class.message-row--student]="message.fromRole === 'STUDENT'">
               <div class="message-row__type">
                 <span class="type-badge" [class]="'type-badge--' + message.type.toLowerCase()">
@@ -169,14 +170,23 @@ interface FilterOption {
           } @empty {
             <div class="empty-state">
               <ng-icon name="heroChatBubbleLeftRight" size="32"></ng-icon>
-              <p>{{ searchQuery ? 'Aucun message ne correspond a votre recherche' : 'Aucun message trouve' }}</p>
+              <p>{{ searchQuery ? ('admin.messages.noResults' | translate) : ('admin.messages.noMessages' | translate) }}</p>
             </div>
           }
         </div>
+        <app-pagination
+          [currentPage]="pagination.currentPage()"
+          [totalPages]="pagination.totalPages()"
+          [totalItems]="pagination.totalItems()"
+          [startItem]="pagination.startItem()"
+          [endItem]="pagination.endItem()"
+          [visiblePages]="pagination.visiblePages()"
+          (pageChange)="pagination.goToPage($event)"
+        />
       }
     </div>
   `,
-  styles: [`
+    styles: [`
     .messages-page {
       padding: var(--space-lg);
       max-width: 1200px;
@@ -533,6 +543,7 @@ interface FilterOption {
   `]
 })
 export class AdminMessagesComponent implements OnInit {
+  private translate = inject(TranslateService);
   messages = signal<Message[]>([]);
   teachers = signal<FilterOption[]>([]);
   students = signal<FilterOption[]>([]);
@@ -557,6 +568,8 @@ export class AdminMessagesComponent implements OnInit {
     );
   });
 
+  pagination = paginate(this.filteredMessages, 10);
+
   constructor(private http: HttpClient) {
     // Set default dates (last 3 months)
     const today = new Date();
@@ -565,6 +578,11 @@ export class AdminMessagesComponent implements OnInit {
 
     this.dateTo = today.toISOString().split('T')[0];
     this.dateFrom = threeMonthsAgo.toISOString().split('T')[0];
+
+    effect(() => {
+      this.filteredMessages();
+      untracked(() => this.pagination.currentPage.set(0));
+    });
   }
 
   ngOnInit(): void {
@@ -604,7 +622,7 @@ export class AdminMessagesComponent implements OnInit {
         this.loading.set(false);
       },
       error: (err) => {
-        this.error.set(err.error?.message || 'Erreur lors du chargement');
+        this.error.set(err.error?.message || this.translate.instant('errors.load'));
         this.loading.set(false);
       }
     });
@@ -626,9 +644,9 @@ export class AdminMessagesComponent implements OnInit {
 
   getTypeShort(type: string): string {
     switch (type) {
-      case 'NOTE_ETUDIANT': return 'Note';
-      case 'OBSERVATION_COACH': return 'Obs.';
-      case 'COMMENTAIRE_COACH': return 'Comm.';
+      case 'NOTE_ETUDIANT': return this.translate.instant('admin.messages.note');
+      case 'OBSERVATION_COACH': return this.translate.instant('admin.messages.obs');
+      case 'COMMENTAIRE_COACH': return this.translate.instant('admin.messages.comment');
       default: return type.substring(0, 4);
     }
   }

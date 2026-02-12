@@ -1,43 +1,45 @@
-import { Component, OnInit, OnDestroy, signal, inject, computed } from '@angular/core';
-import { CommonModule, DecimalPipe } from '@angular/common';
+import { Component, OnInit, DestroyRef, signal, inject, computed, effect, untracked } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Subscription } from 'rxjs';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AdminService, AccountingResponse, TeacherBalanceResponse } from '../../../core/services/admin.service';
 import { AdminStateService } from '../../../core/services/admin-state.service';
 import { DialogService } from '../../../core/services/dialog.service';
+import { paginate } from '../../../core/utils/pagination';
+import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 
 @Component({
-  selector: 'app-accounting',
-  standalone: true,
-  imports: [CommonModule, DecimalPipe, FormsModule],
-  template: `
+    selector: 'app-accounting',
+    imports: [DecimalPipe, FormsModule, TranslateModule, PaginationComponent],
+    template: `
     <div class="accounting">
       <header class="page-header">
-        <h1>Comptabilité</h1>
+        <h1>{{ 'admin.accounting.title' | translate }}</h1>
       </header>
 
       @if (loading()) {
-        <div class="loading">Chargement...</div>
+        <div class="loading">{{ 'common.loading' | translate }}</div>
       } @else {
         <!-- Revenue Overview -->
         @if (accounting()) {
           <section class="section">
-            <h2>Vue d'ensemble</h2>
+            <h2>{{ 'admin.accounting.overview' | translate }}</h2>
             <div class="stats-grid">
               <div class="stat-card">
-                <span class="stat-card__label">Chiffre d'affaires</span>
+                <span class="stat-card__label">{{ 'admin.accounting.revenue' | translate }}</span>
                 <span class="stat-card__value">{{ formatCents(accounting()!.totalRevenueCents) }}</span>
               </div>
               <div class="stat-card stat-card--gold">
-                <span class="stat-card__label">Commissions (10%)</span>
+                <span class="stat-card__label">{{ 'admin.accounting.commissions' | translate }}</span>
                 <span class="stat-card__value">{{ formatCents(accounting()!.totalCommissionsCents) }}</span>
               </div>
               <div class="stat-card">
-                <span class="stat-card__label">Gains coachs</span>
+                <span class="stat-card__label">{{ 'admin.accounting.coachEarnings' | translate }}</span>
                 <span class="stat-card__value">{{ formatCents(accounting()!.totalTeacherEarningsCents) }}</span>
               </div>
               <div class="stat-card stat-card--error">
-                <span class="stat-card__label">Remboursements</span>
+                <span class="stat-card__label">{{ 'admin.accounting.refunds' | translate }}</span>
                 <span class="stat-card__value">{{ formatCents(accounting()!.totalRefundedCents) }}</span>
               </div>
             </div>
@@ -45,15 +47,15 @@ import { DialogService } from '../../../core/services/dialog.service';
             <div class="lessons-stats">
               <div class="lessons-stat">
                 <span class="lessons-stat__value">{{ accounting()!.totalLessons }}</span>
-                <span class="lessons-stat__label">Cours total</span>
+                <span class="lessons-stat__label">{{ 'admin.accounting.totalLessons' | translate }}</span>
               </div>
               <div class="lessons-stat lessons-stat--success">
                 <span class="lessons-stat__value">{{ accounting()!.completedLessons }}</span>
-                <span class="lessons-stat__label">Terminés</span>
+                <span class="lessons-stat__label">{{ 'admin.accounting.completedLessons' | translate }}</span>
               </div>
               <div class="lessons-stat lessons-stat--error">
                 <span class="lessons-stat__value">{{ accounting()!.cancelledLessons }}</span>
-                <span class="lessons-stat__label">Annulés</span>
+                <span class="lessons-stat__label">{{ 'admin.accounting.cancelledLessons' | translate }}</span>
               </div>
             </div>
           </section>
@@ -62,7 +64,7 @@ import { DialogService } from '../../../core/services/dialog.service';
         <!-- Teacher Balances -->
         <section class="section">
           <div class="section-header">
-            <h2>Soldes des coachs - {{ currentMonthLabel() }}</h2>
+            <h2>{{ 'admin.accounting.coachBalances' | translate }} - {{ currentMonthLabel() }}</h2>
             <div class="search-box">
               <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="11" cy="11" r="8"></circle>
@@ -71,7 +73,7 @@ import { DialogService } from '../../../core/services/dialog.service';
               <input
                 type="text"
                 [(ngModel)]="searchQuery"
-                placeholder="Rechercher un coach..."
+                [placeholder]="'admin.accounting.searchCoach' | translate"
                 class="search-input"
               >
               @if (searchQuery) {
@@ -80,26 +82,23 @@ import { DialogService } from '../../../core/services/dialog.service';
             </div>
           </div>
           @if (balances().length === 0) {
-            <p class="empty">Aucun coach avec un solde.</p>
+            <p class="empty">{{ 'admin.accounting.noCoachBalance' | translate }}</p>
           } @else {
             <div class="table-container">
-              <div class="table-header">
-                <span class="results-count">{{ filteredBalances().length }} résultat(s)</span>
-              </div>
               <table class="table">
                 <thead>
                   <tr>
-                    <th>Coach</th>
-                    <th>Ce mois</th>
-                    <th>À virer</th>
-                    <th>Total gagné</th>
-                    <th>Compte</th>
-                    <th>Statut</th>
-                    <th>Action</th>
+                    <th>{{ 'admin.accounting.coach' | translate }}</th>
+                    <th>{{ 'admin.accounting.thisMonth' | translate }}</th>
+                    <th>{{ 'admin.accounting.toTransfer' | translate }}</th>
+                    <th>{{ 'admin.accounting.totalEarned' | translate }}</th>
+                    <th>{{ 'admin.accounting.account' | translate }}</th>
+                    <th>{{ 'admin.accounting.status' | translate }}</th>
+                    <th>{{ 'admin.accounting.action' | translate }}</th>
                   </tr>
                 </thead>
                 <tbody>
-                  @for (balance of filteredBalances(); track balance.teacherId) {
+                  @for (balance of pagination.paginatedItems(); track balance.teacherId) {
                     <tr>
                       <td>
                         <div class="user-info">
@@ -113,32 +112,32 @@ import { DialogService } from '../../../core/services/dialog.service';
                       <td>
                         <div class="month-info">
                           <span class="amount amount--primary">{{ formatCents(balance.currentMonthEarningsCents) }}</span>
-                          <span class="text-muted small">{{ balance.currentMonthLessonsCount }} cours</span>
+                          <span class="text-muted small">{{ balance.currentMonthLessonsCount }} {{ 'admin.accounting.lessonsCount' | translate }}</span>
                         </div>
                       </td>
                       <td class="amount amount--success">{{ formatCents(balance.availableBalanceCents) }}</td>
                       <td class="amount">{{ formatCents(balance.totalEarnedCents) }}</td>
                       <td>
                         @if (balance.stripeConnectReady) {
-                          <span class="badge badge--success">Prêt</span>
+                          <span class="badge badge--success">{{ 'admin.accounting.ready' | translate }}</span>
                         } @else if (balance.stripeConnectEnabled) {
-                          <span class="badge badge--warning">Incomplet</span>
+                          <span class="badge badge--warning">{{ 'admin.accounting.incomplete' | translate }}</span>
                         } @else if (balance.iban) {
                           <div class="banking-info">
                             <span class="iban">{{ maskIban(balance.iban) }}</span>
                             @if (balance.siret) {
-                              <span class="text-muted small">SIRET: {{ balance.siret }}</span>
+                              <span class="text-muted small">{{ 'admin.accounting.siret' | translate }}: {{ balance.siret }}</span>
                             }
                           </div>
                         } @else {
-                          <span class="badge badge--error">Non configuré</span>
+                          <span class="badge badge--error">{{ 'admin.accounting.notConfigured' | translate }}</span>
                         }
                       </td>
                       <td>
                         @if (balance.currentMonthPaid) {
-                          <span class="badge badge--success">Payé</span>
+                          <span class="badge badge--success">{{ 'admin.accounting.paid' | translate }}</span>
                         } @else if (balance.currentMonthEarningsCents > 0) {
-                          <span class="badge badge--pending">À payer</span>
+                          <span class="badge badge--pending">{{ 'admin.accounting.toPay' | translate }}</span>
                         } @else {
                           <span class="badge badge--muted">-</span>
                         }
@@ -155,7 +154,7 @@ import { DialogService } from '../../../core/services/dialog.service';
                                 [max]="balance.availableBalanceCents / 100"
                                 min="1"
                                 step="0.01"
-                                placeholder="Montant"
+                                [placeholder]="'admin.accounting.amount' | translate"
                               >
                               <button
                                 class="btn btn--sm btn--primary"
@@ -165,15 +164,15 @@ import { DialogService } from '../../../core/services/dialog.service';
                                 @if (payingTeacher() === balance.teacherId) {
                                   ...
                                 } @else {
-                                  Virer
+                                  {{ 'admin.accounting.transfer' | translate }}
                                 }
                               </button>
                             </div>
                           } @else {
-                            <span class="text-muted small">Compte non configuré</span>
+                            <span class="text-muted small">{{ 'admin.accounting.accountNotConfigured' | translate }}</span>
                           }
                         } @else {
-                          <span class="text-muted small">Rien à virer</span>
+                          <span class="text-muted small">{{ 'admin.accounting.nothingToTransfer' | translate }}</span>
                         }
                       </td>
                     </tr>
@@ -181,12 +180,21 @@ import { DialogService } from '../../../core/services/dialog.service';
                 </tbody>
               </table>
             </div>
+            <app-pagination
+              [currentPage]="pagination.currentPage()"
+              [totalPages]="pagination.totalPages()"
+              [totalItems]="pagination.totalItems()"
+              [startItem]="pagination.startItem()"
+              [endItem]="pagination.endItem()"
+              [visiblePages]="pagination.visiblePages()"
+              (pageChange)="pagination.goToPage($event)"
+            />
           }
         </section>
       }
     </div>
   `,
-  styles: [`
+    styles: [`
     .page-header {
       margin-bottom: var(--space-xl);
 
@@ -617,7 +625,7 @@ import { DialogService } from '../../../core/services/dialog.service';
     }
   `]
 })
-export class AccountingComponent implements OnInit, OnDestroy {
+export class AccountingComponent implements OnInit {
   accounting = signal<AccountingResponse | null>(null);
   balances = signal<TeacherBalanceResponse[]>([]);
   loading = signal(true);
@@ -626,7 +634,8 @@ export class AccountingComponent implements OnInit, OnDestroy {
   transferAmounts: Map<number, number> = new Map(); // teacherId -> amount in cents
   private dialogService = inject(DialogService);
   private adminStateService = inject(AdminStateService);
-  private stateSubscription?: Subscription;
+  private destroyRef = inject(DestroyRef);
+  private translate = inject(TranslateService);
 
   // Filtered balances based on search query
   filteredBalances = computed(() => {
@@ -647,22 +656,25 @@ export class AccountingComponent implements OnInit, OnDestroy {
     });
   });
 
-  constructor(private adminService: AdminService) {}
+  pagination = paginate(this.filteredBalances, 10);
+
+  constructor(private adminService: AdminService) {
+    effect(() => {
+      this.filteredBalances();
+      untracked(() => this.pagination.currentPage.set(0));
+    });
+  }
 
   ngOnInit(): void {
     this.loadData();
 
     // Subscribe to data changes from other admin components
-    this.stateSubscription = this.adminStateService.onDataChange$.subscribe((change) => {
+    this.adminStateService.onDataChange$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((change) => {
       // Refresh accounting data when users or lessons change
       if (change.type === 'user' || change.type === 'lesson' || change.type === 'all') {
         this.loadData();
       }
     });
-  }
-
-  ngOnDestroy(): void {
-    this.stateSubscription?.unsubscribe();
   }
 
   loadData(): void {
@@ -687,7 +699,9 @@ export class AccountingComponent implements OnInit, OnDestroy {
 
   currentMonthLabel(): string {
     const date = new Date();
-    return date.toLocaleString('fr-FR', { month: 'long', year: 'numeric' });
+    const lang = this.translate.currentLang || 'fr';
+    const locale = lang === 'fr' ? 'fr-FR' : 'en-US';
+    return date.toLocaleString(locale, { month: 'long', year: 'numeric' });
   }
 
   maskIban(iban: string): string {
@@ -712,23 +726,23 @@ export class AccountingComponent implements OnInit, OnDestroy {
     const amountCents = this.getTransferAmount(balance);
 
     if (amountCents <= 0) {
-      await this.dialogService.alert('Le montant doit être supérieur à 0', 'Erreur', { variant: 'danger' });
+      await this.dialogService.alert(this.translate.instant('errors.transferAmount'), this.translate.instant('errors.generic'), { variant: 'danger' });
       return;
     }
 
     if (amountCents > balance.availableBalanceCents) {
       await this.dialogService.alert(
-        `Le montant ne peut pas dépasser le solde disponible (${this.formatCents(balance.availableBalanceCents)})`,
-        'Erreur',
+        this.translate.instant('admin.accounting.amountExceedsBalance', { balance: this.formatCents(balance.availableBalanceCents) }),
+        this.translate.instant('errors.generic'),
         { variant: 'danger' }
       );
       return;
     }
 
     const confirmed = await this.dialogService.confirm(
-      `Confirmer le virement de ${this.formatCents(amountCents)} à ${balance.firstName} ${balance.lastName} ?`,
-      'Confirmer le virement',
-      { confirmText: 'Effectuer le virement', cancelText: 'Annuler', variant: 'info' }
+      this.translate.instant('admin.accounting.confirmTransferMsg', { amount: this.formatCents(amountCents), name: `${balance.firstName} ${balance.lastName}` }),
+      this.translate.instant('admin.accounting.confirmTransfer'),
+      { confirmText: this.translate.instant('admin.accounting.executeTransfer'), cancelText: this.translate.instant('common.cancel'), variant: 'info' }
     );
     if (!confirmed) return;
 
@@ -738,17 +752,17 @@ export class AccountingComponent implements OnInit, OnDestroy {
         this.payingTeacher.set(null);
         if (response.success) {
           const msg = response.stripeTransferId
-            ? `Virement effectué avec succès ! Réf: ${response.stripeTransferId}`
-            : 'Virement effectué avec succès !';
-          this.dialogService.alert(msg, 'Succès', { variant: 'success' });
+            ? this.translate.instant('admin.accounting.transferSuccessRef', { ref: response.stripeTransferId })
+            : this.translate.instant('admin.accounting.transferSuccess');
+          this.dialogService.alert(msg, this.translate.instant('common.success'), { variant: 'success' });
           this.loadData();
         } else {
-          this.dialogService.alert(response.message || 'Erreur lors du virement', 'Erreur', { variant: 'danger' });
+          this.dialogService.alert(response.message || this.translate.instant('errors.transferError'), this.translate.instant('errors.generic'), { variant: 'danger' });
         }
       },
       error: (err) => {
         this.payingTeacher.set(null);
-        this.dialogService.alert(err.error?.message || 'Erreur lors du virement', 'Erreur', { variant: 'danger' });
+        this.dialogService.alert(err.error?.message || this.translate.instant('errors.transferError'), this.translate.instant('errors.generic'), { variant: 'danger' });
       }
     });
   }

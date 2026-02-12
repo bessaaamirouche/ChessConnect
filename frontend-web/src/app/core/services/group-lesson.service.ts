@@ -40,6 +40,15 @@ export class GroupLessonService {
     return this.http.post<Record<string, any>>(`${this.apiUrl}/join/confirm`, null, { params });
   }
 
+  createGroupCheckout(request: BookGroupLessonRequest): Observable<CheckoutSessionResponse> {
+    return this.http.post<CheckoutSessionResponse>(`${this.apiUrl}/checkout`, request);
+  }
+
+  confirmCreatePayment(sessionId: string): Observable<Record<string, any>> {
+    const params = new HttpParams().set('sessionId', sessionId);
+    return this.http.post<Record<string, any>>(`${this.apiUrl}/create/confirm`, null, { params });
+  }
+
   resolveDeadline(lessonId: number, choice: 'PAY_FULL' | 'CANCEL'): Observable<Record<string, any>> {
     return this.http.post<Record<string, any>>(`${this.apiUrl}/${lessonId}/resolve-deadline`, { choice });
   }

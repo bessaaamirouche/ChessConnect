@@ -1,27 +1,27 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
-  selector: 'app-subscription-cancel',
-  standalone: true,
-  imports: [RouterLink],
-  template: `
+    selector: 'app-subscription-cancel',
+    imports: [RouterLink, TranslateModule],
+    template: `
     <div class="result-page">
       <div class="result-card">
         <div class="result-card__icon">✗</div>
-        <h1>Paiement annulé</h1>
-        <p>Vous avez annulé le processus de paiement.</p>
+        <h1>{{ 'subscriptionCancelled.title' | translate }}</h1>
+        <p>{{ 'subscriptionCancelled.description' | translate }}</p>
         <p class="result-card__details">
-          Pas de souci ! Vous pouvez toujours vous abonner plus tard.
+          {{ 'subscriptionCancelled.details' | translate }}
         </p>
         <div class="result-card__actions">
-          <a routerLink="/subscription" class="btn btn--primary btn--lg">Voir les abonnements</a>
-          <a routerLink="/dashboard" class="btn btn--ghost">Retour au dashboard</a>
+          <a routerLink="/subscription" class="btn btn--primary btn--lg">{{ 'subscriptionCancelled.viewPlans' | translate }}</a>
+          <a routerLink="/dashboard" class="btn btn--ghost">{{ 'subscriptionCancelled.backToDashboard' | translate }}</a>
         </div>
       </div>
     </div>
   `,
-  styles: [`
+    styles: [`
     .result-page {
       min-height: 100vh;
       display: flex;

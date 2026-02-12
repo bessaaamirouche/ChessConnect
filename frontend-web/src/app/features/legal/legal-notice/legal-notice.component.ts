@@ -6,12 +6,11 @@ import { PublicNavbarComponent, NavLink } from '../../../shared/components/publi
 import { FooterComponent } from '../../../shared/components/footer/footer.component';
 
 @Component({
-  selector: 'app-legal-notice',
-  standalone: true,
-  imports: [RouterLink, TranslateModule, PublicNavbarComponent, FooterComponent],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './legal-notice.component.html',
-  styleUrl: './legal-notice.component.scss'
+    selector: 'app-legal-notice',
+    imports: [RouterLink, TranslateModule, PublicNavbarComponent, FooterComponent],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    templateUrl: './legal-notice.component.html',
+    styleUrl: './legal-notice.component.scss'
 })
 export class LegalNoticeComponent {
   private seoService = inject(SeoService);

@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { ToastService, Toast } from '../../core/services/toast.service';
+import { TranslateModule } from '@ngx-translate/core';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   heroCheckCircle,
@@ -12,18 +13,17 @@ import {
 } from '@ng-icons/heroicons/outline';
 
 @Component({
-  selector: 'app-toast',
-  standalone: true,
-  imports: [NgIconComponent],
-  viewProviders: [provideIcons({
-    heroCheckCircle,
-    heroInformationCircle,
-    heroExclamationTriangle,
-    heroXCircle,
-    heroXMark,
-    heroAcademicCap
-  })],
-  template: `
+    selector: 'app-toast',
+    imports: [NgIconComponent, TranslateModule],
+    viewProviders: [provideIcons({
+            heroCheckCircle,
+            heroInformationCircle,
+            heroExclamationTriangle,
+            heroXCircle,
+            heroXMark,
+            heroAcademicCap
+        })],
+    template: `
     <div class="toast-container">
       @for (toast of toastService.toasts(); track toast.id) {
         <div
@@ -37,14 +37,14 @@ import {
             <ng-icon [name]="getIcon(toast.type)" class="toast__icon" size="22"></ng-icon>
           </div>
           <span class="toast__message">{{ toast.message }}</span>
-          <button class="toast__close" (click)="toastService.dismiss(toast.id); $event.stopPropagation()" aria-label="Fermer">
+          <button class="toast__close" (click)="toastService.dismiss(toast.id); $event.stopPropagation()" [attr.aria-label]="'common.close' | translate">
             <ng-icon name="heroXMark" size="18"></ng-icon>
           </button>
         </div>
       }
     </div>
   `,
-  styles: [`
+    styles: [`
     .toast-container {
       position: fixed;
       top: 1.5rem;

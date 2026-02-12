@@ -1,5 +1,6 @@
 import { Injectable, signal, inject, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { TranslateService } from '@ngx-translate/core';
 import { ToastService } from './toast.service';
 import { AuthService } from './auth.service';
 import { NotificationCenterService } from './notification-center.service';
@@ -36,6 +37,7 @@ export class NotificationService implements OnDestroy {
   private toastService = inject(ToastService);
   private authService = inject(AuthService);
   private notificationCenter = inject(NotificationCenterService);
+  private translate = inject(TranslateService);
 
   private pollingSubscription?: Subscription;
   private lastAvailabilities = signal<Map<number, AvailabilityInfo>>(new Map());
@@ -164,10 +166,10 @@ export class NotificationService implements OnDestroy {
       });
 
       byTeacher.forEach(({ teacherId }, teacherName) => {
-        const message = `M. ${teacherName} vient d'ajouter une disponibilité`;
+        const message = this.translate.instant('realTimeNotifications.newAvailabilityMsg', { name: teacherName });
         const link = `/book/${teacherId}`;
         this.toastService.info(message, 8000, link);
-        this.notificationCenter.info('Nouvelle disponibilité', message, link);
+        this.notificationCenter.info(this.translate.instant('realTimeNotifications.newAvailability'), message, link);
       });
     }
   }
@@ -182,22 +184,22 @@ export class NotificationService implements OnDestroy {
         console.log('[Notification] Lesson status changed:', id, previousLesson.status, '->', newLesson.status);
 
         if (newLesson.status === 'CONFIRMED') {
-          const message = `M. ${newLesson.teacherName} a confirmé votre cours`;
+          const message = this.translate.instant('realTimeNotifications.lessonConfirmedMsg', { name: newLesson.teacherName });
           this.toastService.success(message, 8000, '/lessons');
-          this.notificationCenter.success('Cours confirmé', message, '/lessons');
+          this.notificationCenter.success(this.translate.instant('realTimeNotifications.lessonConfirmed'), message, '/lessons');
         } else if (newLesson.status === 'CANCELLED') {
-          const message = `M. ${newLesson.teacherName} a annulé votre cours`;
+          const message = this.translate.instant('realTimeNotifications.lessonCancelledByCoach', { name: newLesson.teacherName });
           this.toastService.error(message, 10000, '/lessons');
-          this.notificationCenter.error('Cours annulé', message, '/lessons');
+          this.notificationCenter.error(this.translate.instant('realTimeNotifications.lessonCancelled'), message, '/lessons');
         }
       }
 
       // Check if teacher just joined the video call
       if (previousLesson && !previousLesson.teacherJoinedAt && newLesson.teacherJoinedAt) {
         console.log('[Notification] Teacher joined video call for lesson:', id);
-        const message = `M. ${newLesson.teacherName} vous attend dans l'appel vidéo`;
+        const message = this.translate.instant('realTimeNotifications.videoCallMsg', { name: newLesson.teacherName });
         this.toastService.success(message, 15000, `/lessons?openCall=${id}`);
-        this.notificationCenter.success('Appel vidéo', message, `/lessons?openCall=${id}`);
+        this.notificationCenter.success(this.translate.instant('realTimeNotifications.videoCall'), message, `/lessons?openCall=${id}`);
       }
     });
   }
@@ -216,9 +218,9 @@ export class NotificationService implements OnDestroy {
     // Show notification for each new reservation
     newReservations.forEach(lesson => {
       console.log('[Notification] New reservation from:', lesson.studentName);
-      const message = `Nouvelle réservation de ${lesson.studentName}`;
+      const message = this.translate.instant('realTimeNotifications.newBookingMsg', { name: lesson.studentName });
       this.toastService.info(message, 8000, '/lessons');
-      this.notificationCenter.info('Nouvelle réservation', message, '/lessons');
+      this.notificationCenter.info(this.translate.instant('realTimeNotifications.newBooking'), message, '/lessons');
     });
   }
 
@@ -232,9 +234,9 @@ export class NotificationService implements OnDestroy {
         console.log('[Notification] Teacher lesson status changed:', id, previousLesson.status, '->', newLesson.status);
 
         if (newLesson.status === 'CANCELLED') {
-          const message = `${newLesson.studentName} a annulé son cours`;
+          const message = this.translate.instant('realTimeNotifications.lessonCancelledByPlayer', { name: newLesson.studentName });
           this.toastService.error(message, 10000, '/lessons');
-          this.notificationCenter.error('Cours annulé', message, '/lessons');
+          this.notificationCenter.error(this.translate.instant('realTimeNotifications.lessonCancelled'), message, '/lessons');
         }
       }
     });
@@ -296,8 +298,8 @@ export class NotificationService implements OnDestroy {
           lessonsMap.set(l.id, {
             id: l.id,
             status: l.status,
-            teacherName: l.teacherName?.split(' ').pop() || 'Coach', // Get last name
-            studentName: l.studentName || 'Joueur',
+            teacherName: l.teacherName?.split(' ').pop() || this.translate.instant('realTimeNotifications.coach'), // Get last name
+            studentName: l.studentName || this.translate.instant('realTimeNotifications.player'),
             teacherJoinedAt: l.teacherJoinedAt || undefined
           });
         });

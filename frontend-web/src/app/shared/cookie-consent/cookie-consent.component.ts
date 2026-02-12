@@ -1,14 +1,14 @@
 import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterLink } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { CookieConsentService } from '../../core/services/cookie-consent.service';
 
 @Component({
-  selector: 'app-cookie-consent',
-  standalone: true,
-  imports: [CommonModule, RouterLink],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
+    selector: 'app-cookie-consent',
+    imports: [RouterLink, TranslateModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    template: `
     @if (cookieService.showBanner()) {
       <div class="cookie-banner" [@slideIn]>
         <div class="cookie-content">
@@ -23,18 +23,18 @@ import { CookieConsentService } from '../../core/services/cookie-consent.service
             </svg>
           </div>
           <p class="cookie-text">
-            Nous utilisons des cookies analytiques pour améliorer votre expérience.
-            <a routerLink="/privacy" (click)="closeBanner()">En savoir plus</a>
+            {{ 'cookies.message' | translate }}
+            <a routerLink="/privacy" (click)="closeBanner()">{{ 'cookies.learnMore' | translate }}</a>
           </p>
         </div>
         <div class="cookie-actions">
-          <button class="btn btn--ghost" (click)="reject()">Refuser</button>
-          <button class="btn btn--primary" (click)="accept()">Accepter</button>
+          <button class="btn btn--ghost" (click)="reject()">{{ 'cookies.reject' | translate }}</button>
+          <button class="btn btn--primary" (click)="accept()">{{ 'cookies.accept' | translate }}</button>
         </div>
       </div>
     }
   `,
-  styles: [`
+    styles: [`
     .cookie-banner {
       position: fixed;
       bottom: 1.5rem;

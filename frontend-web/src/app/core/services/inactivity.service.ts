@@ -1,5 +1,6 @@
 import { Injectable, NgZone, OnDestroy, inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import { TranslateService } from '@ngx-translate/core';
 import { AuthService } from './auth.service';
 import { DialogService } from './dialog.service';
 import { Router } from '@angular/router';
@@ -19,6 +20,7 @@ export class InactivityService implements OnDestroy {
   private boundResetTimer: () => void;
   private dialogService = inject(DialogService);
   private platformId = inject(PLATFORM_ID);
+  private translate = inject(TranslateService);
 
   constructor(
     private authService: AuthService,
@@ -143,9 +145,9 @@ export class InactivityService implements OnDestroy {
 
     this.ngZone.run(async () => {
       const stay = await this.dialogService.confirm(
-        'Vous allez être déconnecté dans 5 minutes pour inactivité. Voulez-vous rester connecté ?',
-        'Session inactive',
-        { confirmText: 'Rester connecté', cancelText: 'Se déconnecter', variant: 'warning' }
+        this.translate.instant('inactivity.message'),
+        this.translate.instant('inactivity.title'),
+        { confirmText: this.translate.instant('inactivity.stayConnected'), cancelText: this.translate.instant('inactivity.disconnect'), variant: 'warning' }
       );
       if (stay) {
         this.resetTimer();
@@ -160,8 +162,8 @@ export class InactivityService implements OnDestroy {
     this.clearStoredActivity();
     this.authService.logout();
     this.dialogService.alert(
-      'Vous avez été déconnecté pour inactivité (plus d\'une heure sans activité).',
-      'Déconnexion',
+      this.translate.instant('inactivity.disconnectedMessage'),
+      this.translate.instant('inactivity.disconnectedTitle'),
       { variant: 'warning' }
     );
   }

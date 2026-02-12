@@ -78,7 +78,7 @@
         @if (!stripeConnectReady()) {
           <div class="alert alert--warning">
             <ng-icon name="heroExclamationTriangle" size="18"></ng-icon>
-            <span>{{ 'dashboard.earnings.stripeWarning' | translate }} <a routerLink="/settings" class="link">{{ 'settings.profile.title' | translate }}</a></span>
+            <span>{{ 'dashboard.earnings.stripeWarning' | translate }} <a routerLink="/settings" class="link">{{ 'settings.profile.title' | translate }}</a> {{ 'dashboard.earnings.stripeWarningEnd' | translate }}</span>
           </div>
         }
 
@@ -228,7 +228,7 @@
                 <div class="lesson-card__content">
                   <h4>{{ 'dashboard.teacherLessons.lessonWith' | translate }} {{ lesson.studentName }}</h4>
                   <span class="badge" [class]="statusLabels[lesson.status].cssClass">
-                    {{ statusLabels[lesson.status].label }}
+                    {{ statusLabels[lesson.status].labelKey | translate }}
                   </span>
                 </div>
                 <div class="lesson-card__actions">

@@ -130,7 +130,7 @@ export class AuthService {
     switch (role) {
       case 'STUDENT': return '/dashboard';
       case 'TEACHER': return '/dashboard';
-      case 'ADMIN': return '/admin';
+      case 'ADMIN': return '/mint/dashboard';
       default: return '/';
     }
   }

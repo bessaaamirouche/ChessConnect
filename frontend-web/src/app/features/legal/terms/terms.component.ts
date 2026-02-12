@@ -6,12 +6,11 @@ import { PublicNavbarComponent, NavLink } from '../../../shared/components/publi
 import { FooterComponent } from '../../../shared/components/footer/footer.component';
 
 @Component({
-  selector: 'app-terms',
-  standalone: true,
-  imports: [RouterLink, TranslateModule, PublicNavbarComponent, FooterComponent],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './terms.component.html',
-  styleUrl: './terms.component.scss'
+    selector: 'app-terms',
+    imports: [RouterLink, TranslateModule, PublicNavbarComponent, FooterComponent],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    templateUrl: './terms.component.html',
+    styleUrl: './terms.component.scss'
 })
 export class TermsComponent {
   private seoService = inject(SeoService);

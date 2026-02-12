@@ -1,6 +1,7 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap, catchError } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
 import { QuizQuestion, QuizSubmitRequest, QuizResult, QuizAnswer } from '../models/quiz.model';
 import { ChessLevel } from '../models/user.model';
 
@@ -74,6 +75,8 @@ export class QuizService {
     return grouped;
   });
 
+  private translate = inject(TranslateService);
+
   constructor(private http: HttpClient) {}
 
   loadQuestions(): Observable<QuizQuestion[]> {
@@ -87,7 +90,7 @@ export class QuizService {
         this.loadingSignal.set(false);
       }),
       catchError(error => {
-        this.errorSignal.set('Impossible de charger les questions');
+        this.errorSignal.set(this.translate.instant('errors.loadQuestions'));
         this.loadingSignal.set(false);
         throw error;
       })
@@ -134,7 +137,7 @@ export class QuizService {
         this.submittingSignal.set(false);
       }),
       catchError(error => {
-        this.errorSignal.set('Erreur lors de la soumission du quiz');
+        this.errorSignal.set(this.translate.instant('errors.quizSubmit'));
         this.submittingSignal.set(false);
         throw error;
       })

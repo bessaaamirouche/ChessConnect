@@ -1,5 +1,5 @@
-import { Component, OnInit, signal, computed, inject, effect } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, signal, computed, inject, effect, untracked } from '@angular/core';
+
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
@@ -17,25 +17,27 @@ import { VideoPlayerComponent } from '../../shared/components/video-player/video
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
+import { paginate } from '../../core/utils/pagination';
+import { PaginationComponent } from '../../shared/components/pagination/pagination.component';
 
 @Component({
-  selector: 'app-library',
-  standalone: true,
-  imports: [CommonModule, FormsModule, NgIconComponent, VideoPlayerComponent, PageHeaderComponent, TranslateModule],
-  viewProviders: [provideIcons({
-    heroMagnifyingGlass,
-    heroPlay,
-    heroFilm,
-    heroCalendarDays,
-    heroXMark,
-    heroTrash,
-    heroPlaySolid
-  })],
-  templateUrl: './library.component.html',
-  styleUrl: './library.component.scss'
+    selector: 'app-library',
+    imports: [FormsModule, NgIconComponent, VideoPlayerComponent, PageHeaderComponent, TranslateModule, PaginationComponent],
+    viewProviders: [provideIcons({
+            heroMagnifyingGlass,
+            heroPlay,
+            heroFilm,
+            heroCalendarDays,
+            heroXMark,
+            heroTrash,
+            heroPlaySolid
+        })],
+    templateUrl: './library.component.html',
+    styleUrl: './library.component.scss'
 })
 export class LibraryComponent implements OnInit {
   private libraryService = inject(LibraryService);
+  private translate = inject(TranslateService);
   private searchSubject = new Subject<string>();
 
   // Filters
@@ -63,6 +65,8 @@ export class LibraryComponent implements OnInit {
     );
   });
 
+  pagination = paginate(this.filteredVideos, 10);
+
   // Period options (using translation keys)
   periodOptions = [
     { value: '', labelKey: 'library.periods.all' },
@@ -73,6 +77,11 @@ export class LibraryComponent implements OnInit {
   ];
 
   constructor() {
+    effect(() => {
+      this.filteredVideos();
+      untracked(() => this.pagination.currentPage.set(0));
+    });
+
     // Debounced search - triggers API call
     this.searchSubject.pipe(
       debounceTime(300),
@@ -155,7 +164,7 @@ export class LibraryComponent implements OnInit {
 
   deleteVideo(video: Video, event: Event): void {
     event.stopPropagation();
-    if (confirm('Supprimer cette video de votre bibliotheque ?')) {
+    if (confirm(this.translate.instant('library.video.deleteConfirm'))) {
       this.libraryService.deleteVideo(video.lessonId).subscribe();
     }
   }
@@ -172,12 +181,12 @@ export class LibraryComponent implements OnInit {
     const diffMs = now.getTime() - date.getTime();
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
-    if (diffDays === 0) return "Aujourd'hui";
-    if (diffDays === 1) return 'Hier';
-    if (diffDays < 7) return `Il y a ${diffDays} jours`;
-    if (diffDays < 30) return `Il y a ${Math.floor(diffDays / 7)} semaine${Math.floor(diffDays / 7) > 1 ? 's' : ''}`;
-    if (diffDays < 365) return `Il y a ${Math.floor(diffDays / 30)} mois`;
-    return `Il y a ${Math.floor(diffDays / 365)} an${Math.floor(diffDays / 365) > 1 ? 's' : ''}`;
+    if (diffDays === 0) return this.translate.instant('relativeTime.today');
+    if (diffDays === 1) return this.translate.instant('relativeTime.yesterday');
+    if (diffDays < 7) return this.translate.instant('relativeTime.daysAgo', { count: diffDays });
+    if (diffDays < 30) return this.translate.instant('relativeTime.weeksAgo', { count: Math.floor(diffDays / 7) });
+    if (diffDays < 365) return this.translate.instant('relativeTime.monthsAgo', { count: Math.floor(diffDays / 30) });
+    return this.translate.instant('relativeTime.yearsAgo', { count: Math.floor(diffDays / 365) });
   }
 
   formatDate(dateStr: string): string {

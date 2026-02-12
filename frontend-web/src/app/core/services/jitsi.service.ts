@@ -7,6 +7,7 @@ export interface JitsiTokenResponse {
   roomName: string;
   domain: string;
   isModerator: boolean;
+  recordingEnabled: boolean;
 }
 
 @Injectable({

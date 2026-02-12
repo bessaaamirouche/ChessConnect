@@ -415,6 +415,60 @@ public class PaymentController {
                 }
             }
 
+            // Detect group lesson create sessions (notes starts with "GROUP_CREATE:")
+            if (notes != null && notes.startsWith("GROUP_CREATE:")) {
+                log.info("Detected group create payment for user {} — delegating to group-lessons/create/confirm", userId);
+                // Redirect logic handled by GroupLessonController.confirmCreatePayment
+                // but also support it here for return_url fallback
+                int targetGroupSize = Integer.parseInt(notes.substring("GROUP_CREATE:".length()).trim());
+                Long teacherId = Long.parseLong(metadata.get("teacher_id"));
+                LocalDateTime scheduledAt = LocalDateTime.parse(metadata.get("scheduled_at"));
+                int durationMinutes = Integer.parseInt(metadata.get("duration_minutes"));
+                String courseIdStr = metadata.get("course_id");
+                Long courseId = (courseIdStr != null && !courseIdStr.isEmpty()) ? Long.parseLong(courseIdStr) : null;
+
+                try {
+                    var request = new com.chessconnect.dto.group.BookGroupLessonRequest(
+                            teacherId, scheduledAt, durationMinutes, null, targetGroupSize, courseId
+                    );
+                    var groupResponse = groupLessonService.createGroupLesson(userId, request);
+
+                    // Create payment record
+                    User student = userRepository.findById(userId).orElseThrow();
+                    User teacher = userRepository.findById(teacherId).orElseThrow();
+                    Lesson lesson = lessonRepository.findById(groupResponse.lesson().id()).orElseThrow();
+                    int pricePerPerson = com.chessconnect.service.GroupPricingCalculator.calculateParticipantPrice(
+                            teacher.getHourlyRateCents(), targetGroupSize);
+                    String paymentIntentId = session.getPaymentIntent();
+
+                    Payment payment = new Payment();
+                    payment.setPayer(student);
+                    payment.setTeacher(teacher);
+                    payment.setLesson(lesson);
+                    payment.setPaymentType(PaymentType.ONE_TIME_LESSON);
+                    payment.setAmountCents(pricePerPerson);
+                    payment.setStripePaymentIntentId(paymentIntentId);
+                    payment.setStatus(PaymentStatus.COMPLETED);
+                    payment.setProcessedAt(LocalDateTime.now());
+                    paymentRepository.save(payment);
+
+                    if (paymentIntentId != null && pricePerPerson > 0) {
+                        invoiceService.generateInvoicesForPayment(
+                                paymentIntentId, userId, teacherId, lesson.getId(), pricePerPerson, false
+                        );
+                    }
+
+                    return ResponseEntity.ok(Map.of(
+                            "success", true,
+                            "lessonId", groupResponse.lesson().id(),
+                            "invitationToken", groupResponse.invitationToken(),
+                            "message", "Cours en groupe cree avec succes"
+                    ));
+                } catch (IllegalArgumentException e) {
+                    throw e;
+                }
+            }
+
             Long teacherId = Long.parseLong(metadata.get("teacher_id"));
             LocalDateTime scheduledAt = LocalDateTime.parse(metadata.get("scheduled_at"));
             int durationMinutes = Integer.parseInt(metadata.get("duration_minutes"));

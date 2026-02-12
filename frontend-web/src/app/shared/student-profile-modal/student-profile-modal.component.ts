@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, signal, OnInit } from '@angular/core';
+import { Component, signal, OnInit, input, output } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -18,27 +18,29 @@ import {
 } from '@ng-icons/heroicons/outline';
 
 @Component({
-  selector: 'app-student-profile-modal',
-  standalone: true,
-  imports: [NgIconComponent, DecimalPipe, FormsModule, TranslateModule],
-  viewProviders: [provideIcons({
-    heroXMark,
-    heroCheckCircle,
-    heroLockClosed,
-    heroClock,
-    heroCheckBadge,
-    heroChevronDown,
-    heroChevronUp,
-    heroAcademicCap
-  })],
-  templateUrl: './student-profile-modal.component.html',
-  styleUrl: './student-profile-modal.component.scss'
+    selector: 'app-student-profile-modal',
+    imports: [NgIconComponent, DecimalPipe, FormsModule, TranslateModule],
+    viewProviders: [provideIcons({
+            heroXMark,
+            heroCheckCircle,
+            heroLockClosed,
+            heroClock,
+            heroCheckBadge,
+            heroChevronDown,
+            heroChevronUp,
+            heroAcademicCap
+        })],
+    templateUrl: './student-profile-modal.component.html',
+    styleUrl: './student-profile-modal.component.scss'
 })
 export class StudentProfileModalComponent implements OnInit {
-  @Input() studentId!: number;
-  @Output() close = new EventEmitter<void>();
-  @Output() courseValidated = new EventEmitter<{ studentId: number; courseId: number }>();
-  @Output() closedWithoutValidation = new EventEmitter<number>();
+  readonly studentId = input.required<number>();
+  readonly close = output<void>();
+  readonly courseValidated = output<{
+    studentId: number;
+    courseId: number;
+}>();
+  readonly closedWithoutValidation = output<number>();
 
   private hasValidatedCourse = false;
   expandedGrade = signal<ChessLevel | null>(null);
@@ -57,17 +59,19 @@ export class StudentProfileModalComponent implements OnInit {
   constructor(public learningPathService: LearningPathService) {}
 
   ngOnInit(): void {
-    if (this.studentId) {
-      this.learningPathService.getStudentProfile(this.studentId).subscribe();
+    const studentId = this.studentId();
+    if (studentId) {
+      this.learningPathService.getStudentProfile(studentId).subscribe();
     }
   }
 
   closeModal(): void {
     // If no course was validated during this session, emit reminder event
     if (!this.hasValidatedCourse) {
-      this.closedWithoutValidation.emit(this.studentId);
+      this.closedWithoutValidation.emit(this.studentId());
     }
     this.learningPathService.clearStudentProfile();
+    // TODO: The 'emit' function requires a mandatory void argument
     this.close.emit();
   }
 
@@ -95,11 +99,11 @@ export class StudentProfileModalComponent implements OnInit {
     }
 
     this.validatingCourse.set(course.id);
-    this.learningPathService.validateCourse(this.studentId, course.id).subscribe({
+    this.learningPathService.validateCourse(this.studentId(), course.id).subscribe({
       next: () => {
         this.validatingCourse.set(null);
         this.hasValidatedCourse = true;
-        this.courseValidated.emit({ studentId: this.studentId, courseId: course.id });
+        this.courseValidated.emit({ studentId: this.studentId(), courseId: course.id });
       },
       error: () => {
         this.validatingCourse.set(null);
@@ -115,7 +119,7 @@ export class StudentProfileModalComponent implements OnInit {
     if (this.settingLevel()) return;
 
     this.settingLevel.set(true);
-    this.learningPathService.setStudentLevel(this.studentId, this.selectedLevel()).subscribe({
+    this.learningPathService.setStudentLevel(this.studentId(), this.selectedLevel()).subscribe({
       next: () => {
         this.settingLevel.set(false);
       },

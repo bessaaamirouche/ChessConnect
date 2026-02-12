@@ -1,5 +1,6 @@
-import { Component, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, signal, inject, ChangeDetectionStrategy } from '@angular/core';
+import { SlicePipe } from '@angular/common';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AdminService, StripeConnectAccount } from '../../../core/services/admin.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
@@ -13,57 +14,56 @@ import {
 } from '@ng-icons/heroicons/outline';
 
 @Component({
-  selector: 'app-stripe-connect',
-  standalone: true,
-  imports: [CommonModule, NgIconComponent],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  viewProviders: [provideIcons({
-    heroCheckCircle,
-    heroXCircle,
-    heroArrowTopRightOnSquare,
-    heroExclamationTriangle,
-    heroBanknotes,
-    heroArrowPath
-  })],
-  template: `
+    selector: 'app-stripe-connect',
+    imports: [SlicePipe, NgIconComponent, TranslateModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    viewProviders: [provideIcons({
+            heroCheckCircle,
+            heroXCircle,
+            heroArrowTopRightOnSquare,
+            heroExclamationTriangle,
+            heroBanknotes,
+            heroArrowPath
+        })],
+    template: `
     <div class="stripe-connect-page">
       <div class="page-header">
-        <h1>Stripe Connect</h1>
-        <p class="page-subtitle">Gerez les comptes Stripe des coachs</p>
+        <h1>{{ 'admin.stripeConnect.title' | translate }}</h1>
+        <p class="page-subtitle">{{ 'admin.stripeConnect.subtitle' | translate }}</p>
         <button class="btn btn--ghost btn--sm" (click)="loadAccounts()">
           <ng-icon name="heroArrowPath" size="16"></ng-icon>
-          Actualiser
+          {{ 'admin.stripeConnect.refresh' | translate }}
         </button>
       </div>
 
       @if (loading()) {
         <div class="loading-state">
           <div class="spinner"></div>
-          <p>Chargement des comptes Stripe...</p>
+          <p>{{ 'admin.stripeConnect.loadingAccounts' | translate }}</p>
         </div>
       } @else if (error()) {
         <div class="error-state">
           <ng-icon name="heroExclamationTriangle" size="48"></ng-icon>
           <p>{{ error() }}</p>
-          <button class="btn btn--primary" (click)="loadAccounts()">Reessayer</button>
+          <button class="btn btn--primary" (click)="loadAccounts()">{{ 'admin.stripeConnect.retry' | translate }}</button>
         </div>
       } @else {
         <div class="stats-row">
           <div class="stat-card">
             <div class="stat-value">{{ accounts().length }}</div>
-            <div class="stat-label">Total coachs</div>
+            <div class="stat-label">{{ 'admin.stripeConnect.totalCoaches' | translate }}</div>
           </div>
           <div class="stat-card stat-card--success">
             <div class="stat-value">{{ accountsReady }}</div>
-            <div class="stat-label">Comptes actifs</div>
+            <div class="stat-label">{{ 'admin.stripeConnect.activeAccounts' | translate }}</div>
           </div>
           <div class="stat-card stat-card--warning">
             <div class="stat-value">{{ accountsPending }}</div>
-            <div class="stat-label">En attente</div>
+            <div class="stat-label">{{ 'admin.stripeConnect.pending' | translate }}</div>
           </div>
           <div class="stat-card stat-card--danger">
             <div class="stat-value">{{ accountsNotConfigured }}</div>
-            <div class="stat-label">Non configures</div>
+            <div class="stat-label">{{ 'admin.stripeConnect.notConfigured' | translate }}</div>
           </div>
         </div>
 
@@ -71,11 +71,11 @@ import {
           <table>
             <thead>
               <tr>
-                <th>Coach</th>
-                <th>Email</th>
-                <th>Compte Stripe</th>
-                <th>Statut</th>
-                <th>Actions</th>
+                <th>{{ 'admin.stripeConnect.coach' | translate }}</th>
+                <th>{{ 'admin.stripeConnect.email' | translate }}</th>
+                <th>{{ 'admin.stripeConnect.stripeAccount' | translate }}</th>
+                <th>{{ 'admin.stripeConnect.status' | translate }}</th>
+                <th>{{ 'admin.stripeConnect.actions' | translate }}</th>
               </tr>
             </thead>
             <tbody>
@@ -87,24 +87,24 @@ import {
                     @if (account.stripeAccountId) {
                       <code>{{ account.stripeAccountId | slice:0:20 }}...</code>
                     } @else {
-                      <span class="not-configured">Non configure</span>
+                      <span class="not-configured">{{ 'admin.stripeConnect.stripeNotConfigured' | translate }}</span>
                     }
                   </td>
                   <td>
                     @if (account.isReady) {
                       <span class="status status--success">
                         <ng-icon name="heroCheckCircle" size="16"></ng-icon>
-                        Actif
+                        {{ 'admin.stripeConnect.active' | translate }}
                       </span>
                     } @else if (account.hasStripeAccount && !account.isReady) {
                       <span class="status status--warning">
                         <ng-icon name="heroExclamationTriangle" size="16"></ng-icon>
-                        En attente
+                        {{ 'admin.stripeConnect.pending' | translate }}
                       </span>
                     } @else {
                       <span class="status status--danger">
                         <ng-icon name="heroXCircle" size="16"></ng-icon>
-                        Non configure
+                        {{ 'admin.stripeConnect.stripeNotConfigured' | translate }}
                       </span>
                     }
                   </td>
@@ -114,26 +114,26 @@ import {
                         class="btn btn--ghost btn--sm"
                         (click)="openExpressDashboard(account)"
                         [disabled]="loadingDashboard() === account.teacherId"
-                        title="Ouvrir Express Dashboard"
+                        [title]="'admin.stripeConnect.openDashboard' | translate"
                       >
                         @if (loadingDashboard() === account.teacherId) {
                           <span class="spinner spinner--sm"></span>
                         } @else {
                           <ng-icon name="heroArrowTopRightOnSquare" size="16"></ng-icon>
                         }
-                        Dashboard
+                        {{ 'admin.stripeConnect.dashboard' | translate }}
                       </button>
                     }
                     @if (account.pendingRequirements) {
                       <span class="pending-info" [title]="account.pendingRequirements">
-                        Documents requis
+                        {{ 'admin.stripeConnect.documentsRequired' | translate }}
                       </span>
                     }
                   </td>
                 </tr>
               } @empty {
                 <tr>
-                  <td colspan="5" class="empty-state">Aucun coach trouve</td>
+                  <td colspan="5" class="empty-state">{{ 'admin.stripeConnect.noCoachFound' | translate }}</td>
                 </tr>
               }
             </tbody>
@@ -142,7 +142,7 @@ import {
       }
     </div>
   `,
-  styles: [`
+    styles: [`
     .stripe-connect-page {
       padding: var(--space-lg);
     }
@@ -322,6 +322,8 @@ export class StripeConnectComponent implements OnInit {
   error = signal<string | null>(null);
   loadingDashboard = signal<number | null>(null);
 
+  private translate = inject(TranslateService);
+
   constructor(
     private adminService: AdminService,
     private toastService: ToastService
@@ -341,7 +343,7 @@ export class StripeConnectComponent implements OnInit {
         this.loading.set(false);
       },
       error: (err) => {
-        this.error.set(err.error?.message || 'Erreur lors du chargement');
+        this.error.set(err.error?.message || this.translate.instant('errors.load'));
         this.loading.set(false);
       }
     });
@@ -368,12 +370,12 @@ export class StripeConnectComponent implements OnInit {
         if (response.success && response.dashboardUrl) {
           window.open(response.dashboardUrl, '_blank');
         } else {
-          this.toastService.error(response.message || 'Erreur');
+          this.toastService.error(response.message || this.translate.instant('errors.generic'));
         }
       },
       error: (err) => {
         this.loadingDashboard.set(null);
-        this.toastService.error(err.error?.message || 'Erreur');
+        this.toastService.error(err.error?.message || this.translate.instant('errors.generic'));
       }
     });
   }

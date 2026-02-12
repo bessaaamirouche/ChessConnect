@@ -1,6 +1,7 @@
-import { Component, Input, Output, EventEmitter, signal, OnInit } from '@angular/core';
+import { Component, signal, OnInit, input, output, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { LearningPathService } from '../../core/services/learning-path.service';
 import { Course } from '../../core/models/learning-path.model';
 import { ChessLevel, CHESS_LEVELS } from '../../core/models/user.model';
@@ -21,27 +22,26 @@ interface FirstLessonResponse {
 }
 
 @Component({
-  selector: 'app-student-evaluation-modal',
-  standalone: true,
-  imports: [NgIconComponent, FormsModule],
-  viewProviders: [provideIcons({
-    heroXMark,
-    heroCheckCircle,
-    heroAcademicCap,
-    heroChevronDown,
-    heroChevronUp,
-    heroLockClosed
-  })],
-  template: `
+    selector: 'app-student-evaluation-modal',
+    imports: [NgIconComponent, FormsModule, TranslateModule],
+    viewProviders: [provideIcons({
+            heroXMark,
+            heroCheckCircle,
+            heroAcademicCap,
+            heroChevronDown,
+            heroChevronUp,
+            heroLockClosed
+        })],
+    template: `
     <div class="modal-backdrop" (click)="onBackdropClick($event)">
       <div class="modal">
         <!-- Header -->
         <header class="modal__header">
           <h2 class="modal__title">
             @if (isFirstLesson()) {
-              Évaluation du joueur
+              {{ 'evaluation.title' | translate }}
             } @else {
-              Validation des cours
+              {{ 'evaluation.validationTitle' | translate }}
             }
           </h2>
           <button class="modal__close" (click)="closeModal()">
@@ -52,7 +52,7 @@ interface FirstLessonResponse {
         @if (loading()) {
           <div class="modal__loading">
             <span class="spinner spinner--lg"></span>
-            <p>Chargement...</p>
+            <p>{{ 'common.loading' | translate }}</p>
           </div>
         } @else {
           <div class="modal__content">
@@ -61,12 +61,12 @@ interface FirstLessonResponse {
               <div class="evaluation-mode">
                 <div class="evaluation-mode__header">
                   <ng-icon name="heroAcademicCap" size="48" class="evaluation-mode__icon"></ng-icon>
-                  <h3>Premier cours avec {{ studentName() }}</h3>
-                  <p>Définissez le niveau de ce joueur après avoir évalué ses compétences.</p>
+                  <h3>{{ 'evaluation.firstLessonWith' | translate }} {{ studentName() }}</h3>
+                  <p>{{ 'evaluation.setLevelInstruction' | translate }}</p>
                 </div>
 
                 <div class="level-selection">
-                  <label class="level-selection__label">Niveau évalué :</label>
+                  <label class="level-selection__label">{{ 'evaluation.evaluatedLevel' | translate }}</label>
                   <div class="level-selection__options">
                     @for (level of chessLevels; track level.value) {
                       <button
@@ -76,8 +76,8 @@ interface FirstLessonResponse {
                         (click)="selectedLevel.set(level.value)"
                       >
                         <span class="level-option__icon">{{ level.icon }}</span>
-                        <span class="level-option__label">{{ level.label }}</span>
-                        <span class="level-option__description">{{ level.description }}</span>
+                        <span class="level-option__label">{{ level.labelKey | translate }}</span>
+                        <span class="level-option__description">{{ level.descriptionKey | translate }}</span>
                       </button>
                     }
                   </div>
@@ -85,7 +85,7 @@ interface FirstLessonResponse {
 
                 <div class="modal__actions">
                   <button class="btn btn--ghost" (click)="closeModal()">
-                    Plus tard
+                    {{ 'common.back' | translate }}
                   </button>
                   <button
                     class="btn btn--primary"
@@ -95,7 +95,7 @@ interface FirstLessonResponse {
                     @if (settingLevel()) {
                       <span class="spinner spinner--xs"></span>
                     } @else {
-                      Définir le niveau
+                      {{ 'evaluation.setLevel' | translate }}
                     }
                   </button>
                 </div>
@@ -104,8 +104,8 @@ interface FirstLessonResponse {
               <!-- Returning Student Mode: Validate courses -->
               <div class="validation-mode">
                 <div class="validation-mode__header">
-                  <h3>Cours avec {{ studentName() }}</h3>
-                  <p>Validez les cours que ce joueur a maîtrisés.</p>
+                  <h3>{{ 'evaluation.lessonsWith' | translate }} {{ studentName() }}</h3>
+                  <p>{{ 'evaluation.validateInstruction' | translate }}</p>
                 </div>
 
                 @if (learningPathService.studentProfile()) {
@@ -135,7 +135,7 @@ interface FirstLessonResponse {
                                     @case ('COMPLETED') {
                                       <span class="course-row__status course-row__status--completed">
                                         <ng-icon name="heroCheckCircle" size="18"></ng-icon>
-                                        Validé
+                                        {{ 'evaluation.validated' | translate }}
                                       </span>
                                     }
                                     @case ('IN_PROGRESS') {
@@ -147,7 +147,7 @@ interface FirstLessonResponse {
                                         @if (validatingCourse() === course.id) {
                                           <span class="spinner spinner--xs"></span>
                                         } @else {
-                                          Valider
+                                          {{ 'common.confirm' | translate }}
                                         }
                                       </button>
                                     }
@@ -160,7 +160,7 @@ interface FirstLessonResponse {
                                         @if (validatingCourse() === course.id) {
                                           <span class="spinner spinner--xs"></span>
                                         } @else {
-                                          Valider
+                                          {{ 'common.confirm' | translate }}
                                         }
                                       </button>
                                     }
@@ -182,10 +182,10 @@ interface FirstLessonResponse {
 
                 <div class="modal__actions">
                   <button class="btn btn--ghost" (click)="closeModal()">
-                    Plus tard
+                    {{ 'common.back' | translate }}
                   </button>
                   <button class="btn btn--primary" (click)="closeModal()">
-                    Terminé
+                    {{ 'common.done' | translate }}
                   </button>
                 </div>
               </div>
@@ -195,7 +195,7 @@ interface FirstLessonResponse {
       </div>
     </div>
   `,
-  styles: [`
+    styles: [`
     .modal-backdrop {
       position: fixed;
       top: 0;
@@ -543,11 +543,17 @@ interface FirstLessonResponse {
   `]
 })
 export class StudentEvaluationModalComponent implements OnInit {
-  @Input() studentId!: number;
-  @Input() lessonId!: number;
-  @Output() close = new EventEmitter<void>();
-  @Output() levelSet = new EventEmitter<{ studentId: number; level: ChessLevel }>();
-  @Output() courseValidated = new EventEmitter<{ studentId: number; courseId: number }>();
+  readonly studentId = input.required<number>();
+  readonly lessonId = input.required<number>();
+  readonly close = output<void>();
+  readonly levelSet = output<{
+    studentId: number;
+    level: ChessLevel;
+}>();
+  readonly courseValidated = output<{
+    studentId: number;
+    courseId: number;
+}>();
 
   loading = signal(true);
   isFirstLesson = signal(false);
@@ -558,11 +564,11 @@ export class StudentEvaluationModalComponent implements OnInit {
   validatingCourse = signal<number | null>(null);
 
   // 4 levels mapped to chess pieces: A→Pion, B→Cavalier, C→Reine, D→Roi
-  readonly chessLevels: { value: ChessLevel; label: string; description: string; icon: string }[] = [
-    { value: 'A', label: 'Pion', description: 'Débutant', icon: '♟' },
-    { value: 'B', label: 'Cavalier', description: 'Intermédiaire', icon: '♞' },
-    { value: 'C', label: 'Reine', description: 'Avancé', icon: '♛' },
-    { value: 'D', label: 'Roi', description: 'Expert', icon: '♚' }
+  readonly chessLevels: { value: ChessLevel; labelKey: string; descriptionKey: string; icon: string }[] = [
+    { value: 'A', labelKey: 'evaluation.levels.pawn', descriptionKey: 'evaluation.levels.beginner', icon: '♟' },
+    { value: 'B', labelKey: 'evaluation.levels.knight', descriptionKey: 'evaluation.levels.intermediate', icon: '♞' },
+    { value: 'C', labelKey: 'evaluation.levels.queen', descriptionKey: 'evaluation.levels.advanced', icon: '♛' },
+    { value: 'D', labelKey: 'evaluation.levels.king', descriptionKey: 'evaluation.levels.expert', icon: '♚' }
   ];
 
   constructor(
@@ -575,14 +581,14 @@ export class StudentEvaluationModalComponent implements OnInit {
   }
 
   private checkFirstLesson(): void {
-    this.http.get<FirstLessonResponse>(`/api/lessons/is-first-lesson/${this.studentId}`).subscribe({
+    this.http.get<FirstLessonResponse>(`/api/lessons/is-first-lesson/${this.studentId()}`).subscribe({
       next: (response) => {
         this.isFirstLesson.set(response.isFirstLesson);
         this.studentName.set(response.studentName);
 
         if (!response.isFirstLesson) {
           // Load student profile for course validation
-          this.learningPathService.getStudentProfile(this.studentId).subscribe({
+          this.learningPathService.getStudentProfile(this.studentId()).subscribe({
             next: () => this.loading.set(false),
             error: () => this.loading.set(false)
           });
@@ -593,7 +599,7 @@ export class StudentEvaluationModalComponent implements OnInit {
       error: () => {
         // Fallback: assume not first lesson and load profile
         this.isFirstLesson.set(false);
-        this.learningPathService.getStudentProfile(this.studentId).subscribe({
+        this.learningPathService.getStudentProfile(this.studentId()).subscribe({
           next: () => this.loading.set(false),
           error: () => this.loading.set(false)
         });
@@ -603,6 +609,7 @@ export class StudentEvaluationModalComponent implements OnInit {
 
   closeModal(): void {
     this.learningPathService.clearStudentProfile();
+    // TODO: The 'emit' function requires a mandatory void argument
     this.close.emit();
   }
 
@@ -616,10 +623,10 @@ export class StudentEvaluationModalComponent implements OnInit {
     if (this.settingLevel()) return;
 
     this.settingLevel.set(true);
-    this.learningPathService.setStudentLevel(this.studentId, this.selectedLevel()).subscribe({
+    this.learningPathService.setStudentLevel(this.studentId(), this.selectedLevel()).subscribe({
       next: () => {
         this.settingLevel.set(false);
-        this.levelSet.emit({ studentId: this.studentId, level: this.selectedLevel() });
+        this.levelSet.emit({ studentId: this.studentId(), level: this.selectedLevel() });
         this.closeModal();
       },
       error: () => {
@@ -642,10 +649,10 @@ export class StudentEvaluationModalComponent implements OnInit {
     }
 
     this.validatingCourse.set(course.id);
-    this.learningPathService.validateCourse(this.studentId, course.id).subscribe({
+    this.learningPathService.validateCourse(this.studentId(), course.id).subscribe({
       next: () => {
         this.validatingCourse.set(null);
-        this.courseValidated.emit({ studentId: this.studentId, courseId: course.id });
+        this.courseValidated.emit({ studentId: this.studentId(), courseId: course.id });
       },
       error: () => {
         this.validatingCourse.set(null);

@@ -7,7 +7,7 @@ import { SeoService } from '../../core/services/seo.service';
 import { UrlValidatorService } from '../../core/services/url-validator.service';
 import { SubscriptionPlan } from '../../core/models/subscription.model';
 import { EmbeddedCheckoutComponent } from '../../shared/embedded-checkout/embedded-checkout.component';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   heroChartBarSquare,
@@ -36,37 +36,36 @@ import {
 } from '@ng-icons/heroicons/outline';
 
 @Component({
-  selector: 'app-subscription',
-  standalone: true,
-  imports: [RouterLink, DatePipe, NgIconComponent, EmbeddedCheckoutComponent, TranslateModule],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  viewProviders: [provideIcons({
-    heroChartBarSquare,
-    heroCalendarDays,
-    heroTrophy,
-    heroCreditCard,
-    heroAcademicCap,
-    heroUserCircle,
-    heroArrowRightOnRectangle,
-    heroBanknotes,
-    heroArrowTrendingUp,
-    heroCheck,
-    heroXMark,
-    heroInformationCircle,
-    heroSparkles,
-    heroVideoCamera,
-    heroBell,
-    heroClock,
-    heroChartBar,
-    heroPlayPause,
-    heroPuzzlePiece,
-    heroPlayCircle,
-    heroArrowPath,
-    heroBellAlert,
-    heroCpuChip
-  })],
-  templateUrl: './subscription.component.html',
-  styleUrl: './subscription.component.scss'
+    selector: 'app-subscription',
+    imports: [RouterLink, DatePipe, NgIconComponent, EmbeddedCheckoutComponent, TranslateModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    viewProviders: [provideIcons({
+            heroChartBarSquare,
+            heroCalendarDays,
+            heroTrophy,
+            heroCreditCard,
+            heroAcademicCap,
+            heroUserCircle,
+            heroArrowRightOnRectangle,
+            heroBanknotes,
+            heroArrowTrendingUp,
+            heroCheck,
+            heroXMark,
+            heroInformationCircle,
+            heroSparkles,
+            heroVideoCamera,
+            heroBell,
+            heroClock,
+            heroChartBar,
+            heroPlayPause,
+            heroPuzzlePiece,
+            heroPlayCircle,
+            heroArrowPath,
+            heroBellAlert,
+            heroCpuChip
+        })],
+    templateUrl: './subscription.component.html',
+    styleUrl: './subscription.component.scss'
 })
 export class SubscriptionComponent implements OnInit {
   processingPlan = signal<SubscriptionPlan | null>(null);
@@ -82,6 +81,7 @@ export class SubscriptionComponent implements OnInit {
   selectedPlanName = signal<string>('');
 
   private urlValidator = inject(UrlValidatorService);
+  private translate = inject(TranslateService);
 
   constructor(
     public paymentService: PaymentService,
@@ -119,7 +119,7 @@ export class SubscriptionComponent implements OnInit {
 
     // Find plan display name
     const planDetails = this.paymentService.plans().find(p => p.code === plan);
-    this.selectedPlanName.set(planDetails?.name || 'Abonnement');
+    this.selectedPlanName.set(planDetails?.name || this.translate.instant('subscription.title'));
 
     this.paymentService.createSubscriptionCheckout(plan, true).subscribe({
       next: (response) => {

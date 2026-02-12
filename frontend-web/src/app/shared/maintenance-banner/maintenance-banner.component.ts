@@ -1,9 +1,11 @@
 import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { MaintenanceService } from '../../core/services/maintenance.service';
 
 @Component({
   selector: 'app-maintenance-banner',
   standalone: true,
+  imports: [TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (maintenanceService.isMaintenanceMode()) {
@@ -17,7 +19,7 @@ import { MaintenanceService } from '../../core/services/maintenance.service';
             </svg>
           </div>
           <p class="maintenance-text">
-            {{ maintenanceService.message() || 'mychess est actuellement en maintenance. Les réservations et paiements sont temporairement suspendus.' }}
+            {{ maintenanceService.message() || ('maintenanceBanner.message' | translate) }}
           </p>
         </div>
       </div>

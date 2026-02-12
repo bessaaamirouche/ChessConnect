@@ -48,12 +48,20 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
     // Find all invoices for a specific lesson
     List<Invoice> findByLessonId(Long lessonId);
 
-    // Delete by user (for cascade delete)
+    // Nullify customer FK when user is deleted (preserves invoice for legal retention)
     @Modifying
-    void deleteByCustomerId(Long customerId);
+    @Query("UPDATE Invoice i SET i.customer = null WHERE i.customer.id = :customerId")
+    void nullifyCustomerId(@Param("customerId") Long customerId);
 
+    // Nullify issuer FK when user is deleted (preserves invoice for legal retention)
     @Modifying
-    void deleteByIssuerId(Long issuerId);
+    @Query("UPDATE Invoice i SET i.issuer = null WHERE i.issuer.id = :issuerId")
+    void nullifyIssuerId(@Param("issuerId") Long issuerId);
+
+    // Nullify original_invoice FK for credit notes referencing invoices of a deleted user
+    @Modifying
+    @Query("UPDATE Invoice i SET i.originalInvoice = null WHERE i.originalInvoice.customer.id = :userId OR i.originalInvoice.issuer.id = :userId")
+    void nullifyOriginalInvoiceByUserId(@Param("userId") Long userId);
 
     // Nullify lesson references before deleting lessons (preserves invoices for accounting)
     @Modifying

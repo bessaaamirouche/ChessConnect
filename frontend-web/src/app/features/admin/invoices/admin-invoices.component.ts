@@ -1,5 +1,5 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, signal, computed, effect, untracked } from '@angular/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
@@ -10,30 +10,31 @@ import {
   heroFunnel
 } from '@ng-icons/heroicons/outline';
 import { InvoiceService, Invoice } from '../../../core/services/invoice.service';
+import { paginate, PaginationState } from '../../../core/utils/pagination';
+import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 
 @Component({
-  selector: 'app-admin-invoices',
-  standalone: true,
-  imports: [CommonModule, FormsModule, NgIconComponent],
-  providers: [
-    provideIcons({
-      heroDocumentText,
-      heroArrowDownTray,
-      heroArrowPath,
-      heroMagnifyingGlass,
-      heroFunnel
-    })
-  ],
-  template: `
+    selector: 'app-admin-invoices',
+    imports: [FormsModule, NgIconComponent, TranslateModule, PaginationComponent],
+    providers: [
+        provideIcons({
+            heroDocumentText,
+            heroArrowDownTray,
+            heroArrowPath,
+            heroMagnifyingGlass,
+            heroFunnel
+        })
+    ],
+    template: `
     <div class="admin-invoices">
       <header class="page-header">
         <div class="header-content">
-          <h1>Toutes les Factures</h1>
-          <p class="subtitle">Consultez toutes les factures de la plateforme</p>
+          <h1>{{ 'admin.invoices.title' | translate }}</h1>
+          <p class="subtitle">{{ 'admin.invoices.subtitle' | translate }}</p>
         </div>
         <button class="btn btn--ghost" (click)="refresh()" [disabled]="loading()">
           <ng-icon name="heroArrowPath" [class.spin]="loading()"></ng-icon>
-          Actualiser
+          {{ 'admin.invoices.refresh' | translate }}
         </button>
       </header>
 
@@ -41,15 +42,15 @@ import { InvoiceService, Invoice } from '../../../core/services/invoice.service'
       <div class="stats-row">
         <div class="stat-card">
           <span class="stat-value">{{ invoices().length }}</span>
-          <span class="stat-label">Total factures</span>
+          <span class="stat-label">{{ 'admin.invoices.totalInvoices' | translate }}</span>
         </div>
         <div class="stat-card">
           <span class="stat-value">{{ formatCents(totalRevenue()) }}</span>
-          <span class="stat-label">CA Total</span>
+          <span class="stat-label">{{ 'admin.invoices.totalRevenue' | translate }}</span>
         </div>
         <div class="stat-card">
           <span class="stat-value">{{ paidCount() }}</span>
-          <span class="stat-label">Payées</span>
+          <span class="stat-label">{{ 'admin.invoices.paid' | translate }}</span>
         </div>
       </div>
 
@@ -59,35 +60,35 @@ import { InvoiceService, Invoice } from '../../../core/services/invoice.service'
           <ng-icon name="heroMagnifyingGlass"></ng-icon>
           <input
             type="text"
-            placeholder="Rechercher par numéro, client, émetteur..."
+            [placeholder]="'admin.invoices.searchPlaceholder' | translate"
             [ngModel]="searchQuery()"
             (ngModelChange)="searchQuery.set($event)"
           >
         </div>
         <select class="filter-select" [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
-          <option value="">Tous les statuts</option>
-          <option value="PAID">Payées</option>
-          <option value="PENDING">En attente</option>
+          <option value="">{{ 'admin.invoices.allStatuses' | translate }}</option>
+          <option value="PAID">{{ 'admin.invoices.paid' | translate }}</option>
+          <option value="PENDING">{{ 'admin.invoices.pending' | translate }}</option>
         </select>
         <select class="filter-select" [ngModel]="typeFilter()" (ngModelChange)="typeFilter.set($event)">
-          <option value="">Tous les types</option>
-          <option value="LESSON_INVOICE">Cours</option>
-          <option value="COMMISSION_INVOICE">Commission</option>
-          <option value="PAYOUT_INVOICE">Virement</option>
+          <option value="">{{ 'admin.invoices.allTypes' | translate }}</option>
+          <option value="LESSON_INVOICE">{{ 'admin.invoices.lesson' | translate }}</option>
+          <option value="COMMISSION_INVOICE">{{ 'admin.invoices.commission' | translate }}</option>
+          <option value="PAYOUT_INVOICE">{{ 'admin.invoices.transfer' | translate }}</option>
         </select>
         <input
           type="date"
           class="filter-date"
           [value]="startDate()"
           (change)="startDate.set($any($event.target).value)"
-          placeholder="Du"
+          [placeholder]="'admin.invoices.dateFrom' | translate"
         >
         <input
           type="date"
           class="filter-date"
           [value]="endDate()"
           (change)="endDate.set($any($event.target).value)"
-          placeholder="Au"
+          [placeholder]="'admin.invoices.dateTo' | translate"
         >
       </div>
 
@@ -95,7 +96,7 @@ import { InvoiceService, Invoice } from '../../../core/services/invoice.service'
       @if (loading()) {
         <div class="loading-state">
           <ng-icon name="heroArrowPath" class="spin"></ng-icon>
-          <span>Chargement des factures...</span>
+          <span>{{ 'admin.invoices.loading' | translate }}</span>
         </div>
       }
 
@@ -103,35 +104,35 @@ import { InvoiceService, Invoice } from '../../../core/services/invoice.service'
       @if (!loading() && filteredInvoices().length === 0) {
         <div class="empty-state">
           <ng-icon name="heroDocumentText" class="empty-icon"></ng-icon>
-          <h3>Aucune facture</h3>
-          <p>Aucune facture trouvée</p>
+          <h3>{{ 'admin.invoices.noInvoices' | translate }}</h3>
+          <p>{{ 'admin.invoices.noResults' | translate }}</p>
         </div>
       }
 
       <!-- Invoices Table -->
-      @if (!loading() && filteredInvoices().length > 0) {
+      @if (!loading() && pagination.totalItems() > 0) {
         <div class="table-container">
           <table class="invoices-table">
             <thead>
               <tr>
-                <th>Numéro</th>
-                <th>Type</th>
+                <th>{{ 'admin.invoices.number' | translate }}</th>
+                <th>{{ 'admin.invoices.type' | translate }}</th>
                 <th class="sortable" (click)="toggleSort('issuedAt')">
-                  Date
+                  {{ 'admin.invoices.date' | translate }}
                   @if (sortColumn() === 'issuedAt') {
                     <span>{{ sortDirection() === 'asc' ? '▲' : '▼' }}</span>
                   }
                 </th>
-                <th>Émetteur</th>
-                <th>Client</th>
-                <th>Description</th>
-                <th>Montant</th>
-                <th>Statut</th>
-                <th>Actions</th>
+                <th>{{ 'admin.invoices.issuer' | translate }}</th>
+                <th>{{ 'admin.invoices.client' | translate }}</th>
+                <th>{{ 'admin.invoices.description' | translate }}</th>
+                <th>{{ 'admin.invoices.amount' | translate }}</th>
+                <th>{{ 'admin.invoices.status' | translate }}</th>
+                <th>{{ 'admin.invoices.actions' | translate }}</th>
               </tr>
             </thead>
             <tbody>
-              @for (invoice of filteredInvoices(); track invoice.id) {
+              @for (invoice of pagination.paginatedItems(); track invoice.id) {
                 <tr>
                   <td class="invoice-number">{{ invoice.invoiceNumber }}</td>
                   <td>
@@ -146,7 +147,7 @@ import { InvoiceService, Invoice } from '../../../core/services/invoice.service'
                   <td class="amount">{{ formatCents(invoice.totalCents) }}</td>
                   <td>
                     <span class="status-badge" [class.paid]="invoice.status === 'PAID'">
-                      {{ invoice.status === 'PAID' ? 'Payée' : 'En attente' }}
+                      {{ invoice.status === 'PAID' ? ('admin.invoices.paidStatus' | translate) : ('admin.invoices.pendingStatus' | translate) }}
                     </span>
                   </td>
                   <td>
@@ -154,7 +155,7 @@ import { InvoiceService, Invoice } from '../../../core/services/invoice.service'
                       class="btn-icon"
                       (click)="downloadPdf(invoice)"
                       [disabled]="downloadingId() === invoice.id"
-                      title="Télécharger PDF"
+                      [title]="'admin.invoices.downloadPdf' | translate"
                     >
                       @if (downloadingId() === invoice.id) {
                         <ng-icon name="heroArrowPath" class="spin"></ng-icon>
@@ -168,10 +169,20 @@ import { InvoiceService, Invoice } from '../../../core/services/invoice.service'
             </tbody>
           </table>
         </div>
+
+        <app-pagination
+          [currentPage]="pagination.currentPage()"
+          [totalPages]="pagination.totalPages()"
+          [totalItems]="pagination.totalItems()"
+          [startItem]="pagination.startItem()"
+          [endItem]="pagination.endItem()"
+          [visiblePages]="pagination.visiblePages()"
+          (pageChange)="pagination.goToPage($event)"
+        />
       }
     </div>
   `,
-  styles: [`
+    styles: [`
     .admin-invoices {
       padding: 0;
     }
@@ -502,6 +513,7 @@ import { InvoiceService, Invoice } from '../../../core/services/invoice.service'
 })
 export class AdminInvoicesComponent implements OnInit {
   private invoiceService = inject(InvoiceService);
+  private translate = inject(TranslateService);
 
   invoices = signal<Invoice[]>([]);
   loading = signal(false);
@@ -559,6 +571,8 @@ export class AdminInvoicesComponent implements OnInit {
     return result;
   });
 
+  pagination = paginate(this.filteredInvoices, 10);
+
   totalRevenue = computed(() => {
     return this.invoices().reduce((sum, inv) => sum + inv.totalCents, 0);
   });
@@ -566,6 +580,13 @@ export class AdminInvoicesComponent implements OnInit {
   paidCount = computed(() => {
     return this.invoices().filter(inv => inv.status === 'PAID').length;
   });
+
+  constructor() {
+    effect(() => {
+      this.filteredInvoices();
+      untracked(() => this.pagination.currentPage.set(0));
+    });
+  }
 
   ngOnInit(): void {
     this.loadInvoices();
@@ -615,9 +636,9 @@ export class AdminInvoicesComponent implements OnInit {
 
   getInvoiceTypeLabel(type: string): string {
     switch (type) {
-      case 'LESSON_INVOICE': return 'Cours';
-      case 'COMMISSION_INVOICE': return 'Commission';
-      case 'PAYOUT_INVOICE': return 'Virement';
+      case 'LESSON_INVOICE': return this.translate.instant('admin.invoices.lesson');
+      case 'COMMISSION_INVOICE': return this.translate.instant('admin.invoices.commission');
+      case 'PAYOUT_INVOICE': return this.translate.instant('admin.invoices.transfer');
       default: return type;
     }
   }

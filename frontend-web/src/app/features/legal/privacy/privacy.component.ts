@@ -6,12 +6,11 @@ import { PublicNavbarComponent, NavLink } from '../../../shared/components/publi
 import { FooterComponent } from '../../../shared/components/footer/footer.component';
 
 @Component({
-  selector: 'app-privacy',
-  standalone: true,
-  imports: [RouterLink, TranslateModule, PublicNavbarComponent, FooterComponent],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './privacy.component.html',
-  styleUrl: './privacy.component.scss'
+    selector: 'app-privacy',
+    imports: [RouterLink, TranslateModule, PublicNavbarComponent, FooterComponent],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    templateUrl: './privacy.component.html',
+    styleUrl: './privacy.component.scss'
 })
 export class PrivacyComponent {
   private seoService = inject(SeoService);

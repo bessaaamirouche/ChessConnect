@@ -1,22 +1,20 @@
-import { Component, computed, inject, signal, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, computed, DestroyRef, inject, signal, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterOutlet } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Subscription } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
 import { AppSidebarComponent, SidebarSection } from '../../../shared/components/app-sidebar/app-sidebar.component';
 
 @Component({
-  selector: 'app-admin-layout',
-  standalone: true,
-  imports: [CommonModule, RouterOutlet, AppSidebarComponent, TranslateModule],
-  templateUrl: './admin-layout.component.html',
-  styleUrl: './admin-layout.component.scss'
+    selector: 'app-admin-layout',
+    imports: [RouterOutlet, AppSidebarComponent, TranslateModule],
+    templateUrl: './admin-layout.component.html',
+    styleUrl: './admin-layout.component.scss'
 })
-export class AdminLayoutComponent implements OnInit, OnDestroy {
+export class AdminLayoutComponent implements OnInit {
   private authService = inject(AuthService);
   private translate = inject(TranslateService);
-  private langSubscription?: Subscription;
+  private destroyRef = inject(DestroyRef);
 
   sidebarCollapsed = signal(false);
   private currentLang = signal(this.translate.currentLang || this.translate.defaultLang);
@@ -27,13 +25,9 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // Subscribe to language changes to trigger sidebar recomputation
-    this.langSubscription = this.translate.onLangChange.subscribe(event => {
+    this.translate.onLangChange.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(event => {
       this.currentLang.set(event.lang);
     });
-  }
-
-  ngOnDestroy(): void {
-    this.langSubscription?.unsubscribe();
   }
 
   sidebarSections = computed<SidebarSection[]>(() => {
@@ -44,14 +38,14 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
       {
         title: this.translate.instant('sidebar.adminDashboard'),
         items: [
-          { label: this.translate.instant('sidebar.overview'), icon: 'heroChartBarSquare', route: '/admin/dashboard' },
-          { label: this.translate.instant('sidebar.users'), icon: 'heroUsers', route: '/admin/users' },
-          { label: this.translate.instant('sidebar.lessons'), icon: 'heroCalendarDays', route: '/admin/lessons' },
-          { label: this.translate.instant('sidebar.accounting'), icon: 'heroBanknotes', route: '/admin/accounting' },
-          { label: this.translate.instant('sidebar.stripeConnect'), icon: 'heroCreditCard', route: '/admin/stripe-connect' },
-          { label: this.translate.instant('sidebar.invoices'), icon: 'heroDocumentText', route: '/admin/invoices' },
-          { label: this.translate.instant('sidebar.blogAdmin'), icon: 'heroNewspaper', route: '/admin/blog' },
-          { label: this.translate.instant('sidebar.messages'), icon: 'heroChatBubbleLeftRight', route: '/admin/messages' }
+          { label: this.translate.instant('sidebar.overview'), icon: 'heroChartBarSquare', route: '/mint/dashboard' },
+          { label: this.translate.instant('sidebar.users'), icon: 'heroUsers', route: '/mint/users' },
+          { label: this.translate.instant('sidebar.lessons'), icon: 'heroCalendarDays', route: '/mint/lessons' },
+          { label: this.translate.instant('sidebar.accounting'), icon: 'heroBanknotes', route: '/mint/accounting' },
+          { label: this.translate.instant('sidebar.stripeConnect'), icon: 'heroCreditCard', route: '/mint/stripe-connect' },
+          { label: this.translate.instant('sidebar.invoices'), icon: 'heroDocumentText', route: '/mint/invoices' },
+          { label: this.translate.instant('sidebar.blogAdmin'), icon: 'heroNewspaper', route: '/mint/blog' },
+          { label: this.translate.instant('sidebar.messages'), icon: 'heroChatBubbleLeftRight', route: '/mint/messages' }
         ]
       },
       {

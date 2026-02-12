@@ -1,6 +1,7 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap, catchError, of } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
 import { LearningPath, Course, GradeWithCourses, NextCourse } from '../models/learning-path.model';
 import { StudentProfile } from '../models/student-profile.model';
 import { ChessLevel, CHESS_LEVELS } from '../models/user.model';
@@ -37,6 +38,8 @@ export class LearningPathService {
     this.learningPathSignal()?.overallProgressPercentage ?? 0
   );
 
+  private translate = inject(TranslateService);
+
   constructor(private http: HttpClient) {}
 
   loadLearningPath(): Observable<LearningPath> {
@@ -49,7 +52,7 @@ export class LearningPathService {
         this.loadingSignal.set(false);
       }),
       catchError(error => {
-        this.errorSignal.set('Impossible de charger le parcours');
+        this.errorSignal.set(this.translate.instant('errors.loadPath'));
         this.loadingSignal.set(false);
         throw error;
       })
@@ -66,7 +69,7 @@ export class LearningPathService {
         this.loadingSignal.set(false);
       }),
       catchError(error => {
-        this.errorSignal.set('Impossible de charger le cours');
+        this.errorSignal.set(this.translate.instant('errors.loadCourse'));
         this.loadingSignal.set(false);
         throw error;
       })
@@ -109,7 +112,7 @@ export class LearningPathService {
         this.loadingSignal.set(false);
       }),
       catchError(error => {
-        this.errorSignal.set('Impossible de charger le coachil');
+        this.errorSignal.set(this.translate.instant('errors.loadCoach'));
         this.loadingSignal.set(false);
         throw error;
       })

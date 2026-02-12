@@ -2,8 +2,11 @@ package com.chessconnect.controller;
 
 import com.chessconnect.dto.group.*;
 import com.chessconnect.dto.lesson.LessonResponse;
+import com.chessconnect.dto.payment.CheckoutSessionResponse;
+import com.chessconnect.model.Payment;
 import com.chessconnect.model.User;
 import com.chessconnect.model.enums.LessonStatus;
+import com.chessconnect.model.enums.PaymentType;
 import com.chessconnect.model.enums.UserRole;
 import com.chessconnect.repository.GroupInvitationRepository;
 import com.chessconnect.repository.LessonRepository;
@@ -16,6 +19,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -24,6 +28,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.*;
@@ -290,6 +295,289 @@ class GroupLessonControllerTest {
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(response.getBody()).containsEntry("success", true);
             assertThat((String) response.getBody().get("message")).contains("prive");
+        }
+    }
+
+    // ─── CREATE CHECKOUT (Stripe) ───────────────────────────────
+
+    @Nested
+    @DisplayName("POST /checkout (createCheckout)")
+    class CreateCheckout {
+
+        @Test
+        @DisplayName("Should return checkout session with clientSecret")
+        void shouldReturnCheckoutSession() throws Exception {
+            BookGroupLessonRequest request = new BookGroupLessonRequest(
+                    10L, LocalDateTime.now().plusDays(3), 60, null, 2, null);
+
+            when(userRepository.findById(10L)).thenReturn(java.util.Optional.of(teacher));
+            when(userRepository.findById(1L)).thenReturn(java.util.Optional.of(student));
+
+            com.stripe.model.checkout.Session mockSession = mock(com.stripe.model.checkout.Session.class);
+            when(mockSession.getId()).thenReturn("cs_test_123");
+            when(mockSession.getClientSecret()).thenReturn("cs_secret_abc");
+            when(stripeService.createLessonPaymentSession(
+                    any(), eq(10L), eq(3000), anyString(), anyString(), eq(60), eq("GROUP_CREATE:2"), eq(true), isNull()
+            )).thenReturn(mockSession);
+            when(stripeService.getPublishableKey()).thenReturn("pk_test_xyz");
+
+            ResponseEntity<?> response = controller.createCheckout(studentDetails, request);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            CheckoutSessionResponse body = (CheckoutSessionResponse) response.getBody();
+            assertThat(body).isNotNull();
+            assertThat(body.getSessionId()).isEqualTo("cs_test_123");
+            assertThat(body.getClientSecret()).isEqualTo("cs_secret_abc");
+            assertThat(body.getPublishableKey()).isEqualTo("pk_test_xyz");
+        }
+
+        @Test
+        @DisplayName("Should calculate correct price for group of 3")
+        void shouldCalculateCorrectPriceForGroupOf3() throws Exception {
+            BookGroupLessonRequest request = new BookGroupLessonRequest(
+                    10L, LocalDateTime.now().plusDays(3), 60, null, 3, null);
+
+            when(userRepository.findById(10L)).thenReturn(java.util.Optional.of(teacher));
+            when(userRepository.findById(1L)).thenReturn(java.util.Optional.of(student));
+
+            com.stripe.model.checkout.Session mockSession = mock(com.stripe.model.checkout.Session.class);
+            when(mockSession.getId()).thenReturn("cs_test");
+            when(mockSession.getClientSecret()).thenReturn("cs_secret");
+            // 5000 * 45% = 2250 for group of 3
+            when(stripeService.createLessonPaymentSession(
+                    any(), eq(10L), eq(2250), anyString(), anyString(), eq(60), eq("GROUP_CREATE:3"), eq(true), isNull()
+            )).thenReturn(mockSession);
+            when(stripeService.getPublishableKey()).thenReturn("pk_test");
+
+            ResponseEntity<?> response = controller.createCheckout(studentDetails, request);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            verify(stripeService).createLessonPaymentSession(
+                    any(), eq(10L), eq(2250), anyString(), anyString(), eq(60), eq("GROUP_CREATE:3"), eq(true), isNull()
+            );
+        }
+
+        @Test
+        @DisplayName("Should return 502 on StripeException")
+        void shouldReturn502OnStripeError() throws Exception {
+            BookGroupLessonRequest request = new BookGroupLessonRequest(
+                    10L, LocalDateTime.now().plusDays(3), 60, null, 2, null);
+
+            when(userRepository.findById(10L)).thenReturn(java.util.Optional.of(teacher));
+            when(userRepository.findById(1L)).thenReturn(java.util.Optional.of(student));
+            when(stripeService.createLessonPaymentSession(
+                    any(), anyLong(), anyInt(), anyString(), anyString(), anyInt(), anyString(), anyBoolean(), any()
+            )).thenThrow(new com.stripe.exception.ApiException("Stripe down", null, null, 500, null));
+
+            ResponseEntity<?> response = controller.createCheckout(studentDetails, request);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_GATEWAY);
+        }
+
+        @Test
+        @DisplayName("Should return 400 if teacher not found")
+        void shouldReturn400IfTeacherNotFound() {
+            BookGroupLessonRequest request = new BookGroupLessonRequest(
+                    99L, LocalDateTime.now().plusDays(3), 60, null, 2, null);
+
+            when(userRepository.findById(99L)).thenReturn(java.util.Optional.empty());
+
+            ResponseEntity<?> response = controller.createCheckout(studentDetails, request);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    // ─── CONFIRM CREATE PAYMENT (Stripe) ─────────────────────────
+
+    @Nested
+    @DisplayName("POST /create/confirm (confirmCreatePayment)")
+    class ConfirmCreatePayment {
+
+        private com.stripe.model.checkout.Session buildMockStripeSession(
+                String paymentStatus, String userId, String teacherId,
+                String scheduledAt, String duration, String notes, String courseId,
+                String paymentIntentId
+        ) {
+            com.stripe.model.checkout.Session session = mock(com.stripe.model.checkout.Session.class);
+            lenient().when(session.getPaymentStatus()).thenReturn(paymentStatus);
+            lenient().when(session.getPaymentIntent()).thenReturn(paymentIntentId);
+            Map<String, String> metadata = new HashMap<>();
+            if (userId != null) metadata.put("user_id", userId);
+            if (teacherId != null) metadata.put("teacher_id", teacherId);
+            if (scheduledAt != null) metadata.put("scheduled_at", scheduledAt);
+            if (duration != null) metadata.put("duration_minutes", duration);
+            if (notes != null) metadata.put("notes", notes);
+            if (courseId != null) metadata.put("course_id", courseId);
+            lenient().when(session.getMetadata()).thenReturn(metadata);
+            return session;
+        }
+
+        @Test
+        @DisplayName("Should create group lesson after successful Stripe payment")
+        void shouldCreateGroupLessonAfterPayment() throws Exception {
+            LocalDateTime scheduledAt = LocalDateTime.now().plusDays(3);
+            com.stripe.model.checkout.Session session = buildMockStripeSession(
+                    "paid", "1", "10", scheduledAt.toString(), "60",
+                    "GROUP_CREATE:2", null, "pi_test_123"
+            );
+            when(stripeService.retrieveSession("cs_test")).thenReturn(session);
+
+            GroupLessonResponse mockResponse = buildMockResponse(100L, "invite-token");
+            when(groupLessonService.createGroupLesson(eq(1L), any(BookGroupLessonRequest.class))).thenReturn(mockResponse);
+            when(userRepository.findById(1L)).thenReturn(java.util.Optional.of(student));
+            when(userRepository.findById(10L)).thenReturn(java.util.Optional.of(teacher));
+
+            com.chessconnect.model.Lesson lesson = new com.chessconnect.model.Lesson();
+            lesson.setId(100L);
+            when(lessonRepository.findById(100L)).thenReturn(java.util.Optional.of(lesson));
+            when(paymentRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+            ResponseEntity<Map<String, Object>> response = controller.confirmCreatePayment("cs_test");
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(response.getBody()).containsEntry("success", true);
+            assertThat(response.getBody()).containsEntry("invitationToken", "invite-token");
+            assertThat(response.getBody()).containsKey("lessonId");
+
+            // Verify payment record with Stripe payment intent
+            ArgumentCaptor<Payment> paymentCaptor = ArgumentCaptor.forClass(Payment.class);
+            verify(paymentRepository).save(paymentCaptor.capture());
+            Payment savedPayment = paymentCaptor.getValue();
+            assertThat(savedPayment.getPaymentType()).isEqualTo(PaymentType.ONE_TIME_LESSON);
+            assertThat(savedPayment.getStripePaymentIntentId()).isEqualTo("pi_test_123");
+            assertThat(savedPayment.getAmountCents()).isEqualTo(3000); // 60% of 5000
+
+            // Verify invoice generated
+            verify(invoiceService).generateInvoicesForPayment(
+                    "pi_test_123", 1L, 10L, 100L, 3000, false
+            );
+        }
+
+        @Test
+        @DisplayName("Should return 400 if payment not paid")
+        void shouldReturn400IfNotPaid() throws Exception {
+            com.stripe.model.checkout.Session session = buildMockStripeSession(
+                    "unpaid", "1", "10", LocalDateTime.now().toString(), "60",
+                    "GROUP_CREATE:2", null, null
+            );
+            when(stripeService.retrieveSession("cs_test")).thenReturn(session);
+
+            ResponseEntity<Map<String, Object>> response = controller.confirmCreatePayment("cs_test");
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            assertThat(response.getBody()).containsEntry("success", false);
+            verify(groupLessonService, never()).createGroupLesson(anyLong(), any());
+        }
+
+        @Test
+        @DisplayName("Should return 400 if user_id missing from metadata")
+        void shouldReturn400IfUserIdMissing() throws Exception {
+            com.stripe.model.checkout.Session session = buildMockStripeSession(
+                    "paid", null, "10", LocalDateTime.now().toString(), "60",
+                    "GROUP_CREATE:2", null, "pi_test"
+            );
+            when(stripeService.retrieveSession("cs_test")).thenReturn(session);
+
+            ResponseEntity<Map<String, Object>> response = controller.confirmCreatePayment("cs_test");
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            assertThat(response.getBody()).containsEntry("error", "Identifiant utilisateur introuvable");
+        }
+
+        @Test
+        @DisplayName("Should return 400 if notes not GROUP_CREATE format")
+        void shouldReturn400IfNotGroupCreateFormat() throws Exception {
+            com.stripe.model.checkout.Session session = buildMockStripeSession(
+                    "paid", "1", "10", LocalDateTime.now().toString(), "60",
+                    "some random notes", null, "pi_test"
+            );
+            when(stripeService.retrieveSession("cs_test")).thenReturn(session);
+
+            ResponseEntity<Map<String, Object>> response = controller.confirmCreatePayment("cs_test");
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            assertThat(response.getBody()).containsEntry("error", "Session invalide pour un cours en groupe");
+        }
+
+        @Test
+        @DisplayName("Should return 400 if notes is null")
+        void shouldReturn400IfNotesNull() throws Exception {
+            com.stripe.model.checkout.Session session = buildMockStripeSession(
+                    "paid", "1", "10", LocalDateTime.now().toString(), "60",
+                    null, null, "pi_test"
+            );
+            when(stripeService.retrieveSession("cs_test")).thenReturn(session);
+
+            ResponseEntity<Map<String, Object>> response = controller.confirmCreatePayment("cs_test");
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            assertThat(response.getBody()).containsEntry("error", "Session invalide pour un cours en groupe");
+        }
+
+        @Test
+        @DisplayName("Should return 502 on StripeException")
+        void shouldReturn502OnStripeError() throws Exception {
+            when(stripeService.retrieveSession("cs_test"))
+                    .thenThrow(new com.stripe.exception.ApiException("Stripe error", null, null, 500, null));
+
+            ResponseEntity<Map<String, Object>> response = controller.confirmCreatePayment("cs_test");
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_GATEWAY);
+        }
+
+        @Test
+        @DisplayName("Should pass courseId from metadata when present")
+        void shouldPassCourseIdWhenPresent() throws Exception {
+            LocalDateTime scheduledAt = LocalDateTime.now().plusDays(3);
+            com.stripe.model.checkout.Session session = buildMockStripeSession(
+                    "paid", "1", "10", scheduledAt.toString(), "60",
+                    "GROUP_CREATE:2", "42", "pi_test"
+            );
+            when(stripeService.retrieveSession("cs_test")).thenReturn(session);
+
+            GroupLessonResponse mockResponse = buildMockResponse(100L, "token");
+            when(groupLessonService.createGroupLesson(eq(1L), any(BookGroupLessonRequest.class))).thenReturn(mockResponse);
+            when(userRepository.findById(1L)).thenReturn(java.util.Optional.of(student));
+            when(userRepository.findById(10L)).thenReturn(java.util.Optional.of(teacher));
+            com.chessconnect.model.Lesson lesson = new com.chessconnect.model.Lesson();
+            lesson.setId(100L);
+            when(lessonRepository.findById(100L)).thenReturn(java.util.Optional.of(lesson));
+            when(paymentRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+            controller.confirmCreatePayment("cs_test");
+
+            ArgumentCaptor<BookGroupLessonRequest> reqCaptor =
+                    ArgumentCaptor.forClass(BookGroupLessonRequest.class);
+            verify(groupLessonService).createGroupLesson(eq(1L), reqCaptor.capture());
+            assertThat(reqCaptor.getValue().courseId()).isEqualTo(42L);
+            assertThat(reqCaptor.getValue().targetGroupSize()).isEqualTo(2);
+        }
+
+        @Test
+        @DisplayName("Should not call wallet deduction (Stripe already charged)")
+        void shouldNotDeductWallet() throws Exception {
+            LocalDateTime scheduledAt = LocalDateTime.now().plusDays(3);
+            com.stripe.model.checkout.Session session = buildMockStripeSession(
+                    "paid", "1", "10", scheduledAt.toString(), "60",
+                    "GROUP_CREATE:2", null, "pi_test"
+            );
+            when(stripeService.retrieveSession("cs_test")).thenReturn(session);
+
+            GroupLessonResponse mockResponse = buildMockResponse(100L, "token");
+            when(groupLessonService.createGroupLesson(eq(1L), any(BookGroupLessonRequest.class))).thenReturn(mockResponse);
+            when(userRepository.findById(1L)).thenReturn(java.util.Optional.of(student));
+            when(userRepository.findById(10L)).thenReturn(java.util.Optional.of(teacher));
+            com.chessconnect.model.Lesson lesson = new com.chessconnect.model.Lesson();
+            lesson.setId(100L);
+            when(lessonRepository.findById(100L)).thenReturn(java.util.Optional.of(lesson));
+            when(paymentRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+            controller.confirmCreatePayment("cs_test");
+
+            // Wallet should never be touched for Stripe payments
+            verify(walletService, never()).checkAndDeductCredit(anyLong(), anyInt());
+            verify(walletService, never()).linkDeductionToLesson(anyLong(), any(), anyInt());
         }
     }
 

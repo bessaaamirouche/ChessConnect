@@ -35,12 +35,11 @@ public class InvoiceService {
 
     private static final Logger log = LoggerFactory.getLogger(InvoiceService.class);
 
-    // Platform info for invoices - TODO: fill with your company details
-    private static final String PLATFORM_NAME = "Mychess.fr";
-    private static final String PLATFORM_OWNER = "[Raison sociale à compléter]";
-    private static final String PLATFORM_ADDRESS = "[Adresse à compléter]";
-    private static final String PLATFORM_SIREN = "[SIREN à compléter]";
-    private static final String PLATFORM_RCS = "[RCS à compléter]";
+    // Platform info for invoices
+    private static final String PLATFORM_NAME = "LearnConnect";
+    private static final String PLATFORM_OWNER = "Dehouche Rebiha EI";
+    private static final String PLATFORM_SIRET = "10093806700012";
+    private static final String PLATFORM_SIREN = "100938067";
     private static final String PLATFORM_EMAIL = "support@mychess.fr";
     private static final String PLATFORM_WEBSITE = "www.mychess.fr";
 
@@ -182,6 +181,21 @@ public class InvoiceService {
     }
 
     /**
+     * Set denormalized name/email fields on invoice for legal data retention.
+     * These fields are preserved when user accounts are deleted.
+     */
+    private void setDenormalizedFields(Invoice invoice, User customer, User issuer) {
+        if (customer != null) {
+            invoice.setCustomerName(customer.getFirstName() + " " + customer.getLastName());
+            invoice.setCustomerEmail(customer.getEmail());
+        }
+        if (issuer != null) {
+            invoice.setIssuerName(issuer.getFirstName() + " " + issuer.getLastName());
+            invoice.setIssuerEmail(issuer.getEmail());
+        }
+    }
+
+    /**
      * Create the lesson invoice (Teacher -> Student).
      */
     private Invoice createLessonInvoice(
@@ -196,6 +210,7 @@ public class InvoiceService {
         invoice.setInvoiceType(InvoiceType.LESSON_INVOICE);
         invoice.setCustomer(student);
         invoice.setIssuer(teacher);
+        setDenormalizedFields(invoice, student, teacher);
         invoice.setLesson(lesson);
         invoice.setStripePaymentIntentId(paymentIntentId);
         invoice.setSubtotalCents(totalAmountCents);
@@ -225,6 +240,7 @@ public class InvoiceService {
         invoice.setInvoiceType(InvoiceType.COMMISSION_INVOICE);
         invoice.setCustomer(teacher); // Teacher receives this invoice
         invoice.setIssuer(null); // Platform is the issuer
+        setDenormalizedFields(invoice, teacher, null);
         invoice.setLesson(lesson);
         invoice.setStripePaymentIntentId(paymentIntentId);
         invoice.setSubtotalCents(commissionCents);
@@ -267,7 +283,9 @@ public class InvoiceService {
 
             // Add content with new blue design
             addInvoiceHeader(document, "FACTURE", invoice.getInvoiceNumber(), invoice.getIssuedAt());
-            addTwoColumnParties(document, teacher, student, false);
+            addTwoColumnParties(document, teacher, student, false,
+                    invoice.getIssuerName(), invoice.getIssuerEmail(),
+                    invoice.getCustomerName(), invoice.getCustomerEmail());
             addLessonInvoiceTable(document, invoice, lesson);
             addPaymentInfo(document, "Paye par carte bancaire via Stripe");
             addFooter(document);
@@ -418,8 +436,19 @@ public class InvoiceService {
 
     /**
      * Add two-column layout for issuer (left) and customer (right).
+     * Overload without fallback names - delegates to full method.
      */
     private void addTwoColumnParties(Document document, User issuer, User customer, boolean issuerIsPlatform) throws DocumentException {
+        addTwoColumnParties(document, issuer, customer, issuerIsPlatform, null, null, null, null);
+    }
+
+    /**
+     * Add two-column layout for issuer (left) and customer (right).
+     * Supports fallback names/emails for when user accounts have been deleted.
+     */
+    private void addTwoColumnParties(Document document, User issuer, User customer, boolean issuerIsPlatform,
+                                      String issuerFallbackName, String issuerFallbackEmail,
+                                      String customerFallbackName, String customerFallbackEmail) throws DocumentException {
         PdfPTable partiesTable = new PdfPTable(2);
         partiesTable.setWidthPercentage(100);
         partiesTable.setWidths(new float[]{1, 1});
@@ -452,11 +481,12 @@ public class InvoiceService {
 
         // Issuer details
         if (issuerIsPlatform) {
-            issuerCell.addElement(new Paragraph(PLATFORM_NAME, normalFont));
-            issuerCell.addElement(new Paragraph(PLATFORM_OWNER, normalFont));
-            issuerCell.addElement(new Paragraph(PLATFORM_ADDRESS, smallFont));
+            Font platformNameFont = new Font(Font.HELVETICA, 12, Font.BOLD, GRAY_TEXT);
+            Font platformOwnerFont = new Font(Font.HELVETICA, 9, Font.NORMAL, GRAY_TEXT);
+            issuerCell.addElement(new Paragraph(PLATFORM_NAME, platformNameFont));
+            issuerCell.addElement(new Paragraph(PLATFORM_OWNER, platformOwnerFont));
             issuerCell.addElement(new Paragraph(PLATFORM_EMAIL, smallFont));
-            issuerCell.addElement(new Paragraph("SIREN : " + PLATFORM_SIREN, smallFont));
+            issuerCell.addElement(new Paragraph("SIRET : " + PLATFORM_SIRET, smallFont));
         } else if (issuer != null) {
             String name = issuer.getFirstName() + " " + issuer.getLastName();
             if (issuer.getCompanyName() != null && !issuer.getCompanyName().isBlank()) {
@@ -466,6 +496,11 @@ public class InvoiceService {
             issuerCell.addElement(new Paragraph(issuer.getEmail(), smallFont));
             if (issuer.getSiret() != null && !issuer.getSiret().isBlank()) {
                 issuerCell.addElement(new Paragraph("SIRET : " + issuer.getSiret(), smallFont));
+            }
+        } else if (issuerFallbackName != null) {
+            issuerCell.addElement(new Paragraph(issuerFallbackName, normalFont));
+            if (issuerFallbackEmail != null) {
+                issuerCell.addElement(new Paragraph(issuerFallbackEmail, smallFont));
             }
         }
 
@@ -500,6 +535,11 @@ public class InvoiceService {
             customerCell.addElement(new Paragraph(customer.getEmail(), smallFont));
             if (customer.getSiret() != null && !customer.getSiret().isBlank()) {
                 customerCell.addElement(new Paragraph("SIRET : " + customer.getSiret(), smallFont));
+            }
+        } else if (customerFallbackName != null) {
+            customerCell.addElement(new Paragraph(customerFallbackName, normalFont));
+            if (customerFallbackEmail != null) {
+                customerCell.addElement(new Paragraph(customerFallbackEmail, smallFont));
             }
         }
 
@@ -566,11 +606,12 @@ public class InvoiceService {
         underline.addCell(lineCell);
         document.add(underline);
 
-        document.add(new Paragraph(PLATFORM_NAME, normalFont));
-        document.add(new Paragraph(PLATFORM_OWNER, normalFont));
-        document.add(new Paragraph(PLATFORM_ADDRESS, smallFont));
+        Font platformNameFont = new Font(Font.HELVETICA, 12, Font.BOLD, GRAY_TEXT);
+        Font platformOwnerFont = new Font(Font.HELVETICA, 9, Font.NORMAL, GRAY_TEXT);
+        document.add(new Paragraph(PLATFORM_NAME, platformNameFont));
+        document.add(new Paragraph(PLATFORM_OWNER, platformOwnerFont));
         document.add(new Paragraph(PLATFORM_EMAIL, smallFont));
-        document.add(new Paragraph("SIREN : " + PLATFORM_SIREN + " " + PLATFORM_RCS, smallFont));
+        document.add(new Paragraph("SIRET : " + PLATFORM_SIRET, smallFont));
 
         document.add(new Paragraph(" "));
     }
@@ -858,19 +899,18 @@ public class InvoiceService {
 
         // VAT mention
         Paragraph vatMention = new Paragraph(
-                "[Mention TVA à compléter]",
+                "TVA non applicable, article 293 B du Code general des impots.",
                 legalFont
         );
         document.add(vatMention);
 
-        // Additional legal info
-        Paragraph legalInfo = new Paragraph(
-                "En cas de retard de paiement, une penalite de 3 fois le taux d'interet legal sera appliquee, " +
-                "ainsi qu'une indemnite forfaitaire de 40€ pour frais de recouvrement.",
+        // Company info
+        Paragraph companyInfo = new Paragraph(
+                PLATFORM_NAME + " - " + PLATFORM_OWNER + " - SIRET : " + PLATFORM_SIRET,
                 legalFont
         );
-        legalInfo.setSpacingBefore(5);
-        document.add(legalInfo);
+        companyInfo.setSpacingBefore(3);
+        document.add(companyInfo);
 
         document.add(new Paragraph(" "));
 
@@ -968,7 +1008,7 @@ public class InvoiceService {
                 .orElseThrow(() -> new RuntimeException("Invoice not found"));
 
         // Security check: user must be customer, issuer, or admin
-        boolean isCustomer = invoice.getCustomer().getId().equals(userId);
+        boolean isCustomer = invoice.getCustomer() != null && invoice.getCustomer().getId().equals(userId);
         boolean isIssuer = invoice.getIssuer() != null && invoice.getIssuer().getId().equals(userId);
 
         if (!isCustomer && !isIssuer && !isAdmin) {
@@ -986,6 +1026,7 @@ public class InvoiceService {
 
     /**
      * Generate PDF on-demand for existing invoices that don't have a PDF.
+     * Handles cases where user accounts may have been deleted (uses denormalized fields).
      */
     private void generatePdfOnDemand(Invoice invoice) throws IOException {
         User customer = invoice.getCustomer();
@@ -994,9 +1035,7 @@ public class InvoiceService {
 
         switch (invoice.getInvoiceType()) {
             case LESSON_INVOICE:
-                if (issuer != null) {
-                    generateLessonInvoicePdf(invoice, customer, issuer, lesson);
-                }
+                generateLessonInvoicePdf(invoice, customer, issuer, lesson);
                 break;
             case COMMISSION_INVOICE:
                 generateCommissionInvoicePdf(invoice, customer, lesson);
@@ -1067,6 +1106,7 @@ public class InvoiceService {
         invoice.setInvoiceType(InvoiceType.SUBSCRIPTION);
         invoice.setCustomer(student);
         invoice.setIssuer(null); // Platform is the issuer
+        setDenormalizedFields(invoice, student, null);
         invoice.setStripePaymentIntentId(stripePaymentIntentId);
         invoice.setSubtotalCents(amountCents);
         invoice.setVatCents(0);
@@ -1143,6 +1183,7 @@ public class InvoiceService {
         commissionInvoice.setInvoiceType(InvoiceType.COMMISSION_INVOICE);
         commissionInvoice.setCustomer(teacher);
         commissionInvoice.setIssuer(null); // Platform is the issuer
+        setDenormalizedFields(commissionInvoice, teacher, null);
         commissionInvoice.setStripePaymentIntentId(stripeTransferId + "-COM");
         commissionInvoice.setSubtotalCents(totalCommissionCents);
         commissionInvoice.setVatCents(0);
@@ -1171,6 +1212,7 @@ public class InvoiceService {
         payoutInvoice.setInvoiceType(InvoiceType.PAYOUT_INVOICE);
         payoutInvoice.setCustomer(teacher);
         payoutInvoice.setIssuer(null); // Platform is the issuer
+        setDenormalizedFields(payoutInvoice, teacher, null);
         payoutInvoice.setStripePaymentIntentId(stripeTransferId);
         payoutInvoice.setSubtotalCents(netAmountCents);
         payoutInvoice.setVatCents(0);
@@ -1400,6 +1442,7 @@ public class InvoiceService {
         invoice.setInvoiceType(InvoiceType.SUBSCRIPTION); // Using SUBSCRIPTION type for platform payments
         invoice.setCustomer(student);
         invoice.setIssuer(null); // Platform is the issuer
+        setDenormalizedFields(invoice, student, null);
         invoice.setStripePaymentIntentId(stripePaymentIntentId);
         invoice.setSubtotalCents(amountCents);
         invoice.setVatCents(0);
@@ -1480,6 +1523,7 @@ public class InvoiceService {
         lessonInvoice.setInvoiceType(InvoiceType.LESSON_INVOICE);
         lessonInvoice.setCustomer(student);
         lessonInvoice.setIssuer(teacher);
+        setDenormalizedFields(lessonInvoice, student, teacher);
         lessonInvoice.setLesson(lesson);
         lessonInvoice.setStripePaymentIntentId(creditPaymentRef);
         lessonInvoice.setSubtotalCents(totalAmountCents);
@@ -1574,6 +1618,7 @@ public class InvoiceService {
         creditNote.setInvoiceType(InvoiceType.CREDIT_NOTE);
         creditNote.setCustomer(student);
         creditNote.setIssuer(teacher);
+        setDenormalizedFields(creditNote, student, teacher);
         creditNote.setLesson(lesson);
         creditNote.setOriginalInvoice(originalInvoice);
         creditNote.setStripeRefundId(stripeRefundId);
@@ -1619,6 +1664,7 @@ public class InvoiceService {
                 commissionCreditNote.setInvoiceType(InvoiceType.CREDIT_NOTE);
                 commissionCreditNote.setCustomer(teacher); // Teacher receives the credit
                 commissionCreditNote.setIssuer(null); // Platform is the issuer
+                setDenormalizedFields(commissionCreditNote, teacher, null);
                 commissionCreditNote.setLesson(lesson);
                 commissionCreditNote.setOriginalInvoice(commissionInvoice);
                 commissionCreditNote.setRefundPercentage(refundPercentage);
@@ -1675,7 +1721,9 @@ public class InvoiceService {
 
             // Add content with new blue design
             addInvoiceHeader(document, "AVOIR", creditNote.getInvoiceNumber(), creditNote.getIssuedAt());
-            addTwoColumnParties(document, teacher, student, false);
+            addTwoColumnParties(document, teacher, student, false,
+                    creditNote.getIssuerName(), creditNote.getIssuerEmail(),
+                    creditNote.getCustomerName(), creditNote.getCustomerEmail());
 
             // Reference to original invoice with blue styling
             Font refLabelFont = new Font(Font.HELVETICA, 10, Font.NORMAL, GRAY_TEXT);

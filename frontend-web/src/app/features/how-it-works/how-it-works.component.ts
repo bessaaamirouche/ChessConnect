@@ -7,12 +7,11 @@ import { PublicNavbarComponent, NavLink } from '../../shared/components/public-n
 import { FooterComponent } from '../../shared/components/footer/footer.component';
 
 @Component({
-  selector: 'app-how-it-works',
-  standalone: true,
-  imports: [RouterLink, TranslateModule, PublicNavbarComponent, FooterComponent],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './how-it-works.component.html',
-  styleUrl: './how-it-works.component.scss'
+    selector: 'app-how-it-works',
+    imports: [RouterLink, TranslateModule, PublicNavbarComponent, FooterComponent],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    templateUrl: './how-it-works.component.html',
+    styleUrl: './how-it-works.component.scss'
 })
 export class HowItWorksComponent {
   private seoService = inject(SeoService);

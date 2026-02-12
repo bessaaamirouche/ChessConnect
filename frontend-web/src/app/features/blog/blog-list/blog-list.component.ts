@@ -1,7 +1,7 @@
 import { Component, OnInit, signal, inject, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ArticleService } from '../../../core/services/article.service';
 import { SeoService } from '../../../core/services/seo.service';
 import { StructuredDataService } from '../../../core/services/structured-data.service';
@@ -13,18 +13,18 @@ import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { heroClock, heroArrowRight, heroArrowLeft } from '@ng-icons/heroicons/outline';
 
 @Component({
-  selector: 'app-blog-list',
-  standalone: true,
-  imports: [RouterLink, DatePipe, NgIconComponent, ScrollRevealDirective, StaggerRevealDirective, TranslateModule, PublicNavbarComponent, FooterComponent],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  viewProviders: [provideIcons({ heroClock, heroArrowRight, heroArrowLeft })],
-  templateUrl: './blog-list.component.html',
-  styleUrl: './blog-list.component.scss'
+    selector: 'app-blog-list',
+    imports: [RouterLink, DatePipe, NgIconComponent, ScrollRevealDirective, StaggerRevealDirective, TranslateModule, PublicNavbarComponent, FooterComponent],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    viewProviders: [provideIcons({ heroClock, heroArrowRight, heroArrowLeft })],
+    templateUrl: './blog-list.component.html',
+    styleUrl: './blog-list.component.scss'
 })
 export class BlogListComponent implements OnInit {
   private articleService = inject(ArticleService);
   private seoService = inject(SeoService);
   private structuredDataService = inject(StructuredDataService);
+  private translate = inject(TranslateService);
 
   articles = signal<ArticleList[]>([]);
   categories = signal<string[]>([]);
@@ -99,7 +99,8 @@ export class BlogListComponent implements OnInit {
   }
 
   getCategoryLabel(category: string): string {
-    return this.categoryLabels[category]?.label || category;
+    const key = this.categoryLabels[category]?.labelKey;
+    return key ? this.translate.instant(key) : category;
   }
 
   getCategoryColor(category: string): string {

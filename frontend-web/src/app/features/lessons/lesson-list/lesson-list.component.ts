@@ -1,8 +1,8 @@
-import { Component, OnInit, OnDestroy, signal, ViewChild, ChangeDetectionStrategy, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, ChangeDetectionStrategy, computed, viewChild, inject, effect, untracked } from '@angular/core';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { HttpClient } from '@angular/common/http';
 import { LessonService } from '../../../core/services/lesson.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -59,6 +59,8 @@ import {
   heroClipboardDocument
 } from '@ng-icons/heroicons/outline';
 import { CHESS_LEVELS, ChessLevel, User } from '../../../core/models/user.model';
+import { paginate } from '../../../core/utils/pagination';
+import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 
 export interface PendingValidation {
   id: number;
@@ -69,48 +71,47 @@ export interface PendingValidation {
 }
 
 @Component({
-  selector: 'app-lesson-list',
-  standalone: true,
-  imports: [RouterLink, DatePipe, FormsModule, TranslateModule, ConfirmDialogComponent, NgIconComponent, StudentProfileModalComponent, StudentEvaluationModalComponent, RatingModalComponent, VideoCallComponent, ExerciseButtonComponent, VideoPlayerComponent],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  viewProviders: [provideIcons({
-    heroCalendarDays,
-    heroClock,
-    heroVideoCamera,
-    heroCheck,
-    heroXMark,
-    heroArrowLeft,
-    heroChevronRight,
-    heroChartBarSquare,
-    heroClipboardDocumentList,
-    heroUserCircle,
-    heroArrowRightOnRectangle,
-    heroPlus,
-    heroBookOpen,
-    heroTrophy,
-    heroCreditCard,
-    heroAcademicCap,
-    heroUser,
-    heroChartBar,
-    heroInformationCircle,
-    heroTrash,
-    heroPlayCircle,
-    heroFunnel,
-    heroMagnifyingGlass,
-    heroStar,
-    heroBellAlert,
-    heroChatBubbleLeftRight,
-    heroEllipsisVertical,
-    heroCpuChip,
-    heroLockClosed,
-    heroUserGroup,
-    heroClipboardDocument
-  })],
-  templateUrl: './lesson-list.component.html',
-  styleUrl: './lesson-list.component.scss'
+    selector: 'app-lesson-list',
+    imports: [RouterLink, DatePipe, FormsModule, TranslateModule, ConfirmDialogComponent, NgIconComponent, StudentProfileModalComponent, StudentEvaluationModalComponent, RatingModalComponent, VideoCallComponent, ExerciseButtonComponent, VideoPlayerComponent, PaginationComponent],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    viewProviders: [provideIcons({
+            heroCalendarDays,
+            heroClock,
+            heroVideoCamera,
+            heroCheck,
+            heroXMark,
+            heroArrowLeft,
+            heroChevronRight,
+            heroChartBarSquare,
+            heroClipboardDocumentList,
+            heroUserCircle,
+            heroArrowRightOnRectangle,
+            heroPlus,
+            heroBookOpen,
+            heroTrophy,
+            heroCreditCard,
+            heroAcademicCap,
+            heroUser,
+            heroChartBar,
+            heroInformationCircle,
+            heroTrash,
+            heroPlayCircle,
+            heroFunnel,
+            heroMagnifyingGlass,
+            heroStar,
+            heroBellAlert,
+            heroChatBubbleLeftRight,
+            heroEllipsisVertical,
+            heroCpuChip,
+            heroLockClosed,
+            heroUserGroup,
+            heroClipboardDocument
+        })],
+    templateUrl: './lesson-list.component.html',
+    styleUrl: './lesson-list.component.scss'
 })
 export class LessonListComponent implements OnInit, OnDestroy {
-  @ViewChild('confirmDialog') confirmDialog!: ConfirmDialogComponent;
+  readonly confirmDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
 
   statusLabels = LESSON_STATUS_LABELS;
   selectedStudentId = signal<number | null>(null);
@@ -141,6 +142,7 @@ export class LessonListComponent implements OnInit, OnDestroy {
   videoCallTitle = signal('');
   videoCallDurationMinutes = signal(60);
   videoCallLessonId = signal<number | null>(null);
+  videoCallRecordingEnabled = signal(false);
 
   // History filters
   historyFilterPerson = signal<string>('');
@@ -223,6 +225,8 @@ export class LessonListComponent implements OnInit, OnDestroy {
     return Array.from(months).sort().reverse();
   });
 
+  historyPagination = paginate(this.filteredHistory, 10);
+
   // Next course cache by student ID
   nextCourseByStudent = signal<Map<number, NextCourse | null>>(new Map());
 
@@ -231,6 +235,8 @@ export class LessonListComponent implements OnInit, OnDestroy {
 
   // Polling for lesson status check (when in video call)
   private lessonStatusCheckInterval: any = null;
+
+  private translate = inject(TranslateService);
 
   constructor(
     public lessonService: LessonService,
@@ -253,6 +259,11 @@ export class LessonListComponent implements OnInit, OnDestroy {
     if (user) {
       this.emailRemindersEnabled.set(user.emailRemindersEnabled !== false);
     }
+
+    effect(() => {
+      this.filteredHistory();
+      untracked(() => this.historyPagination.currentPage.set(0));
+    });
   }
 
   ngOnInit(): void {
@@ -341,29 +352,29 @@ export class LessonListComponent implements OnInit, OnDestroy {
   }
 
   async cancelLesson(lessonId: number): Promise<void> {
-    const reason = await this.confirmDialog.open({
-      title: 'Annuler le cours',
-      message: 'Êtes-vous sûr de vouloir annuler ce cours ?',
-      confirmText: 'Annuler',
-      cancelText: 'Retour',
+    const reason = await this.confirmDialog().open({
+      title: this.translate.instant('dashboard.cancelDialog.title'),
+      message: this.translate.instant('dashboard.cancelDialog.message'),
+      confirmText: this.translate.instant('common.cancel'),
+      cancelText: this.translate.instant('dashboard.cancelDialog.cancelText'),
       type: 'danger',
       icon: 'warning',
       showInput: true,
-      inputLabel: 'Raison (optionnel)',
-      inputPlaceholder: 'Ex: Indisponibilité...'
+      inputLabel: this.translate.instant('dashboard.cancelDialog.inputLabel'),
+      inputPlaceholder: this.translate.instant('dashboard.cancelDialog.inputPlaceholder')
     });
 
     if (reason !== null) {
       this.lessonService.cancelLesson(lessonId, reason as string || undefined).subscribe({
         next: () => {
-          this.toastService.success('Cours annulé');
+          this.toastService.success(this.translate.instant('success.lessonCancelled'));
           // Reload wallet balance after cancellation (for refund)
           if (this.authService.isStudent()) {
             this.walletService.loadBalance().subscribe();
           }
         },
         error: (err: any) => {
-          this.toastService.error(err.error?.error || 'Erreur lors de l\'annulation');
+          this.toastService.error(err.error?.error || this.translate.instant('errors.cancellation'));
         }
       });
     }
@@ -425,12 +436,12 @@ export class LessonListComponent implements OnInit, OnDestroy {
   }
 
   onLevelSet(event: { studentId: number; level: ChessLevel }): void {
-    this.toastService.success(`Niveau ${event.level} défini pour cet joueur`);
+    this.toastService.success(this.translate.instant('success.levelSet', { level: event.level }));
     this.closeEvaluationModal();
   }
 
   onEvaluationCourseValidated(event: { studentId: number; courseId: number }): void {
-    this.toastService.success('Cours validé avec succès');
+    this.toastService.success(this.translate.instant('success.lessonValidated'));
     // Reload pending validations
     if (this.authService.isTeacher()) {
       this.loadPendingValidations();
@@ -490,11 +501,11 @@ export class LessonListComponent implements OnInit, OnDestroy {
       next: () => {
         this.savingComment.set(false);
         this.closeCommentModal();
-        this.toastService.success('Commentaire enregistré');
+        this.toastService.success(this.translate.instant('success.commentSaved'));
       },
       error: (err) => {
         this.savingComment.set(false);
-        this.toastService.error(err.error?.message || 'Erreur lors de l\'enregistrement');
+        this.toastService.error(err.error?.message || this.translate.instant('errors.save'));
       }
     });
   }
@@ -535,12 +546,13 @@ export class LessonListComponent implements OnInit, OnDestroy {
     }
 
     // Obtenir le token JWT pour Jitsi (avec retry)
-    this.fetchJitsiTokenWithRetry(roomName, 3).then((token) => {
+    this.fetchJitsiTokenWithRetry(roomName, 3).then((response) => {
       this.videoCallRoomName.set(roomName);
-      this.videoCallToken.set(token);
+      this.videoCallToken.set(response.token);
       this.videoCallTitle.set(title);
       this.videoCallDurationMinutes.set(durationMinutes);
       this.videoCallLessonId.set(lesson.id);
+      this.videoCallRecordingEnabled.set(response.recordingEnabled);
       this.showVideoCall.set(true);
 
       // Start polling for lesson status (students only) to auto-hang up when coach ends
@@ -557,14 +569,14 @@ export class LessonListComponent implements OnInit, OnDestroy {
     });
   }
 
-  private fetchJitsiTokenWithRetry(roomName: string, maxRetries: number): Promise<string> {
+  private fetchJitsiTokenWithRetry(roomName: string, maxRetries: number): Promise<{ token: string; recordingEnabled: boolean }> {
     return new Promise((resolve, reject) => {
       let attempt = 0;
 
       const tryFetch = () => {
         attempt++;
         this.jitsiService.getToken(roomName).subscribe({
-          next: (response) => resolve(response.token),
+          next: (response) => resolve({ token: response.token, recordingEnabled: response.recordingEnabled }),
           error: (err) => {
             console.warn(`[Jitsi] Token fetch attempt ${attempt}/${maxRetries} failed:`, err.status);
             if (attempt < maxRetries) {
@@ -599,6 +611,7 @@ export class LessonListComponent implements OnInit, OnDestroy {
     this.videoCallTitle.set('');
     this.videoCallDurationMinutes.set(60);
     this.videoCallLessonId.set(null);
+    this.videoCallRecordingEnabled.set(false);
   }
 
   // Start polling to check if lesson was completed (for students to auto-hang up)
@@ -715,16 +728,16 @@ export class LessonListComponent implements OnInit, OnDestroy {
       const isTeacher = this.authService.isTeacher();
 
       if (lesson.cancelledBy === 'STUDENT') {
-        return isStudent ? 'Annulé par moi' : 'Annulé par le joueur';
+        return isStudent ? this.translate.instant('lessons.status.cancelledByMe') : this.translate.instant('lessons.status.cancelledByStudent');
       }
       if (lesson.cancelledBy === 'TEACHER') {
-        return isTeacher ? 'Annulé par moi' : 'Annulé par le coach';
+        return isTeacher ? this.translate.instant('lessons.status.cancelledByMe') : this.translate.instant('lessons.status.cancelledByCoach');
       }
       if (lesson.cancelledBy === 'SYSTEM') {
-        return 'Annulé (auto)';
+        return this.translate.instant('lessons.status.cancelledAuto');
       }
     }
-    return this.statusLabels[lesson.status].label;
+    return this.translate.instant(this.statusLabels[lesson.status].labelKey);
   }
 
   toggleReason(lessonId: number): void {
@@ -749,11 +762,11 @@ export class LessonListComponent implements OnInit, OnDestroy {
   }
 
   async deleteLesson(lessonId: number): Promise<void> {
-    const confirmed = await this.confirmDialog.open({
-      title: 'Supprimer le cours',
-      message: 'Ce cours sera définitivement supprimé de votre historique.',
-      confirmText: 'Supprimer',
-      cancelText: 'Annuler',
+    const confirmed = await this.confirmDialog().open({
+      title: this.translate.instant('lessons.history.deleteFromHistory'),
+      message: this.translate.instant('lessons.deleteConfirmMessage'),
+      confirmText: this.translate.instant('common.delete'),
+      cancelText: this.translate.instant('common.cancel'),
       type: 'danger',
       icon: 'trash'
     });
@@ -761,10 +774,10 @@ export class LessonListComponent implements OnInit, OnDestroy {
     if (confirmed !== null) {
       this.lessonService.deleteLesson(lessonId).subscribe({
         next: () => {
-          this.toastService.success('Cours supprimé');
+          this.toastService.success(this.translate.instant('success.lessonDeleted'));
         },
         error: (err: any) => {
-          this.toastService.error(err.error?.error || 'Erreur lors de la suppression');
+          this.toastService.error(err.error?.error || this.translate.instant('errors.delete'));
         }
       });
     }
@@ -859,7 +872,7 @@ export class LessonListComponent implements OnInit, OnDestroy {
         this.resolvingDeadline.set(false);
         this.closeDeadlineModal();
         this.toastService.success(
-          choice === 'CANCEL' ? 'Cours annulé et remboursements effectués' : 'Cours converti en cours privé'
+          choice === 'CANCEL' ? this.translate.instant('success.lessonCancelledRefunded') : this.translate.instant('success.lessonConvertedPrivate')
         );
         this.lessonService.loadUpcomingLessons().subscribe();
         this.walletService.loadBalance().subscribe();
@@ -872,22 +885,22 @@ export class LessonListComponent implements OnInit, OnDestroy {
   }
 
   async leaveGroupLesson(lessonId: number): Promise<void> {
-    const reason = await this.confirmDialog.open({
-      title: 'Quitter le cours en groupe',
-      message: 'Êtes-vous sûr de vouloir quitter ce cours en groupe ?',
-      confirmText: 'Quitter',
-      cancelText: 'Retour',
+    const reason = await this.confirmDialog().open({
+      title: this.translate.instant('group_lesson.leaveGroup'),
+      message: this.translate.instant('group_lesson.leaveConfirm'),
+      confirmText: this.translate.instant('common.confirm'),
+      cancelText: this.translate.instant('dashboard.cancelDialog.cancelText'),
       type: 'danger',
       icon: 'warning',
       showInput: true,
-      inputLabel: 'Raison (optionnel)',
-      inputPlaceholder: 'Ex: Indisponibilité...'
+      inputLabel: this.translate.instant('dashboard.cancelDialog.inputLabel'),
+      inputPlaceholder: this.translate.instant('dashboard.cancelDialog.inputPlaceholder')
     });
 
     if (reason !== null) {
       this.groupLessonService.leaveGroupLesson(lessonId, reason as string || undefined).subscribe({
         next: () => {
-          this.toastService.success('Vous avez quitté le cours');
+          this.toastService.success(this.translate.instant('success.leftGroup'));
           this.lessonService.loadUpcomingLessons().subscribe();
           this.walletService.loadBalance().subscribe();
         },

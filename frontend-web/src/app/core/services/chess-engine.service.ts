@@ -1,4 +1,4 @@
-import { Injectable, signal, PLATFORM_ID, Inject } from '@angular/core';
+import { Injectable, signal, PLATFORM_ID, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 
 export interface EngineEvaluation {
@@ -12,8 +12,9 @@ export interface EngineEvaluation {
   providedIn: 'root'
 })
 export class ChessEngineService {
+  private platformId = inject(PLATFORM_ID);
   private worker: Worker | null = null;
-  private isBrowser: boolean;
+  private isBrowser = isPlatformBrowser(this.platformId);
   private isReady = false;
   private pendingCallback: ((result: EngineEvaluation) => void) | null = null;
   private currentDepth = 0;
@@ -34,10 +35,6 @@ export class ChessEngineService {
     'DIFFICILE': 15,
     'EXPERT': 20
   };
-
-  constructor(@Inject(PLATFORM_ID) platformId: Object) {
-    this.isBrowser = isPlatformBrowser(platformId);
-  }
 
   async initialize(): Promise<void> {
     if (!this.isBrowser || this.worker) return;

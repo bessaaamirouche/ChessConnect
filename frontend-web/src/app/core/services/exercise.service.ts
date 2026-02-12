@@ -1,6 +1,7 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap, catchError, of } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
 import { Exercise } from '../models/exercise.model';
 
 @Injectable({
@@ -19,6 +20,8 @@ export class ExerciseService {
   readonly loading = this.loadingSignal.asReadonly();
   readonly error = this.errorSignal.asReadonly();
 
+  private translate = inject(TranslateService);
+
   constructor(private http: HttpClient) {}
 
   loadExerciseForLesson(lessonId: number): Observable<Exercise> {
@@ -32,12 +35,12 @@ export class ExerciseService {
           this.loadingSignal.set(false);
         },
         error: (err) => {
-          this.errorSignal.set(err.error?.error || 'Erreur lors du chargement de l\'exercice');
+          this.errorSignal.set(err.error?.error || this.translate.instant('errors.exerciseLoad'));
           this.loadingSignal.set(false);
         }
       }),
       catchError((err) => {
-        this.errorSignal.set(err.error?.error || 'Erreur lors du chargement de l\'exercice');
+        this.errorSignal.set(err.error?.error || this.translate.instant('errors.exerciseLoad'));
         this.loadingSignal.set(false);
         throw err;
       })
@@ -55,12 +58,12 @@ export class ExerciseService {
           this.loadingSignal.set(false);
         },
         error: (err) => {
-          this.errorSignal.set(err.error?.error || 'Erreur lors du chargement de l\'exercice');
+          this.errorSignal.set(err.error?.error || this.translate.instant('errors.exerciseLoad'));
           this.loadingSignal.set(false);
         }
       }),
       catchError((err) => {
-        this.errorSignal.set(err.error?.error || 'Erreur lors du chargement de l\'exercice');
+        this.errorSignal.set(err.error?.error || this.translate.instant('errors.exerciseLoad'));
         this.loadingSignal.set(false);
         throw err;
       })
@@ -78,12 +81,12 @@ export class ExerciseService {
           this.loadingSignal.set(false);
         },
         error: (err) => {
-          this.errorSignal.set(err.error?.error || 'Erreur lors du chargement des exercices');
+          this.errorSignal.set(err.error?.error || this.translate.instant('errors.exercisesLoad'));
           this.loadingSignal.set(false);
         }
       }),
       catchError((err) => {
-        this.errorSignal.set(err.error?.error || 'Erreur lors du chargement des exercices');
+        this.errorSignal.set(err.error?.error || this.translate.instant('errors.exercisesLoad'));
         this.loadingSignal.set(false);
         return of([]);
       })

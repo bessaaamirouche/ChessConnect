@@ -1,6 +1,7 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, tap, catchError } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
 import { Availability, AvailabilityRequest, TimeSlot } from '../models/availability.model';
 
 @Injectable({
@@ -21,6 +22,8 @@ export class AvailabilityService {
 
   readonly availableSlots = () => this.teacherSlotsSignal().filter(s => s.isAvailable);
 
+  private translate = inject(TranslateService);
+
   constructor(private http: HttpClient) {}
 
   // Teacher: Create availability
@@ -35,7 +38,7 @@ export class AvailabilityService {
       }),
       catchError(error => {
         this.loadingSignal.set(false);
-        const message = error.error?.error || error.error?.message || 'Erreur lors de la création du créneau';
+        const message = error.error?.error || error.error?.message || this.translate.instant('errors.slotCreate');
         this.errorSignal.set(message);
         throw error;
       })
@@ -53,7 +56,7 @@ export class AvailabilityService {
       }),
       catchError(error => {
         this.loadingSignal.set(false);
-        this.errorSignal.set('Erreur lors du chargement des disponibilités');
+        this.errorSignal.set(this.translate.instant('errors.availabilityLoad'));
         throw error;
       })
     );
@@ -88,7 +91,7 @@ export class AvailabilityService {
       }),
       catchError(error => {
         this.loadingSignal.set(false);
-        this.errorSignal.set('Erreur lors du chargement des créneaux');
+        this.errorSignal.set(this.translate.instant('errors.slotsLoad'));
         throw error;
       })
     );

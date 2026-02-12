@@ -1,5 +1,6 @@
 import { Component, inject, signal, ChangeDetectorRef, effect } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslateService } from '@ngx-translate/core';
 import { DialogService } from '../../core/services/dialog.service';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
@@ -10,16 +11,15 @@ import {
 } from '@ng-icons/heroicons/outline';
 
 @Component({
-  selector: 'app-global-dialog',
-  standalone: true,
-  imports: [FormsModule, NgIconComponent],
-  viewProviders: [provideIcons({
-    heroExclamationTriangle,
-    heroInformationCircle,
-    heroCheckCircle,
-    heroXCircle
-  })],
-  template: `
+    selector: 'app-global-dialog',
+    imports: [FormsModule, NgIconComponent],
+    viewProviders: [provideIcons({
+            heroExclamationTriangle,
+            heroInformationCircle,
+            heroCheckCircle,
+            heroXCircle
+        })],
+    template: `
     @if (dialogService.isOpen()) {
       <div class="dialog-overlay" (click)="onOverlayClick()"></div>
       <div class="dialog" [class]="'dialog--' + (dialogService.config()?.variant || 'info')">
@@ -50,7 +50,7 @@ import {
         <div class="dialog__actions">
           @if (dialogService.config()?.type !== 'alert') {
             <button class="dialog__btn dialog__btn--cancel" (click)="onCancel()">
-              {{ dialogService.config()?.cancelText || 'Annuler' }}
+              {{ dialogService.config()?.cancelText || defaultCancelText }}
             </button>
           }
           <button
@@ -64,7 +64,7 @@ import {
       </div>
     }
   `,
-  styles: [`
+    styles: [`
     .dialog-overlay {
       position: fixed;
       inset: 0;
@@ -260,7 +260,12 @@ import {
 export class GlobalDialogComponent {
   dialogService = inject(DialogService);
   private cdr = inject(ChangeDetectorRef);
+  private translateService = inject(TranslateService);
   inputValue = '';
+
+  get defaultCancelText(): string {
+    return this.translateService.instant('common.cancel');
+  }
 
   constructor() {
     // Watch dialog state changes and force re-render, even when triggered outside Angular zone

@@ -8,6 +8,7 @@ import com.chessconnect.repository.LessonParticipantRepository;
 import com.chessconnect.repository.LessonRepository;
 import com.chessconnect.repository.UserRepository;
 import com.chessconnect.service.JitsiTokenService;
+import com.chessconnect.service.SubscriptionService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -27,13 +28,16 @@ public class JitsiController {
     private final UserRepository userRepository;
     private final LessonRepository lessonRepository;
     private final LessonParticipantRepository participantRepository;
+    private final SubscriptionService subscriptionService;
 
     public JitsiController(JitsiTokenService jitsiTokenService, UserRepository userRepository,
-                           LessonRepository lessonRepository, LessonParticipantRepository participantRepository) {
+                           LessonRepository lessonRepository, LessonParticipantRepository participantRepository,
+                           SubscriptionService subscriptionService) {
         this.jitsiTokenService = jitsiTokenService;
         this.userRepository = userRepository;
         this.lessonRepository = lessonRepository;
         this.participantRepository = participantRepository;
+        this.subscriptionService = subscriptionService;
     }
 
     @GetMapping("/token")
@@ -66,14 +70,32 @@ public class JitsiController {
             return ResponseEntity.badRequest().build();
         }
 
-        String token = jitsiTokenService.generateToken(user, roomName);
         boolean isModerator = user.getRole() == UserRole.TEACHER || user.getRole() == UserRole.ADMIN;
+
+        // Check if recording should be enabled (only for premium students)
+        boolean recordingEnabled = false;
+        Matcher recMatcher = ROOM_PATTERN.matcher(roomName);
+        if (recMatcher.matches()) {
+            Long recLessonId = Long.parseLong(recMatcher.group(1));
+            Lesson recLesson = lessonRepository.findById(recLessonId).orElse(null);
+            if (recLesson != null) {
+                if (Boolean.TRUE.equals(recLesson.getIsGroupLesson())) {
+                    // Group lessons are always recorded
+                    recordingEnabled = true;
+                } else if (recLesson.getStudent() != null) {
+                    recordingEnabled = subscriptionService.isPremium(recLesson.getStudent().getId());
+                }
+            }
+        }
+
+        String token = jitsiTokenService.generateToken(user, roomName, recordingEnabled);
 
         return ResponseEntity.ok(new JitsiTokenResponse(
                 token,
                 roomName,
                 "meet.mychess.fr",
-                isModerator
+                isModerator,
+                recordingEnabled
         ));
     }
 }

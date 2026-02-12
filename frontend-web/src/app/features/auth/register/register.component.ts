@@ -35,13 +35,12 @@ function emailValidator(control: AbstractControl): ValidationErrors | null {
 }
 
 @Component({
-  selector: 'app-register',
-  standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, NgIconComponent, DateInputComponent, TranslateModule],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  viewProviders: [provideIcons({ heroAcademicCap, heroUserGroup, heroPlayCircle, heroArrowRight })],
-  templateUrl: './register.component.html',
-  styleUrl: './register.component.scss'
+    selector: 'app-register',
+    imports: [ReactiveFormsModule, RouterLink, NgIconComponent, DateInputComponent, TranslateModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    viewProviders: [provideIcons({ heroAcademicCap, heroUserGroup, heroPlayCircle, heroArrowRight })],
+    templateUrl: './register.component.html',
+    styleUrl: './register.component.scss'
 })
 export class RegisterComponent {
   private seoService = inject(SeoService);

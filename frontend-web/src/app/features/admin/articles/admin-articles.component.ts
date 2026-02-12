@@ -1,39 +1,39 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ArticleService } from '../../../core/services/article.service';
 import { ArticleList, ArticleDetail, ArticlePage, ArticleCreateRequest, ARTICLE_CATEGORIES } from '../../../core/models/article.model';
 import { DialogService } from '../../../core/services/dialog.service';
 
 @Component({
-  selector: 'app-admin-articles',
-  standalone: true,
-  imports: [CommonModule, FormsModule, DatePipe],
-  template: `
+    selector: 'app-admin-articles',
+    imports: [FormsModule, DatePipe, TranslateModule],
+    template: `
     <div class="articles-page">
       <header class="page-header">
-        <h1>Blog</h1>
+        <h1>{{ 'admin.articles.blog' | translate }}</h1>
         <button class="btn btn--primary" (click)="openCreateModal()">
-          + Nouvel article
+          + {{ 'admin.articles.newArticle' | translate }}
         </button>
       </header>
 
       @if (loading()) {
-        <div class="loading">Chargement...</div>
+        <div class="loading">{{ 'common.loading' | translate }}</div>
       } @else {
         <div class="table-container">
           <div class="table-header">
-            <span class="results-count">{{ articles()?.totalElements || 0 }} article(s)</span>
+            <span class="results-count">{{ articles()?.totalElements || 0 }} {{ 'admin.articles.articles' | translate }}</span>
           </div>
           <table class="table">
             <thead>
               <tr>
-                <th>Titre</th>
-                <th>Catégorie</th>
-                <th>Auteur</th>
-                <th>Date</th>
-                <th>Statut</th>
-                <th>Actions</th>
+                <th>{{ 'admin.articles.titleLabel' | translate }}</th>
+                <th>{{ 'admin.articles.category' | translate }}</th>
+                <th>{{ 'admin.articles.author' | translate }}</th>
+                <th>{{ 'admin.articles.dateLabel' | translate }}</th>
+                <th>{{ 'admin.articles.statusLabel' | translate }}</th>
+                <th>{{ 'admin.articles.actionsLabel' | translate }}</th>
               </tr>
             </thead>
             <tbody>
@@ -60,9 +60,9 @@ import { DialogService } from '../../../core/services/dialog.service';
                   </td>
                   <td>
                     @if (article.published) {
-                      <span class="badge badge--published">Publié</span>
+                      <span class="badge badge--published">{{ 'admin.articles.published' | translate }}</span>
                     } @else {
-                      <span class="badge badge--draft">Brouillon</span>
+                      <span class="badge badge--draft">{{ 'admin.articles.draft' | translate }}</span>
                     }
                   </td>
                   <td>
@@ -72,7 +72,7 @@ import { DialogService } from '../../../core/services/dialog.service';
                         (click)="openEditModal(article)"
                         [disabled]="actionLoading()"
                       >
-                        Modifier
+                        {{ 'admin.articles.modify' | translate }}
                       </button>
                       @if (article.published) {
                         <button
@@ -80,7 +80,7 @@ import { DialogService } from '../../../core/services/dialog.service';
                           (click)="unpublishArticle(article)"
                           [disabled]="actionLoading()"
                         >
-                          Dépublier
+                          {{ 'admin.articles.unpublish' | translate }}
                         </button>
                       } @else {
                         <button
@@ -88,7 +88,7 @@ import { DialogService } from '../../../core/services/dialog.service';
                           (click)="publishArticle(article)"
                           [disabled]="actionLoading()"
                         >
-                          Publier
+                          {{ 'admin.articles.publish' | translate }}
                         </button>
                       }
                       <button
@@ -96,14 +96,14 @@ import { DialogService } from '../../../core/services/dialog.service';
                         (click)="confirmDelete(article)"
                         [disabled]="actionLoading()"
                       >
-                        Supprimer
+                        {{ 'admin.articles.deleteAction' | translate }}
                       </button>
                     </div>
                   </td>
                 </tr>
               } @empty {
                 <tr>
-                  <td colspan="6" class="empty-state">Aucun article</td>
+                  <td colspan="6" class="empty-state">{{ 'admin.articles.noArticles' | translate }}</td>
                 </tr>
               }
             </tbody>
@@ -117,15 +117,15 @@ import { DialogService } from '../../../core/services/dialog.service';
               [disabled]="currentPage() === 0"
               (click)="loadArticles(currentPage() - 1)"
             >
-              Précédent
+              {{ 'admin.articles.previous' | translate }}
             </button>
-            <span>Page {{ currentPage() + 1 }} / {{ articles()!.totalPages }}</span>
+            <span>{{ 'admin.articles.page' | translate }} {{ currentPage() + 1 }} / {{ articles()!.totalPages }}</span>
             <button
               class="btn btn--sm btn--ghost"
               [disabled]="currentPage() >= articles()!.totalPages - 1"
               (click)="loadArticles(currentPage() + 1)"
             >
-              Suivant
+              {{ 'admin.articles.next' | translate }}
             </button>
           </div>
         }
@@ -136,20 +136,20 @@ import { DialogService } from '../../../core/services/dialog.service';
         <div class="modal-overlay" (click)="closeModal()">
           <div class="modal modal--large" (click)="$event.stopPropagation()">
             <div class="modal-header">
-              <h3>{{ editingArticle() ? 'Modifier l\\'article' : 'Nouvel article' }}</h3>
+              <h3>{{ editingArticle() ? ('admin.articles.editArticle' | translate) : ('admin.articles.newArticle' | translate) }}</h3>
               <button class="modal-close" (click)="closeModal()">&times;</button>
             </div>
             <div class="modal-body">
               <div class="form-row">
                 <div class="form-group">
-                  <label>Titre *</label>
-                  <input type="text" [(ngModel)]="formData.title" class="input" placeholder="Titre de l'article">
+                  <label>{{ 'admin.articles.titleLabel' | translate }} *</label>
+                  <input type="text" [(ngModel)]="formData.title" class="input" [placeholder]="'admin.articles.titlePlaceholder' | translate">
                 </div>
                 <div class="form-group">
-                  <label>Catégorie *</label>
+                  <label>{{ 'admin.articles.category' | translate }} *</label>
                   <select [(ngModel)]="formData.category" class="input">
                     @for (cat of categoryKeys; track cat) {
-                      <option [value]="cat">{{ categories[cat].label }}</option>
+                      <option [value]="cat">{{ getCategoryLabel(cat) }}</option>
                     }
                   </select>
                 </div>
@@ -157,55 +157,53 @@ import { DialogService } from '../../../core/services/dialog.service';
 
               <div class="form-row">
                 <div class="form-group">
-                  <label>Auteur *</label>
-                  <input type="text" [(ngModel)]="formData.author" class="input" placeholder="mychess">
+                  <label>{{ 'admin.articles.author' | translate }} *</label>
+                  <input type="text" [(ngModel)]="formData.author" class="input" [placeholder]="'admin.articles.authorPlaceholder' | translate">
                 </div>
                 <div class="form-group">
-                  <label>Image de couverture (URL)</label>
+                  <label>{{ 'admin.articles.coverImage' | translate }}</label>
                   <input type="text" [(ngModel)]="formData.coverImage" class="input" placeholder="https://...">
                 </div>
               </div>
 
               <div class="form-group">
-                <label>Meta description (SEO)</label>
-                <input type="text" [(ngModel)]="formData.metaDescription" class="input" placeholder="Description pour les moteurs de recherche">
+                <label>{{ 'admin.articles.seoDescription' | translate }}</label>
+                <input type="text" [(ngModel)]="formData.metaDescription" class="input" [placeholder]="'admin.articles.seoDescriptionPlaceholder' | translate">
               </div>
 
               <div class="form-group">
-                <label>Meta keywords (SEO)</label>
-                <input type="text" [(ngModel)]="formData.metaKeywords" class="input" placeholder="mot-cle1, mot-cle2, mot-cle3">
+                <label>{{ 'admin.articles.seoKeywords' | translate }}</label>
+                <input type="text" [(ngModel)]="formData.metaKeywords" class="input" [placeholder]="'admin.articles.keywordsPlaceholder' | translate">
               </div>
 
               <div class="form-group">
-                <label>Extrait</label>
-                <textarea [(ngModel)]="formData.excerpt" class="input textarea" rows="2" placeholder="Résumé court de l'article"></textarea>
+                <label>{{ 'admin.articles.excerpt' | translate }}</label>
+                <textarea [(ngModel)]="formData.excerpt" class="input textarea" rows="2" [placeholder]="'admin.articles.summaryPlaceholder' | translate"></textarea>
               </div>
 
               <div class="form-group">
-                <label>Contenu (Markdown) *</label>
-                <textarea [(ngModel)]="formData.content" class="input textarea textarea--large" rows="15" placeholder="## Titre de section
-
-Votre contenu en Markdown..."></textarea>
+                <label>{{ 'admin.articles.content' | translate }} *</label>
+                <textarea [(ngModel)]="formData.content" class="input textarea textarea--large" rows="15" [placeholder]="'admin.articles.contentPlaceholder' | translate"></textarea>
               </div>
 
               <div class="form-group">
                 <label class="checkbox-label">
                   <input type="checkbox" [(ngModel)]="formData.published">
-                  <span>Publier immédiatement</span>
+                  <span>{{ 'admin.articles.publishImmediately' | translate }}</span>
                 </label>
               </div>
             </div>
             <div class="modal-footer">
-              <button class="btn btn--ghost" (click)="closeModal()">Annuler</button>
+              <button class="btn btn--ghost" (click)="closeModal()">{{ 'common.cancel' | translate }}</button>
               <button
                 class="btn btn--primary"
                 (click)="saveArticle()"
                 [disabled]="saving() || !isFormValid()"
               >
                 @if (saving()) {
-                  Enregistrement...
+                  {{ 'admin.articles.saving' | translate }}
                 } @else {
-                  {{ editingArticle() ? 'Enregistrer' : 'Créer' }}
+                  {{ editingArticle() ? ('common.save' | translate) : ('admin.articles.create' | translate) }}
                 }
               </button>
             </div>
@@ -217,16 +215,16 @@ Votre contenu en Markdown..."></textarea>
       @if (showDeleteModal()) {
         <div class="modal-overlay" (click)="cancelDelete()">
           <div class="modal" (click)="$event.stopPropagation()">
-            <h3>Confirmer la suppression</h3>
-            <p>Voulez-vous vraiment supprimer l'article <strong>{{ articleToDelete()?.title }}</strong> ?</p>
-            <p class="warning">Cette action est irréversible.</p>
+            <h3>{{ 'admin.articles.confirmDeletion' | translate }}</h3>
+            <p>{{ 'admin.articles.deleteConfirm' | translate }} <strong>{{ articleToDelete()?.title }}</strong> ?</p>
+            <p class="warning">{{ 'admin.articles.deleteWarning' | translate }}</p>
             <div class="modal-actions">
-              <button class="btn btn--ghost" (click)="cancelDelete()">Non, annuler</button>
+              <button class="btn btn--ghost" (click)="cancelDelete()">{{ 'admin.articles.cancelConfirm' | translate }}</button>
               <button class="btn btn--danger" (click)="deleteArticle()" [disabled]="actionLoading()">
                 @if (actionLoading()) {
-                  Suppression...
+                  {{ 'admin.articles.deleting' | translate }}
                 } @else {
-                  Oui, supprimer
+                  {{ 'admin.articles.yesDelete' | translate }}
                 }
               </button>
             </div>
@@ -235,7 +233,7 @@ Votre contenu en Markdown..."></textarea>
       }
     </div>
   `,
-  styles: [`
+    styles: [`
     .page-header {
       display: flex;
       justify-content: space-between;
@@ -652,6 +650,7 @@ Votre contenu en Markdown..."></textarea>
 export class AdminArticlesComponent implements OnInit {
   private articleService = inject(ArticleService);
   private dialogService = inject(DialogService);
+  private translate = inject(TranslateService);
 
   articles = signal<ArticlePage | null>(null);
   loading = signal(true);
@@ -698,7 +697,8 @@ export class AdminArticlesComponent implements OnInit {
   }
 
   getCategoryLabel(category: string): string {
-    return this.categories[category]?.label || category;
+    const key = this.categories[category]?.labelKey;
+    return key ? this.translate.instant(key) : category;
   }
 
   getCategoryColor(category: string): string {
@@ -768,7 +768,7 @@ export class AdminArticlesComponent implements OnInit {
       },
       error: () => {
         this.saving.set(false);
-        this.dialogService.alert('Erreur lors de l\'enregistrement', 'Erreur', { variant: 'danger' });
+        this.dialogService.alert(this.translate.instant('errors.articleSave'), this.translate.instant('errors.generic'), { variant: 'danger' });
       }
     });
   }
@@ -823,7 +823,7 @@ export class AdminArticlesComponent implements OnInit {
       },
       error: () => {
         this.actionLoading.set(false);
-        this.dialogService.alert('Erreur lors de la suppression', 'Erreur', { variant: 'danger' });
+        this.dialogService.alert(this.translate.instant('errors.articleDelete'), this.translate.instant('errors.generic'), { variant: 'danger' });
       }
     });
   }

@@ -154,7 +154,7 @@
     } @else if (learningPathService.error()) {
       <div class="modal__error">
         <p>{{ learningPathService.error() }}</p>
-        <button class="btn btn--primary" (click)="learningPathService.getStudentProfile(studentId).subscribe()">
+        <button class="btn btn--primary" (click)="learningPathService.getStudentProfile(studentId()).subscribe()">
           {{ 'common.retry' | translate }}
         </button>
       </div>

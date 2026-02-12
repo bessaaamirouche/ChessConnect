@@ -1,6 +1,7 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
 
 export interface Video {
   id: number;
@@ -35,6 +36,8 @@ export class LibraryService {
   readonly loading = this.loadingSignal.asReadonly();
   readonly error = this.errorSignal.asReadonly();
 
+  private translate = inject(TranslateService);
+
   constructor(private http: HttpClient) {}
 
   loadVideos(filters?: LibraryFilters): Observable<Video[]> {
@@ -64,7 +67,7 @@ export class LibraryService {
           this.loadingSignal.set(false);
         },
         error: (err) => {
-          this.errorSignal.set(err.error?.message || 'Erreur lors du chargement des vidéos');
+          this.errorSignal.set(err.error?.message || this.translate.instant('errors.videoLoad'));
           this.loadingSignal.set(false);
         }
       })

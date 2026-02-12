@@ -13,10 +13,10 @@ export { LessonResponse as Lesson } from '@contracts';
 import { LessonStatus } from '@contracts';
 
 // Frontend-specific constants
-export const LESSON_STATUS_LABELS: Record<LessonStatus, { label: string; cssClass: string }> = {
-  PENDING: { label: 'En attente', cssClass: 'lesson-card__status--pending' },
-  CONFIRMED: { label: 'Confirmé', cssClass: 'lesson-card__status--confirmed' },
-  COMPLETED: { label: 'Terminé', cssClass: 'lesson-card__status--completed' },
-  CANCELLED: { label: 'Annulé', cssClass: 'lesson-card__status--cancelled' },
-  NO_SHOW: { label: 'Absent', cssClass: 'lesson-card__status--cancelled' }
+export const LESSON_STATUS_LABELS: Record<LessonStatus, { labelKey: string; cssClass: string }> = {
+  PENDING: { labelKey: 'status.pending', cssClass: 'lesson-card__status--pending' },
+  CONFIRMED: { labelKey: 'status.confirmed', cssClass: 'lesson-card__status--confirmed' },
+  COMPLETED: { labelKey: 'status.completed', cssClass: 'lesson-card__status--completed' },
+  CANCELLED: { labelKey: 'status.cancelled', cssClass: 'lesson-card__status--cancelled' },
+  NO_SHOW: { labelKey: 'lessons.status.noShow', cssClass: 'lesson-card__status--cancelled' }
 };

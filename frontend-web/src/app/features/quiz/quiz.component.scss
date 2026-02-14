@@ -337,7 +337,7 @@
 
   &__notice {
     font-size: 0.875rem;
-    color: #f59e0b;
+    color: var(--warning);
     background: rgba(245, 158, 11, 0.1);
     padding: var(--space-md) var(--space-lg);
     border-radius: var(--radius-md);
@@ -347,7 +347,7 @@
     text-align: left;
 
     strong {
-      color: #f59e0b;
+      color: var(--warning);
     }
   }
 

@@ -6,7 +6,8 @@ import { TeacherService } from '../../../core/services/teacher.service';
 import { SeoService } from '../../../core/services/seo.service';
 import { StructuredDataService } from '../../../core/services/structured-data.service';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
-import { heroMagnifyingGlass, heroXMark, heroAcademicCap } from '@ng-icons/heroicons/outline';
+import { heroMagnifyingGlass, heroXMark, heroAcademicCap, heroUserGroup } from '@ng-icons/heroicons/outline';
+import { heroStarSolid } from '@ng-icons/heroicons/solid';
 import { LanguageSelectorComponent } from '../../../shared/components/language-selector/language-selector.component';
 import { FooterComponent } from '../../../shared/components/footer/footer.component';
 import { paginate } from '../../../core/utils/pagination';
@@ -16,7 +17,7 @@ import { PaginationComponent } from '../../../shared/components/pagination/pagin
     selector: 'app-public-teacher-list',
     imports: [RouterLink, NgIconComponent, FormsModule, TranslateModule, LanguageSelectorComponent, FooterComponent, PaginationComponent],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    viewProviders: [provideIcons({ heroMagnifyingGlass, heroXMark, heroAcademicCap })],
+    viewProviders: [provideIcons({ heroMagnifyingGlass, heroXMark, heroAcademicCap, heroStarSolid, heroUserGroup })],
     templateUrl: './public-teacher-list.component.html',
     styleUrl: './public-teacher-list.component.scss'
 })

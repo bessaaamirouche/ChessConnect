@@ -21,8 +21,11 @@ import com.chessconnect.security.UserDetailsImpl;
 import com.chessconnect.service.GroupLessonService;
 import com.chessconnect.service.InvoiceService;
 import com.chessconnect.service.LessonService;
+import com.chessconnect.service.PromoCodeService;
 import com.chessconnect.service.StripeService;
 import com.chessconnect.service.SubscriptionService;
+import com.chessconnect.dto.promo.ValidatePromoCodeResponse;
+import com.chessconnect.model.enums.DiscountType;
 
 import java.time.LocalDateTime;
 import com.stripe.exception.SignatureVerificationException;
@@ -57,6 +60,7 @@ public class PaymentController {
     private final LessonService lessonService;
     private final InvoiceService invoiceService;
     private final GroupLessonService groupLessonService;
+    private final PromoCodeService promoCodeService;
 
     public PaymentController(
             StripeService stripeService,
@@ -66,7 +70,8 @@ public class PaymentController {
             LessonRepository lessonRepository,
             LessonService lessonService,
             InvoiceService invoiceService,
-            GroupLessonService groupLessonService
+            GroupLessonService groupLessonService,
+            PromoCodeService promoCodeService
     ) {
         this.stripeService = stripeService;
         this.subscriptionService = subscriptionService;
@@ -76,6 +81,7 @@ public class PaymentController {
         this.lessonService = lessonService;
         this.invoiceService = invoiceService;
         this.groupLessonService = groupLessonService;
+        this.promoCodeService = promoCodeService;
     }
 
     // Get Stripe publishable key
@@ -98,13 +104,28 @@ public class PaymentController {
             User teacher = userRepository.findById(request.getTeacherId())
                     .orElseThrow(() -> new RuntimeException("Teacher not found"));
 
-            int amountCents = teacher.getHourlyRateCents();
+            int originalAmountCents = teacher.getHourlyRateCents();
+            int amountCents = originalAmountCents;
             // Sanitize teacher name for Stripe - remove special characters
             String sanitizedName = teacher.getFullName().replaceAll("[^a-zA-ZÀ-ÿ\\s\\-']", "").trim();
             if (sanitizedName.isEmpty()) {
                 sanitizedName = "Coach";
             }
             String description = String.format("Cours d'échecs avec %s", sanitizedName);
+
+            // Promo code handling
+            String promoCode = request.getPromoCode();
+            String promoMetadata = null;
+            if (promoCode != null && !promoCode.isBlank()) {
+                ValidatePromoCodeResponse validation = promoCodeService.validateCode(promoCode, userDetails.getId(), amountCents);
+                if (!validation.valid()) {
+                    return ResponseEntity.badRequest().body(null);
+                }
+                if (validation.discountType() == DiscountType.STUDENT_DISCOUNT) {
+                    amountCents = validation.finalPriceCents();
+                }
+                promoMetadata = promoCode;
+            }
 
             Session session = stripeService.createLessonPaymentSession(
                     student,
@@ -115,7 +136,9 @@ public class PaymentController {
                     request.getDurationMinutes(),
                     request.getNotes(),
                     request.isEmbedded(),
-                    request.getCourseId()
+                    request.getCourseId(),
+                    promoMetadata,
+                    originalAmountCents
             );
 
             CheckoutSessionResponse.CheckoutSessionResponseBuilder responseBuilder = CheckoutSessionResponse.builder()
@@ -499,21 +522,52 @@ public class PaymentController {
             String paymentIntentId = session.getPaymentIntent();
             int amountCents = session.getAmountTotal() != null ? session.getAmountTotal().intValue() : lesson.getPriceCents();
 
+            // Read promo code metadata
+            String promoCodeStr = metadata.get("promo_code");
+            String originalAmountStr = metadata.get("original_amount_cents");
+            boolean promoApplied = promoCodeStr != null && !promoCodeStr.isBlank();
+            int originalAmountCents = (originalAmountStr != null) ? Integer.parseInt(originalAmountStr) : amountCents;
+
             Payment payment = new Payment();
             payment.setPayer(student);
             payment.setTeacher(teacher);
             payment.setLesson(lesson);
             payment.setPaymentType(PaymentType.ONE_TIME_LESSON);
-            payment.setAmountCents(amountCents);
             payment.setStripePaymentIntentId(paymentIntentId);
             payment.setStatus(PaymentStatus.COMPLETED);
             payment.setProcessedAt(LocalDateTime.now());
+
+            if (promoApplied) {
+                ValidatePromoCodeResponse validation = promoCodeService.validateCode(promoCodeStr, userId, originalAmountCents);
+                if (validation.valid() && validation.discountType() == DiscountType.COMMISSION_REDUCTION) {
+                    int standardCommission = (amountCents * 10) / 100;
+                    int reducedCommission = (int) (standardCommission * (100.0 - validation.discountPercent()) / 100.0);
+                    int teacherPayout = amountCents - reducedCommission;
+                    payment.setAmountWithPromo(amountCents, reducedCommission, teacherPayout);
+                } else {
+                    payment.setAmountCents(amountCents);
+                }
+                payment.setOriginalAmountCents(originalAmountCents);
+                payment.setDiscountAmountCents(originalAmountCents - amountCents);
+            } else {
+                payment.setAmountCents(amountCents);
+            }
             paymentRepository.save(payment);
             log.info("Payment {} created and linked to lesson {} for refund tracking", payment.getId(), lesson.getId());
 
-            // Generate invoices
-            boolean promoApplied = "true".equals(metadata.get("promo_applied"));
+            // Record promo code usage and referral earning
+            if (promoApplied) {
+                try {
+                    promoCodeService.applyPromoCode(promoCodeStr, userId, lessonResponse.id(), payment.getId(), originalAmountCents);
+                    promoCodeService.recordReferralEarning(userId, lessonResponse.id(), amountCents, payment.getCommissionCents());
+                } catch (Exception e) {
+                    log.error("Error recording promo code usage", e);
+                }
+            } else {
+                promoCodeService.recordReferralEarning(userId, lessonResponse.id(), amountCents, payment.getCommissionCents());
+            }
 
+            // Generate invoices
             if (paymentIntentId != null && amountCents > 0) {
                 invoiceService.generateInvoicesForPayment(
                         paymentIntentId,

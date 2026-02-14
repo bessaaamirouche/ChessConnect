@@ -120,6 +120,14 @@ public class User {
     @Column(name = "premium_trial_end")
     private LocalDate premiumTrialEnd;
 
+    // Referral tracking
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "referred_by_code_id")
+    private PromoCode referredByCode;
+
+    @Column(name = "referral_code_used_at")
+    private LocalDateTime referralCodeUsedAt;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -271,6 +279,12 @@ public class User {
 
     public LocalDate getPremiumTrialEnd() { return premiumTrialEnd; }
     public void setPremiumTrialEnd(LocalDate premiumTrialEnd) { this.premiumTrialEnd = premiumTrialEnd; }
+
+    public PromoCode getReferredByCode() { return referredByCode; }
+    public void setReferredByCode(PromoCode referredByCode) { this.referredByCode = referredByCode; }
+
+    public LocalDateTime getReferralCodeUsedAt() { return referralCodeUsedAt; }
+    public void setReferralCodeUsedAt(LocalDateTime referralCodeUsedAt) { this.referralCodeUsedAt = referralCodeUsedAt; }
 
     /**
      * Check if user has an active premium trial (not expired)

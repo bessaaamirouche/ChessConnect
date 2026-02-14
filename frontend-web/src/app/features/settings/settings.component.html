@@ -299,15 +299,6 @@
         </form>
       </div>
 
-      <!-- Language Preferences -->
-      <div class="card card--compact">
-        <h3 class="card__title">{{ 'settings.language.title' | translate }}</h3>
-        <p class="card__description">{{ 'settings.language.description' | translate }}</p>
-        <div class="language-preference">
-          <app-language-selector></app-language-selector>
-        </div>
-      </div>
-
       <!-- Paiements (teachers only) -->
       @if (isTeacher()) {
         <div class="card">

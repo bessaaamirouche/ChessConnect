@@ -125,7 +125,7 @@
             <div class="play-overlay">
               <ng-icon name="heroPlaySolid" class="play-icon"></ng-icon>
             </div>
-            <div class="duration-badge">{{ formatDuration(video.durationSeconds) }}</div>
+            <div class="duration-badge">{{ formatDuration(getVideoDuration(video)) }}</div>
             <button
               class="delete-btn"
               (click)="deleteVideo(video, $event)"

@@ -67,8 +67,10 @@ public class VideoConcatenationService {
         }
 
         if (segmentUrls.size() == 1) {
-            // Only one segment, no concatenation needed
+            // Only one segment, no concatenation needed — clear segments to prevent reprocessing
             log.debug("Only one segment for lesson {}, no concatenation needed", lessonId);
+            lesson.setRecordingSegments(null);
+            lessonRepository.save(lesson);
             return true;
         }
 

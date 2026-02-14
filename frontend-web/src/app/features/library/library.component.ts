@@ -1,5 +1,5 @@
-import { Component, OnInit, signal, computed, inject, effect, untracked } from '@angular/core';
-
+import { Component, OnInit, PLATFORM_ID, signal, computed, inject, effect, untracked } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
@@ -38,6 +38,7 @@ import { PaginationComponent } from '../../shared/components/pagination/paginati
 export class LibraryComponent implements OnInit {
   private libraryService = inject(LibraryService);
   private translate = inject(TranslateService);
+  private platformId = inject(PLATFORM_ID);
   private searchSubject = new Subject<string>();
 
   // Filters
@@ -49,6 +50,9 @@ export class LibraryComponent implements OnInit {
 
   // Video player modal
   selectedVideo = signal<Video | null>(null);
+
+  // Real video durations (probed from metadata)
+  videoDurations = signal<Record<number, number>>({});
 
   // From service
   readonly videos = this.libraryService.videos;
@@ -80,6 +84,14 @@ export class LibraryComponent implements OnInit {
     effect(() => {
       this.filteredVideos();
       untracked(() => this.pagination.currentPage.set(0));
+    });
+
+    // Probe real video durations when videos change
+    effect(() => {
+      const videos = this.videos();
+      if (isPlatformBrowser(this.platformId) && videos.length > 0) {
+        untracked(() => this.probeVideoDurations(videos));
+      }
     });
 
     // Debounced search - triggers API call
@@ -166,6 +178,30 @@ export class LibraryComponent implements OnInit {
     event.stopPropagation();
     if (confirm(this.translate.instant('library.video.deleteConfirm'))) {
       this.libraryService.deleteVideo(video.lessonId).subscribe();
+    }
+  }
+
+  getVideoDuration(video: Video): number {
+    return this.videoDurations()[video.id] ?? video.durationSeconds;
+  }
+
+  private probeVideoDurations(videos: Video[]): void {
+    const known = this.videoDurations();
+    for (const video of videos) {
+      if (known[video.id] !== undefined) continue;
+      if (!video.recordingUrl || video.recordingUrl.includes('mediadelivery.net')) continue;
+
+      const el = document.createElement('video');
+      el.preload = 'metadata';
+      const videoId = video.id;
+      el.onloadedmetadata = () => {
+        if (el.duration && isFinite(el.duration)) {
+          this.videoDurations.update(d => ({ ...d, [videoId]: Math.round(el.duration) }));
+        }
+        el.src = '';
+      };
+      el.onerror = () => { el.src = ''; };
+      el.src = video.recordingUrl;
     }
   }
 

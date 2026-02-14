@@ -1,12 +1,15 @@
 import { Component, signal, HostListener, inject, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { NgIconComponent, provideIcons } from '@ng-icons/core';
+import { heroStarSolid } from '@ng-icons/heroicons/solid';
 import { RatingService, CreateRatingRequest } from '../../core/services/rating.service';
 import { FocusTrapDirective } from '../directives/focus-trap.directive';
 
 @Component({
     selector: 'app-rating-modal',
-    imports: [FormsModule, FocusTrapDirective, TranslateModule],
+    imports: [FormsModule, FocusTrapDirective, TranslateModule, NgIconComponent],
+    viewProviders: [provideIcons({ heroStarSolid })],
     templateUrl: './rating-modal.component.html',
     styleUrl: './rating-modal.component.scss'
 })

@@ -1,41 +1,59 @@
-version: '3.8'
+# Jibri Pool - 3 instances for parallel recording
+# Server: 11.7 GB RAM / 6 CPU cores AMD EPYC
+# Each instance: ~2.5 GB RAM (2 GB shm + Chrome/FFmpeg overhead) + ~1.5 CPU cores
+# Reserved for OS + app containers: ~4 GB RAM / ~1.5 cores
+# Max capacity: 3 concurrent recorded lessons
+
+x-jibri-defaults: &jibri-defaults
+  image: jitsi/jibri:stable
+  restart: unless-stopped
+  volumes:
+    - /var/jibri/recordings:/config/recordings
+    - ./finalize.sh:/config/finalize.sh:ro
+  cap_add:
+    - SYS_ADMIN
+  shm_size: '2gb'
+  network_mode: host
+
+x-jibri-env: &jibri-env
+  XMPP_AUTH_DOMAIN: auth.meet.mychess.fr
+  XMPP_INTERNAL_MUC_DOMAIN: internal.auth.meet.mychess.fr
+  XMPP_RECORDER_DOMAIN: recorder.meet.mychess.fr
+  XMPP_SERVER: meet.mychess.fr
+  XMPP_PORT: '5222'
+  JIBRI_XMPP_USER: jibri
+  JIBRI_XMPP_PASSWORD: ${JIBRI_XMPP_PASSWORD:-CHANGE_ME_SECURE_PASSWORD}
+  JIBRI_RECORDER_USER: recorder
+  JIBRI_RECORDER_PASSWORD: ${JIBRI_RECORDER_PASSWORD:-CHANGE_ME_SECURE_PASSWORD}
+  JIBRI_BREWERY_MUC: jibribrewery
+  JIBRI_RECORDING_DIR: /config/recordings
+  JIBRI_FINALIZE_RECORDING_SCRIPT_PATH: /config/finalize.sh
+  JIBRI_STRIP_DOMAIN_FROM_ROOM_NAME: 'false'
+  TZ: Europe/Paris
+  JIBRI_RECORDING_RESOLUTION: 1280x720
+  JIBRI_USAGE_TIMEOUT: '0'
 
 services:
-  jibri:
-    image: jitsi/jibri:stable
-    container_name: jibri
-    restart: unless-stopped
-    volumes:
-      - /var/jibri/recordings:/config/recordings
-      - ./finalize.sh:/config/finalize.sh:ro
-      - /dev/shm:/dev/shm
+  jibri-1:
+    <<: *jibri-defaults
+    container_name: jibri-1
     environment:
-      # XMPP Configuration
-      - XMPP_AUTH_DOMAIN=auth.meet.mychess.fr
-      - XMPP_INTERNAL_MUC_DOMAIN=internal.auth.meet.mychess.fr
-      - XMPP_RECORDER_DOMAIN=recorder.meet.mychess.fr
-      - XMPP_SERVER=meet.mychess.fr
-      - XMPP_PORT=5222
+      <<: *jibri-env
+      JIBRI_INSTANCE_ID: jibri-1
+      DISPLAY: ':0'
 
-      # Jibri credentials (CHANGE THESE!)
-      - JIBRI_XMPP_USER=jibri
-      - JIBRI_XMPP_PASSWORD=${JIBRI_XMPP_PASSWORD:-CHANGE_ME_SECURE_PASSWORD}
-      - JIBRI_BREWERY_MUC=jibribrewery
+  jibri-2:
+    <<: *jibri-defaults
+    container_name: jibri-2
+    environment:
+      <<: *jibri-env
+      JIBRI_INSTANCE_ID: jibri-2
+      DISPLAY: ':1'
 
-      # Recording settings
-      - JIBRI_RECORDING_DIR=/config/recordings
-      - JIBRI_FINALIZE_RECORDING_SCRIPT_PATH=/config/finalize.sh
-      - JIBRI_STRIP_DOMAIN_FROM_ROOM_NAME=false
-
-      # Display settings
-      - DISPLAY=:0
-      - TZ=Europe/Paris
-
-      # Recording quality (720p)
-      - JIBRI_RECORDING_RESOLUTION=1280x720
-      - JIBRI_USAGE_TIMEOUT=0
-
-    cap_add:
-      - SYS_ADMIN
-    shm_size: '2gb'
-    network_mode: host
+  jibri-3:
+    <<: *jibri-defaults
+    container_name: jibri-3
+    environment:
+      <<: *jibri-env
+      JIBRI_INSTANCE_ID: jibri-3
+      DISPLAY: ':2'

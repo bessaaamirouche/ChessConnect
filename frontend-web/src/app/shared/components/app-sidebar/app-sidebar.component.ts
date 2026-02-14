@@ -1,5 +1,5 @@
-import { Component, Input, Output, EventEmitter, signal, computed, inject, OnInit, PLATFORM_ID } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Component, signal, computed, inject, OnInit, PLATFORM_ID, input, output } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -30,7 +30,8 @@ import {
   heroStar,
   heroBookOpen,
   heroChatBubbleLeftRight,
-  heroFilm
+  heroFilm,
+  heroTicket
 } from '@ng-icons/heroicons/outline';
 import { heroStarSolid } from '@ng-icons/heroicons/solid';
 import { AuthService } from '../../../core/services/auth.service';
@@ -53,42 +54,42 @@ export interface SidebarSection {
 }
 
 @Component({
-  selector: 'app-sidebar',
-  standalone: true,
-  imports: [CommonModule, RouterModule, NgIconComponent, TranslateModule, LanguageSelectorComponent],
-  providers: [
-    provideIcons({
-      heroChartBarSquare,
-      heroCalendarDays,
-      heroClipboardDocumentList,
-      heroTrophy,
-      heroCreditCard,
-      heroAcademicCap,
-      heroUserCircle,
-      heroDocumentText,
-      heroArrowRightOnRectangle,
-      heroUsers,
-      heroBanknotes,
-      heroCog6Tooth,
-      heroXMark,
-      heroChevronLeft,
-      heroChevronRight,
-      heroBell,
-      heroNewspaper,
-      heroTrash,
-      heroCheckCircle,
-      heroExclamationCircle,
-      heroInformationCircle,
-      heroExclamationTriangle,
-      heroWallet,
-      heroStar,
-      heroStarSolid,
-      heroBookOpen,
-      heroChatBubbleLeftRight,
-      heroFilm
-    })
-  ],
-  template: `
+    selector: 'app-sidebar',
+    imports: [RouterModule, NgIconComponent, TranslateModule, LanguageSelectorComponent],
+    providers: [
+        provideIcons({
+            heroChartBarSquare,
+            heroCalendarDays,
+            heroClipboardDocumentList,
+            heroTrophy,
+            heroCreditCard,
+            heroAcademicCap,
+            heroUserCircle,
+            heroDocumentText,
+            heroArrowRightOnRectangle,
+            heroUsers,
+            heroBanknotes,
+            heroCog6Tooth,
+            heroXMark,
+            heroChevronLeft,
+            heroChevronRight,
+            heroBell,
+            heroNewspaper,
+            heroTrash,
+            heroCheckCircle,
+            heroExclamationCircle,
+            heroInformationCircle,
+            heroExclamationTriangle,
+            heroWallet,
+            heroStar,
+            heroStarSolid,
+            heroBookOpen,
+            heroChatBubbleLeftRight,
+            heroFilm,
+            heroTicket
+        })
+    ],
+    template: `
     <!-- Mobile Header -->
     <header class="mobile-header">
       <a routerLink="/" class="mobile-header__logo">
@@ -132,7 +133,7 @@ export interface SidebarSection {
 
       <!-- Navigation -->
       <nav class="sidebar__nav">
-        @for (section of sections; track section.title) {
+        @for (section of sections(); track section.title) {
           <div class="sidebar__section">
             <span class="sidebar__section-title">{{ section.title }}</span>
             @for (item of section.items; track item.label) {
@@ -140,7 +141,7 @@ export interface SidebarSection {
                 <a
                   [routerLink]="item.route"
                   routerLinkActive="active"
-                  [routerLinkActiveOptions]="{ exact: item.route === '/dashboard' || item.route === '/admin/dashboard' }"
+                  [routerLinkActiveOptions]="{ exact: item.route === '/dashboard' || item.route === '/mint/dashboard' }"
                   class="sidebar__link"
                   [class.active]="item.active"
                   [title]="isCollapsed() ? item.label : ''"
@@ -172,8 +173,8 @@ export interface SidebarSection {
         }
       </nav>
 
-      <!-- Notification Center -->
-      @if (!isCollapsed()) {
+      <!-- Notification Center (hidden for admin) -->
+      @if (!isCollapsed() && !isAdmin()) {
         <div class="notification-center">
           <button class="notification-center__toggle" (click)="toggleNotifications()">
             <ng-icon name="heroBell" class="notification-center__icon"></ng-icon>
@@ -251,8 +252,8 @@ export interface SidebarSection {
           }
         </div>
       } @else {
-        <!-- Collapsed: just icon with badge -->
-        <div class="notification-center notification-center--collapsed">
+        <!-- Collapsed: just icon with badge (hidden for admin) -->
+        <div class="notification-center notification-center--collapsed" [hidden]="isAdmin()">
           <button class="notification-center__toggle notification-center__toggle--icon" (click)="toggleNotifications()" [title]="'sidebar.notifications' | translate">
             <ng-icon name="heroBell"></ng-icon>
             @if (notificationCenter.unreadCount() > 0) {
@@ -304,12 +305,12 @@ export interface SidebarSection {
       </div>
     </aside>
   `,
-  styleUrl: './app-sidebar.component.scss'
+    styleUrl: './app-sidebar.component.scss'
 })
 export class AppSidebarComponent implements OnInit {
-  @Input() sections: SidebarSection[] = [];
-  @Output() onLogout = new EventEmitter<void>();
-  @Output() collapsedChange = new EventEmitter<boolean>();
+  readonly sections = input<SidebarSection[]>([]);
+  readonly onLogout = output<void>();
+  readonly collapsedChange = output<boolean>();
 
   private authService = inject(AuthService);
   private router = inject(Router);
@@ -317,6 +318,7 @@ export class AppSidebarComponent implements OnInit {
   private platformId = inject(PLATFORM_ID);
   private translateService = inject(TranslateService);
   notificationCenter = inject(NotificationCenterService);
+  isAdmin = computed(() => this.authService.currentUser()?.role === 'ADMIN');
 
   collapsed = signal(false);
   mobileOpen = signal(false);

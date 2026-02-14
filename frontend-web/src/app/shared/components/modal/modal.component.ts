@@ -1,20 +1,18 @@
-import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { heroXMark } from '@ng-icons/heroicons/outline';
 
 @Component({
   selector: 'app-modal',
-  standalone: true,
-  imports: [CommonModule, NgIconComponent],
+  imports: [NgIconComponent],
   viewProviders: [provideIcons({ heroXMark })],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    @if (isOpen) {
+    @if (isOpen()) {
       <div class="modal-overlay" (click)="onOverlayClick()"></div>
-      <div class="modal" [class.modal--sm]="size === 'sm'" [class.modal--lg]="size === 'lg'">
+      <div class="modal" [class.modal--sm]="size() === 'sm'" [class.modal--lg]="size() === 'lg'">
         <div class="modal__header">
-          <h3 class="modal__title">{{ title }}</h3>
+          <h3 class="modal__title">{{ title() }}</h3>
           <button class="modal__close" (click)="close.emit()" type="button">
             <ng-icon name="heroXMark" size="20"></ng-icon>
           </button>
@@ -22,7 +20,7 @@ import { heroXMark } from '@ng-icons/heroicons/outline';
         <div class="modal__content">
           <ng-content></ng-content>
         </div>
-        @if (showFooter) {
+        @if (showFooter()) {
           <div class="modal__footer">
             <ng-content select="[footer]"></ng-content>
           </div>
@@ -115,16 +113,16 @@ import { heroXMark } from '@ng-icons/heroicons/outline';
   `]
 })
 export class ModalComponent {
-  @Input() isOpen = false;
-  @Input() title = '';
-  @Input() size: 'sm' | 'md' | 'lg' = 'md';
-  @Input() showFooter = true;
-  @Input() closeOnOverlay = true;
+  readonly isOpen = input(false);
+  readonly title = input('');
+  readonly size = input<'sm' | 'md' | 'lg'>('md');
+  readonly showFooter = input(true);
+  readonly closeOnOverlay = input(true);
 
-  @Output() close = new EventEmitter<void>();
+  readonly close = output();
 
   onOverlayClick(): void {
-    if (this.closeOnOverlay) {
+    if (this.closeOnOverlay()) {
       this.close.emit();
     }
   }

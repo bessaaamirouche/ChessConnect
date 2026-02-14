@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { User, TeacherBalance } from '../models/user.model';
 
@@ -21,10 +21,15 @@ export class TeacherService {
 
   constructor(private http: HttpClient) {}
 
-  loadTeachers(): Observable<User[]> {
+  loadTeachers(availabilityType?: string): Observable<User[]> {
     this.loadingSignal.set(true);
 
-    return this.http.get<User[]>(this.apiUrl).pipe(
+    let params = new HttpParams();
+    if (availabilityType) {
+      params = params.set('availabilityType', availabilityType);
+    }
+
+    return this.http.get<User[]>(this.apiUrl, { params }).pipe(
       tap({
         next: (teachers) => {
           this.teachersSignal.set(teachers);

@@ -4,6 +4,12 @@ import { adminGuard } from '../../core/guards/admin.guard';
 export const adminRoutes: Routes = [
   {
     path: '',
+    pathMatch: 'full',
+    loadComponent: () => import('../auth/admin-login/admin-login.component')
+      .then(m => m.AdminLoginComponent)
+  },
+  {
+    path: '',
     canActivate: [adminGuard],
     loadComponent: () => import('./admin-layout/admin-layout.component')
       .then(m => m.AdminLayoutComponent),
@@ -52,6 +58,16 @@ export const adminRoutes: Routes = [
         path: 'messages',
         loadComponent: () => import('./messages/admin-messages.component')
           .then(m => m.AdminMessagesComponent)
+      },
+      {
+        path: 'library',
+        loadComponent: () => import('./library/admin-library.component')
+          .then(m => m.AdminLibraryComponent)
+      },
+      {
+        path: 'promo-codes',
+        loadComponent: () => import('./promo-codes/admin-promo-codes.component')
+          .then(m => m.AdminPromoCodesComponent)
       }
     ]
   }

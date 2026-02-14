@@ -1,6 +1,9 @@
 import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
+import { NgIconComponent, provideIcons } from '@ng-icons/core';
+import { heroUserGroup } from '@ng-icons/heroicons/outline';
+import { heroStarSolid } from '@ng-icons/heroicons/solid';
 import { SeoService } from '../../core/services/seo.service';
 import { StructuredDataService } from '../../core/services/structured-data.service';
 import { PublicNavbarComponent, NavLink } from '../../shared/components/public-navbar/public-navbar.component';
@@ -8,8 +11,9 @@ import { FooterComponent } from '../../shared/components/footer/footer.component
 
 @Component({
     selector: 'app-how-it-works',
-    imports: [RouterLink, TranslateModule, PublicNavbarComponent, FooterComponent],
+    imports: [RouterLink, TranslateModule, NgIconComponent, PublicNavbarComponent, FooterComponent],
     changeDetection: ChangeDetectionStrategy.OnPush,
+    viewProviders: [provideIcons({ heroStarSolid, heroUserGroup })],
     templateUrl: './how-it-works.component.html',
     styleUrl: './how-it-works.component.scss'
 })

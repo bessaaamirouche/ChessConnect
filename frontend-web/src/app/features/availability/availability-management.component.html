@@ -35,8 +35,13 @@
               <div class="day-slots">
                 @for (slot of getAvailabilitiesByDay(day.value); track slot.id) {
                   <div class="slot-card">
-                    <div class="slot-time">
-                      {{ slot.startTime }} - {{ slot.endTime }}
+                    <div class="slot-info">
+                      <div class="slot-time">
+                        {{ slot.startTime }} - {{ slot.endTime }}
+                      </div>
+                      <span class="slot-type-badge" [class.slot-type-badge--group]="slot.lessonType === 'GROUP'">
+                        {{ slot.lessonType === 'GROUP' ? ('availability.lessonType.group' | translate) : ('availability.lessonType.individual' | translate) }}
+                      </span>
                     </div>
                     <button class="slot-delete" (click)="deleteAvailability(slot.id)" [title]="'availability.slot.delete' | translate">
                       <ng-icon name="heroTrash" size="14"></ng-icon>
@@ -59,17 +64,50 @@
         <p class="section__desc">{{ 'availability.specific.description' | translate }}</p>
 
         @if (getSpecificDateAvailabilities().length > 0) {
-          <div class="specific-slots">
-            @for (slot of getSpecificDateAvailabilities(); track slot.id) {
-              <div class="specific-slot-card">
-                <div class="slot-date">{{ slot.specificDate }}</div>
-                <div class="slot-time">{{ slot.startTime }} - {{ slot.endTime }}</div>
-                <button class="slot-delete" (click)="deleteAvailability(slot.id)" [title]="'availability.slot.delete' | translate">
-                  <ng-icon name="heroTrash" size="14"></ng-icon>
-                </button>
-              </div>
-            }
+          <!-- Filters -->
+          <div class="specific-filters">
+            <select class="input input--sm" [ngModel]="filterDate()" (ngModelChange)="filterDate.set($event)">
+              <option value="">{{ 'availability.filter.allDates' | translate }}</option>
+              @for (date of specificDates(); track date) {
+                <option [value]="date">{{ date }}</option>
+              }
+            </select>
+            <select class="input input--sm" [ngModel]="filterType()" (ngModelChange)="filterType.set($event)">
+              <option value="">{{ 'availability.filter.allTypes' | translate }}</option>
+              <option value="INDIVIDUAL">{{ 'availability.lessonType.individual' | translate }}</option>
+              <option value="GROUP">{{ 'availability.lessonType.group' | translate }}</option>
+            </select>
           </div>
+
+          @if (groupedSpecificSlots().length > 0) {
+            <div class="date-groups">
+              @for (group of groupedSpecificSlots(); track group.date) {
+                <div class="date-group">
+                  <div class="date-group__header">
+                    <ng-icon name="heroCalendarDays" size="14"></ng-icon>
+                    <span>{{ group.date }}</span>
+                  </div>
+                  <div class="date-group__slots">
+                    @for (slot of group.slots; track slot.id) {
+                      <div class="date-slot">
+                        <span class="date-slot__time">{{ slot.startTime }} - {{ slot.endTime }}</span>
+                        <span class="slot-type-badge" [class.slot-type-badge--group]="slot.lessonType === 'GROUP'">
+                          {{ slot.lessonType === 'GROUP' ? ('availability.lessonType.group' | translate) : ('availability.lessonType.individual' | translate) }}
+                        </span>
+                        <button class="slot-delete" (click)="deleteAvailability(slot.id)" [title]="'availability.slot.delete' | translate">
+                          <ng-icon name="heroTrash" size="14"></ng-icon>
+                        </button>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="empty-state empty-state--sm">
+              <p class="empty-state__description">{{ 'availability.filter.noResults' | translate }}</p>
+            </div>
+          }
         } @else {
           <div class="empty-state">
             <div class="empty-state__icon"><ng-icon name="heroCalendarDays" size="48"></ng-icon></div>
@@ -95,6 +133,31 @@
           <div class="alert-inline alert-inline--error" [class.alert-inline--visible]="error()">
             <span>{{ error() }}</span>
             <button class="alert__close" (click)="clearError()">×</button>
+          </div>
+        </div>
+
+        <!-- Lesson Type Selection -->
+        <div class="form-group">
+          <label class="form-group__label">{{ 'availability.lessonType.label' | translate }}</label>
+          <div class="radio-group">
+            <label class="radio-option">
+              <input
+                type="radio"
+                name="lessonType"
+                value="INDIVIDUAL"
+                [(ngModel)]="lessonType"
+              />
+              <span>{{ 'availability.lessonType.individual' | translate }}</span>
+            </label>
+            <label class="radio-option">
+              <input
+                type="radio"
+                name="lessonType"
+                value="GROUP"
+                [(ngModel)]="lessonType"
+              />
+              <span>{{ 'availability.lessonType.group' | translate }}</span>
+            </label>
           </div>
         </div>
 

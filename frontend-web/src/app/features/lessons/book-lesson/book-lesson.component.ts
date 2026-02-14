@@ -14,6 +14,7 @@ import { ProgrammeService, ProgrammeCourse } from '../../../core/services/progra
 import { UrlValidatorService } from '../../../core/services/url-validator.service';
 import { GroupLessonService } from '../../../core/services/group-lesson.service';
 import { DialogService } from '../../../core/services/dialog.service';
+import { PromoCodeService, ValidatePromoCodeResponse } from '../../../core/services/promo-code.service';
 import { TimeSlot } from '../../../core/models/availability.model';
 import { Course, GradeWithCourses } from '../../../core/models/learning-path.model';
 import { ChessLevel, CHESS_LEVELS } from '../../../core/models/user.model';
@@ -37,7 +38,8 @@ import {
   heroDocumentText,
   heroBookOpen,
   heroCheckCircle,
-  heroArrowPath
+  heroArrowPath,
+  heroCheck
 } from '@ng-icons/heroicons/outline';
 
 @Component({
@@ -60,7 +62,8 @@ import {
             heroDocumentText,
             heroBookOpen,
             heroCheckCircle,
-            heroArrowPath
+            heroArrowPath,
+            heroCheck
         })],
     templateUrl: './book-lesson.component.html',
     styleUrl: './book-lesson.component.scss'
@@ -130,6 +133,20 @@ export class BookLessonComponent implements OnInit {
 
   canPayGroupWithCredit = computed(() => {
     return this.walletService.hasEnoughCredit(this.groupPricePerPerson());
+  });
+
+  // Promo code
+  promoCode = signal('');
+  promoValidation = signal<ValidatePromoCodeResponse | null>(null);
+  promoLoading = signal(false);
+  private promoCodeService = inject(PromoCodeService);
+
+  promoFinalPrice = computed(() => {
+    const validation = this.promoValidation();
+    if (validation?.valid && validation.finalPriceCents != null) {
+      return validation.finalPriceCents;
+    }
+    return this.effectivePrice();
   });
 
   // Embedded checkout
@@ -213,6 +230,12 @@ export class BookLessonComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // Read lesson type from query params (from teacher list toggle)
+    const type = this.route.snapshot.queryParamMap.get('type');
+    if (type === 'GROUP') {
+      this.isGroupMode.set(true);
+    }
+
     const teacherId = this.route.snapshot.paramMap.get('teacherId');
     if (teacherId) {
       this.teacherService.getTeacher(+teacherId).subscribe(() => {
@@ -242,10 +265,12 @@ export class BookLessonComponent implements OnInit {
     const endDate = new Date();
     endDate.setDate(endDate.getDate() + 14);
 
+    const lessonType = this.isGroupMode() ? 'GROUP' : 'INDIVIDUAL';
     this.availabilityService.loadAvailableSlots(
       teacherId,
       startDate.toISOString().split('T')[0],
-      endDate.toISOString().split('T')[0]
+      endDate.toISOString().split('T')[0],
+      lessonType
     ).subscribe();
   }
 
@@ -324,9 +349,15 @@ export class BookLessonComponent implements OnInit {
   toggleGroupMode(value: boolean): void {
     this.isGroupMode.set(value);
     this.groupCreatedToken.set(null);
+    this.selectedSlot.set(null);
     // Auto-enable wallet if sufficient balance
     if (value) {
       this.payWithCreditSignal.set(this.canPayGroupWithCredit());
+    }
+    // Reload slots filtered by lesson type
+    const teacher = this.teacherService.selectedTeacher();
+    if (teacher) {
+      this.loadAvailableSlots(teacher.id);
     }
   }
 
@@ -346,6 +377,30 @@ export class BookLessonComponent implements OnInit {
       this.linkCopied.set(true);
       setTimeout(() => this.linkCopied.set(false), 2000);
     });
+  }
+
+  validatePromo(): void {
+    const code = this.promoCode().trim();
+    if (!code) {
+      this.promoValidation.set(null);
+      return;
+    }
+    this.promoLoading.set(true);
+    this.promoCodeService.validateCode(code, this.effectivePrice()).subscribe({
+      next: (res) => {
+        this.promoValidation.set(res);
+        this.promoLoading.set(false);
+      },
+      error: () => {
+        this.promoValidation.set(null);
+        this.promoLoading.set(false);
+      }
+    });
+  }
+
+  clearPromo(): void {
+    this.promoCode.set('');
+    this.promoValidation.set(null);
   }
 
   isSlotSelected(slot: TimeSlot): boolean {
@@ -373,6 +428,9 @@ export class BookLessonComponent implements OnInit {
       return;
     }
 
+    // Active promo code
+    const activePromo = this.promoValidation()?.valid ? this.promoCode().trim() : undefined;
+
     // Pay with credit
     if (this.payWithCreditSignal() && this.canPayWithCredit()) {
       this.walletService.bookWithCredit({
@@ -380,7 +438,8 @@ export class BookLessonComponent implements OnInit {
         scheduledAt: scheduledAt,
         durationMinutes: 60,
         notes: notes || '',
-        courseId
+        courseId,
+        promoCode: activePromo
       }).subscribe({
         next: (response) => {
           if (response.success) {
@@ -406,7 +465,8 @@ export class BookLessonComponent implements OnInit {
       scheduledAt: scheduledAt,
       durationMinutes: 60,
       notes: notes || '',
-      courseId
+      courseId,
+      promoCode: activePromo
     }, true).subscribe({
       next: (response) => {
         if (response.clientSecret) {

@@ -7,7 +7,7 @@
     <div class="booking-wrapper">
       @if (success()) {
         <div class="success-card text-center">
-          <div class="success-icon">&#10004;</div>
+          <div class="success-icon"><ng-icon name="heroCheck" size="24"></ng-icon></div>
           @if (groupCreatedToken()) {
             <h2 class="heading-3">{{ 'group_lesson.createSuccess' | translate }}</h2>
             <p class="text-secondary">{{ 'group_lesson.shareLink' | translate }}</p>
@@ -121,31 +121,6 @@
               </div>
             </div>
           }
-
-            <!-- Wallet Balance -->
-            @if (walletService.balance() > 0) {
-              <div class="wallet-info">
-                <div class="wallet-info__card" [class.wallet-info__card--active]="payWithCreditSignal()">
-                  <span class="wallet-info__icon"><ng-icon name="heroWallet" size="20"></ng-icon></span>
-                  <div class="wallet-info__content">
-                    <strong>{{ 'booking.wallet' | translate }}</strong>
-                    <p class="wallet-info__balance">{{ 'booking.walletBalance' | translate }}: {{ walletService.formatPrice(walletService.balance()) }}</p>
-                  </div>
-                  @if (isGroupMode() ? canPayGroupWithCredit() : canPayWithCredit()) {
-                    <label class="wallet-info__toggle">
-                      <input
-                        type="checkbox"
-                        [checked]="payWithCreditSignal()"
-                        (change)="togglePayWithCredit($any($event.target).checked)"
-                      />
-                      <span class="wallet-info__toggle-label">{{ 'booking.useWallet' | translate }}</span>
-                    </label>
-                  } @else {
-                    <span class="wallet-info__insufficient">{{ 'booking.insufficientBalance' | translate }}</span>
-                  }
-                </div>
-              </div>
-            }
 
           <!-- Error -->
           <div class="alert-inline-container">
@@ -270,20 +245,75 @@
               ></textarea>
             </div>
 
-            <!-- Price Summary -->
-            <div class="price-summary">
-              <div class="price-summary__row">
-                <span>{{ isGroupMode() ? ('group_lesson.pricePerPerson' | translate) : ('booking.price' | translate) }}</span>
-                <span class="price-summary__value">
-                  {{ formatPrice(effectivePrice()) }}
-                </span>
-              </div>
-              @if (isGroupMode()) {
-                <div class="price-summary__row price-summary__row--savings">
-                  <span>{{ 'group_lesson.savings' | translate:{ percent: groupSavingsPercent() } }}</span>
+            <!-- Price Summary (private lessons only) -->
+            @if (!isGroupMode()) {
+              <div class="price-summary">
+                <div class="price-summary__row">
+                  <span>{{ 'booking.price' | translate }}</span>
+                  <span class="price-summary__value" [class.price-strikethrough]="promoValidation()?.valid && promoValidation()?.discountType === 'STUDENT_DISCOUNT'">
+                    {{ formatPrice(effectivePrice()) }}
+                  </span>
                 </div>
-              }
-            </div>
+                @if (promoValidation()?.valid && promoValidation()?.discountType === 'STUDENT_DISCOUNT') {
+                  <div class="price-summary__row price-summary__row--promo">
+                    <span>{{ 'booking.promoPrice' | translate }}</span>
+                    <span class="price-summary__value price-summary__value--promo">
+                      {{ formatPrice(promoFinalPrice()) }}
+                    </span>
+                  </div>
+                }
+              </div>
+            }
+
+            <!-- Promo Code -->
+            @if (!isGroupMode()) {
+              <div class="promo-section">
+                <div class="promo-input-row">
+                  <input
+                    type="text"
+                    class="promo-input"
+                    [value]="promoCode()"
+                    (input)="promoCode.set($any($event.target).value)"
+                    [placeholder]="'booking.promoPlaceholder' | translate"
+                    [disabled]="promoValidation()?.valid"
+                  />
+                  @if (promoValidation()?.valid) {
+                    <button type="button" class="btn-promo btn-promo--clear" (click)="clearPromo()">✕</button>
+                  } @else {
+                    <button type="button" class="btn-promo" (click)="validatePromo()" [disabled]="!promoCode() || promoLoading()">
+                      {{ 'booking.applyPromo' | translate }}
+                    </button>
+                  }
+                </div>
+                @if (promoValidation(); as v) {
+                  <div class="promo-result" [class.promo-result--success]="v.valid" [class.promo-result--error]="!v.valid">
+                    {{ v.message }}
+                  </div>
+                }
+              </div>
+            }
+
+            <!-- Wallet Balance -->
+            @if (walletService.balance() > 0) {
+              <div class="wallet-compact" [class.wallet-compact--active]="payWithCreditSignal()">
+                <div class="wallet-compact__info">
+                  <ng-icon name="heroWallet" size="16"></ng-icon>
+                  <span>{{ 'booking.walletAvailable' | translate }}: <strong>{{ walletService.formatPrice(walletService.balance()) }}</strong></span>
+                </div>
+                @if (isGroupMode() ? canPayGroupWithCredit() : canPayWithCredit()) {
+                  <label class="wallet-compact__toggle">
+                    <input
+                      type="checkbox"
+                      [checked]="payWithCreditSignal()"
+                      (change)="togglePayWithCredit($any($event.target).checked)"
+                    />
+                    <span>{{ 'booking.useWallet' | translate }}</span>
+                  </label>
+                } @else {
+                  <span class="wallet-compact__insufficient">{{ 'booking.insufficientBalance' | translate }}</span>
+                }
+              </div>
+            }
 
             <button
               type="submit"

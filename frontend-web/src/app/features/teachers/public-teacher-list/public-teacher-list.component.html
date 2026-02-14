@@ -83,6 +83,12 @@
       </div>
     </div>
 
+    <!-- Group Lesson Tip -->
+    <div class="group-tip">
+      <ng-icon name="heroUserGroup" size="18"></ng-icon>
+      <span [innerHTML]="'teachers.groupTip' | translate"></span>
+    </div>
+
     @if (teacherService.loading()) {
       <div class="loading-state">
         <span class="spinner spinner--lg"></span>
@@ -124,7 +130,7 @@
                 </span>
                 @if (teacher.averageRating) {
                   <span class="teacher-card__rating">
-                    <span class="star">&#9733;</span> {{ teacher.averageRating.toFixed(1) }}
+                    <ng-icon name="heroStarSolid" size="14"></ng-icon> {{ teacher.averageRating.toFixed(1) }}
                     <span class="review-count">({{ teacher.reviewCount }})</span>
                   </span>
                 }

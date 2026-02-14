@@ -2,7 +2,9 @@ package com.chessconnect.controller;
 
 import com.chessconnect.dto.teacher.TeacherBalanceResponse;
 import com.chessconnect.model.User;
+import com.chessconnect.model.enums.LessonType;
 import com.chessconnect.model.enums.UserRole;
+import com.chessconnect.repository.AvailabilityRepository;
 import com.chessconnect.repository.LessonRepository;
 import com.chessconnect.repository.UserRepository;
 import com.chessconnect.service.RatingService;
@@ -13,6 +15,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 
 @RestController
 @RequestMapping("/teachers")
@@ -22,22 +26,39 @@ public class TeacherController {
     private final TeacherBalanceService teacherBalanceService;
     private final RatingService ratingService;
     private final LessonRepository lessonRepository;
+    private final AvailabilityRepository availabilityRepository;
 
     public TeacherController(
             UserRepository userRepository,
             TeacherBalanceService teacherBalanceService,
             RatingService ratingService,
-            LessonRepository lessonRepository
+            LessonRepository lessonRepository,
+            AvailabilityRepository availabilityRepository
     ) {
         this.userRepository = userRepository;
         this.teacherBalanceService = teacherBalanceService;
         this.ratingService = ratingService;
         this.lessonRepository = lessonRepository;
+        this.availabilityRepository = availabilityRepository;
     }
 
     @GetMapping
-    public ResponseEntity<List<TeacherResponse>> getAllTeachers() {
+    public ResponseEntity<List<TeacherResponse>> getAllTeachers(
+            @RequestParam(required = false) String availabilityType
+    ) {
         List<User> teachers = userRepository.findByRole(UserRole.TEACHER);
+
+        if (availabilityType != null && !availabilityType.isEmpty()) {
+            Set<Long> teacherIds = new HashSet<>(
+                    availabilityRepository.findDistinctTeacherIdsByLessonTypeAndIsActiveTrue(
+                            LessonType.valueOf(availabilityType)
+                    )
+            );
+            teachers = teachers.stream()
+                    .filter(t -> teacherIds.contains(t.getId()))
+                    .toList();
+        }
+
         List<TeacherResponse> response = teachers.stream()
                 .map(this::mapToResponse)
                 .toList();

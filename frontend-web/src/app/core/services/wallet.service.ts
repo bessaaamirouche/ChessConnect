@@ -32,6 +32,7 @@ export interface BookWithCreditRequest {
   durationMinutes: number;
   notes?: string;
   courseId?: number;
+  promoCode?: string;
 }
 
 export interface BookWithCreditResponse {

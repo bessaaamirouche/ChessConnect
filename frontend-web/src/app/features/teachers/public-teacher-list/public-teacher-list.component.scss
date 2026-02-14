@@ -440,6 +440,29 @@
   }
 }
 
+.group-tip {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  background: rgba(59, 130, 246, 0.06);
+  border: 1px solid rgba(59, 130, 246, 0.12);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-lg);
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+
+  ng-icon {
+    color: var(--info);
+    flex-shrink: 0;
+  }
+
+  @include respond-down(md) {
+    font-size: 0.8125rem;
+    padding: var(--space-xs) var(--space-sm);
+  }
+}
+
 .loading-state {
   display: flex;
   justify-content: center;

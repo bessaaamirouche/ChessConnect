@@ -1,11 +1,11 @@
 @use '../../../styles/variables' as *;
 
-$bg-dark: #0a0a0c;
-$gold: #d4a84b;
-$gold-light: #e8c068;
-$ivory: #f5f3eb;
-$ivory-muted: #a8a5a0;
-$text-muted: #6b6965;
+$bg-dark: var(--bg-primary);
+$gold: var(--gold-400);
+$gold-light: var(--gold-300);
+$ivory: var(--text-primary);
+$ivory-muted: var(--text-secondary);
+$text-muted: var(--text-muted);
 
 .pricing-wrapper {
   min-height: 100vh;
@@ -112,7 +112,7 @@ $text-muted: #6b6965;
     align-items: center;
     gap: 6px;
     padding: 8px 16px;
-    background: linear-gradient(135deg, #22c55e, #16a34a);
+    background: linear-gradient(135deg, var(--success), #16a34a);
     color: white;
     font-size: 0.8125rem;
     font-weight: 700;
@@ -219,6 +219,82 @@ $text-muted: #6b6965;
   }
 }
 
+// Group Lessons Savings
+.group-savings {
+  margin-bottom: var(--space-xl);
+
+  &__card {
+    display: flex;
+    gap: var(--space-lg);
+    padding: var(--space-lg);
+    background: rgba(59, 130, 246, 0.06);
+    border: 1px solid rgba(59, 130, 246, 0.15);
+    border-radius: var(--radius-lg);
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      gap: var(--space-md);
+      padding: var(--space-md);
+    }
+  }
+
+  &__icon {
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(59, 130, 246, 0.12);
+    border-radius: var(--radius-md);
+    color: var(--info);
+    flex-shrink: 0;
+  }
+
+  &__content {
+    flex: 1;
+  }
+
+  &__title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: $ivory;
+    margin: 0 0 var(--space-xs);
+  }
+
+  &__description {
+    font-size: 0.9375rem;
+    color: $ivory-muted;
+    line-height: 1.6;
+    margin: 0 0 var(--space-md);
+
+    @media (max-width: 768px) {
+      font-size: 0.8125rem;
+    }
+  }
+
+  &__examples {
+    display: flex;
+    gap: var(--space-xl);
+  }
+
+  &__example {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    &-label {
+      font-size: 0.8125rem;
+      color: $text-muted;
+    }
+
+    &-value {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--success);
+    }
+  }
+}
+
 // Benefits Section
 .benefits-section {
   margin-bottom: var(--space-xl);
@@ -281,7 +357,7 @@ $text-muted: #6b6965;
 
     &--video {
       background: rgba(139, 92, 246, 0.15);
-      color: #a78bfa;
+      color: var(--info);
     }
 
     &--bell {

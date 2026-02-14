@@ -2,11 +2,14 @@ import { Component, OnInit, signal, inject } from '@angular/core';
 
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { NgIconComponent, provideIcons } from '@ng-icons/core';
+import { heroCheck } from '@ng-icons/heroicons/outline';
 import { PaymentService } from '../../../core/services/payment.service';
 
 @Component({
     selector: 'app-payment-success',
-    imports: [RouterLink, TranslateModule],
+    imports: [RouterLink, TranslateModule, NgIconComponent],
+    viewProviders: [provideIcons({ heroCheck })],
     templateUrl: './payment-success.component.html',
     styleUrl: './payment-success.component.scss'
 })

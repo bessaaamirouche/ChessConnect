@@ -16,5 +16,7 @@ public record BookWithCreditRequest(
 
         String notes,
 
-        Long courseId
+        Long courseId,
+
+        String promoCode
 ) {}

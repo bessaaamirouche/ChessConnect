@@ -1,5 +1,6 @@
 package com.chessconnect.model;
 
+import com.chessconnect.model.enums.LessonType;
 import jakarta.persistence.*;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -36,6 +37,10 @@ public class Availability {
 
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "lesson_type", nullable = false)
+    private LessonType lessonType = LessonType.INDIVIDUAL;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -78,6 +83,9 @@ public class Availability {
 
     public Boolean getIsActive() { return isActive; }
     public void setIsActive(Boolean isActive) { this.isActive = isActive; }
+
+    public LessonType getLessonType() { return lessonType; }
+    public void setLessonType(LessonType lessonType) { this.lessonType = lessonType; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }

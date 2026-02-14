@@ -51,16 +51,16 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.35rem 0.75rem;
-  background: rgba(212, 175, 55, 0.15);
-  border-radius: 9999px;
+  background: rgba(212, 168, 75, 0.15);
+  border-radius: var(--radius-full);
   font-size: 0.75rem;
-  color: #d4af37;
+  color: var(--gold-400);
 }
 
 .thinking-dot {
   width: 8px;
   height: 8px;
-  background: #d4af37;
+  background: var(--gold-400);
   border-radius: 50%;
   animation: pulse 1.5s ease-in-out infinite;
 }
@@ -89,8 +89,8 @@
   .spinner {
     width: 48px;
     height: 48px;
-    border: 3px solid rgba(212, 175, 55, 0.2);
-    border-top-color: #d4af37;
+    border: 3px solid rgba(212, 168, 75, 0.2);
+    border-top-color: var(--gold-400);
     border-radius: 50%;
     animation: spin 1s linear infinite;
   }
@@ -102,7 +102,7 @@
 }
 
 .error-state {
-  color: #ef4444;
+  color: var(--error);
 }
 
 @keyframes spin {
@@ -156,12 +156,12 @@
   &__dot {
     width: 10px;
     height: 10px;
-    background: #6b7280;
+    background: var(--text-muted);
     border-radius: 50%;
     transition: all 0.3s ease;
 
     &--active {
-      background: #4ade80;
+      background: var(--success);
       box-shadow: 0 0 8px rgba(74, 222, 128, 0.5);
     }
   }
@@ -189,17 +189,17 @@
 
   &--win {
     background: rgba(74, 222, 128, 0.15);
-    color: #4ade80;
+    color: var(--success);
   }
 
   &--lose {
     background: rgba(239, 68, 68, 0.15);
-    color: #ef4444;
+    color: var(--error);
   }
 
   &--draw {
     background: rgba(251, 191, 36, 0.15);
-    color: #fbbf24;
+    color: var(--warning);
   }
 
   .btn {
@@ -218,7 +218,7 @@
 
 .eval-bar {
   height: 8px;
-  background: linear-gradient(to right, #1a1a1a 0%, #1a1a1a 50%, #f5f5f5 50%, #f5f5f5 100%);
+  background: linear-gradient(to right, var(--bg-primary) 0%, var(--bg-primary) 50%, var(--text-primary) 50%, var(--text-primary) 100%);
   border-radius: 4px;
   position: relative;
   overflow: hidden;
@@ -229,7 +229,7 @@
     left: 0;
     top: 0;
     height: 100%;
-    background: #4ade80;
+    background: var(--success);
     transition: width 0.3s ease;
   }
 }
@@ -277,7 +277,7 @@
   gap: 0.5rem;
   padding: 0.35rem 0;
   font-size: 0.875rem;
-  font-family: 'Roboto Mono', monospace;
+  font-family: var(--font-mono);
 
   &:not(:last-child) {
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
@@ -334,8 +334,8 @@
   text-decoration: none;
 
   &--primary {
-    background: linear-gradient(135deg, #d4af37 0%, #c9a227 100%);
-    color: #000;
+    background: linear-gradient(135deg, var(--gold-400) 0%, var(--gold-500) 100%);
+    color: var(--text-inverse);
 
     &:hover {
       transform: translateY(-1px);

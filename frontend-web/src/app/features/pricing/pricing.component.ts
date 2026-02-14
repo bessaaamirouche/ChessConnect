@@ -19,7 +19,8 @@ import {
   heroShieldCheck,
   heroClock,
   heroArrowTrendingUp,
-  heroGift
+  heroGift,
+  heroUserGroup
 } from '@ng-icons/heroicons/outline';
 
 @Component({
@@ -38,7 +39,8 @@ import {
             heroShieldCheck,
             heroClock,
             heroArrowTrendingUp,
-            heroGift
+            heroGift,
+            heroUserGroup
         })],
     templateUrl: './pricing.component.html',
     styleUrl: './pricing.component.scss'

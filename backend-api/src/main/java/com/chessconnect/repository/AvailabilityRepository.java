@@ -1,6 +1,7 @@
 package com.chessconnect.repository;
 
 import com.chessconnect.model.Availability;
+import com.chessconnect.model.enums.LessonType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -37,6 +38,9 @@ public interface AvailabilityRepository extends JpaRepository<Availability, Long
             @Param("dayOfWeek") DayOfWeek dayOfWeek,
             @Param("date") LocalDate date
     );
+
+    @Query("SELECT DISTINCT a.teacher.id FROM Availability a WHERE a.isActive = true AND a.lessonType = :lessonType")
+    List<Long> findDistinctTeacherIdsByLessonTypeAndIsActiveTrue(@Param("lessonType") LessonType lessonType);
 
     @Modifying
     void deleteByTeacherIdAndId(Long teacherId, Long id);

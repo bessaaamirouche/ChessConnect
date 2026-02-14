@@ -10,7 +10,8 @@
     "login": "Connexion",
     "signup": "S'inscrire",
     "getStarted": "Commencer",
-    "menu": "Menu de navigation"
+    "menu": "Menu de navigation",
+    "programme": "Programme"
   },
   "hero": {
     "title": "Prêt à maîtriser les <span>Échecs</span> ?",
@@ -41,6 +42,10 @@
     "progressTracking": {
       "title": "Suivez votre progression",
       "description": "Regardez votre niveau monter avec des statistiques détaillées, l'analyse des parties et des badges."
+    },
+    "groupLessons": {
+      "title": "Cours en groupe",
+      "description": "Invitez un ami et partagez le prix du cours. Groupes de 2 ou 3 pour apprendre ensemble et économiser."
     },
     "videoLessons": {
       "title": "Cours vidéo HD",
@@ -169,6 +174,10 @@
       "step4": {
         "title": "Réservez votre premier cours",
         "premiumNote": "Premium : accès prioritaire aux créneaux"
+      },
+      "groupOption": {
+        "title": "Option cours en groupe",
+        "description": "Vous pouvez aussi réserver en groupe (2-3 élèves) et partager le coût. Invitez vos amis via un lien unique !"
       },
       "step5": {
         "title": "Suivez votre progression",
@@ -353,6 +362,14 @@
         "feature3": "Exercices personnalisés"
       }
     },
+    "groupLessons": {
+      "title": "Cours en groupe : partagez le prix",
+      "description": "Réservez un cours à plusieurs et divisez le tarif du coach. Invitez vos amis via un lien de partage.",
+      "duo": "À 2 élèves",
+      "duoSavings": "-50% par personne",
+      "trio": "À 3 élèves",
+      "trioSavings": "-66% par personne"
+    },
     "comparison": {
       "title": "Comparaison des plans",
       "feature": "Fonctionnalité",
@@ -478,7 +495,7 @@
     "myProgress": "Ma progression",
     "programme": "Programme",
     "myLibrary": "Ma bibliothèque",
-    "findCoach": "Trouver un coach",
+    "findCoach": "Trouver un cours",
     "myAvailability": "Mes disponibilités",
     "account": "Compte",
     "profile": "Mon profil",
@@ -496,6 +513,8 @@
     "stripeConnect": "Stripe Connect",
     "blogAdmin": "Blog",
     "messages": "Messages",
+    "library": "Bibliothèque",
+    "promoCodes": "Codes promo",
     "roles": {
       "player": "Joueur",
       "coach": "Coach",
@@ -592,6 +611,7 @@
     "subtitle": "Parcourez les coachs vérifiés et réservez votre premier cours",
     "pageTitle": "Nos Coachs d'Échecs",
     "pageSubtitle": "Trouvez le coach parfait pour progresser à votre rythme",
+    "groupTip": "<strong>Cours en groupe disponibles !</strong> Réservez avec un ami et divisez le prix par 2 ou 3.",
     "searchPlaceholder": "Rechercher par nom…",
     "myFavorites": "Mes Favoris",
     "allCoaches": "Tous les Coachs",
@@ -640,8 +660,8 @@
       "noSlots": "Aucun créneau disponible",
       "checkBack": "Revenez plus tard pour de nouvelles disponibilités",
       "coachTitle": "Coach",
-      "favorite": "Favori",
-      "addFavorite": "Ajouter",
+      "favorite": "Abonné",
+      "addFavorite": "S'abonner",
       "hourlyRate": "Tarif horaire",
       "averageRating": "Note moyenne",
       "lessonsTaught": "Cours donnés",
@@ -663,6 +683,10 @@
       "title": "Prêt à progresser aux échecs ?",
       "description": "Inscrivez-vous gratuitement et réservez votre premier cours offert",
       "button": "Commencer maintenant"
+    },
+    "lessonType": {
+      "individual": "Cours individuel",
+      "group": "Cours collectif"
     }
   },
   "lessons": {
@@ -766,6 +790,7 @@
     "card": "Carte bancaire",
     "wallet": "Solde du portefeuille",
     "walletBalance": "Solde disponible",
+    "walletAvailable": "Solde disponible dans mon portefeuille",
     "insufficientBalance": "Solde insuffisant",
     "addFunds": "Créditer",
     "firstLessonFree": "Premier cours offert !",
@@ -808,7 +833,10 @@
     "redirectingToDashboard": "Redirection vers le tableau de bord...",
     "premiumBookFirst": "Les membres Premium réservent en premier",
     "priorityAccess": "Accès prioritaire aux nouveaux créneaux",
-    "discover": "Découvrir Premium"
+    "discover": "Découvrir Premium",
+    "promoPlaceholder": "Code promo",
+    "applyPromo": "Appliquer",
+    "promoPrice": "Prix avec promo"
   },
   "group_lesson": {
     "title": "Cours en groupe",
@@ -1154,7 +1182,10 @@
       "hourlyRateUnit": "EUR/heure",
       "languages": "Langues parlées",
       "languagesHint": "Sélectionnez les langues que vous parlez",
-      "submitting": "Création du compte..."
+      "submitting": "Création du compte...",
+      "hasReferralCode": "Avez-vous un code de parrainage ?",
+      "referralCode": "Code de parrainage",
+      "referralCodePlaceholder": "Entrez votre code de parrainage"
     },
     "forgotPassword": {
       "title": "Mot de passe oublié",
@@ -1457,6 +1488,11 @@
       "description": "Disponibilités pour des dates spécifiques",
       "empty": "Aucun créneau ponctuel défini"
     },
+    "filter": {
+      "allDates": "Toutes les dates",
+      "allTypes": "Tous les types",
+      "noResults": "Aucun créneau ne correspond aux filtres"
+    },
     "slot": {
       "date": "Date",
       "startTime": "Heure de début",
@@ -1493,6 +1529,11 @@
       "message": "Êtes-vous sûr de vouloir supprimer cette disponibilité ?",
       "confirm": "Supprimer",
       "cancel": "Annuler"
+    },
+    "lessonType": {
+      "label": "Type de cours",
+      "individual": "Cours individuel",
+      "group": "Cours collectif"
     }
   },
   "rating": {
@@ -1624,6 +1665,20 @@
       "deleteConfirm": "Supprimer cette vidéo de votre bibliothèque ?",
       "deleteTitle": "Supprimer de la bibliothèque"
     }
+  },
+  "adminLibrary": {
+    "title": "Bibliothèque vidéo",
+    "subtitle": "Tous les enregistrements de cours",
+    "totalVideos": "Vidéos",
+    "totalDuration": "Durée totale",
+    "searchPlaceholder": "Rechercher par coach ou élève…",
+    "customDates": "Dates personnalisées",
+    "clearFilters": "Effacer les filtres",
+    "dateFrom": "Du",
+    "dateTo": "Au",
+    "loading": "Chargement des vidéos…",
+    "noResults": "Aucune vidéo trouvée",
+    "empty": "Aucun enregistrement disponible"
   },
   "common": {
     "loading": "Chargement…",
@@ -1988,7 +2043,20 @@
     "recording": "Enregistrement",
     "leftCall": "Vous avez quitté l'appel",
     "lessonInProgress": "Le cours est toujours en cours",
-    "rejoinCall": "Rejoindre l'appel"
+    "rejoinCall": "Rejoindre l'appel",
+    "timer": "Définir un minuteur",
+    "timerTitle": "Minuteur",
+    "timerMinutesShort": "min",
+    "timerCustomPlaceholder": "Personnalisé (min)",
+    "timerStart": "Lancer",
+    "timerPause": "Mettre en pause",
+    "timerResume": "Reprendre",
+    "timerReset": "Réinitialiser",
+    "timerCountdown": "Compte à rebours",
+    "timerFinished": "Le temps est écoulé !",
+    "endingSoon": "Le cours se termine dans {{minutes}} minutes",
+    "callEnded": "Le cours est terminé, l'appel a été coupé automatiquement",
+    "remaining": "restantes"
   },
   "exerciseButton": {
     "trainWithBot": "S'entraîner contre myChessBot",
@@ -2316,5 +2384,60 @@
     "showing": "{{start}}-{{end}} sur {{total}}",
     "goToPage": "Aller à la page {{page}}",
     "ariaLabel": "Pagination"
+  },
+  "promoCodes": {
+    "title": "Codes promo & parrainage",
+    "create": "Créer un code",
+    "tabPromo": "Promo",
+    "tabReferral": "Parrainage",
+    "code": "Code",
+    "type": "Type",
+    "discountType": "Type de remise",
+    "discount": "Remise",
+    "commissionReduction": "Réduction commission",
+    "studentDiscount": "Réduction prix",
+    "referrer": "Parrain",
+    "revenueShare": "Part revenus",
+    "premiumDays": "Jours Premium",
+    "uses": "Utilisations",
+    "status": "Statut",
+    "actions": "Actions",
+    "active": "Actif",
+    "inactive": "Inactif",
+    "detail": "Détail",
+    "edit": "Modifier",
+    "activate": "Activer",
+    "deactivate": "Désactiver",
+    "delete": "Supprimer",
+    "empty": "Aucun code pour le moment",
+    "createTitle": "Créer un code",
+    "editTitle": "Modifier le code",
+    "generate": "Générer",
+    "discountPercent": "Pourcentage de remise",
+    "referrerName": "Nom du parrain",
+    "referrerEmail": "Email du parrain",
+    "revenueSharePercent": "Part des revenus (%)",
+    "maxUses": "Utilisations max",
+    "firstLessonOnly": "Premier cours uniquement",
+    "minAmount": "Montant minimum (centimes)",
+    "expiresAt": "Date d'expiration",
+    "totalDiscount": "Total remises",
+    "totalEarnings": "Total gains",
+    "unpaidEarnings": "Gains impayés",
+    "usageHistory": "Historique d'utilisation",
+    "user": "Utilisateur",
+    "originalAmount": "Montant original",
+    "discountAmount": "Remise",
+    "date": "Date",
+    "noUsages": "Aucune utilisation",
+    "earningsHistory": "Historique des gains",
+    "referredUser": "Filleul",
+    "lessonAmount": "Montant cours",
+    "earning": "Gain",
+    "paidStatus": "Statut paiement",
+    "paid": "Payé",
+    "unpaid": "Impayé",
+    "markPaid": "Marquer payé",
+    "noEarnings": "Aucun gain"
   }
 }

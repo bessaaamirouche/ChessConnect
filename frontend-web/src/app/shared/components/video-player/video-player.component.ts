@@ -1,17 +1,16 @@
 import {
   Component,
-  Input,
-  Output,
-  EventEmitter,
   ElementRef,
-  ViewChild,
   AfterViewInit,
   OnDestroy,
   OnInit,
   ChangeDetectionStrategy,
   signal,
   computed,
-  inject
+  inject,
+  input,
+  output,
+  viewChild
 } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
@@ -34,34 +33,33 @@ import { VideoProgressService } from '../../../core/services/video-progress.serv
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
-  selector: 'app-video-player',
-  standalone: true,
-  imports: [NgIconComponent, TranslateModule],
-  viewProviders: [provideIcons({
-    heroXMark,
-    heroPlay,
-    heroPause,
-    heroSpeakerWave,
-    heroSpeakerXMark,
-    heroArrowsPointingOut,
-    heroArrowDownTray,
-    heroForward,
-    heroBackward,
-    heroPlaySolid,
-    heroCog6Tooth
-  })],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './video-player.component.html',
-  styleUrl: './video-player.component.scss'
+    selector: 'app-video-player',
+    imports: [NgIconComponent, TranslateModule],
+    viewProviders: [provideIcons({
+            heroXMark,
+            heroPlay,
+            heroPause,
+            heroSpeakerWave,
+            heroSpeakerXMark,
+            heroArrowsPointingOut,
+            heroArrowDownTray,
+            heroForward,
+            heroBackward,
+            heroPlaySolid,
+            heroCog6Tooth
+        })],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    templateUrl: './video-player.component.html',
+    styleUrl: './video-player.component.scss'
 })
 export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
-  @Input() url!: string;
-  @Input() videoId?: string | number | null; // Unique identifier for saving progress
-  @Input() title = 'Enregistrement du cours';
-  @Input() teacherName?: string;
-  @Input() lessonDate?: string;
-  @Input() downloadUrl?: string;
-  @Output() close = new EventEmitter<void>();
+  readonly url = input.required<string>();
+  readonly videoId = input<string | number | null>(); // Unique identifier for saving progress
+  readonly title = input('Enregistrement du cours');
+  readonly teacherName = input<string>();
+  readonly lessonDate = input<string>();
+  readonly downloadUrl = input<string>();
+  readonly close = output<void>();
 
   private readonly PROGRESS_STORAGE_KEY = 'video_progress_';
   private readonly SAVE_INTERVAL = 5000; // Save every 5 seconds
@@ -69,8 +67,8 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly COMPLETION_THRESHOLD = 0.95; // Consider complete at 95%
   private saveProgressInterval: any;
 
-  @ViewChild('videoElement') videoElement?: ElementRef<HTMLVideoElement>;
-  @ViewChild('playerContainer') playerContainer?: ElementRef<HTMLDivElement>;
+  readonly videoElement = viewChild<ElementRef<HTMLVideoElement>>('videoElement');
+  readonly playerContainer = viewChild<ElementRef<HTMLDivElement>>('playerContainer');
 
   // Signals for reactive state
   isPlaying = signal(false);
@@ -145,8 +143,9 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private getNumericLessonId(): number | null {
-    if (!this.videoId) return null;
-    const id = typeof this.videoId === 'string' ? parseInt(this.videoId, 10) : this.videoId;
+    const videoId = this.videoId();
+    if (!videoId) return null;
+    const id = typeof videoId === 'string' ? parseInt(videoId, 10) : videoId;
     return isNaN(id) ? null : id;
   }
 
@@ -178,7 +177,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     document.addEventListener('webkitfullscreenchange', this.onFullscreenChange);
 
     // iOS video fullscreen events
-    const video = this.videoElement?.nativeElement;
+    const video = this.videoElement()?.nativeElement;
     if (video) {
       video.addEventListener('webkitendfullscreen', this.onIOSFullscreenEnd);
       video.addEventListener('webkitbeginfullscreen', this.onIOSFullscreenBegin);
@@ -189,7 +188,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     document.removeEventListener('fullscreenchange', this.onFullscreenChange);
     document.removeEventListener('webkitfullscreenchange', this.onFullscreenChange);
 
-    const video = this.videoElement?.nativeElement;
+    const video = this.videoElement()?.nativeElement;
     if (video) {
       video.removeEventListener('webkitendfullscreen', this.onIOSFullscreenEnd);
       video.removeEventListener('webkitbeginfullscreen', this.onIOSFullscreenBegin);
@@ -210,22 +209,23 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   };
 
   private detectBunnyStream(): void {
-    if (!this.url) return;
+    const url = this.url();
+    if (!url) return;
 
     // Bunny Stream URL patterns:
     // - iframe.mediadelivery.net/embed/{library_id}/{video_id}
     // - video.bunnycdn.com/{library_id}/{video_id}
     // - {pull_zone}.b-cdn.net/{video_id}/playlist.m3u8
 
-    if (this.url.includes('mediadelivery.net') || this.url.includes('bunnycdn.com')) {
+    if (url.includes('mediadelivery.net') || url.includes('bunnycdn.com')) {
       this.isBunnyStream.set(true);
 
       // If it's already an embed URL, use it directly
-      if (this.url.includes('/embed/')) {
-        this.bunnyEmbedUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(this.url));
+      if (url.includes('/embed/')) {
+        this.bunnyEmbedUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(url));
       } else {
         // Convert to embed URL if possible
-        const embedUrl = this.convertToBunnyEmbed(this.url);
+        const embedUrl = this.convertToBunnyEmbed(url);
         if (embedUrl) {
           this.bunnyEmbedUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(embedUrl));
         } else {
@@ -233,7 +233,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
           this.isBunnyStream.set(false);
         }
       }
-    } else if (this.url.includes('.b-cdn.net') && this.url.includes('playlist.m3u8')) {
+    } else if (url.includes('.b-cdn.net') && url.includes('playlist.m3u8')) {
       // This is a Bunny CDN HLS stream - use native player
       this.isBunnyStream.set(false);
     }
@@ -257,9 +257,10 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private initializePlayer(): void {
-    console.log('[VideoPlayer] initializePlayer called, url:', this.url, 'videoId:', this.videoId);
-    const video = this.videoElement?.nativeElement;
-    if (!video || !this.url) {
+    const url = this.url();
+    console.log('[VideoPlayer] initializePlayer called, url:', url, 'videoId:', this.videoId());
+    const video = this.videoElement()?.nativeElement;
+    if (!video || !url) {
       console.log('[VideoPlayer] initializePlayer: no video element or url');
       return;
     }
@@ -302,7 +303,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     this.startProgressSaving();
 
     // Check if URL is HLS (.m3u8)
-    const isHls = this.url.includes('.m3u8');
+    const isHls = url.includes('.m3u8');
 
     if (isHls) {
       if (Hls.isSupported()) {
@@ -310,7 +311,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
           enableWorker: true,
           lowLatencyMode: false,
         });
-        this.hls.loadSource(this.url);
+        this.hls.loadSource(url);
         this.hls.attachMedia(video);
 
         // Get quality levels when manifest is parsed
@@ -345,15 +346,15 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
         });
       } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
         // Native HLS (Safari/iOS) - no quality selection available
-        video.src = this.url;
+        video.src = url;
         video.play().catch(() => {});
       } else {
-        const mp4Url = this.url.replace('/playlist.m3u8', '/play_720p.mp4');
+        const mp4Url = url.replace('/playlist.m3u8', '/play_720p.mp4');
         video.src = mp4Url;
         video.play().catch(() => {});
       }
     } else {
-      video.src = this.url;
+      video.src = url;
       video.play().catch(() => {});
     }
   }
@@ -372,7 +373,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   private handleKeydown = (e: KeyboardEvent): void => {
     if (this.isBunnyStream()) return;
 
-    const video = this.videoElement?.nativeElement;
+    const video = this.videoElement()?.nativeElement;
     if (!video) return;
 
     switch (e.key) {
@@ -401,6 +402,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
         if (this.isFullscreen()) {
           this.toggleFullscreen();
         } else {
+          // TODO: The 'emit' function requires a mandatory void argument
           this.close.emit();
         }
         break;
@@ -409,7 +411,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // Player controls
   togglePlay(): void {
-    const video = this.videoElement?.nativeElement;
+    const video = this.videoElement()?.nativeElement;
     if (!video) return;
 
     if (video.paused) {
@@ -420,7 +422,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   toggleMute(): void {
-    const video = this.videoElement?.nativeElement;
+    const video = this.videoElement()?.nativeElement;
     if (!video) return;
 
     video.muted = !video.muted;
@@ -428,7 +430,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   setVolume(event: Event): void {
-    const video = this.videoElement?.nativeElement;
+    const video = this.videoElement()?.nativeElement;
     const input = event.target as HTMLInputElement;
     if (!video) return;
 
@@ -439,7 +441,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   seek(event: MouseEvent): void {
-    const video = this.videoElement?.nativeElement;
+    const video = this.videoElement()?.nativeElement;
     const progressBar = event.currentTarget as HTMLElement;
     if (!video) return;
 
@@ -449,15 +451,15 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   skip(seconds: number): void {
-    const video = this.videoElement?.nativeElement;
+    const video = this.videoElement()?.nativeElement;
     if (!video) return;
 
     video.currentTime = Math.max(0, Math.min(video.currentTime + seconds, video.duration));
   }
 
   toggleFullscreen(): void {
-    const video = this.videoElement?.nativeElement as any;
-    const container = this.playerContainer?.nativeElement as any;
+    const video = this.videoElement()?.nativeElement as any;
+    const container = this.playerContainer()?.nativeElement as any;
 
     // Check if we're currently in fullscreen
     const isCurrentlyFullscreen = this.isFullscreen() ||
@@ -552,7 +554,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   download(): void {
-    const url = this.downloadUrl || this.url;
+    const url = this.downloadUrl() || this.url();
     if (url) {
       window.open(url, '_blank');
     }
@@ -567,12 +569,13 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // Progress saving methods
   private getStorageKey(): string | null {
-    if (!this.videoId) return null;
-    return `${this.PROGRESS_STORAGE_KEY}${this.videoId}`;
+    const videoId = this.videoId();
+    if (!videoId) return null;
+    return `${this.PROGRESS_STORAGE_KEY}${videoId}`;
   }
 
   private saveProgress(): void {
-    const video = this.videoElement?.nativeElement;
+    const video = this.videoElement()?.nativeElement;
     if (!video || isNaN(video.currentTime) || isNaN(video.duration)) {
       console.log('[VideoPlayer] saveProgress: no video element or invalid time');
       return;
@@ -622,7 +625,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private restoreProgress(): void {
-    const video = this.videoElement?.nativeElement;
+    const video = this.videoElement()?.nativeElement;
     if (!video) return;
 
     const lessonId = this.getNumericLessonId();
@@ -672,8 +675,9 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private startProgressSaving(): void {
-    console.log('[VideoPlayer] startProgressSaving, videoId:', this.videoId);
-    if (!this.videoId) {
+    const videoId = this.videoId();
+    console.log('[VideoPlayer] startProgressSaving, videoId:', videoId);
+    if (!videoId) {
       console.log('[VideoPlayer] No videoId, not starting progress saving');
       return;
     }
@@ -690,7 +694,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     // Mark as completed on backend
     const lessonId = this.getNumericLessonId();
     if (lessonId && this.authService.isAuthenticated()) {
-      const video = this.videoElement?.nativeElement;
+      const video = this.videoElement()?.nativeElement;
       const duration = video?.duration || 0;
       this.videoProgressService.saveProgress(lessonId, duration, duration, true).subscribe();
     }

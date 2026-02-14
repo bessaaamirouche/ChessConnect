@@ -36,7 +36,7 @@
         @if (authService.isStudent()) {
           <div class="contact-card__actions">
             <a [routerLink]="['/book', teacher.id]" class="action-btn action-btn--primary">
-              <span class="action-btn__icon">&#128197;</span>
+              <ng-icon name="heroCalendarDays" class="action-btn__icon" size="18"></ng-icon>
               <span class="action-btn__label">{{ 'teachers.card.bookNow' | translate }}</span>
             </a>
             <button
@@ -44,7 +44,7 @@
               [class.action-btn--active]="isFavorite()"
               (click)="toggleFavorite()"
             >
-              <span class="action-btn__icon">{{ isFavorite() ? '&#9733;' : '&#9734;' }}</span>
+              <ng-icon [name]="isFavorite() ? 'heroBellAlertSolid' : 'heroBell'" class="action-btn__icon" size="18"></ng-icon>
               <span class="action-btn__label">{{ isFavorite() ? ('teachers.profile.favorite' | translate) : ('teachers.profile.addFavorite' | translate) }}</span>
             </button>
           </div>
@@ -52,7 +52,7 @@
           <!-- Authenticated but not student (e.g., teacher viewing another profile) -->
           <div class="contact-card__actions contact-card__actions--single">
             <a [routerLink]="['/book', teacher.id]" class="action-btn action-btn--primary action-btn--large">
-              <span class="action-btn__icon">&#128197;</span>
+              <ng-icon name="heroCalendarDays" class="action-btn__icon" size="18"></ng-icon>
               <span class="action-btn__label">{{ 'teachers.profile.bookLesson' | translate }}</span>
             </a>
           </div>
@@ -60,7 +60,7 @@
           <!-- Not authenticated - show signup CTA -->
           <div class="contact-card__actions contact-card__actions--single">
             <a routerLink="/register" class="action-btn action-btn--primary action-btn--large">
-              <span class="action-btn__icon">&#128197;</span>
+              <ng-icon name="heroCalendarDays" class="action-btn__icon" size="18"></ng-icon>
               <span class="action-btn__label">{{ 'teachers.profile.signupToBook' | translate }}</span>
             </a>
           </div>
@@ -83,7 +83,7 @@
                 <div class="info-row">
                   <span class="info-row__label">{{ 'teachers.profile.averageRating' | translate }}</span>
                   <span class="info-row__value">
-                    <span class="star">&#9733;</span>
+                    <ng-icon name="heroStarSolid" size="14"></ng-icon>
                     {{ teacher.averageRating.toFixed(1) }}
                     <span class="text-muted">({{ teacher.reviewCount }} {{ 'teachers.card.reviews' | translate }})</span>
                   </span>

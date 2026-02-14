@@ -3,23 +3,23 @@
     <!-- Header -->
     <div class="video-header">
       <div class="video-header__info">
-        <h3>{{ title }}</h3>
-        @if (teacherName || lessonDate) {
+        <h3>{{ title() }}</h3>
+        @if (teacherName() || lessonDate()) {
           <p class="video-header__meta">
-            @if (teacherName) {
-              <span>{{ teacherName }}</span>
+            @if (teacherName()) {
+              <span>{{ teacherName() }}</span>
             }
-            @if (teacherName && lessonDate) {
+            @if (teacherName() && lessonDate()) {
               <span class="separator">•</span>
             }
-            @if (lessonDate) {
-              <span>{{ lessonDate }}</span>
+            @if (lessonDate()) {
+              <span>{{ lessonDate() }}</span>
             }
           </p>
         }
       </div>
       <div class="video-header__actions">
-        @if (downloadUrl) {
+        @if (downloadUrl()) {
           <button class="video-btn video-btn--icon" (click)="download()" [title]="'videoPlayer.download' | translate">
             <ng-icon name="heroArrowDownTray" size="20"></ng-icon>
           </button>

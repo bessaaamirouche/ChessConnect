@@ -1,6 +1,7 @@
 // Re-export types from shared contracts
 export {
   DayOfWeek,
+  LessonType,
   AvailabilityResponse,
   AvailabilityRequest,
   TimeSlotResponse

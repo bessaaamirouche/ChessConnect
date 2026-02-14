@@ -1,16 +1,17 @@
 import { Component, OnInit, OnDestroy, signal, PLATFORM_ID, ElementRef, AfterViewInit, inject, input, output, viewChild } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
-import { heroXMark, heroVideoCamera, heroPhone } from '@ng-icons/heroicons/outline';
+import { heroXMark, heroVideoCamera, heroPhone, heroClock } from '@ng-icons/heroicons/outline';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastService } from '../../core/services/toast.service';
+import { CallTimerComponent } from './call-timer.component';
 
 declare var JitsiMeetExternalAPI: any;
 
 @Component({
     selector: 'app-video-call',
-    imports: [NgIconComponent, TranslateModule],
-    viewProviders: [provideIcons({ heroXMark, heroVideoCamera, heroPhone })],
+    imports: [NgIconComponent, TranslateModule, CallTimerComponent],
+    viewProviders: [provideIcons({ heroXMark, heroVideoCamera, heroPhone, heroClock })],
     template: `
     <div class="video-call-overlay">
       <div class="video-call-container" role="dialog" aria-modal="true" aria-labelledby="video-call-title" (click)="$event.stopPropagation()">
@@ -24,8 +25,20 @@ declare var JitsiMeetExternalAPI: any;
                 {{ 'videoCallLabels.recording' | translate }}
               </span>
             }
+            @if (remainingSeconds() !== null) {
+              <span class="countdown-badge" [class.urgent]="remainingSeconds()! < 60" aria-live="polite">
+                {{ formatCountdown(remainingSeconds()!) }}
+              </span>
+            }
           </div>
           <div class="video-call-header__actions">
+            <button class="video-call-header__timer-btn" [class.active]="showTimer()"
+                    (click)="toggleTimer()"
+                    [attr.aria-label]="'videoCallLabels.timer' | translate"
+                    [title]="'videoCallLabels.timer' | translate">
+              <ng-icon name="heroClock" size="20" aria-hidden="true"></ng-icon>
+              <span class="timer-label">{{ 'videoCallLabels.timer' | translate }}</span>
+            </button>
             <button class="video-call-header__close" (click)="onClose()" [title]="'videoCallLabels.leaveCall' | translate" [attr.aria-label]="'videoCallLabels.closeCall' | translate">
               <ng-icon name="heroXMark" size="24" aria-hidden="true"></ng-icon>
             </button>
@@ -45,6 +58,9 @@ declare var JitsiMeetExternalAPI: any;
           </div>
         }
         <div class="video-call-content" [class.hidden]="hasLeft()" #jitsiContainer></div>
+        @if (showTimer()) {
+          <app-call-timer (timerClosed)="showTimer.set(false)"></app-call-timer>
+        }
       </div>
     </div>
   `,
@@ -64,6 +80,7 @@ declare var JitsiMeetExternalAPI: any;
     }
 
     .video-call-container {
+      position: relative;
       width: 100%;
       max-width: 1200px;
       height: 90vh;
@@ -95,6 +112,35 @@ declare var JitsiMeetExternalAPI: any;
         display: flex;
         align-items: center;
         gap: 0.75rem;
+      }
+
+      &__timer-btn {
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        cursor: pointer;
+        padding: 0.5rem 0.75rem;
+        border-radius: var(--radius-md);
+        transition: all var(--transition-fast);
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        font-size: 0.8125rem;
+        font-weight: 500;
+
+        .timer-label {
+          white-space: nowrap;
+        }
+
+        &:hover {
+          background: var(--bg-elevated);
+          color: var(--text-primary);
+        }
+
+        &.active {
+          color: var(--gold-400, #d4a84b);
+          background: rgba(212, 168, 75, 0.1);
+        }
       }
 
       &__close {
@@ -205,6 +251,27 @@ declare var JitsiMeetExternalAPI: any;
       50% { opacity: 0.5; }
     }
 
+    .countdown-badge {
+      display: flex;
+      align-items: center;
+      background: rgba(212, 168, 75, 0.2);
+      color: var(--gold-400, #d4a84b);
+      padding: 0.25rem 0.75rem;
+      border-radius: var(--radius-full);
+      font-size: 0.8125rem;
+      font-weight: 700;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      margin-left: 1rem;
+      letter-spacing: 0.05em;
+      transition: all 0.3s ease;
+
+      &.urgent {
+        background: rgba(239, 68, 68, 0.2);
+        color: #ef4444;
+        animation: pulse 1s infinite;
+      }
+    }
+
   `]
 })
 export class VideoCallComponent implements OnInit, OnDestroy, AfterViewInit {
@@ -217,14 +284,20 @@ export class VideoCallComponent implements OnInit, OnDestroy, AfterViewInit {
   readonly recordingEnabled = input(false);
   readonly jwtToken = input<string>();
   readonly durationMinutes = input(60);
+  readonly scheduledAt = input<string>();
   readonly closed = output<void>();
 
   isRecording = signal(false);
   hasLeft = signal(false);
+  showTimer = signal(false);
+  remainingSeconds = signal<number | null>(null);
   private platformId = inject(PLATFORM_ID);
   private isBrowser = isPlatformBrowser(this.platformId);
   private api: any = null;
   private recordingStarted = false;
+  private warningTimeoutId: ReturnType<typeof setTimeout> | null = null;
+  private hangupTimeoutId: ReturnType<typeof setTimeout> | null = null;
+  private countdownIntervalId: ReturnType<typeof setInterval> | null = null;
   private toastService = inject(ToastService);
   private translateService = inject(TranslateService);
 
@@ -245,6 +318,7 @@ export class VideoCallComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnDestroy(): void {
+    this.clearAutoHangupTimers();
     if (this.api) {
       this.api.dispose();
       this.api = null;
@@ -314,6 +388,9 @@ export class VideoCallComponent implements OnInit, OnDestroy, AfterViewInit {
     this.api.addListener('videoConferenceJoined', (data: any) => {
       console.log('[Jitsi] Conference joined:', data);
 
+      // Start auto-hangup timer based on lesson scheduledAt
+      this.startAutoHangupTimers();
+
       // Auto-start recording if teacher and recording is enabled (student is premium)
       if (this.isTeacher() && this.recordingEnabled() && !this.recordingStarted) {
         setTimeout(() => {
@@ -360,6 +437,85 @@ export class VideoCallComponent implements OnInit, OnDestroy, AfterViewInit {
     } catch (err) {
       console.error('[Jitsi] Failed to start recording:', err);
     }
+  }
+
+  private startAutoHangupTimers(): void {
+    this.clearAutoHangupTimers();
+
+    const scheduled = this.scheduledAt();
+    if (!scheduled) return;
+
+    const lessonEndTime = new Date(scheduled).getTime() + this.durationMinutes() * 60 * 1000;
+    const warningTime = lessonEndTime - 5 * 60 * 1000;
+    const now = Date.now();
+
+    const remainingToEnd = lessonEndTime - now;
+    const remainingToWarning = warningTime - now;
+
+    if (remainingToEnd <= 0) {
+      this.autoHangup();
+      return;
+    }
+
+    if (remainingToWarning > 0) {
+      this.warningTimeoutId = setTimeout(() => {
+        this.showEndWarning();
+      }, remainingToWarning);
+    } else {
+      // Already past warning threshold, show immediately
+      this.showEndWarning();
+    }
+
+    this.hangupTimeoutId = setTimeout(() => {
+      this.autoHangup();
+    }, remainingToEnd);
+  }
+
+  private showEndWarning(): void {
+    this.toastService.show(
+      this.translateService.instant('videoCallLabels.endingSoon', { minutes: 5 }),
+      'warning',
+      15000
+    );
+    // Start countdown display in header
+    this.updateRemainingTime();
+    this.countdownIntervalId = setInterval(() => {
+      this.updateRemainingTime();
+    }, 1000);
+  }
+
+  private updateRemainingTime(): void {
+    const scheduled = this.scheduledAt();
+    if (!scheduled) return;
+    const endTime = new Date(scheduled).getTime() + this.durationMinutes() * 60 * 1000;
+    const remaining = Math.max(0, Math.ceil((endTime - Date.now()) / 1000));
+    this.remainingSeconds.set(remaining);
+  }
+
+  private autoHangup(): void {
+    this.clearAutoHangupTimers();
+    this.toastService.show(
+      this.translateService.instant('videoCallLabels.callEnded'),
+      'info',
+      8000
+    );
+    this.onClose();
+  }
+
+  private clearAutoHangupTimers(): void {
+    if (this.warningTimeoutId) { clearTimeout(this.warningTimeoutId); this.warningTimeoutId = null; }
+    if (this.hangupTimeoutId) { clearTimeout(this.hangupTimeoutId); this.hangupTimeoutId = null; }
+    if (this.countdownIntervalId) { clearInterval(this.countdownIntervalId); this.countdownIntervalId = null; }
+  }
+
+  formatCountdown(seconds: number): string {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s.toString().padStart(2, '0')}`;
+  }
+
+  toggleTimer(): void {
+    this.showTimer.update(v => !v);
   }
 
   rejoin(): void {

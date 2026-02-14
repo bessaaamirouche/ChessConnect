@@ -21,4 +21,6 @@ public class AvailabilityRequest {
     private Boolean isRecurring = true;
 
     private LocalDate specificDate;
+
+    private String lessonType = "INDIVIDUAL";
 }

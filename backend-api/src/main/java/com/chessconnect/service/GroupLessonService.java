@@ -294,9 +294,9 @@ public class GroupLessonService {
         int remaining = participantRepository.countByLessonIdAndStatus(lessonId, "ACTIVE");
         if (remaining == 0) {
             lesson.setStatus(LessonStatus.CANCELLED);
-            lesson.setCancelledBy("SYSTEM");
+            lesson.setCancelledBy("STUDENT");
             lesson.setCancelledAt(LocalDateTime.now());
-            lesson.setCancellationReason("All participants left the group lesson");
+            lesson.setCancellationReason("Groupe annulé - tous les participants ont quitté");
         }
 
         lessonRepository.save(lesson);

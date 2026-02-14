@@ -11,11 +11,10 @@ export interface NavLink {
 }
 
 @Component({
-  selector: 'app-public-navbar',
-  standalone: true,
-  imports: [RouterLink, TranslateModule, LanguageSelectorComponent],
-  templateUrl: './public-navbar.component.html',
-  styleUrl: './public-navbar.component.scss'
+    selector: 'app-public-navbar',
+    imports: [RouterLink, TranslateModule, LanguageSelectorComponent],
+    templateUrl: './public-navbar.component.html',
+    styleUrl: './public-navbar.component.scss'
 })
 export class PublicNavbarComponent {
   authService = inject(AuthService);

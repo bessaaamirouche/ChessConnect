@@ -3,7 +3,7 @@ import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
-import { heroUserGroup, heroCalendarDays, heroClock, heroTicket, heroWallet, heroArrowRightOnRectangle, heroCreditCard } from '@ng-icons/heroicons/outline';
+import { heroUserGroup, heroCalendarDays, heroClock, heroTicket, heroWallet, heroArrowRightOnRectangle, heroCreditCard, heroCheck } from '@ng-icons/heroicons/outline';
 import { GroupLessonService } from '../../../core/services/group-lesson.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { WalletService } from '../../../core/services/wallet.service';
@@ -20,7 +20,8 @@ import { GroupInvitationResponse } from '@contracts';
             heroTicket,
             heroWallet,
             heroArrowRightOnRectangle,
-            heroCreditCard
+            heroCreditCard,
+            heroCheck
         })],
     templateUrl: './join-group-lesson.component.html',
     styleUrl: './join-group-lesson.component.scss'

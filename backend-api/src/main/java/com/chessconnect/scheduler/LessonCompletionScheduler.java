@@ -16,16 +16,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * Scheduler that automatically completes lessons after 45 minutes.
- * This prevents teachers from cheating by requiring manual completion.
+ * Scheduler that automatically completes lessons after their full duration has elapsed.
+ * Uses each lesson's durationMinutes field (default 60) to determine when to auto-complete.
  */
 @Component
 public class LessonCompletionScheduler {
 
     private static final Logger log = LoggerFactory.getLogger(LessonCompletionScheduler.class);
-
-    // Minimum duration in minutes before auto-completion
-    private static final int MIN_LESSON_DURATION_MINUTES = 45;
 
     private final LessonRepository lessonRepository;
     private final TeacherBalanceService teacherBalanceService;
@@ -45,24 +42,28 @@ public class LessonCompletionScheduler {
      * Runs every 5 minutes to check for lessons that should be auto-completed.
      * A lesson is auto-completed if:
      * - Status is CONFIRMED
-     * - Scheduled time + 45 minutes has passed
+     * - scheduledAt + durationMinutes has passed (full lesson duration elapsed)
      */
     @Scheduled(fixedRate = 300000) // Every 5 minutes (300000 ms)
     @Transactional
     public void autoCompleteLessons() {
-        LocalDateTime cutoffTime = LocalDateTime.now().minusMinutes(MIN_LESSON_DURATION_MINUTES);
+        LocalDateTime now = LocalDateTime.now();
 
-        List<Lesson> lessonsToComplete = lessonRepository.findByStatusAndScheduledAtBefore(
-                LessonStatus.CONFIRMED,
-                cutoffTime
-        );
+        List<Lesson> confirmedLessons = lessonRepository.findByStatusOrderByScheduledAtDesc(LessonStatus.CONFIRMED);
+
+        List<Lesson> lessonsToComplete = confirmedLessons.stream()
+                .filter(lesson -> {
+                    LocalDateTime lessonEnd = lesson.getScheduledAt()
+                            .plusMinutes(lesson.getDurationMinutes());
+                    return now.isAfter(lessonEnd);
+                })
+                .toList();
 
         if (lessonsToComplete.isEmpty()) {
             return;
         }
 
-        log.info("Auto-completing {} lessons that started more than {} minutes ago",
-                lessonsToComplete.size(), MIN_LESSON_DURATION_MINUTES);
+        log.info("Auto-completing {} lessons whose full duration has elapsed", lessonsToComplete.size());
 
         for (Lesson lesson : lessonsToComplete) {
             try {

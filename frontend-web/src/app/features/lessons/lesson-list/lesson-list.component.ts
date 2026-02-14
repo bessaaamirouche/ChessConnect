@@ -56,7 +56,8 @@ import {
   heroCpuChip,
   heroLockClosed,
   heroUserGroup,
-  heroClipboardDocument
+  heroClipboardDocument,
+  heroShare
 } from '@ng-icons/heroicons/outline';
 import { CHESS_LEVELS, ChessLevel, User } from '../../../core/models/user.model';
 import { paginate } from '../../../core/utils/pagination';
@@ -105,7 +106,8 @@ export interface PendingValidation {
             heroCpuChip,
             heroLockClosed,
             heroUserGroup,
-            heroClipboardDocument
+            heroClipboardDocument,
+            heroShare
         })],
     templateUrl: './lesson-list.component.html',
     styleUrl: './lesson-list.component.scss'
@@ -141,6 +143,7 @@ export class LessonListComponent implements OnInit, OnDestroy {
   videoCallToken = signal('');
   videoCallTitle = signal('');
   videoCallDurationMinutes = signal(60);
+  videoCallScheduledAt = signal('');
   videoCallLessonId = signal<number | null>(null);
   videoCallRecordingEnabled = signal(false);
 
@@ -380,12 +383,11 @@ export class LessonListComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Vérifie si le cours peut être terminé (après l'heure de fin)
+  // Vérifie si le cours peut être terminé (dès que le cours a commencé)
   canCompleteLesson(lesson: Lesson): boolean {
     const now = new Date();
     const lessonStart = new Date(lesson.scheduledAt);
-    const lessonEnd = new Date(lessonStart.getTime() + lesson.durationMinutes * 60000);
-    return now >= lessonEnd;
+    return now >= lessonStart;
   }
 
   // Ouvre la modale pour terminer le cours
@@ -417,7 +419,12 @@ export class LessonListComponent implements OnInit, OnDestroy {
             this.openEvaluationModal(studentId, lessonId);
           }
         },
-        error: () => this.closeCompleteModal()
+        error: () => {
+          this.closeCompleteModal();
+          // Reload lessons to reflect current state (may have been auto-completed by scheduler)
+          this.lessonService.loadUpcomingLessons().subscribe();
+          this.lessonService.loadLessonHistory().subscribe();
+        }
       });
     }
   }
@@ -551,6 +558,7 @@ export class LessonListComponent implements OnInit, OnDestroy {
       this.videoCallToken.set(response.token);
       this.videoCallTitle.set(title);
       this.videoCallDurationMinutes.set(durationMinutes);
+      this.videoCallScheduledAt.set(lesson.scheduledAt);
       this.videoCallLessonId.set(lesson.id);
       this.videoCallRecordingEnabled.set(response.recordingEnabled);
       this.showVideoCall.set(true);
@@ -610,6 +618,7 @@ export class LessonListComponent implements OnInit, OnDestroy {
     this.videoCallToken.set('');
     this.videoCallTitle.set('');
     this.videoCallDurationMinutes.set(60);
+    this.videoCallScheduledAt.set('');
     this.videoCallLessonId.set(null);
     this.videoCallRecordingEnabled.set(false);
   }
@@ -660,22 +669,20 @@ export class LessonListComponent implements OnInit, OnDestroy {
     this.videoPlayerTitle.set('');
   }
 
-  // Check if it's time to join the lesson (15 min before until end)
+  // Check if it's time to join the lesson (exact scheduled time until end)
   canJoinLesson(lesson: Lesson): boolean {
     const now = new Date();
     const lessonStart = new Date(lesson.scheduledAt);
     const lessonEnd = new Date(lessonStart.getTime() + lesson.durationMinutes * 60000);
-    const joinableFrom = new Date(lessonStart.getTime() - 15 * 60000); // 15 min before
 
-    return now >= joinableFrom && now <= lessonEnd;
+    return now >= lessonStart && now <= lessonEnd;
   }
 
   // Get time until lesson can be joined
   getTimeUntilJoin(lesson: Lesson): string {
     const now = new Date();
     const lessonStart = new Date(lesson.scheduledAt);
-    const joinableFrom = new Date(lessonStart.getTime() - 15 * 60000);
-    const diffMs = joinableFrom.getTime() - now.getTime();
+    const diffMs = lessonStart.getTime() - now.getTime();
 
     if (diffMs <= 0) return '';
 

@@ -22,6 +22,7 @@ public class AvailabilityResponse {
     private LocalDate specificDate;
     private Boolean isActive;
     private Integer durationMinutes;
+    private String lessonType;
 
     public static AvailabilityResponse fromEntity(Availability availability) {
         return AvailabilityResponse.builder()
@@ -36,6 +37,7 @@ public class AvailabilityResponse {
                 .specificDate(availability.getSpecificDate())
                 .isActive(availability.getIsActive())
                 .durationMinutes(availability.getDurationMinutes())
+                .lessonType(availability.getLessonType().name())
                 .build();
     }
 

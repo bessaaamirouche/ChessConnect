@@ -64,6 +64,7 @@ public class SecurityConfig {
                         .requestMatchers("/progress/levels/**").permitAll()
                         .requestMatchers("/availabilities/teacher/**").permitAll()
                         .requestMatchers("/payments/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/contact/**").permitAll()
                         .requestMatchers("/recordings/webhook").permitAll()
                         .requestMatchers("/push/vapid-key").permitAll()

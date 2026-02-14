@@ -1,7 +1,11 @@
 import {
-  Component, Input, Output, EventEmitter, OnDestroy,
-  signal, ElementRef, ViewChild, AfterViewInit, PLATFORM_ID, Inject,
-  ChangeDetectionStrategy
+  Component, OnDestroy,
+  signal, ElementRef, AfterViewInit, PLATFORM_ID,
+  ChangeDetectionStrategy,
+  input,
+  output,
+  viewChild,
+  inject
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
@@ -20,15 +24,14 @@ interface ChessMove {
 }
 
 @Component({
-  selector: 'app-chess-board',
-  standalone: true,
-  imports: [NgIconComponent],
-  viewProviders: [provideIcons({ heroArrowPath, heroFlag })],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
+    selector: 'app-chess-board',
+    imports: [NgIconComponent],
+    viewProviders: [provideIcons({ heroArrowPath, heroFlag })],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    template: `
     <div class="chess-board-wrapper">
       <div #boardContainer class="chess-board-container"></div>
-      @if (showControls) {
+      @if (showControls()) {
         <div class="chess-board-controls">
           <button class="btn btn--ghost btn--sm" (click)="onReset()">
             <ng-icon name="heroArrowPath" size="16"></ng-icon>
@@ -42,7 +45,7 @@ interface ChessMove {
       }
     </div>
   `,
-  styles: [`
+    styles: [`
     .chess-board-wrapper {
       display: flex;
       flex-direction: column;
@@ -102,27 +105,28 @@ interface ChessMove {
   `]
 })
 export class ChessBoardComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('boardContainer', { static: false }) boardContainer!: ElementRef;
+  readonly boardContainer = viewChild.required<ElementRef>('boardContainer');
 
-  @Input() fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
-  @Input() orientation: 'white' | 'black' = 'white';
-  @Input() movable = true;
-  @Input() showControls = true;
-  @Input() disabled = false;
+  readonly fen = input('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
+  readonly orientation = input<'white' | 'black'>('white');
+  readonly movable = input(true);
+  readonly showControls = input(true);
+  readonly disabled = input(false);
 
-  @Output() move = new EventEmitter<{ from: string; to: string; promotion?: string }>();
-  @Output() reset = new EventEmitter<void>();
-  @Output() resign = new EventEmitter<void>();
+  readonly move = output<{
+    from: string;
+    to: string;
+    promotion?: string;
+}>();
+  readonly reset = output<void>();
+  readonly resign = output<void>();
 
   private ground: any = null;
-  private isBrowser: boolean;
+  private platformId = inject(PLATFORM_ID);
+  private isBrowser = isPlatformBrowser(this.platformId);
   private chess: any = null;
   private Chessground: any = null;
   private Chess: any = null;
-
-  constructor(@Inject(PLATFORM_ID) platformId: Object) {
-    this.isBrowser = isPlatformBrowser(platformId);
-  }
 
   ngAfterViewInit(): void {
     if (this.isBrowser) {
@@ -172,20 +176,21 @@ export class ChessBoardComponent implements AfterViewInit, OnDestroy {
   }
 
   private initializeBoard(): void {
-    if (!this.Chessground || !this.Chess || !this.boardContainer?.nativeElement) {
+    const boardContainer = this.boardContainer();
+    if (!this.Chessground || !this.Chess || !boardContainer?.nativeElement) {
       return;
     }
 
-    this.chess = new this.Chess(this.fen);
+    this.chess = new this.Chess(this.fen());
 
-    this.ground = this.Chessground(this.boardContainer.nativeElement, {
-      fen: this.fen,
-      orientation: this.orientation,
+    this.ground = this.Chessground(boardContainer.nativeElement, {
+      fen: this.fen(),
+      orientation: this.orientation(),
       turnColor: this.chess.turn() === 'w' ? 'white' : 'black',
       movable: {
         free: false,
-        color: this.movable && !this.disabled ? this.orientation : undefined,
-        dests: this.movable && !this.disabled ? this.getValidMoves() : new Map(),
+        color: this.movable() && !this.disabled() ? this.orientation() : undefined,
+        dests: this.movable() && !this.disabled() ? this.getValidMoves() : new Map(),
         events: {
           after: (orig: string, dest: string) => {
             this.onMoveInternal(orig, dest);
@@ -193,7 +198,7 @@ export class ChessBoardComponent implements AfterViewInit, OnDestroy {
         }
       },
       draggable: {
-        enabled: this.movable && !this.disabled
+        enabled: this.movable() && !this.disabled()
       },
       highlight: {
         lastMove: true,
@@ -251,15 +256,15 @@ export class ChessBoardComponent implements AfterViewInit, OnDestroy {
     if (!this.ground || !this.chess) return;
 
     const turnColor = this.chess.turn() === 'w' ? 'white' : 'black';
-    const isPlayerTurn = turnColor === this.orientation;
+    const isPlayerTurn = turnColor === this.orientation();
 
     this.ground.set({
       fen: this.chess.fen(),
       turnColor,
       check: this.chess.inCheck(),
       movable: {
-        color: isPlayerTurn && this.movable && !this.disabled ? this.orientation : undefined,
-        dests: isPlayerTurn && this.movable && !this.disabled ? this.getValidMoves() : new Map()
+        color: isPlayerTurn && this.movable() && !this.disabled() ? this.orientation() : undefined,
+        dests: isPlayerTurn && this.movable() && !this.disabled() ? this.getValidMoves() : new Map()
       }
     });
   }
@@ -273,7 +278,7 @@ export class ChessBoardComponent implements AfterViewInit, OnDestroy {
     if (moveResult) {
       // Update board with new position and highlight last move
       const turnColor = this.chess.turn() === 'w' ? 'white' : 'black';
-      const isPlayerTurn = turnColor === this.orientation;
+      const isPlayerTurn = turnColor === this.orientation();
 
       this.ground.set({
         fen: this.chess.fen(),
@@ -281,8 +286,8 @@ export class ChessBoardComponent implements AfterViewInit, OnDestroy {
         lastMove: [from, to],
         check: this.chess.inCheck(),
         movable: {
-          color: isPlayerTurn && this.movable && !this.disabled ? this.orientation : undefined,
-          dests: isPlayerTurn && this.movable && !this.disabled ? this.getValidMoves() : new Map()
+          color: isPlayerTurn && this.movable() && !this.disabled() ? this.orientation() : undefined,
+          dests: isPlayerTurn && this.movable() && !this.disabled() ? this.getValidMoves() : new Map()
         }
       });
       return true;
@@ -307,11 +312,11 @@ export class ChessBoardComponent implements AfterViewInit, OnDestroy {
     if (!this.ground) return;
 
     const turnColor = this.chess?.turn() === 'w' ? 'white' : 'black';
-    const isPlayerTurn = turnColor === this.orientation;
+    const isPlayerTurn = turnColor === this.orientation();
 
     this.ground.set({
       movable: {
-        color: enabled && isPlayerTurn ? this.orientation : undefined,
+        color: enabled && isPlayerTurn ? this.orientation() : undefined,
         dests: enabled && isPlayerTurn ? this.getValidMoves() : new Map()
       },
       draggable: {
@@ -341,7 +346,7 @@ export class ChessBoardComponent implements AfterViewInit, OnDestroy {
   }
 
   getCurrentFen(): string {
-    return this.chess?.fen() ?? this.fen;
+    return this.chess?.fen() ?? this.fen();
   }
 
   getTurn(): 'white' | 'black' {
@@ -353,10 +358,12 @@ export class ChessBoardComponent implements AfterViewInit, OnDestroy {
   }
 
   onReset(): void {
+    // TODO: The 'emit' function requires a mandatory void argument
     this.reset.emit();
   }
 
   onResign(): void {
+    // TODO: The 'emit' function requires a mandatory void argument
     this.resign.emit();
   }
 }

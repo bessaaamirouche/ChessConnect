@@ -1,21 +1,21 @@
-import { Component, forwardRef, Input, signal, computed, OnInit, ElementRef, HostListener } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, forwardRef, signal, computed, OnInit, ElementRef, HostListener, input } from '@angular/core';
+
 import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
-  selector: 'app-date-input',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => DateInputComponent),
-      multi: true
-    }
-  ],
-  template: `
+    selector: 'app-date-input',
+    imports: [FormsModule, TranslateModule],
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => DateInputComponent),
+            multi: true
+        }
+    ],
+    template: `
     <div class="date-input-wrapper">
-      <div class="date-input-group" [class.date-input-group--small]="size === 'sm'">
+      <div class="date-input-group" [class.date-input-group--small]="size() === 'sm'">
         <input
           type="text"
           inputmode="numeric"
@@ -54,7 +54,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormsModule } from '@angular/f
           class="date-input date-input--year"
           #yearInput
         >
-        <button type="button" class="calendar-btn" (click)="toggleCalendar($event)" title="Ouvrir le calendrier">
+        <button type="button" class="calendar-btn" (click)="toggleCalendar($event)" [title]="'dateInput.openCalendar' | translate">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
             <line x1="16" y1="2" x2="16" y2="6"></line>
@@ -100,7 +100,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormsModule } from '@angular/f
       }
     </div>
   `,
-  styles: [`
+    styles: [`
     .date-input-wrapper {
       position: relative;
       display: inline-block;
@@ -307,9 +307,9 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormsModule } from '@angular/f
   `]
 })
 export class DateInputComponent implements ControlValueAccessor, OnInit {
-  @Input() size: 'md' | 'sm' = 'md';
-  @Input() min?: string;
-  @Input() max?: string;
+  readonly size = input<'md' | 'sm'>('md');
+  readonly min = input<string>();
+  readonly max = input<string>();
 
   day = signal('');
   month = signal('');
@@ -464,14 +464,16 @@ export class DateInputComponent implements ControlValueAccessor, OnInit {
   isDisabled(dayNum: number): boolean {
     const date = new Date(this.calendarYear(), this.calendarMonth(), dayNum);
 
-    if (this.min) {
-      const minDate = new Date(this.min);
+    const min = this.min();
+    if (min) {
+      const minDate = new Date(min);
       minDate.setHours(0, 0, 0, 0);
       if (date < minDate) return true;
     }
 
-    if (this.max) {
-      const maxDate = new Date(this.max);
+    const max = this.max();
+    if (max) {
+      const maxDate = new Date(max);
       maxDate.setHours(23, 59, 59, 999);
       if (date > maxDate) return true;
     }

@@ -43,6 +43,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final EmailVerificationService emailVerificationService;
     private final LoginAttemptService loginAttemptService;
+    private final PromoCodeService promoCodeService;
 
     public AuthService(
             UserRepository userRepository,
@@ -51,7 +52,8 @@ public class AuthService {
             JwtService jwtService,
             AuthenticationManager authenticationManager,
             EmailVerificationService emailVerificationService,
-            LoginAttemptService loginAttemptService
+            LoginAttemptService loginAttemptService,
+            PromoCodeService promoCodeService
     ) {
         this.userRepository = userRepository;
         this.progressRepository = progressRepository;
@@ -60,6 +62,7 @@ public class AuthService {
         this.authenticationManager = authenticationManager;
         this.emailVerificationService = emailVerificationService;
         this.loginAttemptService = loginAttemptService;
+        this.promoCodeService = promoCodeService;
     }
 
     @Transactional
@@ -114,6 +117,16 @@ public class AuthService {
             progress.setStudent(savedUser);
             progress.setCurrentLevel(ChessLevel.A);
             progressRepository.save(progress);
+        }
+
+        // Apply referral code if provided
+        if (request.referralCode() != null && !request.referralCode().isBlank()) {
+            try {
+                promoCodeService.applyReferralAtSignup(savedUser.getId(), request.referralCode());
+            } catch (Exception e) {
+                log.warn("Failed to apply referral code '{}' for user {}: {}",
+                        request.referralCode(), savedUser.getId(), e.getMessage());
+            }
         }
 
         // Send verification email

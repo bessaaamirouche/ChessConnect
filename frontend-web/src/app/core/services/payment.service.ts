@@ -46,6 +46,7 @@ export interface LessonCheckoutRequest {
   durationMinutes?: number;
   notes?: string;
   courseId?: number;
+  promoCode?: string;
 }
 
 export interface FreeTrialStatus {

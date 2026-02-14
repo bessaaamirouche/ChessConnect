@@ -31,7 +31,7 @@ public interface LessonParticipantRepository extends JpaRepository<LessonPartici
     @Query("SELECT lp.lesson FROM LessonParticipant lp WHERE lp.student.id = :studentId AND lp.status = 'ACTIVE' AND lp.lesson.status IN ('PENDING', 'CONFIRMED')")
     List<Lesson> findUpcomingGroupLessonsForStudent(@Param("studentId") Long studentId);
 
-    @Query("SELECT lp.lesson FROM LessonParticipant lp WHERE lp.student.id = :studentId AND lp.lesson.status IN ('COMPLETED', 'CANCELLED')")
+    @Query("SELECT lp.lesson FROM LessonParticipant lp WHERE lp.student.id = :studentId AND lp.status = 'ACTIVE' AND lp.lesson.status IN ('COMPLETED', 'CANCELLED')")
     List<Lesson> findHistoryGroupLessonsForStudent(@Param("studentId") Long studentId);
 
     @Query("SELECT CASE WHEN COUNT(lp) > 0 THEN true ELSE false END FROM LessonParticipant lp WHERE lp.lesson.id = :lessonId AND lp.student.id = :studentId AND lp.status = 'ACTIVE'")

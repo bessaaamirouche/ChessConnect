@@ -22,4 +22,6 @@ public class CreateLessonCheckoutRequest {
     private boolean embedded = false;
 
     private Long courseId;
+
+    private String promoCode;
 }

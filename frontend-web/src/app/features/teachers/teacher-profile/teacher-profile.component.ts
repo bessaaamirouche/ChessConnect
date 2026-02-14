@@ -1,6 +1,9 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { NgIconComponent, provideIcons } from '@ng-icons/core';
+import { heroCalendarDays, heroBell } from '@ng-icons/heroicons/outline';
+import { heroStarSolid, heroBellAlertSolid } from '@ng-icons/heroicons/solid';
 import { TeacherService } from '../../../core/services/teacher.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { FavoriteService } from '../../../core/services/favorite.service';
@@ -11,7 +14,8 @@ import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
     selector: 'app-teacher-profile',
-    imports: [RouterLink, TranslateModule],
+    imports: [RouterLink, TranslateModule, NgIconComponent],
+    viewProviders: [provideIcons({ heroCalendarDays, heroStarSolid, heroBell, heroBellAlertSolid })],
     templateUrl: './teacher-profile.component.html',
     styleUrl: './teacher-profile.component.scss'
 })
@@ -65,15 +69,25 @@ export class TeacherProfileComponent implements OnInit {
     if (!this.teacherId) return;
 
     if (this.isFavorite()) {
-      this.favoriteService.removeFavorite(this.teacherId).subscribe(() => {
-        this.isFavorite.set(false);
-        this.notifyEnabled.set(false);
-        this.toastService.info(this.translate.instant('success.removedFromFavorites'));
+      this.favoriteService.removeFavorite(this.teacherId).subscribe({
+        next: () => {
+          this.isFavorite.set(false);
+          this.notifyEnabled.set(false);
+          this.toastService.info(this.translate.instant('success.removedFromFavorites'));
+        },
+        error: () => {
+          this.toastService.error(this.translate.instant('errors.generic'));
+        }
       });
     } else {
-      this.favoriteService.addFavorite(this.teacherId).subscribe(() => {
-        this.isFavorite.set(true);
-        this.toastService.success(this.translate.instant('success.addedToFavorites'));
+      this.favoriteService.addFavorite(this.teacherId).subscribe({
+        next: () => {
+          this.isFavorite.set(true);
+          this.toastService.success(this.translate.instant('success.addedToFavorites'));
+        },
+        error: () => {
+          this.toastService.error(this.translate.instant('errors.generic'));
+        }
       });
     }
   }

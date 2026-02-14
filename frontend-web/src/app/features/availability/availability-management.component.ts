@@ -20,7 +20,9 @@ import {
   heroTrash,
   heroXMark,
   heroClock,
-  heroBars3
+  heroBars3,
+  heroFunnel,
+  heroUserGroup
 } from '@ng-icons/heroicons/outline';
 
 @Component({
@@ -37,7 +39,9 @@ import {
             heroTrash,
             heroXMark,
             heroClock,
-            heroBars3
+            heroBars3,
+            heroFunnel,
+            heroUserGroup
         })],
     templateUrl: './availability-management.component.html',
     styleUrl: './availability-management.component.scss'
@@ -63,11 +67,56 @@ export class AvailabilityManagementComponent implements OnInit {
   sidebarOpen = signal(false);
   showAddModal = false;
   isRecurring = true;
+  lessonType: 'INDIVIDUAL' | 'GROUP' = 'INDIVIDUAL';
   selectedDay: DayOfWeek = 'MONDAY';
   selectedDate = '';
   startHour = '09';
   startMinute = '00';
   submitting = false;
+
+  // Filters for specific date slots
+  filterDate = signal('');
+  filterType = signal<'' | 'INDIVIDUAL' | 'GROUP'>('');
+
+  filteredSpecificSlots = computed(() => {
+    let slots = this.myAvailabilities().filter(a => !a.isRecurring);
+    const date = this.filterDate();
+    const type = this.filterType();
+    if (date) {
+      slots = slots.filter(s => s.specificDate === date);
+    }
+    if (type) {
+      slots = slots.filter(s => s.lessonType === type);
+    }
+    return slots.sort((a, b) => {
+      const dateCompare = (a.specificDate || '').localeCompare(b.specificDate || '');
+      if (dateCompare !== 0) return dateCompare;
+      return (a.startTime || '').localeCompare(b.startTime || '');
+    });
+  });
+
+  groupedSpecificSlots = computed(() => {
+    const slots = this.filteredSpecificSlots();
+    const groups: { date: string; slots: typeof slots }[] = [];
+    const map = new Map<string, typeof slots>();
+    for (const slot of slots) {
+      const date = slot.specificDate || '';
+      if (!map.has(date)) map.set(date, []);
+      map.get(date)!.push(slot);
+    }
+    for (const [date, dateSlots] of map) {
+      groups.push({ date, slots: dateSlots });
+    }
+    return groups;
+  });
+
+  specificDates = computed(() => {
+    const dates = new Set<string>();
+    for (const a of this.myAvailabilities().filter(a => !a.isRecurring)) {
+      if (a.specificDate) dates.add(a.specificDate);
+    }
+    return [...dates].sort();
+  });
 
   ngOnInit(): void {
     this.seoService.setAvailabilityPage();
@@ -90,6 +139,7 @@ export class AvailabilityManagementComponent implements OnInit {
 
   resetForm(): void {
     this.isRecurring = true;
+    this.lessonType = 'INDIVIDUAL';
     this.selectedDay = 'MONDAY';
     this.selectedDate = '';
     this.startHour = '09';
@@ -129,7 +179,8 @@ export class AvailabilityManagementComponent implements OnInit {
     const request: AvailabilityRequest = {
       startTime: this.startTime,
       endTime: this.endTime,
-      isRecurring: this.isRecurring
+      isRecurring: this.isRecurring,
+      lessonType: this.lessonType
     };
 
     if (this.isRecurring) {

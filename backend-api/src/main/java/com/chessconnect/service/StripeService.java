@@ -163,7 +163,7 @@ public class StripeService {
             int durationMinutes,
             String notes
     ) throws StripeException {
-        return createLessonPaymentSession(student, teacherId, amountCents, description, scheduledAt, durationMinutes, notes, false, null);
+        return createLessonPaymentSession(student, teacherId, amountCents, description, scheduledAt, durationMinutes, notes, false, null, null, amountCents);
     }
 
     public Session createLessonPaymentSession(
@@ -176,7 +176,7 @@ public class StripeService {
             String notes,
             boolean embedded
     ) throws StripeException {
-        return createLessonPaymentSession(student, teacherId, amountCents, description, scheduledAt, durationMinutes, notes, embedded, null);
+        return createLessonPaymentSession(student, teacherId, amountCents, description, scheduledAt, durationMinutes, notes, embedded, null, null, amountCents);
     }
 
     public Session createLessonPaymentSession(
@@ -190,6 +190,24 @@ public class StripeService {
             boolean embedded,
             Long courseId
     ) throws StripeException {
+        return createLessonPaymentSession(student, teacherId, amountCents, description, scheduledAt, durationMinutes, notes, embedded, courseId, null, amountCents);
+    }
+
+    public Session createLessonPaymentSession(
+            User student,
+            Long teacherId,
+            int amountCents,
+            String description,
+            String scheduledAt,
+            int durationMinutes,
+            String notes,
+            boolean embedded,
+            Long courseId,
+            String promoCode,
+            int originalAmountCents
+    ) throws StripeException {
+        boolean promoApplied = promoCode != null && !promoCode.isBlank();
+
         SessionCreateParams.Builder paramsBuilder = SessionCreateParams.builder()
                 .setMode(SessionCreateParams.Mode.PAYMENT)
                 .addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
@@ -201,13 +219,17 @@ public class StripeService {
                 .putMetadata("notes", notes != null ? notes : "")
                 .putMetadata("course_id", courseId != null ? courseId.toString() : "")
                 .putMetadata("type", "ONE_TIME_LESSON")
+                .putMetadata("promo_code", promoApplied ? promoCode : "")
+                .putMetadata("original_amount_cents", String.valueOf(originalAmountCents))
                 // Copy metadata to PaymentIntent for invoice generation webhook
                 .setPaymentIntentData(
                         SessionCreateParams.PaymentIntentData.builder()
                                 .putMetadata("user_id", student.getId().toString())
                                 .putMetadata("teacher_id", teacherId.toString())
                                 .putMetadata("type", "ONE_TIME_LESSON")
-                                .putMetadata("promo_applied", "false")
+                                .putMetadata("promo_applied", promoApplied ? "true" : "false")
+                                .putMetadata("promo_code", promoApplied ? promoCode : "")
+                                .putMetadata("original_amount_cents", String.valueOf(originalAmountCents))
                                 .build()
                 )
                 .addLineItem(

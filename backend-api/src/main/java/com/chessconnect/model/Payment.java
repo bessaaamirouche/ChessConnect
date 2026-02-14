@@ -68,6 +68,16 @@ public class Payment {
     @Column(name = "refund_reason")
     private String refundReason;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "promo_code_id")
+    private PromoCode promoCode;
+
+    @Column(name = "discount_amount_cents")
+    private Integer discountAmountCents = 0;
+
+    @Column(name = "original_amount_cents")
+    private Integer originalAmountCents;
+
     @Column(name = "processed_at")
     private LocalDateTime processedAt;
 
@@ -149,5 +159,24 @@ public class Payment {
         this.status = PaymentStatus.FAILED;
         this.failureReason = reason;
         this.processedAt = LocalDateTime.now();
+    }
+
+    public PromoCode getPromoCode() { return promoCode; }
+    public void setPromoCode(PromoCode promoCode) { this.promoCode = promoCode; }
+
+    public Integer getDiscountAmountCents() { return discountAmountCents; }
+    public void setDiscountAmountCents(Integer discountAmountCents) { this.discountAmountCents = discountAmountCents; }
+
+    public Integer getOriginalAmountCents() { return originalAmountCents; }
+    public void setOriginalAmountCents(Integer originalAmountCents) { this.originalAmountCents = originalAmountCents; }
+
+    /**
+     * Set amount with promo-adjusted commission, bypassing the standard calculateCommission().
+     * Used when a promo code modifies the commission rate.
+     */
+    public void setAmountWithPromo(int amountCents, int commissionCents, int teacherPayoutCents) {
+        this.amountCents = amountCents;
+        this.commissionCents = commissionCents;
+        this.teacherPayoutCents = teacherPayoutCents;
     }
 }

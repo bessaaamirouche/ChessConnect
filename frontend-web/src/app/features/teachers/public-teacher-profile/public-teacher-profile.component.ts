@@ -4,13 +4,16 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TeacherService } from '../../../core/services/teacher.service';
 import { SeoService } from '../../../core/services/seo.service';
 import { StructuredDataService } from '../../../core/services/structured-data.service';
+import { NgIconComponent, provideIcons } from '@ng-icons/core';
+import { heroStarSolid } from '@ng-icons/heroicons/solid';
 import { LanguageSelectorComponent } from '../../../shared/components/language-selector/language-selector.component';
 import { FooterComponent } from '../../../shared/components/footer/footer.component';
 import { User } from '../../../core/models/user.model';
 
 @Component({
     selector: 'app-public-teacher-profile',
-    imports: [RouterLink, TranslateModule, LanguageSelectorComponent, FooterComponent],
+    imports: [RouterLink, TranslateModule, NgIconComponent, LanguageSelectorComponent, FooterComponent],
+    viewProviders: [provideIcons({ heroStarSolid })],
     templateUrl: './public-teacher-profile.component.html',
     styleUrl: './public-teacher-profile.component.scss'
 })

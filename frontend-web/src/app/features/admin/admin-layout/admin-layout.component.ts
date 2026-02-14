@@ -45,7 +45,9 @@ export class AdminLayoutComponent implements OnInit {
           { label: this.translate.instant('sidebar.stripeConnect'), icon: 'heroCreditCard', route: '/mint/stripe-connect' },
           { label: this.translate.instant('sidebar.invoices'), icon: 'heroDocumentText', route: '/mint/invoices' },
           { label: this.translate.instant('sidebar.blogAdmin'), icon: 'heroNewspaper', route: '/mint/blog' },
-          { label: this.translate.instant('sidebar.messages'), icon: 'heroChatBubbleLeftRight', route: '/mint/messages' }
+          { label: this.translate.instant('sidebar.messages'), icon: 'heroChatBubbleLeftRight', route: '/mint/messages' },
+          { label: this.translate.instant('sidebar.library'), icon: 'heroFilm', route: '/mint/library' },
+          { label: this.translate.instant('sidebar.promoCodes'), icon: 'heroTicket', route: '/mint/promo-codes' }
         ]
       },
       {

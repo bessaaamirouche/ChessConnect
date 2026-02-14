@@ -146,7 +146,7 @@
                   @if (lesson.isGroupLesson) {
                     <span class="badge badge--group">
                       <ng-icon name="heroUserGroup" size="12"></ng-icon>
-                      {{ 'group_lesson.groupBadgeCount' | translate:{ current: lesson.currentParticipantCount || 1, max: lesson.maxParticipants || 3 } }}
+                      {{ 'group_lesson.groupBadgeCount' | translate:{ current: lesson.currentParticipantCount ?? 0, max: lesson.maxParticipants || 3 } }}
                     </span>
                   }
                   @if (lesson.isGroupLesson && lesson.groupStatus === 'DEADLINE_PASSED' && authService.isStudent()) {
@@ -175,19 +175,15 @@
                     {{ 'lessons.complete' | translate }}
                   </button>
                 }
-                @if (lesson.isGroupLesson && lesson.invitationToken && lesson.groupStatus === 'OPEN' && authService.isStudent()) {
-                  <button class="btn btn--ghost btn--sm" (click)="copyInvitationLink(lesson.invitationToken!)" [title]="'group_lesson.invite' | translate">
-                    <ng-icon name="heroClipboardDocument" size="16"></ng-icon>
-                    {{ linkCopied() ? ('group_lesson.linkCopied' | translate) : ('group_lesson.invite' | translate) }}
-                  </button>
-                }
                 @if (lesson.isGroupLesson && lesson.groupStatus === 'DEADLINE_PASSED' && authService.isStudent()) {
                   <button class="btn btn--primary btn--sm" (click)="openDeadlineModal(lesson.id)">
                     {{ 'group_lesson.resolveDeadline' | translate }}
                   </button>
                 }
                 @if (lesson.status !== 'CANCELLED' && lesson.status !== 'COMPLETED') {
-                  @if (lesson.isGroupLesson && authService.isStudent()) {
+                  @if (lesson.isGroupLesson && lesson.groupStatus === 'DEADLINE_PASSED' && authService.isStudent()) {
+                    <!-- Hidden: resolve deadline modal handles cancel/leave -->
+                  } @else if (lesson.isGroupLesson && authService.isStudent()) {
                     <button class="btn btn--ghost btn--sm" (click)="leaveGroupLesson(lesson.id)">
                       {{ 'group_lesson.leaveGroup' | translate }}
                     </button>
@@ -196,6 +192,12 @@
                       {{ 'common.cancel' | translate }}
                     </button>
                   }
+                }
+                @if (lesson.isGroupLesson && lesson.invitationToken && lesson.groupStatus === 'OPEN') {
+                  <button class="btn btn--ghost btn--sm" (click)="copyInvitationLink(lesson.invitationToken!)" [title]="'group_lesson.invite' | translate">
+                    <ng-icon name="heroShare" size="16"></ng-icon>
+                    {{ linkCopied() ? ('group_lesson.linkCopied' | translate) : ('group_lesson.invite' | translate) }}
+                  </button>
                 }
                 @if (lesson.status === 'CANCELLED') {
                   @if (lesson.cancellationReason) {
@@ -536,6 +538,7 @@
       [recordingEnabled]="videoCallRecordingEnabled()"
       [jwtToken]="videoCallToken()"
       [durationMinutes]="videoCallDurationMinutes()"
+      [scheduledAt]="videoCallScheduledAt()"
       (closed)="closeVideoCall()"
     ></app-video-call>
   }

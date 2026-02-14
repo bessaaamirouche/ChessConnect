@@ -116,9 +116,22 @@ public record LessonResponse(
                 isGroup ? true : null,
                 isGroup ? lesson.getMaxParticipants() : null,
                 isGroup ? lesson.getGroupStatus() : null,
-                isGroup ? lesson.getActiveParticipantCount() : null,
+                isGroup ? (lesson.getStatus() == LessonStatus.CANCELLED ? 0 : lesson.getActiveParticipantCount()) : null,
                 null, // invitationToken - set by caller when needed
                 participants
+        );
+    }
+
+    public LessonResponse withInvitationToken(String token) {
+        return new LessonResponse(
+                id, studentId, studentName, studentLevel, studentAge, studentElo,
+                teacherId, teacherName, scheduledAt, durationMinutes, zoomLink, status,
+                priceCents, commissionCents, teacherEarningsCents, isFromSubscription,
+                notes, cancellationReason, cancelledBy, refundPercentage, refundedAmountCents,
+                teacherObservations, teacherComment, teacherCommentAt, recordingUrl,
+                teacherJoinedAt, createdAt, courseId, courseTitle, courseGrade,
+                isGroupLesson, maxParticipants, groupStatus, currentParticipantCount,
+                token, participants
         );
     }
 }

@@ -1,38 +1,38 @@
-import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { heroCpuChip, heroLockClosed } from '@ng-icons/heroicons/outline';
+import { TranslateModule } from '@ngx-translate/core';
 import { PaymentService } from '../../../core/services/payment.service';
 
 @Component({
-  selector: 'app-exercise-button',
-  standalone: true,
-  imports: [RouterLink, NgIconComponent],
-  viewProviders: [provideIcons({ heroCpuChip, heroLockClosed })],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
+    selector: 'app-exercise-button',
+    imports: [RouterLink, NgIconComponent, TranslateModule],
+    viewProviders: [provideIcons({ heroCpuChip, heroLockClosed })],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    template: `
     @if (paymentService.hasActiveSubscription()) {
       <a
-        [routerLink]="['/exercise', lessonId]"
+        [routerLink]="['/exercise', lessonId()]"
         class="exercise-btn"
-        title="S'entrainer contre myChessBot"
+        [title]="'exerciseButton.trainWithBot' | translate"
       >
         <ng-icon name="heroCpuChip" size="14"></ng-icon>
-        <span>M'exercer</span>
+        <span>{{ 'exerciseButton.practice' | translate }}</span>
       </a>
     } @else {
       <a
         routerLink="/subscription"
         [queryParams]="{ required: 'exercise' }"
         class="exercise-btn exercise-btn--locked"
-        title="Fonctionnalité Premium - Abonnez-vous pour accéder"
+        [title]="'exerciseButton.premiumSubscribe' | translate"
       >
         <ng-icon name="heroLockClosed" size="14"></ng-icon>
-        <span>Premium</span>
+        <span>{{ 'common.premium' | translate }}</span>
       </a>
     }
   `,
-  styles: [`
+    styles: [`
     .exercise-btn {
       display: inline-flex;
       align-items: center;
@@ -94,7 +94,7 @@ import { PaymentService } from '../../../core/services/payment.service';
   `]
 })
 export class ExerciseButtonComponent {
-  @Input({ required: true }) lessonId!: number;
+  readonly lessonId = input.required<number>();
 
   constructor(public paymentService: PaymentService) {}
 }

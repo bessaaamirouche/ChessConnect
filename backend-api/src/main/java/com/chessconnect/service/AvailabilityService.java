@@ -10,6 +10,7 @@ import com.chessconnect.model.FavoriteTeacher;
 import com.chessconnect.model.Lesson;
 import com.chessconnect.model.User;
 import com.chessconnect.model.enums.LessonStatus;
+import com.chessconnect.model.enums.LessonType;
 import com.chessconnect.repository.AvailabilityRepository;
 import com.chessconnect.repository.FavoriteTeacherRepository;
 import com.chessconnect.repository.LessonRepository;
@@ -43,6 +44,7 @@ public class AvailabilityService {
     private final UserRepository userRepository;
     private final FavoriteTeacherRepository favoriteRepository;
     private final EmailService emailService;
+    private final WebPushService webPushService;
     private final SubscriptionService subscriptionService;
     private final ApplicationEventPublisher eventPublisher;
 
@@ -55,6 +57,7 @@ public class AvailabilityService {
             UserRepository userRepository,
             FavoriteTeacherRepository favoriteRepository,
             EmailService emailService,
+            WebPushService webPushService,
             SubscriptionService subscriptionService,
             ApplicationEventPublisher eventPublisher
     ) {
@@ -63,6 +66,7 @@ public class AvailabilityService {
         this.userRepository = userRepository;
         this.favoriteRepository = favoriteRepository;
         this.emailService = emailService;
+        this.webPushService = webPushService;
         this.subscriptionService = subscriptionService;
         this.eventPublisher = eventPublisher;
     }
@@ -85,6 +89,7 @@ public class AvailabilityService {
         availability.setIsRecurring(request.getIsRecurring());
         availability.setSpecificDate(request.getSpecificDate());
         availability.setIsActive(true);
+        availability.setLessonType(LessonType.valueOf(request.getLessonType()));
 
         availability = availabilityRepository.save(availability);
         log.info("Created availability {} for teacher {}", availability.getId(), teacherId);
@@ -120,6 +125,14 @@ public class AvailabilityService {
                     bookingLink
             );
             notifiedCount++;
+
+            // Send Web Push notification
+            webPushService.sendToUser(
+                    student.getId(),
+                    "Nouveau créneau - " + teacherName,
+                    availabilityInfo,
+                    bookingLink
+            );
 
             // Send SSE notification to all subscribed students
             publishAvailabilityEvent(student.getId(), teacher, availability, availabilityInfo);
@@ -202,15 +215,20 @@ public class AvailabilityService {
     }
 
     public List<TimeSlotResponse> getAvailableSlots(Long teacherId, LocalDate startDate, LocalDate endDate) {
-        return getAvailableSlots(teacherId, startDate, endDate, false);
+        return getAvailableSlots(teacherId, startDate, endDate, false, null);
+    }
+
+    public List<TimeSlotResponse> getAvailableSlots(Long teacherId, LocalDate startDate, LocalDate endDate, boolean isPremiumUser) {
+        return getAvailableSlots(teacherId, startDate, endDate, isPremiumUser, null);
     }
 
     /**
      * Get available slots for a teacher.
      * Premium users see all slots immediately. Non-premium users only see slots
      * from availabilities created more than 24 hours ago.
+     * Optionally filter by lesson type (INDIVIDUAL or GROUP).
      */
-    public List<TimeSlotResponse> getAvailableSlots(Long teacherId, LocalDate startDate, LocalDate endDate, boolean isPremiumUser) {
+    public List<TimeSlotResponse> getAvailableSlots(Long teacherId, LocalDate startDate, LocalDate endDate, boolean isPremiumUser, String lessonType) {
         List<TimeSlotResponse> slots = new ArrayList<>();
 
         // Get all availabilities for the teacher
@@ -226,6 +244,15 @@ public class AvailabilityService {
                     .toList();
 
         log.info("After premium filter (isPremium={}): {} availabilities", isPremiumUser, availabilities.size());
+
+        // Filter by lesson type if specified
+        if (lessonType != null && !lessonType.isEmpty()) {
+            LessonType type = LessonType.valueOf(lessonType);
+            availabilities = availabilities.stream()
+                    .filter(a -> a.getLessonType() == type)
+                    .toList();
+            log.info("After lessonType filter ({}): {} availabilities", lessonType, availabilities.size());
+        }
 
         // Get existing lessons to check for conflicts
         LocalDateTime startDateTime = startDate.atStartOfDay();
@@ -280,7 +307,8 @@ public class AvailabilityService {
                                 finalDate,
                                 currentTime,
                                 currentTime.plusMinutes(SLOT_DURATION_MINUTES),
-                                isAvailable
+                                isAvailable,
+                                availability.getLessonType().name()
                         ));
                     }
 

@@ -55,5 +55,9 @@ public record RegisterRequest(
         Integer eloRating,
         @Min(value = 1, message = "Starting course ID must be at least 1")
         @Max(value = 100, message = "Starting course ID must not exceed 100")
-        Integer startingCourseId  // Course ID to start from (default: 1)
+        Integer startingCourseId,  // Course ID to start from (default: 1)
+
+        // Referral code (optional)
+        @Size(max = 50, message = "Referral code must not exceed 50 characters")
+        String referralCode
 ) {}

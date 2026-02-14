@@ -366,7 +366,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: var(--z-modal);
   padding: var(--space-md);
 }
 
@@ -422,7 +422,7 @@
   color: white;
 
   &:hover {
-    background: darken(#ef4444, 10%);
+    background: #dc2626;
   }
 }
 

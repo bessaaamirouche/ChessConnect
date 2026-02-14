@@ -62,6 +62,7 @@ export class RegisterComponent {
   minBirthYear = 1920;
   maxBirthYear = new Date().getFullYear();
   showPassword = signal(false);
+  hasReferralCode = signal(false);
   returnUrl: string | null = null;
 
   togglePassword(): void {
@@ -75,6 +76,11 @@ export class RegisterComponent {
     private route: ActivatedRoute
   ) {
     this.returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+    // Pre-fill referral code from URL param ?ref=CODE
+    const refCode = this.route.snapshot.queryParamMap.get('ref') || '';
+    if (refCode) {
+      this.hasReferralCode.set(true);
+    }
     this.seoService.setRegisterPage();
     this.registerForm = this.fb.group({
       firstName: ['', [Validators.required, Validators.minLength(2), nameValidator]],
@@ -88,7 +94,8 @@ export class RegisterComponent {
       // Student fields
       birthDate: [''],
       eloRating: [null],
-      knowsElo: [false]
+      knowsElo: [false],
+      referralCode: [refCode]
     });
 
     // Update bio validation when role changes

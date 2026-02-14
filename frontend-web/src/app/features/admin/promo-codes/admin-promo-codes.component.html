@@ -1,0 +1,293 @@
+<div class="admin-promo-codes">
+  <div class="page-header">
+    <h1>{{ 'promoCodes.title' | translate }}</h1>
+    <button class="btn-primary" (click)="openCreateModal()">
+      + {{ 'promoCodes.create' | translate }}
+    </button>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button [class.active]="activeTab() === 'PROMO'" (click)="setTab('PROMO')">
+      {{ 'promoCodes.tabPromo' | translate }}
+    </button>
+    <button [class.active]="activeTab() === 'REFERRAL'" (click)="setTab('REFERRAL')">
+      {{ 'promoCodes.tabReferral' | translate }}
+    </button>
+  </div>
+
+  <!-- Table -->
+  @if (loading()) {
+    <div class="loading">{{ 'common.loading' | translate }}...</div>
+  } @else {
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>{{ 'promoCodes.code' | translate }}</th>
+            @if (activeTab() === 'PROMO') {
+              <th>{{ 'promoCodes.discountType' | translate }}</th>
+              <th>{{ 'promoCodes.discount' | translate }}</th>
+            } @else {
+              <th>{{ 'promoCodes.referrer' | translate }}</th>
+              <th>{{ 'promoCodes.revenueShare' | translate }}</th>
+              <th>{{ 'promoCodes.premiumDays' | translate }}</th>
+            }
+            <th>{{ 'promoCodes.uses' | translate }}</th>
+            <th>{{ 'promoCodes.status' | translate }}</th>
+            <th>{{ 'promoCodes.actions' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (code of filteredCodes; track code.id) {
+            <tr>
+              <td class="code-cell">
+                <span class="code-badge">{{ code.code }}</span>
+              </td>
+              @if (activeTab() === 'PROMO') {
+                <td>
+                  @if (code.discountType === 'COMMISSION_REDUCTION') {
+                    <span class="badge badge-blue">{{ 'promoCodes.commissionReduction' | translate }}</span>
+                  } @else {
+                    <span class="badge badge-green">{{ 'promoCodes.studentDiscount' | translate }}</span>
+                  }
+                </td>
+                <td>{{ code.discountPercent }}%</td>
+              } @else {
+                <td>{{ code.referrerName || '-' }}</td>
+                <td>{{ code.revenueSharePercent }}%</td>
+                <td>{{ code.premiumDays }}j</td>
+              }
+              <td>
+                {{ code.currentUses }}@if (code.maxUses) { / {{ code.maxUses }} }
+              </td>
+              <td>
+                @if (code.isActive) {
+                  <span class="badge badge-green">{{ 'promoCodes.active' | translate }}</span>
+                } @else {
+                  <span class="badge badge-red">{{ 'promoCodes.inactive' | translate }}</span>
+                }
+              </td>
+              <td class="actions-cell">
+                <button class="btn-sm btn-outline" (click)="openDetail(code)">{{ 'promoCodes.detail' | translate }}</button>
+                <button class="btn-sm btn-outline" (click)="openEditModal(code)">{{ 'promoCodes.edit' | translate }}</button>
+                <button class="btn-sm" [class.btn-success]="!code.isActive" [class.btn-warning]="code.isActive" (click)="toggleActive(code)">
+                  {{ code.isActive ? ('promoCodes.deactivate' | translate) : ('promoCodes.activate' | translate) }}
+                </button>
+                <button class="btn-sm btn-danger" (click)="deleteCode(code)">{{ 'promoCodes.delete' | translate }}</button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td [attr.colspan]="activeTab() === 'PROMO' ? 6 : 7" class="empty-state">
+                {{ 'promoCodes.empty' | translate }}
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  <!-- Create/Edit Modal -->
+  @if (showModal()) {
+    <div class="modal-overlay" (click)="showModal.set(false)">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <h2>{{ editingCode() ? ('promoCodes.editTitle' | translate) : ('promoCodes.createTitle' | translate) }}</h2>
+
+        <div class="form-group">
+          <label>{{ 'promoCodes.code' | translate }}</label>
+          <div class="input-row">
+            <input type="text" [ngModel]="formCode()" (ngModelChange)="formCode.set($event)" [disabled]="!!editingCode()" />
+            @if (!editingCode()) {
+              <button class="btn-sm btn-outline" (click)="generateCode()">{{ 'promoCodes.generate' | translate }}</button>
+            }
+          </div>
+        </div>
+
+        @if (!editingCode()) {
+          <div class="form-group">
+            <label>{{ 'promoCodes.type' | translate }}</label>
+            <select [ngModel]="formCodeType()" (ngModelChange)="formCodeType.set($event)">
+              <option value="PROMO">{{ 'promoCodes.tabPromo' | translate }}</option>
+              <option value="REFERRAL">{{ 'promoCodes.tabReferral' | translate }}</option>
+            </select>
+          </div>
+        }
+
+        @if (formCodeType() === 'PROMO') {
+          <div class="form-group">
+            <label>{{ 'promoCodes.discountType' | translate }}</label>
+            <select [ngModel]="formDiscountType()" (ngModelChange)="formDiscountType.set($event)">
+              <option value="COMMISSION_REDUCTION">{{ 'promoCodes.commissionReduction' | translate }}</option>
+              <option value="STUDENT_DISCOUNT">{{ 'promoCodes.studentDiscount' | translate }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>{{ 'promoCodes.discountPercent' | translate }}</label>
+            <input type="number" min="0" max="100" [ngModel]="formDiscountPercent()" (ngModelChange)="formDiscountPercent.set($event)" />
+          </div>
+        }
+
+        @if (formCodeType() === 'REFERRAL') {
+          <div class="form-group">
+            <label>{{ 'promoCodes.referrerName' | translate }}</label>
+            <input type="text" [ngModel]="formReferrerName()" (ngModelChange)="formReferrerName.set($event)" />
+          </div>
+          <div class="form-group">
+            <label>{{ 'promoCodes.referrerEmail' | translate }}</label>
+            <input type="email" [ngModel]="formReferrerEmail()" (ngModelChange)="formReferrerEmail.set($event)" />
+          </div>
+          <div class="form-group">
+            <label>{{ 'promoCodes.revenueSharePercent' | translate }}</label>
+            <input type="number" min="0" max="100" [ngModel]="formRevenueSharePercent()" (ngModelChange)="formRevenueSharePercent.set($event)" />
+          </div>
+        }
+
+        <div class="form-group">
+          <label>{{ 'promoCodes.premiumDays' | translate }}</label>
+          <input type="number" min="0" [ngModel]="formPremiumDays()" (ngModelChange)="formPremiumDays.set($event)" />
+        </div>
+
+        <div class="form-group">
+          <label>{{ 'promoCodes.maxUses' | translate }}</label>
+          <input type="number" min="0" [ngModel]="formMaxUses()" (ngModelChange)="formMaxUses.set($event)" placeholder="Illimite" />
+        </div>
+
+        <div class="form-group checkbox-group">
+          <label>
+            <input type="checkbox" [ngModel]="formFirstLessonOnly()" (ngModelChange)="formFirstLessonOnly.set($event)" />
+            {{ 'promoCodes.firstLessonOnly' | translate }}
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label>{{ 'promoCodes.minAmount' | translate }}</label>
+          <input type="number" min="0" [ngModel]="formMinAmountCents()" (ngModelChange)="formMinAmountCents.set($event)" placeholder="Pas de minimum" />
+        </div>
+
+        <div class="form-group">
+          <label>{{ 'promoCodes.expiresAt' | translate }}</label>
+          <input type="datetime-local" [ngModel]="formExpiresAt()" (ngModelChange)="formExpiresAt.set($event)" />
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn-outline" (click)="showModal.set(false)">{{ 'common.cancel' | translate }}</button>
+          <button class="btn-primary" (click)="saveCode()">{{ 'common.save' | translate }}</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Detail Modal -->
+  @if (showDetail()) {
+    <div class="modal-overlay" (click)="closeDetail()">
+      <div class="modal modal-large" (click)="$event.stopPropagation()">
+        @if (detailCode(); as code) {
+          <div class="detail-header">
+            <h2>{{ code.code }}</h2>
+            <span class="badge" [class.badge-green]="code.isActive" [class.badge-red]="!code.isActive">
+              {{ code.isActive ? ('promoCodes.active' | translate) : ('promoCodes.inactive' | translate) }}
+            </span>
+          </div>
+
+          <div class="detail-stats">
+            <div class="stat">
+              <span class="stat-label">{{ 'promoCodes.uses' | translate }}</span>
+              <span class="stat-value">{{ code.currentUses }}@if (code.maxUses) { / {{ code.maxUses }} }</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">{{ 'promoCodes.totalDiscount' | translate }}</span>
+              <span class="stat-value">{{ formatCents(code.totalDiscountCents) }}</span>
+            </div>
+            @if (code.codeType === 'REFERRAL') {
+              <div class="stat">
+                <span class="stat-label">{{ 'promoCodes.totalEarnings' | translate }}</span>
+                <span class="stat-value">{{ formatCents(code.totalEarningsCents) }}</span>
+              </div>
+              <div class="stat">
+                <span class="stat-label">{{ 'promoCodes.unpaidEarnings' | translate }}</span>
+                <span class="stat-value highlight">{{ formatCents(code.unpaidEarningsCents) }}</span>
+              </div>
+            }
+          </div>
+
+          <!-- Usages -->
+          <h3>{{ 'promoCodes.usageHistory' | translate }}</h3>
+          @if (detailUsages().length > 0) {
+            <table class="detail-table">
+              <thead>
+                <tr>
+                  <th>{{ 'promoCodes.user' | translate }}</th>
+                  <th>{{ 'promoCodes.originalAmount' | translate }}</th>
+                  <th>{{ 'promoCodes.discountAmount' | translate }}</th>
+                  <th>{{ 'promoCodes.date' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (usage of detailUsages(); track usage.id) {
+                  <tr>
+                    <td>{{ usage.userName }}</td>
+                    <td>{{ formatCents(usage.originalAmountCents) }}</td>
+                    <td>{{ formatCents(usage.discountAmountCents) }}</td>
+                    <td>{{ usage.usedAt | date:'dd/MM/yyyy HH:mm' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          } @else {
+            <p class="empty-text">{{ 'promoCodes.noUsages' | translate }}</p>
+          }
+
+          <!-- Earnings (referral only) -->
+          @if (code.codeType === 'REFERRAL') {
+            <div class="earnings-section">
+              <div class="earnings-header">
+                <h3>{{ 'promoCodes.earningsHistory' | translate }}</h3>
+                @if (code.unpaidEarningsCents > 0) {
+                  <button class="btn-sm btn-primary" (click)="markEarningsPaid()">{{ 'promoCodes.markPaid' | translate }}</button>
+                }
+              </div>
+              @if (detailEarnings().length > 0) {
+                <table class="detail-table">
+                  <thead>
+                    <tr>
+                      <th>{{ 'promoCodes.referredUser' | translate }}</th>
+                      <th>{{ 'promoCodes.lessonAmount' | translate }}</th>
+                      <th>{{ 'promoCodes.earning' | translate }}</th>
+                      <th>{{ 'promoCodes.paidStatus' | translate }}</th>
+                      <th>{{ 'promoCodes.date' | translate }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (earning of detailEarnings(); track earning.id) {
+                      <tr>
+                        <td>{{ earning.referredUserName }}</td>
+                        <td>{{ formatCents(earning.lessonAmountCents) }}</td>
+                        <td>{{ formatCents(earning.referrerEarningCents) }}</td>
+                        <td>
+                          @if (earning.isPaid) {
+                            <span class="badge badge-green">{{ 'promoCodes.paid' | translate }}</span>
+                          } @else {
+                            <span class="badge badge-orange">{{ 'promoCodes.unpaid' | translate }}</span>
+                          }
+                        </td>
+                        <td>{{ earning.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              } @else {
+                <p class="empty-text">{{ 'promoCodes.noEarnings' | translate }}</p>
+              }
+            </div>
+          }
+
+          <div class="modal-actions">
+            <button class="btn-outline" (click)="closeDetail()">{{ 'common.close' | translate }}</button>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

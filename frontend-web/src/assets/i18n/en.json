@@ -10,7 +10,8 @@
     "login": "Log In",
     "signup": "Sign Up",
     "getStarted": "Get Started",
-    "menu": "Navigation menu"
+    "menu": "Navigation menu",
+    "programme": "Programme"
   },
   "hero": {
     "title": "Ready to master <span>Chess</span>?",
@@ -41,6 +42,10 @@
     "progressTracking": {
       "title": "Track Your Progress",
       "description": "Watch your rating climb with detailed stats, game analysis, and milestone badges."
+    },
+    "groupLessons": {
+      "title": "Group Lessons",
+      "description": "Invite a friend and split the lesson cost. Groups of 2 or 3 to learn together and save."
     },
     "videoLessons": {
       "title": "HD Video Lessons",
@@ -169,6 +174,10 @@
       "step4": {
         "title": "Book your first lesson",
         "premiumNote": "Premium: priority access to slots"
+      },
+      "groupOption": {
+        "title": "Group lesson option",
+        "description": "You can also book as a group (2-3 students) and share the cost. Invite friends via a unique link!"
       },
       "step5": {
         "title": "Track your progress",
@@ -343,6 +352,14 @@
         "feature3": "Queue priority"
       }
     },
+    "groupLessons": {
+      "title": "Group lessons: split the cost",
+      "description": "Book a lesson together and divide the coach's rate. Invite friends via a sharing link.",
+      "duo": "2 students",
+      "duoSavings": "-50% per person",
+      "trio": "3 students",
+      "trioSavings": "-66% per person"
+    },
     "comparison": {
       "title": "Plan comparison",
       "feature": "Feature",
@@ -478,7 +495,7 @@
     "myProgress": "My Progress",
     "programme": "Programme",
     "myLibrary": "My Library",
-    "findCoach": "Find a Coach",
+    "findCoach": "Find a Lesson",
     "myAvailability": "My Availability",
     "account": "Account",
     "profile": "Profile",
@@ -496,6 +513,8 @@
     "stripeConnect": "Stripe Connect",
     "blogAdmin": "Blog",
     "messages": "Messages",
+    "library": "Library",
+    "promoCodes": "Promo Codes",
     "roles": {
       "player": "Player",
       "coach": "Coach",
@@ -592,6 +611,7 @@
     "subtitle": "Browse verified coaches and book your first lesson",
     "pageTitle": "Our Chess Coaches",
     "pageSubtitle": "Find the perfect coach to progress at your own pace",
+    "groupTip": "<strong>Group lessons available!</strong> Book with a friend and split the price by 2 or 3.",
     "searchPlaceholder": "Search by name...",
     "myFavorites": "My Favorites",
     "allCoaches": "All Coaches",
@@ -640,8 +660,8 @@
       "noSlots": "No available slots",
       "checkBack": "Check back later for new availability",
       "coachTitle": "Coach",
-      "favorite": "Favorite",
-      "addFavorite": "Add",
+      "favorite": "Subscribed",
+      "addFavorite": "Subscribe",
       "hourlyRate": "Hourly Rate",
       "averageRating": "Average Rating",
       "lessonsTaught": "Lessons Given",
@@ -663,6 +683,10 @@
       "title": "Ready to improve at chess?",
       "description": "Sign up for free and book your first lesson free",
       "button": "Get Started Now"
+    },
+    "lessonType": {
+      "individual": "Individual Lesson",
+      "group": "Group Lesson"
     }
   },
   "lessons": {
@@ -766,6 +790,7 @@
     "card": "Credit Card",
     "wallet": "Wallet Balance",
     "walletBalance": "Available balance",
+    "walletAvailable": "Available in my wallet",
     "insufficientBalance": "Insufficient balance",
     "addFunds": "Add Funds",
     "firstLessonFree": "First Lesson Free!",
@@ -808,7 +833,10 @@
     "redirectingToDashboard": "Redirecting to dashboard...",
     "premiumBookFirst": "Premium members book first",
     "priorityAccess": "Priority access to new slots",
-    "discover": "Discover Premium"
+    "discover": "Discover Premium",
+    "promoPlaceholder": "Promo code",
+    "applyPromo": "Apply",
+    "promoPrice": "Price with promo"
   },
   "group_lesson": {
     "title": "Group Lesson",
@@ -1154,7 +1182,10 @@
       "hourlyRateUnit": "EUR/hour",
       "languages": "Languages spoken",
       "languagesHint": "Select the languages you speak",
-      "submitting": "Creating account..."
+      "submitting": "Creating account...",
+      "hasReferralCode": "Do you have a referral code?",
+      "referralCode": "Referral code",
+      "referralCodePlaceholder": "Enter your referral code"
     },
     "forgotPassword": {
       "title": "Reset Password",
@@ -1493,6 +1524,16 @@
       "message": "Are you sure you want to delete this availability?",
       "confirm": "Delete",
       "cancel": "Cancel"
+    },
+    "lessonType": {
+      "label": "Lesson Type",
+      "individual": "Individual Lesson",
+      "group": "Group Lesson"
+    },
+    "filter": {
+      "allDates": "All dates",
+      "allTypes": "All types",
+      "noResults": "No slots match the selected filters"
     }
   },
   "rating": {
@@ -1624,6 +1665,20 @@
       "deleteConfirm": "Delete this video from your library?",
       "deleteTitle": "Delete from library"
     }
+  },
+  "adminLibrary": {
+    "title": "Video Library",
+    "subtitle": "All lesson recordings",
+    "totalVideos": "Videos",
+    "totalDuration": "Total duration",
+    "searchPlaceholder": "Search by coach or student...",
+    "customDates": "Custom dates",
+    "clearFilters": "Clear filters",
+    "dateFrom": "From",
+    "dateTo": "To",
+    "loading": "Loading videos...",
+    "noResults": "No videos found",
+    "empty": "No recordings available"
   },
   "common": {
     "loading": "Loading...",
@@ -1988,7 +2043,20 @@
     "recording": "Recording",
     "leftCall": "You left the call",
     "lessonInProgress": "The lesson is still in progress",
-    "rejoinCall": "Rejoin call"
+    "rejoinCall": "Rejoin call",
+    "timer": "Set a timer",
+    "timerTitle": "Set Timer",
+    "timerMinutesShort": "min",
+    "timerCustomPlaceholder": "Custom (min)",
+    "timerStart": "Start",
+    "timerPause": "Pause",
+    "timerResume": "Resume",
+    "timerReset": "Reset",
+    "timerCountdown": "Countdown timer",
+    "timerFinished": "Time is up!",
+    "endingSoon": "The lesson ends in {{minutes}} minutes",
+    "callEnded": "The lesson is over, the call was automatically ended",
+    "remaining": "remaining"
   },
   "exerciseButton": {
     "trainWithBot": "Train against myChessBot",
@@ -2316,5 +2384,60 @@
     "showing": "{{start}}-{{end}} of {{total}}",
     "goToPage": "Go to page {{page}}",
     "ariaLabel": "Pagination"
+  },
+  "promoCodes": {
+    "title": "Promo codes & referrals",
+    "create": "Create a code",
+    "tabPromo": "Promo",
+    "tabReferral": "Referral",
+    "code": "Code",
+    "type": "Type",
+    "discountType": "Discount type",
+    "discount": "Discount",
+    "commissionReduction": "Commission reduction",
+    "studentDiscount": "Price discount",
+    "referrer": "Referrer",
+    "revenueShare": "Revenue share",
+    "premiumDays": "Premium days",
+    "uses": "Uses",
+    "status": "Status",
+    "actions": "Actions",
+    "active": "Active",
+    "inactive": "Inactive",
+    "detail": "Detail",
+    "edit": "Edit",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "delete": "Delete",
+    "empty": "No codes yet",
+    "createTitle": "Create a code",
+    "editTitle": "Edit code",
+    "generate": "Generate",
+    "discountPercent": "Discount percentage",
+    "referrerName": "Referrer name",
+    "referrerEmail": "Referrer email",
+    "revenueSharePercent": "Revenue share (%)",
+    "maxUses": "Max uses",
+    "firstLessonOnly": "First lesson only",
+    "minAmount": "Minimum amount (cents)",
+    "expiresAt": "Expiration date",
+    "totalDiscount": "Total discounts",
+    "totalEarnings": "Total earnings",
+    "unpaidEarnings": "Unpaid earnings",
+    "usageHistory": "Usage history",
+    "user": "User",
+    "originalAmount": "Original amount",
+    "discountAmount": "Discount",
+    "date": "Date",
+    "noUsages": "No usages",
+    "earningsHistory": "Earnings history",
+    "referredUser": "Referred user",
+    "lessonAmount": "Lesson amount",
+    "earning": "Earning",
+    "paidStatus": "Payment status",
+    "paid": "Paid",
+    "unpaid": "Unpaid",
+    "markPaid": "Mark as paid",
+    "noEarnings": "No earnings"
   }
 }

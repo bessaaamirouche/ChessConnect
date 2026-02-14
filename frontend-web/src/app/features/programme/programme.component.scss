@@ -310,13 +310,13 @@
 // Level-specific accent colors
 .level-section[data-level="A"] {
   .course-header--expanded {
-    border-left: 3px solid #4CAF50;
+    border-left: 3px solid var(--success);
   }
 }
 
 .level-section[data-level="B"] {
   .course-header--expanded {
-    border-left: 3px solid #2196F3;
+    border-left: 3px solid var(--info);
   }
 }
 
@@ -328,7 +328,7 @@
 
 .level-section[data-level="D"] {
   .course-header--expanded {
-    border-left: 3px solid #FF9800;
+    border-left: 3px solid var(--warning);
   }
 }
 
@@ -438,7 +438,7 @@
 // Stat item highlight
 .stat-item--highlight {
   .stat-value {
-    color: #4CAF50;
+    color: var(--success);
   }
 }
 
@@ -464,7 +464,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #4CAF50;
+  color: var(--success);
   flex-shrink: 0;
 }
 

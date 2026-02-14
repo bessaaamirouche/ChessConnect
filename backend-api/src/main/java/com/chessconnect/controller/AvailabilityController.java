@@ -96,6 +96,7 @@ public class AvailabilityController {
             @PathVariable Long teacherId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(required = false) String lessonType,
             @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
         // Limit to 30 days max
@@ -113,7 +114,7 @@ public class AvailabilityController {
                 startDate,
                 endDate);
 
-        List<TimeSlotResponse> slots = availabilityService.getAvailableSlots(teacherId, startDate, endDate, isPremium);
+        List<TimeSlotResponse> slots = availabilityService.getAvailableSlots(teacherId, startDate, endDate, isPremium, lessonType);
         log.info("Returning {} slots for teacher {}", slots.size(), teacherId);
         return ResponseEntity.ok(slots);
     }

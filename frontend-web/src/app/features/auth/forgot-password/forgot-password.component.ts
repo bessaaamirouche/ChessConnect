@@ -3,10 +3,13 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { NgIconComponent, provideIcons } from '@ng-icons/core';
+import { heroCheck } from '@ng-icons/heroicons/outline';
 
 @Component({
     selector: 'app-forgot-password',
-    imports: [ReactiveFormsModule, RouterLink, TranslateModule],
+    imports: [ReactiveFormsModule, RouterLink, TranslateModule, NgIconComponent],
+    viewProviders: [provideIcons({ heroCheck })],
     templateUrl: './forgot-password.component.html',
     styleUrl: './forgot-password.component.scss'
 })

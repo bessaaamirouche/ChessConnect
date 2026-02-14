@@ -77,12 +77,16 @@ export class AvailabilityService {
   }
 
   // Public: Load available time slots for a teacher
-  loadAvailableSlots(teacherId: number, startDate: string, endDate: string): Observable<TimeSlot[]> {
+  loadAvailableSlots(teacherId: number, startDate: string, endDate: string, lessonType?: string): Observable<TimeSlot[]> {
     this.loadingSignal.set(true);
 
-    const params = new HttpParams()
+    let params = new HttpParams()
       .set('startDate', startDate)
       .set('endDate', endDate);
+
+    if (lessonType) {
+      params = params.set('lessonType', lessonType);
+    }
 
     return this.http.get<TimeSlot[]>(`${this.apiUrl}/teacher/${teacherId}/slots`, { params }).pipe(
       tap(slots => {

@@ -1,14 +1,14 @@
 @use '../../../../styles/variables' as *;
 
-$gold: #d4a84b;
-$ivory: #f5f3eb;
-$ivory-muted: #a8a5a0;
-$text-muted: #6b6965;
-$bg-dark: #0a0a0c;
+$gold: var(--gold-400);
+$ivory: var(--text-primary);
+$ivory-muted: var(--text-secondary);
+$text-muted: var(--text-muted);
+$bg-dark: var(--bg-primary);
 
 .footer {
-  background: #09090b;
-  border-top: 1px solid rgba($gold, 0.1);
+  background: var(--bg-primary);
+  border-top: 1px solid rgba(212, 168, 75, 0.1);
   padding: var(--space-3xl) var(--space-lg) var(--space-xl);
 
   @include respond-down(md) {
@@ -40,11 +40,22 @@ $bg-dark: #0a0a0c;
 
   &__brand {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
+    gap: var(--space-sm);
 
     @include respond-to(md) {
-      justify-content: flex-start;
+      align-items: flex-start;
+    }
+  }
+
+  &__tagline {
+    font-size: 0.8125rem;
+    color: $ivory-muted;
+    letter-spacing: 0.02em;
+
+    @include respond-down(md) {
+      font-size: 0.75rem;
     }
   }
 
@@ -111,7 +122,7 @@ $bg-dark: #0a0a0c;
     width: 100px;
     height: 100px;
     border-radius: var(--radius-sm);
-    border: 2px solid rgba($gold, 0.3);
+    border: 2px solid rgba(212, 168, 75, 0.3);
     background: $bg-dark;
     margin-top: var(--space-xs);
 
@@ -123,7 +134,7 @@ $bg-dark: #0a0a0c;
 
   &__divider {
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba($gold, 0.2), transparent);
+    background: linear-gradient(90deg, transparent, rgba(212, 168, 75, 0.2), transparent);
     margin-bottom: var(--space-lg);
   }
 

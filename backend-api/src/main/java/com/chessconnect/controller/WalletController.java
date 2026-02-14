@@ -18,8 +18,11 @@ import com.chessconnect.repository.UserRepository;
 import com.chessconnect.security.UserDetailsImpl;
 import com.chessconnect.service.InvoiceService;
 import com.chessconnect.service.LessonService;
+import com.chessconnect.service.PromoCodeService;
 import com.chessconnect.service.StripeService;
 import com.chessconnect.service.WalletService;
+import com.chessconnect.dto.promo.ValidatePromoCodeResponse;
+import com.chessconnect.model.enums.DiscountType;
 import com.stripe.exception.StripeException;
 import com.stripe.model.checkout.Session;
 import jakarta.validation.Valid;
@@ -48,6 +51,7 @@ public class WalletController {
     private final UserRepository userRepository;
     private final StripeService stripeService;
     private final InvoiceService invoiceService;
+    private final PromoCodeService promoCodeService;
 
     public WalletController(
             WalletService walletService,
@@ -56,7 +60,8 @@ public class WalletController {
             PaymentRepository paymentRepository,
             UserRepository userRepository,
             StripeService stripeService,
-            InvoiceService invoiceService
+            InvoiceService invoiceService,
+            PromoCodeService promoCodeService
     ) {
         this.walletService = walletService;
         this.lessonService = lessonService;
@@ -65,6 +70,7 @@ public class WalletController {
         this.userRepository = userRepository;
         this.stripeService = stripeService;
         this.invoiceService = invoiceService;
+        this.promoCodeService = promoCodeService;
     }
 
     /**
@@ -220,7 +226,26 @@ public class WalletController {
             // Get teacher's hourly rate
             User teacher = userRepository.findById(request.teacherId())
                     .orElseThrow(() -> new RuntimeException("Teacher not found"));
-            int lessonPrice = teacher.getHourlyRateCents();
+            int originalPrice = teacher.getHourlyRateCents();
+            int lessonPrice = originalPrice;
+
+            // Promo code handling
+            String promoCode = request.promoCode();
+            boolean promoApplied = false;
+            ValidatePromoCodeResponse promoValidation = null;
+            if (promoCode != null && !promoCode.isBlank()) {
+                promoValidation = promoCodeService.validateCode(promoCode, userId, originalPrice);
+                if (!promoValidation.valid()) {
+                    return ResponseEntity.badRequest().body(Map.of(
+                            "success", false,
+                            "error", promoValidation.message()
+                    ));
+                }
+                promoApplied = true;
+                if (promoValidation.discountType() == DiscountType.STUDENT_DISCOUNT) {
+                    lessonPrice = promoValidation.finalPriceCents();
+                }
+            }
 
             // Atomically check and deduct credit (pessimistic lock prevents race condition)
             walletService.checkAndDeductCredit(userId, lessonPrice);
@@ -252,10 +277,34 @@ public class WalletController {
             payment.setTeacher(teacher);
             payment.setLesson(lesson);
             payment.setPaymentType(PaymentType.LESSON_FROM_CREDIT);
-            payment.setAmountCents(lessonPrice);
             payment.setStatus(PaymentStatus.COMPLETED);
             payment.setProcessedAt(LocalDateTime.now());
+
+            if (promoApplied && promoValidation != null && promoValidation.discountType() == DiscountType.COMMISSION_REDUCTION) {
+                int standardCommission = (lessonPrice * 10) / 100;
+                int reducedCommission = (int) (standardCommission * (100.0 - promoValidation.discountPercent()) / 100.0);
+                int teacherPayout = lessonPrice - reducedCommission;
+                payment.setAmountWithPromo(lessonPrice, reducedCommission, teacherPayout);
+            } else {
+                payment.setAmountCents(lessonPrice);
+            }
+            if (promoApplied) {
+                payment.setOriginalAmountCents(originalPrice);
+                payment.setDiscountAmountCents(originalPrice - lessonPrice);
+            }
             paymentRepository.save(payment);
+
+            // Record promo code usage and referral earning
+            if (promoApplied) {
+                try {
+                    promoCodeService.applyPromoCode(promoCode, userId, lessonResponse.id(), payment.getId(), originalPrice);
+                    promoCodeService.recordReferralEarning(userId, lessonResponse.id(), lessonPrice, payment.getCommissionCents());
+                } catch (Exception e) {
+                    log.error("Error recording promo code usage", e);
+                }
+            } else {
+                promoCodeService.recordReferralEarning(userId, lessonResponse.id(), lessonPrice, payment.getCommissionCents());
+            }
 
             // Generate invoice
             invoiceService.generateInvoicesForCreditPayment(

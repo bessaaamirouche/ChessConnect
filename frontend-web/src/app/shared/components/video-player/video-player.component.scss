@@ -4,7 +4,7 @@
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.95);
-  z-index: 1100;
+  z-index: var(--z-overlay);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -100,7 +100,7 @@
     position: fixed;
     inset: 0;
     aspect-ratio: auto;
-    z-index: 1200;
+    z-index: calc(var(--z-overlay) + 100);
   }
 }
 
@@ -119,7 +119,7 @@
   border-radius: 50%;
   color: #fff;
   cursor: pointer;
-  z-index: 1250;
+  z-index: calc(var(--z-overlay) + 150);
   transition: all 0.2s ease;
   -webkit-tap-highlight-color: transparent;
 

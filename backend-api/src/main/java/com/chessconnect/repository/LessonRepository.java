@@ -53,6 +53,8 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
            "AND (l.scheduled_at + (l.duration_minutes * INTERVAL '1 minute')) >= :dateTime " +
            "AND l.status IN ('PENDING', 'CONFIRMED', 'CANCELLED') " +
            "AND (l.deleted_by_student IS NULL OR l.deleted_by_student = false) " +
+           "AND (l.is_group_lesson IS NULL OR l.is_group_lesson = false " +
+           "     OR EXISTS (SELECT 1 FROM lesson_participants lp WHERE lp.lesson_id = l.id AND lp.student_id = :studentId AND lp.status = 'ACTIVE')) " +
            "ORDER BY l.scheduled_at ASC", nativeQuery = true)
     List<Lesson> findUpcomingLessonsForStudent(
             @Param("studentId") Long studentId,
@@ -183,6 +185,26 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
            "ORDER BY l.scheduled_at DESC", nativeQuery = true)
     List<Lesson> findLibraryVideos(
             @Param("studentId") Long studentId,
+            @Param("search") String search,
+            @Param("dateFrom") LocalDateTime dateFrom,
+            @Param("dateTo") LocalDateTime dateTo
+    );
+
+    // Admin Library: ALL completed lessons with recordings (no student filter)
+    @Query(value = "SELECT l.* FROM lessons l " +
+           "JOIN users t ON t.id = l.teacher_id " +
+           "LEFT JOIN users s ON s.id = l.student_id " +
+           "WHERE l.status = 'COMPLETED' " +
+           "AND l.recording_url IS NOT NULL " +
+           "AND (CAST(:search AS VARCHAR) IS NULL OR CAST(:search AS VARCHAR) = '' " +
+           "    OR LOWER(t.first_name) LIKE LOWER(CONCAT('%', CAST(:search AS VARCHAR), '%')) " +
+           "    OR LOWER(t.last_name) LIKE LOWER(CONCAT('%', CAST(:search AS VARCHAR), '%')) " +
+           "    OR LOWER(s.first_name) LIKE LOWER(CONCAT('%', CAST(:search AS VARCHAR), '%')) " +
+           "    OR LOWER(s.last_name) LIKE LOWER(CONCAT('%', CAST(:search AS VARCHAR), '%'))) " +
+           "AND (CAST(:dateFrom AS TIMESTAMP) IS NULL OR l.scheduled_at >= CAST(:dateFrom AS TIMESTAMP)) " +
+           "AND (CAST(:dateTo AS TIMESTAMP) IS NULL OR l.scheduled_at <= CAST(:dateTo AS TIMESTAMP)) " +
+           "ORDER BY l.scheduled_at DESC", nativeQuery = true)
+    List<Lesson> findAllLibraryVideos(
             @Param("search") String search,
             @Param("dateFrom") LocalDateTime dateFrom,
             @Param("dateTo") LocalDateTime dateTo

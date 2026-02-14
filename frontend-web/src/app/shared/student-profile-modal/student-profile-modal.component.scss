@@ -7,7 +7,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: var(--z-overlay);
   padding: var(--space-lg);
 }
 
@@ -159,7 +159,7 @@
     margin: 0 0 var(--space-md);
 
     &--warning {
-      color: #f59e0b;
+      color: var(--warning);
       background: rgba(245, 158, 11, 0.1);
       padding: var(--space-sm);
       border-radius: var(--radius-md);
@@ -316,7 +316,7 @@
 // Button variants
 .btn--warning {
   background: rgba(245, 158, 11, 0.15);
-  color: #f59e0b;
+  color: var(--warning);
   border: 1px solid rgba(245, 158, 11, 0.3);
 
   &:hover:not(:disabled) {

@@ -17,6 +17,7 @@ import com.chessconnect.model.enums.UserRole;
 import com.chessconnect.model.Course;
 import com.chessconnect.repository.CourseRepository;
 import com.chessconnect.repository.CreditTransactionRepository;
+import com.chessconnect.repository.GroupInvitationRepository;
 import com.chessconnect.repository.InvoiceRepository;
 import com.chessconnect.repository.LessonParticipantRepository;
 import com.chessconnect.repository.LessonRepository;
@@ -70,6 +71,7 @@ public class LessonService {
     private final ProgrammeService programmeService;
     private final PendingValidationService pendingValidationService;
     private final BunnyStorageService bunnyStorageService;
+    private final GroupInvitationRepository groupInvitationRepository;
     private final ApplicationEventPublisher eventPublisher;
     private GroupLessonService groupLessonService;
 
@@ -89,6 +91,7 @@ public class LessonService {
             ProgrammeService programmeService,
             PendingValidationService pendingValidationService,
             BunnyStorageService bunnyStorageService,
+            GroupInvitationRepository groupInvitationRepository,
             ApplicationEventPublisher eventPublisher
     ) {
         this.lessonRepository = lessonRepository;
@@ -106,6 +109,7 @@ public class LessonService {
         this.programmeService = programmeService;
         this.pendingValidationService = pendingValidationService;
         this.bunnyStorageService = bunnyStorageService;
+        this.groupInvitationRepository = groupInvitationRepository;
         this.eventPublisher = eventPublisher;
     }
 
@@ -365,15 +369,25 @@ public class LessonService {
         return Stream.concat(privateLessons.stream(), groupLessons.stream())
                 .distinct()
                 .sorted(Comparator.comparing(Lesson::getScheduledAt))
-                .map(LessonResponse::from)
+                .map(this::toLessonResponseWithToken)
                 .toList();
     }
 
     public List<LessonResponse> getUpcomingLessonsForTeacher(Long teacherId) {
         return lessonRepository.findUpcomingLessonsForTeacher(teacherId, LocalDateTime.now())
                 .stream()
-                .map(LessonResponse::from)
+                .map(this::toLessonResponseWithToken)
                 .toList();
+    }
+
+    private LessonResponse toLessonResponseWithToken(Lesson lesson) {
+        LessonResponse response = LessonResponse.from(lesson);
+        if (Boolean.TRUE.equals(lesson.getIsGroupLesson())) {
+            return groupInvitationRepository.findByLessonId(lesson.getId())
+                    .map(inv -> response.withInvitationToken(inv.getToken()))
+                    .orElse(response);
+        }
+        return response;
     }
 
     public List<LessonResponse> getLessonHistory(Long userId) {
@@ -387,6 +401,13 @@ public class LessonService {
 
         // For students, also include group lessons where they were a participant
         if (!isTeacher) {
+            // Exclude group lessons where the student cancelled their participation
+            final Long studentId = userId;
+            lessons = lessons.stream()
+                    .filter(lesson -> !Boolean.TRUE.equals(lesson.getIsGroupLesson())
+                            || participantRepository.existsActiveByLessonIdAndStudentId(lesson.getId(), studentId))
+                    .collect(java.util.stream.Collectors.toCollection(java.util.ArrayList::new));
+
             List<Lesson> groupHistory = participantRepository.findHistoryGroupLessonsForStudent(userId);
             lessons = Stream.concat(lessons.stream(), groupHistory.stream())
                     .distinct()

@@ -1,5 +1,4 @@
 import { Component, input, output, computed, signal, effect } from '@angular/core';
-import { CommonModule } from '@angular/common';
 
 export interface PillTab {
   id: string;
@@ -9,7 +8,7 @@ export interface PillTab {
 @Component({
   selector: 'app-pill-tabs',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   template: `
     <div class="pill-tabs" [class.pill-tabs--compact]="compact()">
       @for (tab of tabs(); track tab.id; let i = $index) {

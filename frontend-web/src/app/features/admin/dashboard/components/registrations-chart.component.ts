@@ -1,6 +1,6 @@
-import { Component, computed, input, output } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { NgChartsModule } from 'ng2-charts';
+import { Component, computed, input, output, inject } from '@angular/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartOptions } from 'chart.js';
 
 export interface DataPoint {
@@ -9,26 +9,25 @@ export interface DataPoint {
 }
 
 @Component({
-  selector: 'app-registrations-chart',
-  standalone: true,
-  imports: [CommonModule, NgChartsModule],
-  template: `
+    selector: 'app-registrations-chart',
+    imports: [BaseChartDirective, TranslateModule],
+    template: `
     <div class="chart-card">
       <div class="chart-header">
-        <h3>Inscriptions</h3>
+        <h3>{{ 'admin.charts.registrations' | translate }}</h3>
         <div class="period-selector">
           <button
             [class.active]="period() === 'day'"
             (click)="periodChange.emit('day')"
-          >7 jours</button>
+          >{{ 'admin.charts.days7' | translate }}</button>
           <button
             [class.active]="period() === 'week'"
             (click)="periodChange.emit('week')"
-          >4 semaines</button>
+          >{{ 'admin.charts.weeks4' | translate }}</button>
           <button
             [class.active]="period() === 'month'"
             (click)="periodChange.emit('month')"
-          >12 mois</button>
+          >{{ 'admin.charts.months12' | translate }}</button>
         </div>
       </div>
       <div class="chart-container">
@@ -40,7 +39,7 @@ export interface DataPoint {
       </div>
     </div>
   `,
-  styles: [`
+    styles: [`
     .chart-card {
       background: var(--surface-secondary, #1a1a1a);
       border-radius: 12px;
@@ -110,6 +109,7 @@ export class RegistrationsChartComponent {
   teachers = input.required<DataPoint[]>();
   period = input<'day' | 'week' | 'month'>('day');
   periodChange = output<'day' | 'week' | 'month'>();
+  private translate = inject(TranslateService);
 
   chartData = computed<ChartConfiguration<'line'>['data']>(() => {
     const studentData = this.students();
@@ -119,7 +119,7 @@ export class RegistrationsChartComponent {
       labels: studentData.map(d => this.formatDate(d.date)),
       datasets: [
         {
-          label: 'Joueurs',
+          label: this.translate.instant('admin.charts.players'),
           data: studentData.map(d => d.value),
           borderColor: '#4F46E5',
           backgroundColor: 'rgba(79, 70, 229, 0.1)',
@@ -127,7 +127,7 @@ export class RegistrationsChartComponent {
           tension: 0.4
         },
         {
-          label: 'Coachs',
+          label: this.translate.instant('admin.charts.coaches'),
           data: teacherData.map(d => d.value),
           borderColor: '#8B5CF6',
           backgroundColor: 'rgba(139, 92, 246, 0.1)',

@@ -1,12 +1,11 @@
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { LanguageService, Language } from '../../../core/services/language.service';
 
 @Component({
-  selector: 'app-language-selector',
-  standalone: true,
-  imports: [CommonModule],
-  template: `
+    selector: 'app-language-selector',
+    imports: [],
+    template: `
     <div class="language-selector">
       <button
         class="language-btn"
@@ -42,7 +41,7 @@ import { LanguageService, Language } from '../../../core/services/language.servi
       }
     </div>
   `,
-  styles: [`
+    styles: [`
     .language-selector {
       position: relative;
     }

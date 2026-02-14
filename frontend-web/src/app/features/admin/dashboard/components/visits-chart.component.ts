@@ -1,6 +1,6 @@
-import { Component, computed, input } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { NgChartsModule } from 'ng2-charts';
+import { Component, computed, input, inject } from '@angular/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartOptions } from 'chart.js';
 
 export interface DataPoint {
@@ -14,22 +14,21 @@ export interface HourlyDataPoint {
 }
 
 @Component({
-  selector: 'app-visits-chart',
-  standalone: true,
-  imports: [CommonModule, NgChartsModule],
-  template: `
+    selector: 'app-visits-chart',
+    imports: [BaseChartDirective, TranslateModule],
+    template: `
     <div class="chart-card">
       <div class="chart-header">
-        <h3>Visites du site</h3>
+        <h3>{{ 'admin.charts.siteVisits' | translate }}</h3>
         <div class="total-visits">
-          <span class="total-label">Total période :</span>
+          <span class="total-label">{{ 'admin.charts.totalPeriod' | translate }}</span>
           <span class="total-value">{{ totalVisits() }}</span>
         </div>
       </div>
 
       <div class="charts-row">
         <div class="chart-section">
-          <h4>Visites par jour</h4>
+          <h4>{{ 'admin.charts.visitsPerDay' | translate }}</h4>
           <div class="chart-container">
             <canvas baseChart
               [data]="dailyChartData()"
@@ -40,7 +39,7 @@ export interface HourlyDataPoint {
         </div>
 
         <div class="chart-section">
-          <h4>Heures de pointe</h4>
+          <h4>{{ 'admin.charts.peakHours' | translate }}</h4>
           <div class="chart-container">
             <canvas baseChart
               [data]="hourlyChartData()"
@@ -52,7 +51,7 @@ export interface HourlyDataPoint {
       </div>
     </div>
   `,
-  styles: [`
+    styles: [`
     .chart-card {
       background: var(--surface-secondary, #1a1a1a);
       border-radius: 12px;
@@ -121,6 +120,7 @@ export interface HourlyDataPoint {
 export class VisitsChartComponent {
   dailyVisits = input.required<DataPoint[]>();
   hourlyVisits = input.required<HourlyDataPoint[]>();
+  private translate = inject(TranslateService);
 
   totalVisits = computed(() => {
     return this.dailyVisits().reduce((sum, d) => sum + d.value, 0);
@@ -132,7 +132,7 @@ export class VisitsChartComponent {
       labels: data.map(d => this.formatDate(d.date)),
       datasets: [
         {
-          label: 'Visites',
+          label: this.translate.instant('admin.charts.visits'),
           data: data.map(d => d.value),
           borderColor: '#06B6D4',
           backgroundColor: 'rgba(6, 182, 212, 0.1)',
@@ -149,7 +149,7 @@ export class VisitsChartComponent {
       labels: data.map(d => `${d.hour}h`),
       datasets: [
         {
-          label: 'Visites',
+          label: this.translate.instant('admin.charts.visits'),
           data: data.map(d => d.value),
           backgroundColor: data.map(d => {
             // Highlight peak hours
@@ -205,7 +205,7 @@ export class VisitsChartComponent {
       tooltip: {
         callbacks: {
           title: (items) => `${items[0].label}`,
-          label: (item) => `${item.raw} visites`
+          label: (item) => `${item.raw} ${this.translate.instant('admin.charts.visits').toLowerCase()}`
         }
       }
     },

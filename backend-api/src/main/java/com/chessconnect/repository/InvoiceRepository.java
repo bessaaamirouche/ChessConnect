@@ -35,9 +35,13 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
     // Find by invoice number
     Optional<Invoice> findByInvoiceNumber(String invoiceNumber);
 
-    // Get the latest invoice number for sequential numbering
+    // Get the latest invoice number for sequential numbering (legacy, kept for compatibility)
     @Query("SELECT MAX(i.id) FROM Invoice i")
     Long findMaxId();
+
+    // Atomic next value from the invoice_number_seq sequence (race-condition safe)
+    @Query(value = "SELECT nextval('invoice_number_seq')", nativeQuery = true)
+    Long getNextInvoiceSequenceValue();
 
     // Find commission invoices for a teacher
     List<Invoice> findByCustomerIdAndInvoiceTypeOrderByCreatedAtDesc(Long customerId, InvoiceType invoiceType);

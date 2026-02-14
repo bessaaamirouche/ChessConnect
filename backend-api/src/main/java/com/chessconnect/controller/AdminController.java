@@ -1,6 +1,7 @@
 package com.chessconnect.controller;
 
 import com.chessconnect.dto.admin.*;
+import com.chessconnect.dto.VideoDTO;
 import com.chessconnect.dto.lesson.LessonResponse;
 import com.chessconnect.model.Availability;
 import com.chessconnect.model.Lesson;
@@ -21,11 +22,13 @@ import com.chessconnect.service.WalletService;
 import com.stripe.exception.StripeException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -783,5 +786,60 @@ public class AdminController {
                 "message", "Erreur: " + e.getMessage()
             ));
         }
+    }
+
+    // ============= LIBRARY (ALL VIDEOS) =============
+
+    @GetMapping("/library/videos")
+    public ResponseEntity<List<VideoDTO>> getAllVideos(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFrom,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateTo,
+            @RequestParam(required = false) String period
+    ) {
+        LocalDateTime dateFromTime = null;
+        LocalDateTime dateToTime = null;
+
+        if (period != null && !period.isEmpty()) {
+            LocalDate now = LocalDate.now();
+            switch (period) {
+                case "week": dateFromTime = now.minusWeeks(1).atStartOfDay(); break;
+                case "month": dateFromTime = now.minusMonths(1).atStartOfDay(); break;
+                case "3months": dateFromTime = now.minusMonths(3).atStartOfDay(); break;
+                case "year": dateFromTime = now.minusYears(1).atStartOfDay(); break;
+            }
+            dateToTime = LocalDateTime.now();
+        } else {
+            if (dateFrom != null) dateFromTime = dateFrom.atStartOfDay();
+            if (dateTo != null) dateToTime = dateTo.atTime(LocalTime.MAX);
+        }
+
+        List<Lesson> lessons = lessonRepository.findAllLibraryVideos(search, dateFromTime, dateToTime);
+
+        List<VideoDTO> videos = lessons.stream()
+            .map(lesson -> {
+                User teacher = lesson.getTeacher();
+                User student = lesson.getStudent();
+
+                VideoDTO dto = new VideoDTO();
+                dto.setId(lesson.getId());
+                dto.setLessonId(lesson.getId());
+                dto.setTeacherName(teacher.getFirstName() + " " + teacher.getLastName());
+                dto.setTeacherAvatar(teacher.getAvatarUrl());
+                dto.setScheduledAt(lesson.getScheduledAt());
+                dto.setRecordingUrl(lesson.getRecordingUrl());
+                dto.setDurationSeconds(lesson.getDurationMinutes() != null ? lesson.getDurationMinutes() * 60 : 3600);
+                dto.setThumbnailUrl(lesson.getThumbnailUrl() != null ? lesson.getThumbnailUrl() : "/assets/images/video-thumbnail-placeholder.svg");
+                if (student != null) {
+                    dto.setStudentName(student.getFirstName() + " " + student.getLastName());
+                }
+                if (lesson.getCourse() != null) {
+                    dto.setCourseTitle(lesson.getCourse().getTitle());
+                }
+                return dto;
+            })
+            .collect(java.util.stream.Collectors.toList());
+
+        return ResponseEntity.ok(videos);
     }
 }

@@ -31,6 +31,12 @@ export type CourseStatus = 'LOCKED' | 'IN_PROGRESS' | 'PENDING_VALIDATION' | 'CO
 
 export type DayOfWeek = 'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY' | 'FRIDAY' | 'SATURDAY' | 'SUNDAY';
 
+export type LessonType = 'INDIVIDUAL' | 'GROUP';
+
+export type PromoCodeType = 'PROMO' | 'REFERRAL';
+
+export type DiscountType = 'COMMISSION_REDUCTION' | 'STUDENT_DISCOUNT';
+
 // ============================================================================
 // AUTH
 // ============================================================================
@@ -52,6 +58,7 @@ export interface RegisterRequest {
   languages?: string[];
   birthDate?: string;
   eloRating?: number;
+  referralCode?: string;
 }
 
 export interface AuthResponse {
@@ -222,6 +229,7 @@ export interface AvailabilityResponse {
   specificDate?: string;
   isActive: boolean;
   durationMinutes: number;
+  lessonType: LessonType;
 }
 
 export interface AvailabilityRequest {
@@ -230,6 +238,7 @@ export interface AvailabilityRequest {
   endTime: string;
   isRecurring: boolean;
   specificDate?: string;
+  lessonType?: LessonType;
 }
 
 export interface TimeSlotResponse {
@@ -239,6 +248,7 @@ export interface TimeSlotResponse {
   dateTime: string;
   isAvailable: boolean;
   dayOfWeekLabel: string;
+  lessonType: LessonType;
 }
 
 // ============================================================================
@@ -283,6 +293,7 @@ export interface CreateLessonCheckoutRequest {
   lessonId: number;
   successUrl: string;
   cancelUrl: string;
+  promoCode?: string;
 }
 
 // ============================================================================
@@ -342,6 +353,7 @@ export interface BookWithCreditRequest {
   durationMinutes?: number;
   notes?: string;
   courseId?: number;
+  promoCode?: string;
 }
 
 // ============================================================================
@@ -680,4 +692,39 @@ export interface Page<T> {
   totalPages: number;
   size: number;
   number: number;
+}
+
+// ============================================================================
+// PROMO CODES
+// ============================================================================
+
+export interface ValidatePromoCodeResponse {
+  valid: boolean;
+  message: string;
+  discountType?: DiscountType;
+  discountPercent?: number;
+  finalPriceCents?: number;
+  discountAmountCents?: number;
+}
+
+export interface PromoCodeResponse {
+  id: number;
+  code: string;
+  codeType: PromoCodeType;
+  discountType?: DiscountType;
+  discountPercent?: number;
+  referrerName?: string;
+  referrerEmail?: string;
+  premiumDays: number;
+  revenueSharePercent: number;
+  maxUses?: number;
+  currentUses: number;
+  firstLessonOnly: boolean;
+  minAmountCents?: number;
+  isActive: boolean;
+  expiresAt?: string;
+  createdAt: string;
+  totalDiscountCents: number;
+  totalEarningsCents: number;
+  unpaidEarningsCents: number;
 }

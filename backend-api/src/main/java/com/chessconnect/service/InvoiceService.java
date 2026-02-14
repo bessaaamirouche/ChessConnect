@@ -261,11 +261,11 @@ public class InvoiceService {
     }
 
     /**
-     * Generate a unique sequential invoice number.
+     * Generate a unique sequential invoice number using a PostgreSQL sequence.
+     * This is atomic and safe under concurrent access (no duplicate invoice numbers).
      */
     private String generateInvoiceNumber(String prefix) {
-        Long maxId = invoiceRepository.findMaxId();
-        long nextId = (maxId != null ? maxId : 0) + 1;
+        long nextId = invoiceRepository.getNextInvoiceSequenceValue();
         int year = LocalDateTime.now().getYear();
         return String.format("%s-%d-%06d", prefix, year, nextId);
     }

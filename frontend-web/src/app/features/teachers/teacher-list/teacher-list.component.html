@@ -13,6 +13,26 @@
       </div>
     </header>
 
+    <!-- Lesson Type Toggle -->
+    <div class="lesson-type-toggle">
+      <button
+        type="button"
+        class="lesson-type-btn"
+        [class.lesson-type-btn--active]="lessonTypeFilter() === 'INDIVIDUAL'"
+        (click)="setLessonType('INDIVIDUAL')"
+      >
+        {{ 'teachers.lessonType.individual' | translate }}
+      </button>
+      <button
+        type="button"
+        class="lesson-type-btn"
+        [class.lesson-type-btn--active]="lessonTypeFilter() === 'GROUP'"
+        (click)="setLessonType('GROUP')"
+      >
+        {{ 'teachers.lessonType.group' | translate }}
+      </button>
+    </div>
+
     <!-- Search & Filters -->
     <div class="search-section">
       <div class="search-bar">
@@ -95,7 +115,7 @@
       @if (authService.isStudent() && favoriteTeachers().length > 0) {
         <div class="section-header">
           <h2 class="section-header__title">
-            <span class="section-header__icon">&#9733;</span>
+            <ng-icon class="section-header__icon" name="heroStarSolid" size="16"></ng-icon>
             {{ 'teachers.myFavorites' | translate }}
           </h2>
           <span class="section-header__count">{{ favoriteTeachers().length }}</span>
@@ -125,7 +145,7 @@
                   </span>
                   @if (teacher.averageRating) {
                     <span class="teacher-card__rating">
-                      &#9733; {{ teacher.averageRating.toFixed(1) }}
+                      <ng-icon name="heroStarSolid" size="14"></ng-icon> {{ teacher.averageRating.toFixed(1) }}
                       <span class="review-count">({{ teacher.reviewCount }})</span>
                     </span>
                   }
@@ -136,7 +156,7 @@
                 <a [routerLink]="['/teachers', teacher.id]" class="btn btn--ghost btn--sm">
                   {{ 'teachers.card.viewProfile' | translate }}
                 </a>
-                <a [routerLink]="['/book', teacher.id]" class="btn btn--primary btn--sm">
+                <a [routerLink]="['/book', teacher.id]" [queryParams]="{type: lessonTypeFilter()}" class="btn btn--primary btn--sm">
                   {{ 'teachers.card.bookNow' | translate }}
                 </a>
               </div>
@@ -188,7 +208,7 @@
                   </span>
                   @if (teacher.averageRating) {
                     <span class="teacher-card__rating">
-                      &#9733; {{ teacher.averageRating.toFixed(1) }}
+                      <ng-icon name="heroStarSolid" size="14"></ng-icon> {{ teacher.averageRating.toFixed(1) }}
                       <span class="review-count">({{ teacher.reviewCount }})</span>
                     </span>
                   }
@@ -206,7 +226,7 @@
                   {{ 'teachers.card.viewProfile' | translate }}
                 </a>
                 @if (authService.isStudent()) {
-                  <a [routerLink]="['/book', teacher.id]" class="btn btn--primary btn--sm">
+                  <a [routerLink]="['/book', teacher.id]" [queryParams]="{type: lessonTypeFilter()}" class="btn btn--primary btn--sm">
                     {{ 'teachers.card.bookNow' | translate }}
                   </a>
                 }
@@ -255,6 +275,26 @@
         <h1 class="public-header__title">{{ 'teachers.pageTitle' | translate }}</h1>
         <p class="public-header__subtitle">{{ 'teachers.pageSubtitle' | translate }}</p>
       </header>
+
+      <!-- Lesson Type Toggle -->
+      <div class="lesson-type-toggle">
+        <button
+          type="button"
+          class="lesson-type-btn"
+          [class.lesson-type-btn--active]="lessonTypeFilter() === 'INDIVIDUAL'"
+          (click)="setLessonType('INDIVIDUAL')"
+        >
+          {{ 'teachers.lessonType.individual' | translate }}
+        </button>
+        <button
+          type="button"
+          class="lesson-type-btn"
+          [class.lesson-type-btn--active]="lessonTypeFilter() === 'GROUP'"
+          (click)="setLessonType('GROUP')"
+        >
+          {{ 'teachers.lessonType.group' | translate }}
+        </button>
+      </div>
 
       <!-- Search & Filters -->
       <div class="search-section">
@@ -354,7 +394,7 @@
                   </span>
                   @if (teacher.averageRating) {
                     <span class="teacher-card__rating">
-                      &#9733; {{ teacher.averageRating.toFixed(1) }}
+                      <ng-icon name="heroStarSolid" size="14"></ng-icon> {{ teacher.averageRating.toFixed(1) }}
                       <span class="review-count">({{ teacher.reviewCount }})</span>
                     </span>
                   }

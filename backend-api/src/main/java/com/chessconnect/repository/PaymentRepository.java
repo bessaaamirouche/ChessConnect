@@ -29,6 +29,8 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
     List<Payment> findByPayerIdAndStatus(Long payerId, PaymentStatus status);
 
+    long countByPayerIdAndStatus(Long payerId, PaymentStatus status);
+
     @Query("SELECT p FROM Payment p WHERE p.teacher.id = :teacherId AND p.status = 'COMPLETED' " +
            "AND p.createdAt >= :startDate AND p.createdAt <= :endDate")
     List<Payment> findCompletedPaymentsForTeacher(

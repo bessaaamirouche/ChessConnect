@@ -1,6 +1,6 @@
-import { Component, computed, input } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { NgChartsModule } from 'ng2-charts';
+import { Component, computed, input, inject } from '@angular/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartOptions } from 'chart.js';
 
 export interface DataPoint {
@@ -9,17 +9,16 @@ export interface DataPoint {
 }
 
 @Component({
-  selector: 'app-subscriptions-chart',
-  standalone: true,
-  imports: [CommonModule, NgChartsModule],
-  template: `
+    selector: 'app-subscriptions-chart',
+    imports: [BaseChartDirective, TranslateModule],
+    template: `
     <div class="chart-card">
       <div class="chart-header">
-        <h3>Abonnements Premium</h3>
+        <h3>{{ 'admin.charts.premiumSubscriptions' | translate }}</h3>
         <div class="legend-inline">
-          <span class="legend-item legend-new">Nouveaux</span>
-          <span class="legend-item legend-renewal">Renouvellements</span>
-          <span class="legend-item legend-cancel">Désabonnements</span>
+          <span class="legend-item legend-new">{{ 'admin.charts.new' | translate }}</span>
+          <span class="legend-item legend-renewal">{{ 'admin.charts.renewals' | translate }}</span>
+          <span class="legend-item legend-cancel">{{ 'admin.charts.cancellations' | translate }}</span>
         </div>
       </div>
       <div class="chart-container">
@@ -31,7 +30,7 @@ export interface DataPoint {
       </div>
     </div>
   `,
-  styles: [`
+    styles: [`
     .chart-card {
       background: var(--surface-secondary, #1a1a1a);
       border-radius: 12px;
@@ -98,6 +97,7 @@ export class SubscriptionsChartComponent {
   newSubscriptions = input.required<DataPoint[]>();
   renewals = input.required<DataPoint[]>();
   cancellations = input.required<DataPoint[]>();
+  private translate = inject(TranslateService);
 
   chartData = computed<ChartConfiguration<'line'>['data']>(() => {
     const newSubs = this.newSubscriptions();
@@ -108,7 +108,7 @@ export class SubscriptionsChartComponent {
       labels: newSubs.map(d => this.formatDate(d.date)),
       datasets: [
         {
-          label: 'Nouveaux',
+          label: this.translate.instant('admin.charts.new'),
           data: newSubs.map(d => d.value),
           borderColor: '#10B981',
           backgroundColor: 'rgba(16, 185, 129, 0.1)',
@@ -116,7 +116,7 @@ export class SubscriptionsChartComponent {
           tension: 0.4
         },
         {
-          label: 'Renouvellements',
+          label: this.translate.instant('admin.charts.renewals'),
           data: renewalData.map(d => d.value),
           borderColor: '#d4af37',
           backgroundColor: 'rgba(212, 175, 55, 0.1)',
@@ -124,7 +124,7 @@ export class SubscriptionsChartComponent {
           tension: 0.4
         },
         {
-          label: 'Désabonnements',
+          label: this.translate.instant('admin.charts.cancellations'),
           data: cancelData.map(d => d.value),
           borderColor: '#EF4444',
           backgroundColor: 'rgba(239, 68, 68, 0.1)',

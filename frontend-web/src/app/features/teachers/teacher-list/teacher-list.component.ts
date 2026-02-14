@@ -24,6 +24,7 @@ import {
   heroBookOpen,
   heroWallet
 } from '@ng-icons/heroicons/outline';
+import { heroStarSolid } from '@ng-icons/heroicons/solid';
 
 @Component({
     selector: 'app-teacher-list',
@@ -41,7 +42,8 @@ import {
             heroMagnifyingGlass,
             heroXMark,
             heroBookOpen,
-            heroWallet
+            heroWallet,
+            heroStarSolid
         })],
     templateUrl: './teacher-list.component.html',
     styleUrl: './teacher-list.component.scss'
@@ -92,6 +94,9 @@ export class TeacherListComponent implements OnInit {
   searchQuery = signal('');
   minRate = signal<number | null>(null);
   maxRate = signal<number | null>(null);
+
+  // Lesson type filter
+  lessonTypeFilter = signal<'INDIVIDUAL' | 'GROUP'>('INDIVIDUAL');
 
   // Free trial mode: true = show only coaches accepting free trial, false = show all
   useFreeTrialMode = signal(true);
@@ -167,13 +172,18 @@ export class TeacherListComponent implements OnInit {
   ngOnInit(): void {
     this.seoService.setTeachersListPage();
 
-    // Load all teachers
-    this.teacherService.loadTeachers().subscribe();
+    // Load teachers filtered by lesson type
+    this.teacherService.loadTeachers(this.lessonTypeFilter()).subscribe();
 
     // Load favorites if user is a student
     if (this.authService.isStudent()) {
       this.favoriteService.loadFavorites().subscribe();
     }
+  }
+
+  setLessonType(type: 'INDIVIDUAL' | 'GROUP'): void {
+    this.lessonTypeFilter.set(type);
+    this.teacherService.loadTeachers(type).subscribe();
   }
 
   toggleFavorite(teacherId: number, event: Event): void {

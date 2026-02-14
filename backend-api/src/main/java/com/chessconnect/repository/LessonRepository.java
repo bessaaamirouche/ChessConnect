@@ -170,10 +170,13 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
     // Library: completed lessons with recordings for a student
     List<Lesson> findByStudentAndStatusAndRecordingUrlIsNotNullOrderByScheduledAtDesc(User student, LessonStatus status);
 
-    // Library: search and filter completed lessons with recordings
+    // Library: search and filter completed lessons with recordings (includes group lesson participants)
     @Query(value = "SELECT l.* FROM lessons l " +
            "JOIN users t ON t.id = l.teacher_id " +
-           "WHERE l.student_id = :studentId " +
+           "WHERE (l.student_id = :studentId " +
+           "    OR (l.is_group_lesson = true AND EXISTS (" +
+           "        SELECT 1 FROM lesson_participants lp WHERE lp.lesson_id = l.id AND lp.student_id = :studentId AND lp.status = 'ACTIVE'" +
+           "    ))) " +
            "AND l.status = 'COMPLETED' " +
            "AND l.recording_url IS NOT NULL " +
            "AND (l.deleted_by_student IS NULL OR l.deleted_by_student = false) " +
@@ -209,6 +212,15 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
             @Param("dateFrom") LocalDateTime dateFrom,
             @Param("dateTo") LocalDateTime dateTo
     );
+
+    // Group lessons: find existing OPEN group for a teacher that overlaps with a given time window (for auto-join)
+    @Query(value = "SELECT l.* FROM lessons l WHERE l.teacher_id = :teacherId " +
+           "AND l.is_group_lesson = true AND l.group_status = 'OPEN' AND l.status IN ('PENDING', 'CONFIRMED') " +
+           "AND l.scheduled_at + (l.duration_minutes * INTERVAL '1 minute') > :requestedAt " +
+           "AND l.scheduled_at < :requestedEnd " +
+           "ORDER BY l.scheduled_at ASC LIMIT 1", nativeQuery = true)
+    java.util.Optional<Lesson> findOpenGroupLesson(@Param("teacherId") Long teacherId,
+            @Param("requestedAt") LocalDateTime requestedAt, @Param("requestedEnd") LocalDateTime requestedEnd);
 
     // Group lessons: find open groups approaching deadline
     @Query("SELECT l FROM Lesson l WHERE l.isGroupLesson = true AND l.groupStatus = 'OPEN' AND l.scheduledAt BETWEEN :now AND :deadline AND l.status IN ('PENDING', 'CONFIRMED')")

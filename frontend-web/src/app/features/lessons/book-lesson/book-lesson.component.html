@@ -69,41 +69,18 @@
           </div>
 
           @if (isGroupMode()) {
-            <!-- Group Size Selector -->
-            <div class="group-size-selector">
-              <label class="group-size-selector__label">{{ 'group_lesson.groupSize' | translate }}</label>
-              <div class="group-size-selector__options">
-                <button
-                  type="button"
-                  class="group-size-btn"
-                  [class.group-size-btn--active]="groupSize() === 2"
-                  (click)="setGroupSize(2)"
-                >
-                  {{ 'group_lesson.groupSizeLabel2' | translate }}
-                  <span class="group-size-btn__savings">-40%</span>
-                </button>
-                <button
-                  type="button"
-                  class="group-size-btn"
-                  [class.group-size-btn--active]="groupSize() === 3"
-                  (click)="setGroupSize(3)"
-                >
-                  {{ 'group_lesson.groupSizeLabel3' | translate }}
-                  <span class="group-size-btn__savings">-55%</span>
-                </button>
-              </div>
-            </div>
-
-            <!-- Group Price Info -->
-            <div class="subscription-info">
-              <div class="subscription-info__card subscription-info__card--payment">
-                <span class="subscription-info__icon"><ng-icon name="heroBanknotes" size="18"></ng-icon></span>
-                <div>
-                  <strong>{{ 'group_lesson.pricePerPerson' | translate }}</strong>
-                  <p>{{ formatPrice(groupPricePerPerson()) }}</p>
+            <!-- Group Price Info (shown when a slot is selected) -->
+            @if (selectedSlot()?.pricePerPersonCents) {
+              <div class="subscription-info">
+                <div class="subscription-info__card subscription-info__card--payment">
+                  <span class="subscription-info__icon"><ng-icon name="heroBanknotes" size="18"></ng-icon></span>
+                  <div>
+                    <strong>{{ 'group_lesson.pricePerPerson' | translate }}</strong>
+                    <p>{{ formatPrice(groupPricePerPerson()) }} <span class="text-secondary">(-{{ groupSavingsPercent() }}%)</span></p>
+                  </div>
                 </div>
               </div>
-            </div>
+            }
 
             <p class="group-deadline-info">
               <ng-icon name="heroArrowPath" size="14"></ng-icon>
@@ -209,7 +186,11 @@
                           (click)="selectSlot(slot)"
                         >
                           {{ slot.startTime }}
-                          @if (!slot.isAvailable) {
+                          @if (slot.lessonType === 'GROUP' && slot.maxParticipants) {
+                            <span class="slot-btn__badge slot-btn__badge--group">
+                              {{ slot.currentParticipants || 0 }}/{{ slot.maxParticipants }}
+                            </span>
+                          } @else if (!slot.isAvailable) {
                             <span class="slot-btn__badge">{{ 'booking.taken' | translate }}</span>
                           }
                         </button>
@@ -319,7 +300,7 @@
               type="submit"
               class="btn btn--block btn--primary"
               [class.btn--credit]="payWithCreditSignal() && (isGroupMode() ? canPayGroupWithCredit() : canPayWithCredit())"
-              [disabled]="!selectedSlot() || !programmeService.currentCourse() || loading()"
+              [disabled]="!selectedSlot() || loading()"
             >
               @if (loading()) {
                 <span class="spinner spinner--sm"></span>

@@ -23,4 +23,6 @@ public class AvailabilityRequest {
     private LocalDate specificDate;
 
     private String lessonType = "INDIVIDUAL";
+
+    private Integer maxParticipants;
 }

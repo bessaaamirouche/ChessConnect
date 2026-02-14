@@ -8,6 +8,8 @@ import com.chessconnect.model.User;
 import com.chessconnect.model.Payment;
 import com.chessconnect.model.enums.PaymentStatus;
 import com.chessconnect.model.enums.PaymentType;
+import com.chessconnect.model.Availability;
+import com.chessconnect.repository.AvailabilityRepository;
 import com.chessconnect.repository.GroupInvitationRepository;
 import com.chessconnect.repository.LessonRepository;
 import com.chessconnect.repository.PaymentRepository;
@@ -39,6 +41,7 @@ public class GroupLessonController {
     private final WalletService walletService;
     private final InvoiceService invoiceService;
     private final UserRepository userRepository;
+    private final AvailabilityRepository availabilityRepository;
     private final GroupInvitationRepository invitationRepository;
     private final LessonRepository lessonRepository;
     private final PaymentRepository paymentRepository;
@@ -49,6 +52,7 @@ public class GroupLessonController {
             WalletService walletService,
             InvoiceService invoiceService,
             UserRepository userRepository,
+            AvailabilityRepository availabilityRepository,
             GroupInvitationRepository invitationRepository,
             LessonRepository lessonRepository,
             PaymentRepository paymentRepository
@@ -58,13 +62,14 @@ public class GroupLessonController {
         this.walletService = walletService;
         this.invoiceService = invoiceService;
         this.userRepository = userRepository;
+        this.availabilityRepository = availabilityRepository;
         this.invitationRepository = invitationRepository;
         this.lessonRepository = lessonRepository;
         this.paymentRepository = paymentRepository;
     }
 
     /**
-     * Create a group lesson. Creator pays immediately with wallet.
+     * Create a group lesson OR auto-join an existing open group. Pays with wallet.
      */
     @PostMapping
     @PreAuthorize("hasRole('STUDENT')")
@@ -75,12 +80,36 @@ public class GroupLessonController {
         try {
             Long userId = userDetails.getId();
 
-            // Get teacher to calculate price
+            // Check if there's an existing OPEN group at the same time with the same teacher
+            var existingGroup = lessonRepository.findOpenGroupLesson(
+                    request.teacherId(), request.scheduledAt(),
+                    request.scheduledAt().plusMinutes(request.durationMinutes() != null ? request.durationMinutes() : 60));
+
+            if (existingGroup.isPresent() && !existingGroup.get().isGroupFull()) {
+                // Auto-join existing group instead of creating a new one
+                Lesson lesson = existingGroup.get();
+                GroupInvitation invitation = invitationRepository.findByLessonId(lesson.getId())
+                        .orElseThrow(() -> new RuntimeException("Invitation not found"));
+
+                GroupLessonResponse response = groupLessonService.autoJoinWithCredit(userId, invitation.getToken());
+
+                return ResponseEntity.ok(Map.of(
+                        "success", true,
+                        "joined", true,
+                        "lessonId", response.lesson().id(),
+                        "remainingBalanceCents", walletService.getBalance(userId),
+                        "message", "group_lesson.joinSuccess"
+                ));
+            }
+
+            // No existing group — create a new one
             User teacher = userRepository.findById(request.teacherId())
                     .orElseThrow(() -> new RuntimeException("Teacher not found"));
 
+            // Resolve targetGroupSize from availability if not provided
+            int groupSize = resolveGroupSize(request.targetGroupSize(), request.teacherId(), request.scheduledAt());
             int pricePerPerson = GroupPricingCalculator.calculateParticipantPrice(
-                    teacher.getHourlyRateCents(), request.targetGroupSize());
+                    teacher.getHourlyRateCents(), groupSize);
 
             // Deduct creator's share
             walletService.checkAndDeductCredit(userId, pricePerPerson);
@@ -114,7 +143,7 @@ public class GroupLessonController {
                     "invitationToken", response.invitationToken(),
                     "pricePerPersonCents", pricePerPerson,
                     "remainingBalanceCents", walletService.getBalance(userId),
-                    "message", "Cours en groupe cree avec succes"
+                    "message", "group_lesson.createSuccess"
             ));
         } catch (RuntimeException e) {
             log.error("Error creating group lesson", e);
@@ -154,7 +183,7 @@ public class GroupLessonController {
                     "success", true,
                     "lessonId", response.lesson().id(),
                     "remainingBalanceCents", walletService.getBalance(userDetails.getId()),
-                    "message", "Vous avez rejoint le cours !"
+                    "message", "group_lesson.joinSuccess"
             ));
         } catch (RuntimeException e) {
             log.error("Error joining group lesson with credit", e);
@@ -212,7 +241,7 @@ public class GroupLessonController {
             log.error("Stripe error creating group join checkout", e);
             return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(Map.of(
                     "success", false,
-                    "error", "Erreur de paiement"
+                    "error", "errors.paymentError"
             ));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Map.of(
@@ -233,7 +262,7 @@ public class GroupLessonController {
             if (!"paid".equals(session.getPaymentStatus())) {
                 return ResponseEntity.badRequest().body(Map.of(
                         "success", false,
-                        "error", "Le paiement n'a pas ete effectue"
+                        "error", "errors.paymentNotCompleted"
                 ));
             }
 
@@ -243,7 +272,7 @@ public class GroupLessonController {
             if (userIdStr == null) {
                 return ResponseEntity.badRequest().body(Map.of(
                         "success", false,
-                        "error", "Identifiant utilisateur introuvable"
+                        "error", "errors.userIdNotFound"
                 ));
             }
             Long userId = Long.parseLong(userIdStr);
@@ -258,7 +287,7 @@ public class GroupLessonController {
             if (token == null) {
                 return ResponseEntity.badRequest().body(Map.of(
                         "success", false,
-                        "error", "Token d'invitation introuvable"
+                        "error", "errors.invitationNotFound"
                 ));
             }
 
@@ -268,14 +297,14 @@ public class GroupLessonController {
             return ResponseEntity.ok(Map.of(
                     "success", true,
                     "lessonId", response.lesson().id(),
-                    "message", "Vous avez rejoint le cours !"
+                    "message", "group_lesson.joinSuccess"
             ));
 
         } catch (StripeException e) {
             log.error("Stripe error confirming group join", e);
             return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(Map.of(
                     "success", false,
-                    "error", "Erreur de verification du paiement"
+                    "error", "errors.paymentVerificationError"
             ));
         } catch (Exception e) {
             log.error("Error confirming group join", e);
@@ -287,7 +316,8 @@ public class GroupLessonController {
     }
 
     /**
-     * Create Stripe checkout to create a group lesson (alternative to wallet).
+     * Create Stripe checkout to create or join a group lesson (alternative to wallet).
+     * If an OPEN group already exists at the same time, creates a JOIN checkout instead.
      */
     @PostMapping("/checkout")
     @PreAuthorize("hasRole('STUDENT')")
@@ -299,18 +329,50 @@ public class GroupLessonController {
             User teacher = userRepository.findById(request.teacherId())
                     .orElseThrow(() -> new RuntimeException("Teacher not found"));
 
-            int pricePerPerson = GroupPricingCalculator.calculateParticipantPrice(
-                    teacher.getHourlyRateCents(), request.targetGroupSize());
-
             User student = userRepository.findById(userDetails.getId())
                     .orElseThrow(() -> new RuntimeException("User not found"));
+
+            // Check if there's an existing OPEN group to join
+            var existingGroup = lessonRepository.findOpenGroupLesson(
+                    request.teacherId(), request.scheduledAt(),
+                    request.scheduledAt().plusMinutes(request.durationMinutes() != null ? request.durationMinutes() : 60));
+
+            if (existingGroup.isPresent() && !existingGroup.get().isGroupFull()) {
+                // Redirect to join checkout
+                Lesson lesson = existingGroup.get();
+                GroupInvitation invitation = invitationRepository.findByLessonId(lesson.getId())
+                        .orElseThrow(() -> new RuntimeException("Invitation not found"));
+
+                int pricePerPerson = GroupPricingCalculator.calculateParticipantPrice(
+                        lesson.getPriceCents(), invitation.getMaxParticipants());
+
+                String description = String.format("Cours en groupe avec %s", lesson.getTeacher().getDisplayName());
+                String notesWithToken = "GROUP_JOIN:" + invitation.getToken();
+
+                Session session = stripeService.createLessonPaymentSession(
+                        student, teacher.getId(), pricePerPerson, description,
+                        lesson.getScheduledAt().toString(), lesson.getDurationMinutes(),
+                        notesWithToken, true, null
+                );
+
+                return ResponseEntity.ok(CheckoutSessionResponse.builder()
+                        .sessionId(session.getId())
+                        .publishableKey(stripeService.getPublishableKey())
+                        .clientSecret(session.getClientSecret())
+                        .build());
+            }
+
+            // No existing group — create new checkout
+            int groupSize = resolveGroupSize(request.targetGroupSize(), request.teacherId(), request.scheduledAt());
+            int pricePerPerson = GroupPricingCalculator.calculateParticipantPrice(
+                    teacher.getHourlyRateCents(), groupSize);
 
             String sanitizedName = teacher.getFullName().replaceAll("[^a-zA-ZÀ-ÿ\\s\\-']", "").trim();
             if (sanitizedName.isEmpty()) sanitizedName = "Coach";
             String description = String.format("Cours en groupe avec %s", sanitizedName);
 
             // Encode group info in notes: "GROUP_CREATE:<targetGroupSize>"
-            String notesWithGroup = "GROUP_CREATE:" + request.targetGroupSize();
+            String notesWithGroup = "GROUP_CREATE:" + groupSize;
 
             int durationMinutes = request.durationMinutes() != null ? request.durationMinutes() : 60;
 
@@ -336,7 +398,7 @@ public class GroupLessonController {
             log.error("Stripe error creating group lesson checkout", e);
             return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(Map.of(
                     "success", false,
-                    "error", "Erreur de paiement"
+                    "error", "errors.paymentError"
             ));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Map.of(
@@ -357,7 +419,7 @@ public class GroupLessonController {
             if (!"paid".equals(session.getPaymentStatus())) {
                 return ResponseEntity.badRequest().body(Map.of(
                         "success", false,
-                        "error", "Le paiement n'a pas ete effectue"
+                        "error", "errors.paymentNotCompleted"
                 ));
             }
 
@@ -366,7 +428,7 @@ public class GroupLessonController {
             if (userIdStr == null) {
                 return ResponseEntity.badRequest().body(Map.of(
                         "success", false,
-                        "error", "Identifiant utilisateur introuvable"
+                        "error", "errors.userIdNotFound"
                 ));
             }
             Long userId = Long.parseLong(userIdStr);
@@ -376,7 +438,7 @@ public class GroupLessonController {
             if (notes == null || !notes.startsWith("GROUP_CREATE:")) {
                 return ResponseEntity.badRequest().body(Map.of(
                         "success", false,
-                        "error", "Session invalide pour un cours en groupe"
+                        "error", "errors.invalidGroupSession"
                 ));
             }
             int targetGroupSize = Integer.parseInt(notes.substring("GROUP_CREATE:".length()).trim());
@@ -387,7 +449,49 @@ public class GroupLessonController {
             String courseIdStr = metadata.get("course_id");
             Long courseId = (courseIdStr != null && !courseIdStr.isEmpty()) ? Long.parseLong(courseIdStr) : null;
 
-            // Build request and create the group lesson (no wallet deduction — Stripe already charged)
+            // Check if an OPEN group now exists (another student may have created one during Stripe checkout)
+            var existingGroup = lessonRepository.findOpenGroupLesson(teacherId, scheduledAt, scheduledAt.plusMinutes(durationMinutes));
+
+            if (existingGroup.isPresent() && !existingGroup.get().isGroupFull()) {
+                // Join existing group instead of creating
+                Lesson lesson = existingGroup.get();
+                GroupInvitation invitation = invitationRepository.findByLessonId(lesson.getId())
+                        .orElseThrow(() -> new RuntimeException("Invitation not found"));
+
+                GroupLessonResponse response = groupLessonService.autoJoinAfterStripePayment(userId, invitation.getToken());
+
+                // Create payment record
+                User student = userRepository.findById(userId).orElseThrow();
+                User teacher = userRepository.findById(teacherId).orElseThrow();
+                int pricePerPerson = GroupPricingCalculator.calculateParticipantPrice(
+                        teacher.getHourlyRateCents(), lesson.getMaxParticipants());
+
+                Payment payment = new Payment();
+                payment.setPayer(student);
+                payment.setTeacher(teacher);
+                payment.setLesson(lesson);
+                payment.setPaymentType(PaymentType.ONE_TIME_LESSON);
+                payment.setAmountCents(pricePerPerson);
+                payment.setStripePaymentIntentId(session.getPaymentIntent());
+                payment.setStatus(PaymentStatus.COMPLETED);
+                payment.setProcessedAt(LocalDateTime.now());
+                paymentRepository.save(payment);
+
+                if (session.getPaymentIntent() != null && pricePerPerson > 0) {
+                    invoiceService.generateInvoicesForPayment(
+                            session.getPaymentIntent(), userId, teacherId, lesson.getId(), pricePerPerson, false
+                    );
+                }
+
+                return ResponseEntity.ok(Map.of(
+                        "success", true,
+                        "joined", true,
+                        "lessonId", response.lesson().id(),
+                        "message", "group_lesson.joinSuccess"
+                ));
+            }
+
+            // No existing group — create new one
             BookGroupLessonRequest request = new BookGroupLessonRequest(
                     teacherId, scheduledAt, durationMinutes, null, targetGroupSize, courseId
             );
@@ -424,14 +528,14 @@ public class GroupLessonController {
                     "success", true,
                     "lessonId", response.lesson().id(),
                     "invitationToken", response.invitationToken(),
-                    "message", "Cours en groupe cree avec succes"
+                    "message", "group_lesson.createSuccess"
             ));
 
         } catch (StripeException e) {
             log.error("Stripe error confirming group create payment", e);
             return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(Map.of(
                     "success", false,
-                    "error", "Erreur de verification du paiement"
+                    "error", "errors.paymentVerificationError"
             ));
         } catch (Exception e) {
             log.error("Error confirming group create payment", e);
@@ -457,8 +561,8 @@ public class GroupLessonController {
             return ResponseEntity.ok(Map.of(
                     "success", true,
                     "message", "CANCEL".equals(request.choice())
-                            ? "Cours annule et remboursements effectues"
-                            : "Cours converti en cours prive"
+                            ? "success.lessonCancelledRefunded"
+                            : "success.lessonConvertedPrivate"
             ));
         } catch (RuntimeException e) {
             log.error("Error resolving group deadline", e);
@@ -483,7 +587,7 @@ public class GroupLessonController {
             groupLessonService.cancelParticipant(id, userDetails.getId(), reason);
             return ResponseEntity.ok(Map.of(
                     "success", true,
-                    "message", "Vous avez quitte le cours"
+                    "message", "success.leftGroup"
             ));
         } catch (RuntimeException e) {
             log.error("Error leaving group lesson", e);
@@ -509,5 +613,22 @@ public class GroupLessonController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
+    }
+
+    /**
+     * Resolve the group size: use the request value if provided, otherwise look up
+     * the maxParticipants from the GROUP availability for this teacher/slot.
+     */
+    private int resolveGroupSize(Integer fromRequest, Long teacherId, LocalDateTime scheduledAt) {
+        if (fromRequest != null && fromRequest >= 2 && fromRequest <= 3) {
+            return fromRequest;
+        }
+        Availability groupAvail = availabilityRepository.findGroupAvailabilityForSlot(
+                teacherId,
+                scheduledAt.getDayOfWeek(),
+                scheduledAt.toLocalDate(),
+                scheduledAt.toLocalTime()
+        ).orElseThrow(() -> new RuntimeException("No GROUP availability found for this slot"));
+        return groupAvail.getMaxParticipants();
     }
 }

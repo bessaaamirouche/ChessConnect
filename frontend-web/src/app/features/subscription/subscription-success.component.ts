@@ -177,12 +177,12 @@ export class SubscriptionSuccessComponent implements OnInit {
             this.verified.set(true);
             this.planName.set(result.planName || 'Premium');
           } else {
-            this.error.set(result.error || this.translateService.instant('errors.unknownError'));
+            this.error.set(this.translateService.instant(result.error || 'errors.unknownError'));
           }
           this.loading.set(false);
         },
         error: (err) => {
-          this.error.set(err.error?.error || this.translateService.instant('errors.subscriptionActivate'));
+          this.error.set(this.translateService.instant(err.error?.error || 'errors.subscriptionActivate'));
           this.loading.set(false);
         }
       });

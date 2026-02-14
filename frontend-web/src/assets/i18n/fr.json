@@ -755,6 +755,7 @@
     "reason": "Raison",
     "viewReason": "Voir la raison",
     "withRecording": "Avec enregistrement",
+    "remindValidation": "N'oubliez pas de valider les cours de {{name}}",
     "coursesToValidate": "Cours à valider",
     "coursesCount": "cours",
     "viewStudentProgress": "Voir la progression",
@@ -796,7 +797,7 @@
     "firstLessonFree": "Premier cours offert !",
     "firstLessonBanner": "Votre premier cours est offert. Aucun paiement requis.",
     "bookFree": "Réserver gratuitement",
-    "bookNow": "Réserver et payer",
+    "bookNow": "Planifier un cours",
     "processing": "Traitement en cours…",
     "redirecting": "Redirection vers le paiement…",
     "success": {
@@ -1534,7 +1535,9 @@
       "label": "Type de cours",
       "individual": "Cours individuel",
       "group": "Cours collectif"
-    }
+    },
+    "groupSize": "Nombre de places",
+    "players": "joueurs"
   },
   "rating": {
     "title": "Noter votre cours",
@@ -1860,7 +1863,22 @@
     "loadStripe": "Impossible de charger Stripe",
     "joiningLesson": "Erreur lors de la tentative de rejoindre le cours",
     "loadStripeAccounts": "Erreur lors du chargement des comptes Stripe",
-    "cancellation": "Erreur lors de l'annulation"
+    "cancellation": "Erreur lors de l'annulation",
+    "paymentError": "Erreur de paiement",
+    "paymentNotCompleted": "Le paiement n'a pas été effectué",
+    "paymentVerificationError": "Erreur de vérification du paiement",
+    "userIdNotFound": "Identifiant utilisateur introuvable",
+    "invitationNotFound": "Token d'invitation introuvable",
+    "invalidGroupSession": "Session invalide pour un cours en groupe",
+    "invalidSessionData": "Session invalide - données manquantes",
+    "invalidPlan": "Plan d'abonnement invalide",
+    "teacherNotAvailable": "Le coach n'est pas disponible à cet horaire",
+    "cannotCancelStarted": "Impossible d'annuler un cours déjà commencé",
+    "timeConflict": "Vous avez déjà un cours à cet horaire. Annulez-le d'abord pour pouvoir réserver ce créneau.",
+    "availabilityOverlap": "Vous avez déjà une disponibilité sur ce créneau. Modifiez les horaires ou supprimez l'ancienne.",
+    "groupSizeInvalid": "La taille du groupe doit être 2 ou 3",
+    "cannotCancelDuringLesson": "Impossible d'annuler pendant le cours",
+    "onlyCoachCanCancelGroup": "Seul le coach peut annuler un cours en groupe"
   },
   "videoPlayer": {
     "download": "Télécharger",
@@ -2092,7 +2110,11 @@
     "startCourseSet": "Cours de départ défini : {{title}}",
     "backToCourse": "Retour au cours : {{title}}",
     "withdrawalDone": "Retrait de {{amount}} effectué !",
-    "userDeleted": "Utilisateur supprimé avec succès."
+    "userDeleted": "Utilisateur supprimé avec succès.",
+    "lessonBooked": "Cours réservé avec succès",
+    "subscriptionActivated": "Abonnement Premium activé avec succès",
+    "creditAdded": "Crédit ajouté avec succès",
+    "freeTrialActivated": "Essai gratuit de 14 jours activé !"
   },
   "breadcrumbs": {
     "coaches": "Coachs"

@@ -160,7 +160,7 @@ public class WalletController {
                 log.warn("Top-up payment not completed for session {}", sessionId);
                 return ResponseEntity.badRequest().body(Map.of(
                         "success", false,
-                        "error", "Le paiement n'a pas été effectué"
+                        "error", "errors.paymentNotCompleted"
                 ));
             }
 
@@ -173,7 +173,7 @@ public class WalletController {
             if (!"CREDIT_TOPUP".equals(type) || userIdStr == null || amountStr == null) {
                 return ResponseEntity.badRequest().body(Map.of(
                         "success", false,
-                        "error", "Session invalide"
+                        "error", "errors.invalidSession"
                 ));
             }
 
@@ -193,14 +193,14 @@ public class WalletController {
             return ResponseEntity.ok(Map.of(
                     "success", true,
                     "balanceCents", wallet.balanceCents(),
-                    "message", "Crédit ajouté avec succès"
+                    "message", "success.creditAdded"
             ));
 
         } catch (StripeException e) {
             log.error("Stripe error confirming top-up", e);
             return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(Map.of(
                     "success", false,
-                    "error", "Erreur de vérification du paiement"
+                    "error", "errors.paymentVerificationError"
             ));
         } catch (Exception e) {
             log.error("Error confirming top-up", e);
@@ -320,7 +320,7 @@ public class WalletController {
                     "success", true,
                     "lessonId", lessonResponse.id(),
                     "remainingBalanceCents", walletService.getBalance(userId),
-                    "message", "Cours réservé avec succès"
+                    "message", "success.lessonBooked"
             ));
 
         } catch (RuntimeException e) {

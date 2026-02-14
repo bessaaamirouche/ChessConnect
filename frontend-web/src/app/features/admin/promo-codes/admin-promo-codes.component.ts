@@ -133,7 +133,7 @@ export class AdminPromoCodesComponent implements OnInit {
         this.loadCodes();
       },
       error: (err) => {
-        alert(err.error?.message || err.error?.error || 'Erreur');
+        alert(this.translate.instant(err.error?.message || err.error?.error || 'errors.generic'));
       }
     });
   }

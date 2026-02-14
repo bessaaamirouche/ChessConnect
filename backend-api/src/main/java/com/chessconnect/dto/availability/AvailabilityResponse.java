@@ -23,6 +23,7 @@ public class AvailabilityResponse {
     private Boolean isActive;
     private Integer durationMinutes;
     private String lessonType;
+    private Integer maxParticipants;
 
     public static AvailabilityResponse fromEntity(Availability availability) {
         return AvailabilityResponse.builder()
@@ -38,6 +39,7 @@ public class AvailabilityResponse {
                 .isActive(availability.getIsActive())
                 .durationMinutes(availability.getDurationMinutes())
                 .lessonType(availability.getLessonType().name())
+                .maxParticipants(availability.getMaxParticipants())
                 .build();
     }
 

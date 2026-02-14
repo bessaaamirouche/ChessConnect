@@ -14,6 +14,7 @@ import com.chessconnect.model.User;
 import com.chessconnect.model.enums.PaymentStatus;
 import com.chessconnect.model.enums.PaymentType;
 import com.chessconnect.model.enums.SubscriptionPlan;
+import com.chessconnect.repository.GroupInvitationRepository;
 import com.chessconnect.repository.LessonRepository;
 import com.chessconnect.repository.PaymentRepository;
 import com.chessconnect.repository.UserRepository;
@@ -61,6 +62,7 @@ public class PaymentController {
     private final InvoiceService invoiceService;
     private final GroupLessonService groupLessonService;
     private final PromoCodeService promoCodeService;
+    private final GroupInvitationRepository invitationRepository;
 
     public PaymentController(
             StripeService stripeService,
@@ -71,7 +73,8 @@ public class PaymentController {
             LessonService lessonService,
             InvoiceService invoiceService,
             GroupLessonService groupLessonService,
-            PromoCodeService promoCodeService
+            PromoCodeService promoCodeService,
+            GroupInvitationRepository invitationRepository
     ) {
         this.stripeService = stripeService;
         this.subscriptionService = subscriptionService;
@@ -82,6 +85,7 @@ public class PaymentController {
         this.invoiceService = invoiceService;
         this.groupLessonService = groupLessonService;
         this.promoCodeService = promoCodeService;
+        this.invitationRepository = invitationRepository;
     }
 
     // Get Stripe publishable key
@@ -235,7 +239,7 @@ public class PaymentController {
             subscriptionService.startFreeTrial(userDetails.getId());
             Map<String, Object> status = subscriptionService.getTrialStatus(userDetails.getId());
             status.put("success", true);
-            status.put("message", "Essai gratuit de 14 jours activé !");
+            status.put("message", "success.freeTrialActivated");
             return ResponseEntity.ok(status);
         } catch (RuntimeException e) {
             log.error("Error starting free trial for user {}", userDetails.getId(), e);
@@ -316,7 +320,7 @@ public class PaymentController {
                 log.warn("Subscription payment not completed for session {}", sessionId);
                 return ResponseEntity.badRequest().body(Map.of(
                         "success", false,
-                        "error", "Le paiement n'a pas été effectué"
+                        "error", "errors.paymentNotCompleted"
                 ));
             }
 
@@ -328,7 +332,7 @@ public class PaymentController {
             if (planName == null || userIdStr == null) {
                 return ResponseEntity.badRequest().body(Map.of(
                         "success", false,
-                        "error", "Session invalide - données manquantes"
+                        "error", "errors.invalidSessionData"
                 ));
             }
 
@@ -345,7 +349,7 @@ public class PaymentController {
                 log.error("Invalid subscription plan in Stripe metadata: {}", planName);
                 return ResponseEntity.badRequest().body(Map.of(
                         "success", false,
-                        "error", "Plan d'abonnement invalide"
+                        "error", "errors.invalidPlan"
                 ));
             }
             var subscription = subscriptionService.activateSubscription(stripeSubscriptionId, userId, plan);
@@ -364,14 +368,14 @@ public class PaymentController {
                     "success", true,
                     "subscriptionId", subscription.getId(),
                     "planName", plan.getDisplayName(),
-                    "message", "Abonnement Premium activé avec succès"
+                    "message", "success.subscriptionActivated"
             ));
 
         } catch (StripeException e) {
             log.error("Stripe error confirming subscription payment", e);
             return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(Map.of(
                     "success", false,
-                    "error", "Erreur de vérification du paiement"
+                    "error", "errors.paymentVerificationError"
             ));
         } catch (Exception e) {
             log.error("Error confirming subscription payment", e);
@@ -396,7 +400,7 @@ public class PaymentController {
                 log.warn("Payment not completed for session {}", sessionId);
                 return ResponseEntity.badRequest().body(Map.of(
                         "success", false,
-                        "error", "Le paiement n'a pas été effectué"
+                        "error", "errors.paymentNotCompleted"
                 ));
             }
 
@@ -408,7 +412,7 @@ public class PaymentController {
             if (!"ONE_TIME_LESSON".equals(type) || userIdStr == null) {
                 return ResponseEntity.badRequest().body(Map.of(
                         "success", false,
-                        "error", "Session invalide"
+                        "error", "errors.invalidSession"
                 ));
             }
 
@@ -422,17 +426,17 @@ public class PaymentController {
                 String groupToken = notes.substring("GROUP_JOIN:".length()).trim();
                 log.info("Detected group join payment for user {} with token {}", userId, groupToken);
                 try {
-                    var groupResponse = groupLessonService.joinAfterStripePayment(userId, groupToken);
+                    var groupResponse = groupLessonService.autoJoinAfterStripePayment(userId, groupToken);
                     return ResponseEntity.ok(Map.of(
                             "success", true,
                             "lessonId", groupResponse.lesson().id(),
-                            "message", "Vous avez rejoint le cours !"
+                            "message", "group_lesson.joinSuccess"
                     ));
                 } catch (IllegalArgumentException e) {
                     String msg = e.getMessage();
                     if (msg != null && (msg.contains("already a participant") || msg.contains("already full"))) {
                         // Already joined (likely via embedded checkout onComplete callback)
-                        return ResponseEntity.ok(Map.of("success", true, "message", "Vous avez rejoint le cours !"));
+                        return ResponseEntity.ok(Map.of("success", true, "message", "group_lesson.joinSuccess"));
                     }
                     throw e;
                 }
@@ -451,6 +455,47 @@ public class PaymentController {
                 Long courseId = (courseIdStr != null && !courseIdStr.isEmpty()) ? Long.parseLong(courseIdStr) : null;
 
                 try {
+                    // Check if an OPEN group already exists (auto-join instead of creating)
+                    var existingGroup = lessonRepository.findOpenGroupLesson(teacherId, scheduledAt, scheduledAt.plusMinutes(durationMinutes));
+
+                    if (existingGroup.isPresent() && !existingGroup.get().isGroupFull()) {
+                        Lesson lesson = existingGroup.get();
+                        var invitation = invitationRepository.findByLessonId(lesson.getId())
+                                .orElseThrow(() -> new RuntimeException("Invitation not found"));
+
+                        var groupResponse = groupLessonService.autoJoinAfterStripePayment(userId, invitation.getToken());
+
+                        User student = userRepository.findById(userId).orElseThrow();
+                        User teacher = userRepository.findById(teacherId).orElseThrow();
+                        int pricePerPerson = com.chessconnect.service.GroupPricingCalculator.calculateParticipantPrice(
+                                teacher.getHourlyRateCents(), lesson.getMaxParticipants());
+
+                        Payment payment = new Payment();
+                        payment.setPayer(student);
+                        payment.setTeacher(teacher);
+                        payment.setLesson(lesson);
+                        payment.setPaymentType(PaymentType.ONE_TIME_LESSON);
+                        payment.setAmountCents(pricePerPerson);
+                        payment.setStripePaymentIntentId(session.getPaymentIntent());
+                        payment.setStatus(PaymentStatus.COMPLETED);
+                        payment.setProcessedAt(LocalDateTime.now());
+                        paymentRepository.save(payment);
+
+                        if (session.getPaymentIntent() != null && pricePerPerson > 0) {
+                            invoiceService.generateInvoicesForPayment(
+                                    session.getPaymentIntent(), userId, teacherId, lesson.getId(), pricePerPerson, false
+                            );
+                        }
+
+                        return ResponseEntity.ok(Map.of(
+                                "success", true,
+                                "joined", true,
+                                "lessonId", groupResponse.lesson().id(),
+                                "message", "group_lesson.joinSuccess"
+                        ));
+                    }
+
+                    // No existing group — create new one
                     var request = new com.chessconnect.dto.group.BookGroupLessonRequest(
                             teacherId, scheduledAt, durationMinutes, null, targetGroupSize, courseId
                     );
@@ -485,7 +530,7 @@ public class PaymentController {
                             "success", true,
                             "lessonId", groupResponse.lesson().id(),
                             "invitationToken", groupResponse.invitationToken(),
-                            "message", "Cours en groupe cree avec succes"
+                            "message", "group_lesson.createSuccess"
                     ));
                 } catch (IllegalArgumentException e) {
                     throw e;
@@ -583,14 +628,14 @@ public class PaymentController {
             return ResponseEntity.ok(Map.of(
                     "success", true,
                     "lessonId", lessonResponse.id(),
-                    "message", "Cours réservé avec succès"
+                    "message", "success.lessonBooked"
             ));
 
         } catch (StripeException e) {
             log.error("Stripe error confirming lesson payment", e);
             return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(Map.of(
                     "success", false,
-                    "error", "Erreur de vérification du paiement"
+                    "error", "errors.paymentVerificationError"
             ));
         } catch (Exception e) {
             log.error("Error confirming lesson payment", e);

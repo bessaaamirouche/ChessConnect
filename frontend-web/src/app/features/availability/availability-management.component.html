@@ -40,7 +40,13 @@
                         {{ slot.startTime }} - {{ slot.endTime }}
                       </div>
                       <span class="slot-type-badge" [class.slot-type-badge--group]="slot.lessonType === 'GROUP'">
-                        {{ slot.lessonType === 'GROUP' ? ('availability.lessonType.group' | translate) : ('availability.lessonType.individual' | translate) }}
+                        @if (slot.lessonType === 'GROUP' && slot.maxParticipants) {
+                          {{ 'availability.lessonType.group' | translate }} ({{ slot.maxParticipants }} {{ 'availability.players' | translate }})
+                        } @else if (slot.lessonType === 'GROUP') {
+                          {{ 'availability.lessonType.group' | translate }}
+                        } @else {
+                          {{ 'availability.lessonType.individual' | translate }}
+                        }
                       </span>
                     </div>
                     <button class="slot-delete" (click)="deleteAvailability(slot.id)" [title]="'availability.slot.delete' | translate">
@@ -160,6 +166,23 @@
             </label>
           </div>
         </div>
+
+        <!-- Group Size (only for GROUP) -->
+        @if (lessonType === 'GROUP') {
+          <div class="form-group">
+            <label class="form-group__label">{{ 'availability.groupSize' | translate }}</label>
+            <div class="radio-group">
+              <label class="radio-option">
+                <input type="radio" name="groupSize" [value]="2" [(ngModel)]="groupMaxParticipants" />
+                <span>2 {{ 'availability.players' | translate }}</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="groupSize" [value]="3" [(ngModel)]="groupMaxParticipants" />
+                <span>3 {{ 'availability.players' | translate }}</span>
+              </label>
+            </div>
+          </div>
+        }
 
         <!-- Type Selection -->
         <div class="form-group">

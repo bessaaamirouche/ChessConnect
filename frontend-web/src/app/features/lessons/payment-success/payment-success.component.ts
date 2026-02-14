@@ -49,12 +49,12 @@ export class PaymentSuccessComponent implements OnInit {
             this.router.navigate(['/dashboard']);
           }, 2000);
         } else {
-          this.error.set(response.error || this.translateService.instant('errors.paymentConfirm'));
+          this.error.set(this.translateService.instant(response.error || 'errors.paymentConfirm'));
           this.loading.set(false);
         }
       },
       error: (err) => {
-        this.error.set(err.error?.error || this.translateService.instant('errors.paymentConfirm'));
+        this.error.set(this.translateService.instant(err.error?.error || 'errors.paymentConfirm'));
         this.loading.set(false);
       }
     });

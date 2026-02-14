@@ -11,8 +11,12 @@ import com.chessconnect.model.Lesson;
 import com.chessconnect.model.User;
 import com.chessconnect.model.enums.LessonStatus;
 import com.chessconnect.model.enums.LessonType;
+import com.chessconnect.model.GroupInvitation;
+import com.chessconnect.model.LessonParticipant;
 import com.chessconnect.repository.AvailabilityRepository;
 import com.chessconnect.repository.FavoriteTeacherRepository;
+import com.chessconnect.repository.GroupInvitationRepository;
+import com.chessconnect.repository.LessonParticipantRepository;
 import com.chessconnect.repository.LessonRepository;
 import com.chessconnect.repository.UserRepository;
 import org.slf4j.Logger;
@@ -30,6 +34,7 @@ import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 @Service
 public class AvailabilityService {
@@ -43,6 +48,8 @@ public class AvailabilityService {
     private final LessonRepository lessonRepository;
     private final UserRepository userRepository;
     private final FavoriteTeacherRepository favoriteRepository;
+    private final GroupInvitationRepository groupInvitationRepository;
+    private final LessonParticipantRepository participantRepository;
     private final EmailService emailService;
     private final WebPushService webPushService;
     private final SubscriptionService subscriptionService;
@@ -56,6 +63,8 @@ public class AvailabilityService {
             LessonRepository lessonRepository,
             UserRepository userRepository,
             FavoriteTeacherRepository favoriteRepository,
+            GroupInvitationRepository groupInvitationRepository,
+            LessonParticipantRepository participantRepository,
             EmailService emailService,
             WebPushService webPushService,
             SubscriptionService subscriptionService,
@@ -65,6 +74,8 @@ public class AvailabilityService {
         this.lessonRepository = lessonRepository;
         this.userRepository = userRepository;
         this.favoriteRepository = favoriteRepository;
+        this.groupInvitationRepository = groupInvitationRepository;
+        this.participantRepository = participantRepository;
         this.emailService = emailService;
         this.webPushService = webPushService;
         this.subscriptionService = subscriptionService;
@@ -90,6 +101,14 @@ public class AvailabilityService {
         availability.setSpecificDate(request.getSpecificDate());
         availability.setIsActive(true);
         availability.setLessonType(LessonType.valueOf(request.getLessonType()));
+
+        // For GROUP availabilities, coach must specify maxParticipants (2 or 3)
+        if (LessonType.GROUP == LessonType.valueOf(request.getLessonType())) {
+            if (request.getMaxParticipants() == null || request.getMaxParticipants() < 2 || request.getMaxParticipants() > 3) {
+                throw new RuntimeException("errors.groupSizeInvalid");
+            }
+            availability.setMaxParticipants(request.getMaxParticipants());
+        }
 
         availability = availabilityRepository.save(availability);
         log.info("Created availability {} for teacher {}", availability.getId(), teacherId);
@@ -235,12 +254,15 @@ public class AvailabilityService {
         List<Availability> allAvailabilities = availabilityRepository.findByTeacherIdAndIsActiveTrue(teacherId);
         log.info("Found {} active availabilities for teacher {}", allAvailabilities.size(), teacherId);
 
-        // For non-premium users, filter out availabilities created less than 24h ago
+        // For non-premium users, filter out INDIVIDUAL availabilities created less than 24h ago
+        // Group lessons have no delay — they are visible immediately for everyone
         LocalDateTime priorityCutoff = LocalDateTime.now().minusHours(PREMIUM_PRIORITY_HOURS);
         List<Availability> availabilities = isPremiumUser
                 ? allAvailabilities
                 : allAvailabilities.stream()
-                    .filter(a -> a.getCreatedAt() == null || a.getCreatedAt().isBefore(priorityCutoff))
+                    .filter(a -> a.getLessonType() == LessonType.GROUP
+                            || a.getCreatedAt() == null
+                            || a.getCreatedAt().isBefore(priorityCutoff))
                     .toList();
 
         log.info("After premium filter (isPremium={}): {} availabilities", isPremiumUser, availabilities.size());
@@ -262,7 +284,9 @@ public class AvailabilityService {
         );
 
         List<LocalDateTime> bookedSlotStarts = existingLessons.stream()
-                .filter(l -> l.getStatus() != LessonStatus.CANCELLED)
+                .filter(l -> l.getStatus() != LessonStatus.CANCELLED && l.getStatus() != LessonStatus.COMPLETED)
+                // Don't block slot if it's an open (not full) group lesson — other students can still join
+                .filter(l -> !(Boolean.TRUE.equals(l.getIsGroupLesson()) && "OPEN".equals(l.getGroupStatus())))
                 .map(Lesson::getScheduledAt)
                 .toList();
 
@@ -286,12 +310,15 @@ public class AvailabilityService {
             // Generate time slots for each availability
             for (Availability availability : dayAvailabilities) {
                 LocalTime currentTime = availability.getStartTime();
+                LocalTime startTime = availability.getStartTime();
                 LocalTime endTime = availability.getEndTime();
-                // Handle midnight wrap-around: treat 00:00 as end of day
-                boolean isMidnightEnd = endTime.equals(LocalTime.MIDNIGHT);
+                // Handle midnight wrap-around (e.g., 23:00->00:00 or 23:30->00:30)
+                boolean isMidnightCrossing = endTime.isBefore(startTime) || endTime.equals(LocalTime.MIDNIGHT);
 
-                while (isSlotWithinAvailability(currentTime, endTime, isMidnightEnd)) {
-                    LocalDateTime slotDateTime = LocalDateTime.of(finalDate, currentTime);
+                while (isSlotWithinAvailability(currentTime, startTime, endTime, isMidnightCrossing)) {
+                    // If slot has crossed midnight, use the next day's date
+                    LocalDate slotDate = (isMidnightCrossing && currentTime.isBefore(startTime)) ? finalDate.plusDays(1) : finalDate;
+                    LocalDateTime slotDateTime = LocalDateTime.of(slotDate, currentTime);
                     LocalDateTime slotEndDateTime = slotDateTime.plusMinutes(SLOT_DURATION_MINUTES);
 
                     // Allow urgent bookings - show slots up to 5 min in the past
@@ -303,13 +330,52 @@ public class AvailabilityService {
                                     return slotDateTime.isBefore(bookedEnd) && slotEndDateTime.isAfter(bookedStart);
                                 });
 
-                        slots.add(TimeSlotResponse.create(
-                                finalDate,
-                                currentTime,
-                                currentTime.plusMinutes(SLOT_DURATION_MINUTES),
-                                isAvailable,
-                                availability.getLessonType().name()
-                        ));
+                        // Enrich GROUP slots with group lesson info
+                        if (availability.getLessonType() == LessonType.GROUP && availability.getMaxParticipants() != null) {
+                            int maxP = availability.getMaxParticipants();
+                            Optional<Lesson> openGroup = lessonRepository.findOpenGroupLesson(
+                                    teacherId, slotDateTime, slotEndDateTime);
+
+                            Long groupLessonId = null;
+                            int currentP = 0;
+                            String invToken = null;
+
+                            if (openGroup.isPresent()) {
+                                Lesson gl = openGroup.get();
+                                groupLessonId = gl.getId();
+                                currentP = participantRepository.countByLessonIdAndStatus(gl.getId(), "ACTIVE");
+                                invToken = groupInvitationRepository.findByLessonId(gl.getId())
+                                        .map(GroupInvitation::getToken).orElse(null);
+                                // Full group = not available
+                                if (currentP >= maxP) {
+                                    isAvailable = false;
+                                }
+                            }
+
+                            int teacherRate = userRepository.findById(teacherId)
+                                    .map(User::getHourlyRateCents).orElse(0);
+                            int pricePerPerson = GroupPricingCalculator.calculateParticipantPrice(teacherRate, maxP);
+
+                            slots.add(TimeSlotResponse.createGroupSlot(
+                                    slotDate,
+                                    currentTime,
+                                    currentTime.plusMinutes(SLOT_DURATION_MINUTES),
+                                    isAvailable,
+                                    maxP,
+                                    groupLessonId,
+                                    currentP,
+                                    invToken,
+                                    pricePerPerson
+                            ));
+                        } else {
+                            slots.add(TimeSlotResponse.create(
+                                    slotDate,
+                                    currentTime,
+                                    currentTime.plusMinutes(SLOT_DURATION_MINUTES),
+                                    isAvailable,
+                                    availability.getLessonType().name()
+                            ));
+                        }
                     }
 
                     currentTime = currentTime.plusMinutes(SLOT_INTERVAL_MINUTES);
@@ -335,8 +401,10 @@ public class AvailabilityService {
         );
 
         boolean hasAvailability = availabilities.stream()
-                .anyMatch(a -> !time.isBefore(a.getStartTime()) &&
-                               time.plusMinutes(SLOT_DURATION_MINUTES).compareTo(a.getEndTime()) <= 0);
+                .anyMatch(a -> {
+                    boolean midnightCrossing = a.getEndTime().isBefore(a.getStartTime()) || a.getEndTime().equals(LocalTime.MIDNIGHT);
+                    return isSlotWithinAvailability(time, a.getStartTime(), a.getEndTime(), midnightCrossing);
+                });
 
         if (!hasAvailability) {
             return false;
@@ -351,16 +419,19 @@ public class AvailabilityService {
         );
 
         return conflictingLessons.stream()
-                .noneMatch(l -> l.getStatus() != LessonStatus.CANCELLED);
+                .noneMatch(l -> l.getStatus() != LessonStatus.CANCELLED
+                        && l.getStatus() != LessonStatus.COMPLETED
+                        && !(Boolean.TRUE.equals(l.getIsGroupLesson()) && "OPEN".equals(l.getGroupStatus())));
     }
 
     private void validateAvailabilityRequest(AvailabilityRequest request) {
-        // Handle midnight wrap-around: 23:00 -> 00:00 is valid (treat 00:00 as 24:00)
+        // Handle midnight wrap-around: e.g., 23:30 -> 00:30 is valid (crosses midnight)
         LocalTime startTime = request.getStartTime();
         LocalTime endTime = request.getEndTime();
-        boolean isMidnightWrapAround = endTime.equals(LocalTime.MIDNIGHT) && startTime.isAfter(LocalTime.of(22, 0));
+        boolean isMidnightCrossing = startTime.getHour() >= 22
+                && (endTime.isBefore(startTime) || endTime.equals(LocalTime.MIDNIGHT));
 
-        if (!isMidnightWrapAround && startTime.isAfter(endTime)) {
+        if (!isMidnightCrossing && startTime.isAfter(endTime)) {
             throw new RuntimeException("Start time must be before end time");
         }
 
@@ -401,35 +472,52 @@ public class AvailabilityService {
         LocalTime newEnd = request.getEndTime();
 
         boolean hasOverlap = existingAvailabilities.stream()
-                .anyMatch(existing -> {
-                    LocalTime existingStart = existing.getStartTime();
-                    LocalTime existingEnd = existing.getEndTime();
-                    // Check if time ranges overlap
-                    return newStart.isBefore(existingEnd) && newEnd.isAfter(existingStart);
-                });
+                .anyMatch(existing -> timesOverlap(
+                        newStart, newEnd,
+                        existing.getStartTime(), existing.getEndTime()
+                ));
 
         if (hasOverlap) {
-            throw new RuntimeException(
-                    "Vous avez deja une disponibilite sur ce creneau. Modifiez les horaires ou supprimez l'ancienne."
-            );
+            throw new RuntimeException("errors.availabilityOverlap");
         }
     }
 
     /**
-     * Check if a slot (starting at currentTime, lasting SLOT_DURATION_MINUTES)
-     * fits within the availability window ending at endTime.
-     * Handles midnight wrap-around (23:00 -> 00:00).
+     * Check if two time ranges overlap, handling midnight wrap-around.
+     * Uses minutes-since-midnight with +1440 normalization for ranges crossing midnight.
      */
-    private boolean isSlotWithinAvailability(LocalTime currentTime, LocalTime endTime, boolean isMidnightEnd) {
-        LocalTime slotEnd = currentTime.plusMinutes(SLOT_DURATION_MINUTES);
+    private boolean timesOverlap(LocalTime s1, LocalTime e1, LocalTime s2, LocalTime e2) {
+        int ms1 = s1.getHour() * 60 + s1.getMinute();
+        int me1 = e1.getHour() * 60 + e1.getMinute();
+        int ms2 = s2.getHour() * 60 + s2.getMinute();
+        int me2 = e2.getHour() * 60 + e2.getMinute();
 
-        if (isMidnightEnd) {
-            // For midnight end (00:00), the slot must start before midnight
-            // and the calculated slot end will wrap to 00:00
-            return currentTime.getHour() >= 22 && slotEnd.equals(LocalTime.MIDNIGHT);
+        // Handle midnight crossover: if end <= start, add a full day
+        if (me1 <= ms1) me1 += 1440;
+        if (me2 <= ms2) me2 += 1440;
+
+        return ms1 < me2 && me1 > ms2;
+    }
+
+    /**
+     * Check if a slot (starting at currentTime, lasting SLOT_DURATION_MINUTES)
+     * fits within the availability window [startTime, endTime].
+     * Handles midnight wrap-around (e.g., 23:00 -> 00:30).
+     */
+    private boolean isSlotWithinAvailability(LocalTime currentTime, LocalTime startTime, LocalTime endTime, boolean isMidnightCrossing) {
+        int currentMinutes = currentTime.getHour() * 60 + currentTime.getMinute();
+        int startMinutes = startTime.getHour() * 60 + startTime.getMinute();
+        int slotEndMinutes = currentMinutes + SLOT_DURATION_MINUTES;
+        int availEndMinutes = endTime.getHour() * 60 + endTime.getMinute();
+
+        if (isMidnightCrossing) {
+            availEndMinutes += 1440;
+            if (currentMinutes < startMinutes) {
+                // currentTime has wrapped past midnight
+                slotEndMinutes += 1440;
+            }
         }
 
-        // Normal case: slot end must be <= availability end
-        return slotEnd.compareTo(endTime) <= 0;
+        return slotEndMinutes <= availEndMinutes;
     }
 }

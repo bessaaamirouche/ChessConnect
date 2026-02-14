@@ -8,6 +8,6 @@ public record BookGroupLessonRequest(
     @NotNull LocalDateTime scheduledAt,
     Integer durationMinutes,
     String notes,
-    @NotNull Integer targetGroupSize, // 2 or 3
+    Integer targetGroupSize, // now optional — read from availability if null
     Long courseId
 ) {}

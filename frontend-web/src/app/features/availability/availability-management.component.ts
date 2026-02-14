@@ -68,6 +68,7 @@ export class AvailabilityManagementComponent implements OnInit {
   showAddModal = false;
   isRecurring = true;
   lessonType: 'INDIVIDUAL' | 'GROUP' = 'INDIVIDUAL';
+  groupMaxParticipants: 2 | 3 = 2;
   selectedDay: DayOfWeek = 'MONDAY';
   selectedDate = '';
   startHour = '09';
@@ -140,6 +141,7 @@ export class AvailabilityManagementComponent implements OnInit {
   resetForm(): void {
     this.isRecurring = true;
     this.lessonType = 'INDIVIDUAL';
+    this.groupMaxParticipants = 2;
     this.selectedDay = 'MONDAY';
     this.selectedDate = '';
     this.startHour = '09';
@@ -182,6 +184,10 @@ export class AvailabilityManagementComponent implements OnInit {
       isRecurring: this.isRecurring,
       lessonType: this.lessonType
     };
+
+    if (this.lessonType === 'GROUP') {
+      request.maxParticipants = this.groupMaxParticipants;
+    }
 
     if (this.isRecurring) {
       request.dayOfWeek = this.selectedDay;

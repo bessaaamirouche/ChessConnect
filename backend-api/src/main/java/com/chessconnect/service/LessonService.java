@@ -239,8 +239,14 @@ public class LessonService {
         if (newStatus == LessonStatus.CANCELLED) {
             // Prevent cancellation if lesson has already started
             if (lesson.getScheduledAt().isBefore(LocalDateTime.now())) {
-                throw new IllegalArgumentException("Impossible d'annuler un cours deja commence");
+                throw new IllegalArgumentException("errors.cannotCancelStarted");
             }
+
+            // Only the coach can cancel a group lesson via this endpoint
+            if (Boolean.TRUE.equals(lesson.getIsGroupLesson()) && !isTeacher) {
+                throw new IllegalArgumentException("errors.onlyCoachCanCancelGroup");
+            }
+
             String cancelledBy = isTeacher ? "TEACHER" : "STUDENT";
 
             // For group lessons cancelled by teacher, refund all participants
@@ -364,7 +370,7 @@ public class LessonService {
         List<Lesson> privateLessons = lessonRepository.findUpcomingLessonsForStudent(studentId, LocalDateTime.now());
 
         // Group lessons where student is a participant
-        List<Lesson> groupLessons = participantRepository.findUpcomingGroupLessonsForStudent(studentId);
+        List<Lesson> groupLessons = participantRepository.findUpcomingGroupLessonsForStudent(studentId, LocalDateTime.now());
 
         return Stream.concat(privateLessons.stream(), groupLessons.stream())
                 .distinct()
@@ -419,9 +425,10 @@ public class LessonService {
         LocalDateTime now = LocalDateTime.now();
         return lessons.stream()
                 .filter(lesson -> {
+                    // Include in history if completed/cancelled OR if lesson time has passed
+                    boolean isFinished = lesson.getStatus() == LessonStatus.COMPLETED || lesson.getStatus() == LessonStatus.CANCELLED;
                     LocalDateTime lessonEnd = lesson.getScheduledAt().plusMinutes(lesson.getDurationMinutes());
-                    // Only include in history if the lesson time has passed
-                    if (!lessonEnd.isBefore(now)) return false;
+                    if (!isFinished && !lessonEnd.isBefore(now)) return false;
                     // Filter out soft-deleted lessons based on user role
                     if (isTeacher && Boolean.TRUE.equals(lesson.getDeletedByTeacher())) return false;
                     if (!isTeacher && Boolean.TRUE.equals(lesson.getDeletedByStudent())) return false;
@@ -713,7 +720,7 @@ public class LessonService {
                 .anyMatch(l -> l.getStatus() == LessonStatus.PENDING || l.getStatus() == LessonStatus.CONFIRMED);
 
         if (hasConflict) {
-            throw new IllegalArgumentException("Teacher is not available at the requested time");
+            throw new IllegalArgumentException("errors.teacherNotAvailable");
         }
     }
 
@@ -738,9 +745,7 @@ public class LessonService {
                 });
 
         if (hasConflict) {
-            throw new IllegalArgumentException(
-                    "Vous avez deja un cours a cet horaire. Annulez-le d'abord pour pouvoir reserver ce creneau."
-            );
+            throw new IllegalArgumentException("errors.timeConflict");
         }
     }
 

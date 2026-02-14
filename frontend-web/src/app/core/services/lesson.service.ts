@@ -1,7 +1,8 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap, map } from 'rxjs';
 import { Lesson, BookLessonRequest, UpdateLessonStatusRequest } from '../models/lesson.model';
+import { TranslateService } from '@ngx-translate/core';
 
 @Injectable({
   providedIn: 'root'
@@ -26,6 +27,8 @@ export class LessonService {
     this.lessonHistorySignal().filter(l => l.status === 'COMPLETED').length
   );
 
+  private translate = inject(TranslateService);
+
   constructor(private http: HttpClient) {}
 
   bookLesson(request: BookLessonRequest): Observable<Lesson> {
@@ -39,7 +42,7 @@ export class LessonService {
           this.loadingSignal.set(false);
         },
         error: (err) => {
-          this.errorSignal.set(err.error?.error || err.error?.message || 'Erreur lors de la réservation');
+          this.errorSignal.set(this.translate.instant(err.error?.error || err.error?.message || 'errors.bookingCreate'));
           this.loadingSignal.set(false);
         }
       })

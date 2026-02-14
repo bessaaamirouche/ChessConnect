@@ -7,6 +7,7 @@ import com.chessconnect.event.NotificationEvent;
 import com.chessconnect.event.payload.LessonStatusPayload;
 import com.chessconnect.model.*;
 import com.chessconnect.model.enums.*;
+import com.chessconnect.model.Availability;
 import com.chessconnect.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +34,7 @@ public class GroupLessonService {
     private final LessonRepository lessonRepository;
     private final LessonParticipantRepository participantRepository;
     private final GroupInvitationRepository invitationRepository;
+    private final AvailabilityRepository availabilityRepository;
     private final UserRepository userRepository;
     private final CourseRepository courseRepository;
     private final PaymentRepository paymentRepository;
@@ -46,6 +48,7 @@ public class GroupLessonService {
             LessonRepository lessonRepository,
             LessonParticipantRepository participantRepository,
             GroupInvitationRepository invitationRepository,
+            AvailabilityRepository availabilityRepository,
             UserRepository userRepository,
             CourseRepository courseRepository,
             PaymentRepository paymentRepository,
@@ -58,6 +61,7 @@ public class GroupLessonService {
         this.lessonRepository = lessonRepository;
         this.participantRepository = participantRepository;
         this.invitationRepository = invitationRepository;
+        this.availabilityRepository = availabilityRepository;
         this.userRepository = userRepository;
         this.courseRepository = courseRepository;
         this.paymentRepository = paymentRepository;
@@ -78,7 +82,21 @@ public class GroupLessonService {
             throw new IllegalArgumentException("Only students can create group lessons");
         }
 
-        int targetSize = request.targetGroupSize();
+        // Read targetGroupSize from request or from availability
+        int targetSize;
+        if (request.targetGroupSize() != null) {
+            targetSize = request.targetGroupSize();
+        } else {
+            // Look up from the GROUP availability
+            LocalDateTime scheduledAt2 = request.scheduledAt();
+            Availability groupAvail = availabilityRepository.findGroupAvailabilityForSlot(
+                    request.teacherId(),
+                    scheduledAt2.getDayOfWeek(),
+                    scheduledAt2.toLocalDate(),
+                    scheduledAt2.toLocalTime()
+            ).orElseThrow(() -> new IllegalArgumentException("No GROUP availability found for this slot"));
+            targetSize = groupAvail.getMaxParticipants();
+        }
         if (targetSize < 2 || targetSize > 3) {
             throw new IllegalArgumentException("Group size must be 2 or 3");
         }
@@ -243,6 +261,65 @@ public class GroupLessonService {
         return buildGroupLessonResponse(lesson, invitation);
     }
 
+    // ─── AUTO-JOIN (from booking page, no invitation expiration check) ─────
+
+    /**
+     * Auto-join an existing open group with wallet credit.
+     * Skips invitation expiration check since the student is booking directly.
+     */
+    @Transactional
+    public GroupLessonResponse autoJoinWithCredit(Long studentId, String token) {
+        GroupInvitation invitation = validateAndLockForJoin(studentId, token, true);
+        Lesson lesson = invitation.getLesson();
+
+        int pricePerPerson = GroupPricingCalculator.calculateParticipantPrice(
+                lesson.getPriceCents(), invitation.getMaxParticipants());
+
+        User student = userRepository.findById(studentId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        LessonParticipant participant = createParticipant(lesson, student, pricePerPerson);
+
+        walletService.checkAndDeductCredit(studentId, pricePerPerson);
+        walletService.linkDeductionToLesson(studentId, lesson, pricePerPerson);
+        createPaymentRecord(student, lesson.getTeacher(), lesson, pricePerPerson, PaymentType.LESSON_FROM_CREDIT);
+        invoiceService.generateInvoicesForCreditPayment(studentId, lesson.getTeacher().getId(), lesson.getId(), pricePerPerson);
+        updateGroupStatus(lesson);
+        notifyParticipantJoined(lesson, student);
+
+        log.info("Student {} auto-joined group lesson {} with credit. Participants: {}/{}",
+                studentId, lesson.getId(), lesson.getActiveParticipantCount(), lesson.getMaxParticipants());
+
+        return buildGroupLessonResponse(lesson, invitation);
+    }
+
+    /**
+     * Auto-join an existing open group after Stripe payment.
+     * Skips invitation expiration check since the student is booking directly.
+     */
+    @Transactional
+    public GroupLessonResponse autoJoinAfterStripePayment(Long studentId, String token) {
+        GroupInvitation invitation = validateAndLockForJoin(studentId, token, true);
+        Lesson lesson = invitation.getLesson();
+
+        int pricePerPerson = GroupPricingCalculator.calculateParticipantPrice(
+                lesson.getPriceCents(), invitation.getMaxParticipants());
+
+        User student = userRepository.findById(studentId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        LessonParticipant participant = createParticipant(lesson, student, pricePerPerson);
+        createPaymentRecord(student, lesson.getTeacher(), lesson, pricePerPerson, PaymentType.ONE_TIME_LESSON);
+        invoiceService.generateInvoicesForCreditPayment(studentId, lesson.getTeacher().getId(), lesson.getId(), pricePerPerson);
+        updateGroupStatus(lesson);
+        notifyParticipantJoined(lesson, student);
+
+        log.info("Student {} auto-joined group lesson {} after Stripe payment. Participants: {}/{}",
+                studentId, lesson.getId(), lesson.getActiveParticipantCount(), lesson.getMaxParticipants());
+
+        return buildGroupLessonResponse(lesson, invitation);
+    }
+
     // ─── CANCEL PARTICIPANT ─────────────────────────────────
 
     @Transactional
@@ -256,6 +333,13 @@ public class GroupLessonService {
 
         LessonParticipant participant = participantRepository.findActiveByLessonIdAndStudentId(lessonId, studentId)
                 .orElseThrow(() -> new IllegalArgumentException("You are not a participant of this lesson"));
+
+        // Block cancellation during the lesson
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime lessonEnd = lesson.getScheduledAt().plusMinutes(lesson.getDurationMinutes());
+        if (!now.isBefore(lesson.getScheduledAt()) && now.isBefore(lessonEnd)) {
+            throw new IllegalArgumentException("errors.cannotCancelDuringLesson");
+        }
 
         // Calculate refund
         int refundPercentage = calculateRefundPercentage(lesson, "STUDENT");
@@ -290,13 +374,14 @@ public class GroupLessonService {
             lesson.setGroupStatus("OPEN");
         }
 
-        // If no more active participants, cancel the entire lesson
+        // If no more active participants and lesson hasn't started yet, cancel it
+        // If the lesson is already CONFIRMED (in progress), let the teacher complete it
         int remaining = participantRepository.countByLessonIdAndStatus(lessonId, "ACTIVE");
-        if (remaining == 0) {
+        if (remaining == 0 && lesson.getStatus() == LessonStatus.PENDING) {
             lesson.setStatus(LessonStatus.CANCELLED);
-            lesson.setCancelledBy("STUDENT");
+            lesson.setCancelledBy("SYSTEM");
             lesson.setCancelledAt(LocalDateTime.now());
-            lesson.setCancellationReason("Groupe annulé - tous les participants ont quitté");
+            lesson.setCancellationReason("Groupe annulé automatiquement - aucun participant restant");
         }
 
         lessonRepository.save(lesson);
@@ -393,9 +478,9 @@ public class GroupLessonService {
             // Cancel and refund everyone 100%
             cancelGroupBySystem(lesson, "Group not complete before deadline - cancelled by creator");
             lesson.setStatus(LessonStatus.CANCELLED);
-            lesson.setCancelledBy("STUDENT");
+            lesson.setCancelledBy("SYSTEM");
             lesson.setCancelledAt(LocalDateTime.now());
-            lesson.setCancellationReason("Groupe incomplet - annule par le createur");
+            lesson.setCancellationReason("Groupe incomplet - annulé par le créateur");
             lessonRepository.save(lesson);
 
             log.info("Group lesson {} cancelled by creator at deadline.", lessonId);
@@ -525,10 +610,14 @@ public class GroupLessonService {
     // ─── HELPERS ────────────────────────────────────────────
 
     private GroupInvitation validateAndLockForJoin(Long studentId, String token) {
+        return validateAndLockForJoin(studentId, token, false);
+    }
+
+    private GroupInvitation validateAndLockForJoin(Long studentId, String token, boolean skipExpirationCheck) {
         GroupInvitation invitation = invitationRepository.findByToken(token)
                 .orElseThrow(() -> new IllegalArgumentException("Invitation not found"));
 
-        if (invitation.isExpired()) {
+        if (!skipExpirationCheck && invitation.isExpired()) {
             throw new IllegalArgumentException("This invitation has expired");
         }
 
@@ -635,7 +724,7 @@ public class GroupLessonService {
                 .anyMatch(l -> l.getStatus() == LessonStatus.PENDING || l.getStatus() == LessonStatus.CONFIRMED);
 
         if (hasConflict) {
-            throw new IllegalArgumentException("Teacher is not available at the requested time");
+            throw new IllegalArgumentException("errors.teacherNotAvailable");
         }
     }
 
@@ -653,7 +742,7 @@ public class GroupLessonService {
                 });
 
         if (hasConflict) {
-            throw new IllegalArgumentException("Vous avez deja un cours a cet horaire.");
+            throw new IllegalArgumentException("errors.timeConflict");
         }
     }
 

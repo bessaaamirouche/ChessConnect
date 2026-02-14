@@ -14,6 +14,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -80,8 +81,14 @@ public class JitsiController {
             Lesson recLesson = lessonRepository.findById(recLessonId).orElse(null);
             if (recLesson != null) {
                 if (Boolean.TRUE.equals(recLesson.getIsGroupLesson())) {
-                    // Group lessons are always recorded
-                    recordingEnabled = true;
+                    // Group lessons: record only if at least one active participant is premium
+                    var activeParticipants = participantRepository.findByLessonIdAndStatus(recLessonId, "ACTIVE");
+                    for (var participant : activeParticipants) {
+                        if (subscriptionService.isPremium(participant.getStudent().getId())) {
+                            recordingEnabled = true;
+                            break;
+                        }
+                    }
                 } else if (recLesson.getStudent() != null) {
                     recordingEnabled = subscriptionService.isPremium(recLesson.getStudent().getId());
                 }

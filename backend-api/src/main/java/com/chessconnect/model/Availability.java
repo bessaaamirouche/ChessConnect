@@ -42,6 +42,9 @@ public class Availability {
     @Column(name = "lesson_type", nullable = false)
     private LessonType lessonType = LessonType.INDIVIDUAL;
 
+    @Column(name = "max_participants")
+    private Integer maxParticipants;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -86,6 +89,9 @@ public class Availability {
 
     public LessonType getLessonType() { return lessonType; }
     public void setLessonType(LessonType lessonType) { this.lessonType = lessonType; }
+
+    public Integer getMaxParticipants() { return maxParticipants; }
+    public void setMaxParticipants(Integer maxParticipants) { this.maxParticipants = maxParticipants; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }

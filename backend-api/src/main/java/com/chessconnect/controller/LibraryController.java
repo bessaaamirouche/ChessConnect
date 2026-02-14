@@ -3,8 +3,10 @@ package com.chessconnect.controller;
 import com.chessconnect.dto.VideoDTO;
 import com.chessconnect.model.Lesson;
 import com.chessconnect.model.User;
+import com.chessconnect.repository.LessonParticipantRepository;
 import com.chessconnect.repository.LessonRepository;
 import com.chessconnect.repository.UserRepository;
+import com.chessconnect.service.SubscriptionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -29,10 +31,15 @@ public class LibraryController {
 
     private final LessonRepository lessonRepository;
     private final UserRepository userRepository;
+    private final LessonParticipantRepository participantRepository;
+    private final SubscriptionService subscriptionService;
 
-    public LibraryController(LessonRepository lessonRepository, UserRepository userRepository) {
+    public LibraryController(LessonRepository lessonRepository, UserRepository userRepository,
+                             LessonParticipantRepository participantRepository, SubscriptionService subscriptionService) {
         this.lessonRepository = lessonRepository;
         this.userRepository = userRepository;
+        this.participantRepository = participantRepository;
+        this.subscriptionService = subscriptionService;
     }
 
     /**
@@ -103,7 +110,18 @@ public class LibraryController {
             dateToTime
         );
 
+        // Filter out group lessons where the student is not premium
+        // (only premium participants can see group lesson recordings)
+        boolean isPremium = subscriptionService.isPremium(user.getId());
         List<VideoDTO> videos = lessonsWithRecordings.stream()
+            .filter(lesson -> {
+                if (Boolean.TRUE.equals(lesson.getIsGroupLesson())) {
+                    // For group lessons, only premium students can see recordings
+                    // If the student is the direct student (created the group), still need premium
+                    return isPremium;
+                }
+                return true; // Private lessons are always visible
+            })
             .map(this::mapToVideoDTO)
             .collect(Collectors.toList());
 
@@ -133,8 +151,11 @@ public class LibraryController {
             return ResponseEntity.notFound().build();
         }
 
-        // Verify the lesson belongs to this student
-        if (!lesson.getStudent().getId().equals(user.getId())) {
+        // Verify the lesson belongs to this student (direct or group participant)
+        boolean isDirectStudent = lesson.getStudent() != null && lesson.getStudent().getId().equals(user.getId());
+        boolean isGroupParticipant = Boolean.TRUE.equals(lesson.getIsGroupLesson())
+                && participantRepository.existsActiveByLessonIdAndStudentId(lessonId, user.getId());
+        if (!isDirectStudent && !isGroupParticipant) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 

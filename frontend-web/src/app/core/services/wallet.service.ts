@@ -166,7 +166,7 @@ export class WalletService {
       }),
       catchError(error => {
         this.loadingSignal.set(false);
-        this.errorSignal.set(error.error?.error || this.translate.instant('errors.bookingCreate'));
+        this.errorSignal.set(this.translate.instant(error.error?.error || 'errors.bookingCreate'));
         throw error;
       })
     );

@@ -144,7 +144,7 @@ export class JoinGroupLessonComponent implements OnInit {
         } else if (err.status === 410 || err.status === 404) {
           this.error.set('expired');
         } else {
-          this.error.set(err.error?.error || this.translate.instant('errors.generic'));
+          this.error.set(this.translate.instant(err.error?.error || 'errors.generic'));
         }
         this.loading.set(false);
       }
@@ -167,7 +167,7 @@ export class JoinGroupLessonComponent implements OnInit {
         if (err.status === 409) {
           this.alreadyJoined.set(true);
         } else {
-          this.error.set(err.error?.error || this.translate.instant('errors.joiningLesson'));
+          this.error.set(this.translate.instant(err.error?.error || 'errors.joiningLesson'));
         }
         this.joining.set(false);
       }
@@ -191,7 +191,7 @@ export class JoinGroupLessonComponent implements OnInit {
         if (err.status === 409) {
           this.alreadyJoined.set(true);
         } else {
-          this.error.set(err.error?.error || this.translate.instant('errors.checkoutCreate'));
+          this.error.set(this.translate.instant(err.error?.error || 'errors.checkoutCreate'));
         }
         this.joining.set(false);
       }
@@ -219,7 +219,7 @@ export class JoinGroupLessonComponent implements OnInit {
           }, 2000);
         },
         error: (err) => {
-          this.error.set(err.error?.error || this.translate.instant('errors.paymentConfirm'));
+          this.error.set(this.translate.instant(err.error?.error || 'errors.paymentConfirm'));
           this.joining.set(false);
         }
       });

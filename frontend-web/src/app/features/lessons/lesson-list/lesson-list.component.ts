@@ -377,7 +377,7 @@ export class LessonListComponent implements OnInit, OnDestroy {
           }
         },
         error: (err: any) => {
-          this.toastService.error(err.error?.error || this.translate.instant('errors.cancellation'));
+          this.toastService.error(this.translate.instant(err.error?.error || 'errors.cancellation'));
         }
       });
     }
@@ -512,7 +512,7 @@ export class LessonListComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.savingComment.set(false);
-        this.toastService.error(err.error?.message || this.translate.instant('errors.save'));
+        this.toastService.error(this.translate.instant(err.error?.message || 'errors.save'));
       }
     });
   }
@@ -570,7 +570,7 @@ export class LessonListComponent implements OnInit, OnDestroy {
     }).catch((err) => {
       console.error('Impossible d\'obtenir le token Jitsi apres plusieurs tentatives:', err);
       this.toastService.error(
-        'Impossible de rejoindre l\'appel video. Verifiez votre connexion et reessayez.',
+        this.translate.instant('errors.jitsiToken'),
         10000,
         undefined
       );
@@ -716,7 +716,7 @@ export class LessonListComponent implements OnInit, OnDestroy {
     const studentName = validation?.studentName || 'le joueur';
 
     // Show toast warning
-    this.toastService.warning(`N'oubliez pas de valider les cours de ${studentName}`);
+    this.toastService.warning(this.translate.instant('lessons.remindValidation', { name: studentName }));
 
     // Create backend notification for later reminder
     this.http.post('/api/notifications/pending-validation', { studentId }).subscribe({
@@ -784,7 +784,7 @@ export class LessonListComponent implements OnInit, OnDestroy {
           this.toastService.success(this.translate.instant('success.lessonDeleted'));
         },
         error: (err: any) => {
-          this.toastService.error(err.error?.error || this.translate.instant('errors.delete'));
+          this.toastService.error(this.translate.instant(err.error?.error || 'errors.delete'));
         }
       });
     }
@@ -886,7 +886,7 @@ export class LessonListComponent implements OnInit, OnDestroy {
       },
       error: (err: any) => {
         this.resolvingDeadline.set(false);
-        this.toastService.error(err.error?.error || 'Erreur');
+        this.toastService.error(this.translate.instant(err.error?.error || 'errors.generic'));
       }
     });
   }
@@ -912,7 +912,7 @@ export class LessonListComponent implements OnInit, OnDestroy {
           this.walletService.loadBalance().subscribe();
         },
         error: (err: any) => {
-          this.toastService.error(err.error?.error || 'Erreur');
+          this.toastService.error(this.translate.instant(err.error?.error || 'errors.generic'));
         }
       });
     }

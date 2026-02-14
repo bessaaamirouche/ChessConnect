@@ -744,6 +744,7 @@
     },
     "subtitle": "Manage your upcoming and past lessons",
     "emailReminders": "Email reminders",
+    "remindValidation": "Don't forget to validate {{name}}'s lessons",
     "coursesToValidate": "Courses to validate",
     "viewStudents": "View students",
     "progressAndLevels": "Progress and levels",
@@ -796,7 +797,7 @@
     "firstLessonFree": "First Lesson Free!",
     "firstLessonBanner": "Your first lesson is on us. No payment required.",
     "bookFree": "Book Free Lesson",
-    "bookNow": "Book & Pay",
+    "bookNow": "Schedule a lesson",
     "processing": "Processing...",
     "redirecting": "Redirecting to payment...",
     "success": {
@@ -1530,6 +1531,8 @@
       "individual": "Individual Lesson",
       "group": "Group Lesson"
     },
+    "groupSize": "Number of spots",
+    "players": "players",
     "filter": {
       "allDates": "All dates",
       "allTypes": "All types",
@@ -1860,7 +1863,22 @@
     "loadStripe": "Unable to load Stripe",
     "joiningLesson": "Error joining the lesson",
     "loadStripeAccounts": "Error loading Stripe accounts",
-    "cancellation": "Error cancelling"
+    "cancellation": "Error cancelling",
+    "paymentError": "Payment error",
+    "paymentNotCompleted": "Payment was not completed",
+    "paymentVerificationError": "Payment verification error",
+    "userIdNotFound": "User ID not found",
+    "invitationNotFound": "Invitation token not found",
+    "invalidGroupSession": "Invalid session for group lesson",
+    "invalidSessionData": "Invalid session - missing data",
+    "invalidPlan": "Invalid subscription plan",
+    "teacherNotAvailable": "Coach is not available at this time",
+    "cannotCancelStarted": "Cannot cancel a lesson that has already started",
+    "timeConflict": "You already have a lesson at this time. Cancel it first to book this slot.",
+    "availabilityOverlap": "You already have availability at this time. Modify the schedule or delete the existing one.",
+    "groupSizeInvalid": "Group size must be 2 or 3",
+    "cannotCancelDuringLesson": "Cannot cancel during the lesson",
+    "onlyCoachCanCancelGroup": "Only the coach can cancel a group lesson"
   },
   "videoPlayer": {
     "download": "Download",
@@ -2092,7 +2110,11 @@
     "startCourseSet": "Starting course set: {{title}}",
     "backToCourse": "Back to course: {{title}}",
     "withdrawalDone": "Withdrawal of {{amount}} completed!",
-    "userDeleted": "User deleted successfully."
+    "userDeleted": "User deleted successfully.",
+    "lessonBooked": "Lesson booked successfully",
+    "subscriptionActivated": "Premium subscription activated successfully",
+    "creditAdded": "Credit added successfully",
+    "freeTrialActivated": "14-day free trial activated!"
   },
   "breadcrumbs": {
     "coaches": "Coaches"

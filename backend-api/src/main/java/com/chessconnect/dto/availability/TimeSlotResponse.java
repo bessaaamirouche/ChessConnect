@@ -18,6 +18,13 @@ public class TimeSlotResponse {
     private String dayOfWeekLabel;
     private String lessonType;
 
+    // Group enrichment fields
+    private Integer maxParticipants;
+    private Long groupLessonId;
+    private Integer currentParticipants;
+    private String invitationToken;
+    private Integer pricePerPersonCents;
+
     public static TimeSlotResponse create(LocalDate date, LocalTime startTime, LocalTime endTime, boolean isAvailable, String lessonType) {
         return TimeSlotResponse.builder()
                 .date(date)
@@ -27,6 +34,25 @@ public class TimeSlotResponse {
                 .isAvailable(isAvailable)
                 .dayOfWeekLabel(getDayLabel(date.getDayOfWeek()))
                 .lessonType(lessonType)
+                .build();
+    }
+
+    public static TimeSlotResponse createGroupSlot(LocalDate date, LocalTime startTime, LocalTime endTime,
+            boolean isAvailable, Integer maxParticipants, Long groupLessonId,
+            Integer currentParticipants, String invitationToken, Integer pricePerPersonCents) {
+        return TimeSlotResponse.builder()
+                .date(date)
+                .startTime(startTime)
+                .endTime(endTime)
+                .dateTime(LocalDateTime.of(date, startTime))
+                .isAvailable(isAvailable)
+                .dayOfWeekLabel(getDayLabel(date.getDayOfWeek()))
+                .lessonType("GROUP")
+                .maxParticipants(maxParticipants)
+                .groupLessonId(groupLessonId)
+                .currentParticipants(currentParticipants)
+                .invitationToken(invitationToken)
+                .pricePerPersonCents(pricePerPersonCents)
                 .build();
     }
 

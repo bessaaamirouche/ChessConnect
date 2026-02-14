@@ -106,22 +106,26 @@ export class BookLessonComponent implements OnInit {
 
   // Group lesson
   isGroupMode = signal(false);
-  groupSize = signal<2 | 3>(2);
   groupCreatedToken = signal<string | null>(null);
   groupStripeCheckout = signal(false);
   linkCopied = signal(false);
 
-  // Group price calculation (matches backend GroupPricingCalculator)
+  // Group price from selected slot (set by backend via availability maxParticipants)
   groupPricePerPerson = computed(() => {
+    const slot = this.selectedSlot();
+    if (slot?.pricePerPersonCents) return slot.pricePerPersonCents;
+    // Fallback: calculate from teacher rate if slot doesn't have it
     const teacher = this.teacherService.selectedTeacher();
     if (!teacher?.hourlyRateCents) return 0;
-    const size = this.groupSize();
-    const rate = size === 2 ? 0.60 : 0.45;
+    const maxP = slot?.maxParticipants || 2;
+    const rate = maxP === 2 ? 0.60 : 0.45;
     return Math.round(teacher.hourlyRateCents * rate);
   });
 
   groupSavingsPercent = computed(() => {
-    return this.groupSize() === 2 ? 40 : 55;
+    const slot = this.selectedSlot();
+    if (!slot?.maxParticipants) return 40;
+    return slot.maxParticipants === 2 ? 40 : 55;
   });
 
   // Effective price (private or group)
@@ -350,22 +354,12 @@ export class BookLessonComponent implements OnInit {
     this.isGroupMode.set(value);
     this.groupCreatedToken.set(null);
     this.selectedSlot.set(null);
-    // Auto-enable wallet if sufficient balance
-    if (value) {
-      this.payWithCreditSignal.set(this.canPayGroupWithCredit());
-    }
+    // Reset wallet toggle — will be re-evaluated once a slot is selected
+    this.payWithCreditSignal.set(false);
     // Reload slots filtered by lesson type
     const teacher = this.teacherService.selectedTeacher();
     if (teacher) {
       this.loadAvailableSlots(teacher.id);
-    }
-  }
-
-  setGroupSize(size: 2 | 3): void {
-    this.groupSize.set(size);
-    // Re-check wallet toggle when group size changes
-    if (this.isGroupMode()) {
-      this.payWithCreditSignal.set(this.canPayGroupWithCredit());
     }
   }
 
@@ -412,13 +406,13 @@ export class BookLessonComponent implements OnInit {
 
   onSubmit(): void {
     const slot = this.selectedSlot();
-    const currentCourse = this.programmeService.currentCourse();
-    if (!slot || !currentCourse || !this.teacherService.selectedTeacher()) return;
+    if (!slot || !this.teacherService.selectedTeacher()) return;
 
     const teacher = this.teacherService.selectedTeacher()!;
     const scheduledAt = slot.dateTime;
     const { notes } = this.bookingForm.value;
-    const courseId = currentCourse.id;
+    const currentCourse = this.programmeService.currentCourse();
+    const courseId = currentCourse?.id;
 
     this.loading.set(true);
 
@@ -491,7 +485,7 @@ export class BookLessonComponent implements OnInit {
     });
   }
 
-  private async handleGroupSubmit(teacher: any, scheduledAt: string, notes: string, courseId: number): Promise<void> {
+  private async handleGroupSubmit(teacher: any, scheduledAt: string, notes: string, courseId: number | undefined): Promise<void> {
     const priceFormatted = this.formatPrice(this.groupPricePerPerson());
     const useWallet = this.payWithCreditSignal() && this.canPayGroupWithCredit();
     const confirmMessage = useWallet
@@ -509,24 +503,33 @@ export class BookLessonComponent implements OnInit {
       return;
     }
 
+    const slot = this.selectedSlot();
     const request = {
       teacherId: teacher.id,
       scheduledAt,
       durationMinutes: 60,
       notes: notes || '',
-      targetGroupSize: this.groupSize(),
       courseId
-    };
+    } as any;
 
     // Wallet flow
     if (useWallet) {
       this.groupLessonService.createGroupLesson(request).subscribe({
         next: (response: any) => {
           if (response.success) {
-            this.groupCreatedToken.set(response.invitationToken);
-            this.success.set(true);
-            this.loading.set(false);
-            this.walletService.loadBalance().subscribe();
+            if (response.joined) {
+              // Auto-joined an existing group — redirect to lessons
+              this.success.set(true);
+              this.loading.set(false);
+              this.walletService.loadBalance().subscribe();
+              setTimeout(() => this.router.navigate(['/lessons']), 2000);
+            } else {
+              // Created a new group — show invitation link
+              this.groupCreatedToken.set(response.invitationToken);
+              this.success.set(true);
+              this.loading.set(false);
+              this.walletService.loadBalance().subscribe();
+            }
           } else {
             this.loading.set(false);
           }
@@ -567,13 +570,20 @@ export class BookLessonComponent implements OnInit {
     this.closeCheckout();
 
     if (sessionId && this.groupStripeCheckout()) {
-      // Group create: confirm payment and show success with invitation link
+      // Group create or join: confirm payment
       this.groupStripeCheckout.set(false);
       this.groupLessonService.confirmCreatePayment(sessionId).subscribe({
         next: (response: any) => {
           if (response.success) {
-            this.groupCreatedToken.set(response.invitationToken);
-            this.success.set(true);
+            if (response.joined) {
+              // Auto-joined existing group — redirect to lessons
+              this.success.set(true);
+              setTimeout(() => this.router.navigate(['/lessons']), 2000);
+            } else {
+              // Created new group — show invitation link
+              this.groupCreatedToken.set(response.invitationToken);
+              this.success.set(true);
+            }
           }
         },
         error: () => {

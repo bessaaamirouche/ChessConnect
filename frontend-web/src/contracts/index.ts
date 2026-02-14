@@ -246,6 +246,7 @@ export interface AvailabilityResponse {
   isActive: boolean;
   durationMinutes: number;
   lessonType: LessonType;
+  maxParticipants?: number;
 }
 
 export interface AvailabilityRequest {
@@ -255,6 +256,7 @@ export interface AvailabilityRequest {
   isRecurring: boolean;
   specificDate?: string;
   lessonType?: LessonType;
+  maxParticipants?: number;
 }
 
 export interface TimeSlotResponse {
@@ -265,6 +267,11 @@ export interface TimeSlotResponse {
   isAvailable: boolean;
   dayOfWeekLabel: string;
   lessonType: LessonType;
+  maxParticipants?: number;
+  groupLessonId?: number;
+  currentParticipants?: number;
+  invitationToken?: string;
+  pricePerPersonCents?: number;
 }
 
 // ============================================================================
@@ -724,7 +731,7 @@ export interface BookGroupLessonRequest {
   scheduledAt: string;
   durationMinutes?: number;
   notes?: string;
-  targetGroupSize: number;
+  targetGroupSize?: number;
   courseId?: number;
 }
 

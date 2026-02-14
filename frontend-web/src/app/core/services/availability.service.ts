@@ -38,7 +38,7 @@ export class AvailabilityService {
       }),
       catchError(error => {
         this.loadingSignal.set(false);
-        const message = error.error?.error || error.error?.message || this.translate.instant('errors.slotCreate');
+        const message = this.translate.instant(error.error?.error || error.error?.message || 'errors.slotCreate');
         this.errorSignal.set(message);
         throw error;
       })

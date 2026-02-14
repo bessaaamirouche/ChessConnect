@@ -125,7 +125,9 @@
             <div class="play-overlay">
               <ng-icon name="heroPlaySolid" class="play-icon"></ng-icon>
             </div>
-            <div class="duration-badge">{{ formatDuration(getVideoDuration(video)) }}</div>
+            @if (getVideoDuration(video) !== null) {
+              <div class="duration-badge">{{ formatDuration(getVideoDuration(video)!) }}</div>
+            }
             <button
               class="delete-btn"
               (click)="deleteVideo(video, $event)"
@@ -170,16 +172,12 @@
 
 <!-- Video Player Modal -->
 @if (selectedVideo()) {
-  <div class="video-modal-overlay" (click)="closePlayer()">
-    <div class="video-modal" (click)="$event.stopPropagation()">
-      <app-video-player
-        [url]="selectedVideo()!.recordingUrl"
-        [videoId]="selectedVideo()!.lessonId"
-        [title]="selectedVideo()!.courseTitle || 'Cours avec ' + selectedVideo()!.teacherName"
-        [teacherName]="selectedVideo()!.teacherName"
-        [lessonDate]="formatDate(selectedVideo()!.scheduledAt)"
-        (close)="closePlayer()"
-      ></app-video-player>
-    </div>
-  </div>
+  <app-video-player
+    [url]="selectedVideo()!.recordingUrl"
+    [videoId]="selectedVideo()!.lessonId"
+    [title]="selectedVideo()!.courseTitle || 'Cours avec ' + selectedVideo()!.teacherName"
+    [teacherName]="selectedVideo()!.teacherName"
+    [lessonDate]="formatDate(selectedVideo()!.scheduledAt)"
+    (close)="closePlayer()"
+  ></app-video-player>
 }

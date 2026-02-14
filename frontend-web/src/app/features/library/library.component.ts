@@ -181,8 +181,8 @@ export class LibraryComponent implements OnInit {
     }
   }
 
-  getVideoDuration(video: Video): number {
-    return this.videoDurations()[video.id] ?? video.durationSeconds;
+  getVideoDuration(video: Video): number | null {
+    return this.videoDurations()[video.id] ?? null;
   }
 
   private probeVideoDurations(videos: Video[]): void {

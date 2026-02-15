@@ -48,6 +48,8 @@ x-jibri-env: &jibri-env
   JIBRI_RECORDING_VIDEO_ENCODE_PRESET_RECORDING: fast
   JIBRI_RECORDING_FRAMERATE: '25'
   JIBRI_USAGE_TIMEOUT: '0'
+  JIBRI_WEBHOOK_SECRET: ${JIBRI_WEBHOOK_SECRET:-}
+  BACKEND_WEBHOOK_URL: https://mychess.fr/api/recordings/webhook
 
 services:
   # ============================================================
@@ -66,6 +68,8 @@ services:
       <<: *jibri-env
       JIBRI_INSTANCE_ID: jibri-1
       DISPLAY: ':0'
+      JIBRI_HTTP_API_EXTERNAL_PORT: '2222'
+      JIBRI_HTTP_API_INTERNAL_PORT: '3333'
 
   jibri-2:
     <<: *jibri-defaults
@@ -79,6 +83,8 @@ services:
       <<: *jibri-env
       JIBRI_INSTANCE_ID: jibri-2
       DISPLAY: ':1'
+      JIBRI_HTTP_API_EXTERNAL_PORT: '2223'
+      JIBRI_HTTP_API_INTERNAL_PORT: '3334'
 
   jibri-3:
     <<: *jibri-defaults
@@ -92,6 +98,8 @@ services:
       <<: *jibri-env
       JIBRI_INSTANCE_ID: jibri-3
       DISPLAY: ':2'
+      JIBRI_HTTP_API_EXTERNAL_PORT: '2224'
+      JIBRI_HTTP_API_INTERNAL_PORT: '3335'
 
   jibri-4:
     <<: *jibri-defaults
@@ -105,6 +113,8 @@ services:
       <<: *jibri-env
       JIBRI_INSTANCE_ID: jibri-4
       DISPLAY: ':3'
+      JIBRI_HTTP_API_EXTERNAL_PORT: '2225'
+      JIBRI_HTTP_API_INTERNAL_PORT: '3336'
 
   # ============================================================
   # SERVER 2 - Remote instances (164.68.125.196 / vmi3059346)
@@ -127,6 +137,8 @@ services:
       JIBRI_INSTANCE_ID: jibri-5
       DISPLAY: ':0'
       MAIN_SERVER_IP: 5.189.173.131
+      JIBRI_HTTP_API_EXTERNAL_PORT: '2222'
+      JIBRI_HTTP_API_INTERNAL_PORT: '3333'
 
   jibri-6:
     <<: *jibri-defaults
@@ -144,6 +156,8 @@ services:
       JIBRI_INSTANCE_ID: jibri-6
       DISPLAY: ':1'
       MAIN_SERVER_IP: 5.189.173.131
+      JIBRI_HTTP_API_EXTERNAL_PORT: '2223'
+      JIBRI_HTTP_API_INTERNAL_PORT: '3334'
 
   jibri-7:
     <<: *jibri-defaults
@@ -161,6 +175,8 @@ services:
       JIBRI_INSTANCE_ID: jibri-7
       DISPLAY: ':2'
       MAIN_SERVER_IP: 5.189.173.131
+      JIBRI_HTTP_API_EXTERNAL_PORT: '2224'
+      JIBRI_HTTP_API_INTERNAL_PORT: '3335'
 
   jibri-8:
     <<: *jibri-defaults
@@ -178,6 +194,8 @@ services:
       JIBRI_INSTANCE_ID: jibri-8
       DISPLAY: ':3'
       MAIN_SERVER_IP: 5.189.173.131
+      JIBRI_HTTP_API_EXTERNAL_PORT: '2225'
+      JIBRI_HTTP_API_INTERNAL_PORT: '3336'
 
   jibri-9:
     <<: *jibri-defaults
@@ -195,3 +213,5 @@ services:
       JIBRI_INSTANCE_ID: jibri-9
       DISPLAY: ':4'
       MAIN_SERVER_IP: 5.189.173.131
+      JIBRI_HTTP_API_EXTERNAL_PORT: '2226'
+      JIBRI_HTTP_API_INTERNAL_PORT: '3337'

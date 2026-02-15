@@ -166,19 +166,20 @@ function getUserIdByEmail(email: string): number | null {
 }
 
 /**
- * Apres confirmation, met a jour scheduled_at a NOW()+5min et s'assure que zoom_link est set.
- * Cela rend le bouton "Rejoindre" visible immediatement (canJoinLesson: now >= scheduledAt - 15min).
- * On attendra ensuite ~3min pour que le cours demarre reellement.
+ * Apres confirmation, met a jour scheduled_at a NOW()+2min et s'assure que zoom_link est set.
+ * Le bouton "Rejoindre" apparait quand now >= scheduledAt (canJoinLesson).
+ * On attendra ensuite 3min, donc le cours aura demarre depuis 1min quand les users rejoignent.
  *
  * IMPORTANT: La JVM Spring Boot est en CET (Europe/Paris) et utilise LocalDateTime.now(),
  * mais PostgreSQL NOW() retourne UTC. On utilise NOW() AT TIME ZONE 'Europe/Paris'
  * pour stocker un timestamp que Java interpretera correctement.
  */
 function makeAllStressLessonsJoinable(): void {
-  // Update scheduled_at to 5 minutes from now IN THE JVM TIMEZONE (CET)
+  // Update scheduled_at to 2 minutes from now IN THE JVM TIMEZONE (CET)
   // DB stores "timestamp without time zone", Java reads it as CET via LocalDateTime
+  // After the 3-minute wait in Phase 5c, lessons will have started 1 minute ago
   const updated = runSQL(`
-    UPDATE lessons SET scheduled_at = (NOW() AT TIME ZONE 'Europe/Paris') + INTERVAL '5 minutes'
+    UPDATE lessons SET scheduled_at = (NOW() AT TIME ZONE 'Europe/Paris') + INTERVAL '2 minutes'
     WHERE id IN (
       SELECT l.id FROM lessons l
       JOIN users u ON (l.student_id = u.id OR l.teacher_id = u.id)
@@ -186,7 +187,7 @@ function makeAllStressLessonsJoinable(): void {
       AND l.status = 'CONFIRMED'
     )
   `);
-  log('DB', `scheduled_at mis a CET NOW()+5min pour les cours stress test`);
+  log('DB', `scheduled_at mis a CET NOW()+2min pour les cours stress test`);
 
   // Ensure zoom_link is set (should be auto-set on confirm, but just in case)
   runSQL(`
@@ -895,11 +896,11 @@ test('Stress test: 20 utilisateurs — 10 cours individuels paralleles avec enre
     }
   }
 
-  // Wait ~3 minutes so the lessons are about to start when users join
-  // (scheduled_at = NOW()+5min, we already spent ~2min on phases above)
+  // Wait 3 minutes so the lessons have started when users join
+  // (scheduled_at = NOW()+2min, so after 3min wait the lessons started 1min ago)
   const WAIT_BEFORE_JOIN_MS = 3 * 60_000; // 3 minutes
   console.log(`\n[PHASE 5c] Attente de ${WAIT_BEFORE_JOIN_MS / 60_000} minutes avant de rejoindre les appels...`);
-  console.log('  (Les cours demarrent dans ~2 minutes)');
+  console.log('  (Les cours demarrent dans ~2 minutes, on attend 3min pour avoir 1min de marge)');
   const waitStart = Date.now();
   while (Date.now() - waitStart < WAIT_BEFORE_JOIN_MS) {
     const remaining = Math.ceil((WAIT_BEFORE_JOIN_MS - (Date.now() - waitStart)) / 1000);

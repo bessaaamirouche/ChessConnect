@@ -1,20 +1,33 @@
-# Jibri Pool - 3 instances for parallel recording
-# Server: 11.7 GB RAM / 6 CPU cores AMD EPYC
-# Each instance: ~2.5 GB RAM (2 GB shm + Chrome/FFmpeg overhead) + ~1.5 CPU cores
-# Reserved for OS + app containers: ~4 GB RAM / ~1.5 cores
-# Max capacity: 3 concurrent recorded lessons
+# Jibri Pool - Unified configuration for both servers
+# ============================================================
+# Server 1 (meet.mychess.fr / 5.189.173.131): 4 instances
+#   - 11.7 GB RAM / 6 CPU cores AMD EPYC
+#   - Each instance: ~2.5 GB RAM (2 GB shm + Chrome/FFmpeg) + ~1.5 CPU cores
+#   - Reserved for OS + app containers: ~2 GB RAM / ~0.5 cores
+#   - Max capacity: 4 concurrent recorded lessons
+#
+# Server 2 (164.68.125.196 / vmi3059346): 5 instances
+#   - 23 GB RAM / 8 CPU cores AMD EPYC
+#   - ArabicConnect uses ~800 MB RAM / ~1 core
+#   - Each instance: ~2.5 GB RAM + ~1.5 CPU cores
+#   - Max capacity: 5 concurrent recorded lessons
+#
+# Usage:
+#   Server 1: docker compose --profile server1 up -d
+#   Server 2: docker compose --profile server2 up -d
+#   Status:   docker compose --profile server1 ps   (or server2)
+#   Stop:     docker compose --profile server1 down  (or server2)
+# ============================================================
 
+# --- Shared defaults for ALL instances ---
 x-jibri-defaults: &jibri-defaults
-  image: jitsi/jibri:stable
   restart: unless-stopped
-  volumes:
-    - /var/jibri/recordings:/config/recordings
-    - ./finalize.sh:/config/finalize.sh:ro
   cap_add:
     - SYS_ADMIN
   shm_size: '2gb'
   network_mode: host
 
+# --- Shared env for ALL instances ---
 x-jibri-env: &jibri-env
   XMPP_AUTH_DOMAIN: auth.meet.mychess.fr
   XMPP_INTERNAL_MUC_DOMAIN: internal.auth.meet.mychess.fr
@@ -37,9 +50,18 @@ x-jibri-env: &jibri-env
   JIBRI_USAGE_TIMEOUT: '0'
 
 services:
+  # ============================================================
+  # SERVER 1 - Local instances (meet.mychess.fr / 5.189.173.131)
+  # Uses finalize.sh (direct webhook call, no SCP needed)
+  # ============================================================
   jibri-1:
     <<: *jibri-defaults
+    image: jitsi/jibri:stable
     container_name: jibri-1
+    profiles: ["server1"]
+    volumes:
+      - /var/jibri/recordings:/config/recordings
+      - ./finalize.sh:/config/finalize.sh:ro
     environment:
       <<: *jibri-env
       JIBRI_INSTANCE_ID: jibri-1
@@ -47,7 +69,12 @@ services:
 
   jibri-2:
     <<: *jibri-defaults
+    image: jitsi/jibri:stable
     container_name: jibri-2
+    profiles: ["server1"]
+    volumes:
+      - /var/jibri/recordings:/config/recordings
+      - ./finalize.sh:/config/finalize.sh:ro
     environment:
       <<: *jibri-env
       JIBRI_INSTANCE_ID: jibri-2
@@ -55,8 +82,116 @@ services:
 
   jibri-3:
     <<: *jibri-defaults
+    image: jitsi/jibri:stable
     container_name: jibri-3
+    profiles: ["server1"]
+    volumes:
+      - /var/jibri/recordings:/config/recordings
+      - ./finalize.sh:/config/finalize.sh:ro
     environment:
       <<: *jibri-env
       JIBRI_INSTANCE_ID: jibri-3
       DISPLAY: ':2'
+
+  jibri-4:
+    <<: *jibri-defaults
+    image: jitsi/jibri:stable
+    container_name: jibri-4
+    profiles: ["server1"]
+    volumes:
+      - /var/jibri/recordings:/config/recordings
+      - ./finalize.sh:/config/finalize.sh:ro
+    environment:
+      <<: *jibri-env
+      JIBRI_INSTANCE_ID: jibri-4
+      DISPLAY: ':3'
+
+  # ============================================================
+  # SERVER 2 - Remote instances (164.68.125.196 / vmi3059346)
+  # Uses finalize-remote.sh (SCP to main server + webhook)
+  # Requires Dockerfile.remote (adds openssh-client for SCP)
+  # ============================================================
+  jibri-5:
+    <<: *jibri-defaults
+    build:
+      context: .
+      dockerfile: Dockerfile.remote
+    container_name: jibri-5
+    profiles: ["server2"]
+    volumes:
+      - /var/jibri/recordings:/config/recordings
+      - ./finalize-remote.sh:/config/finalize.sh:ro
+      - /root/.ssh:/root/.ssh:ro
+    environment:
+      <<: *jibri-env
+      JIBRI_INSTANCE_ID: jibri-5
+      DISPLAY: ':0'
+      MAIN_SERVER_IP: 5.189.173.131
+
+  jibri-6:
+    <<: *jibri-defaults
+    build:
+      context: .
+      dockerfile: Dockerfile.remote
+    container_name: jibri-6
+    profiles: ["server2"]
+    volumes:
+      - /var/jibri/recordings:/config/recordings
+      - ./finalize-remote.sh:/config/finalize.sh:ro
+      - /root/.ssh:/root/.ssh:ro
+    environment:
+      <<: *jibri-env
+      JIBRI_INSTANCE_ID: jibri-6
+      DISPLAY: ':1'
+      MAIN_SERVER_IP: 5.189.173.131
+
+  jibri-7:
+    <<: *jibri-defaults
+    build:
+      context: .
+      dockerfile: Dockerfile.remote
+    container_name: jibri-7
+    profiles: ["server2"]
+    volumes:
+      - /var/jibri/recordings:/config/recordings
+      - ./finalize-remote.sh:/config/finalize.sh:ro
+      - /root/.ssh:/root/.ssh:ro
+    environment:
+      <<: *jibri-env
+      JIBRI_INSTANCE_ID: jibri-7
+      DISPLAY: ':2'
+      MAIN_SERVER_IP: 5.189.173.131
+
+  jibri-8:
+    <<: *jibri-defaults
+    build:
+      context: .
+      dockerfile: Dockerfile.remote
+    container_name: jibri-8
+    profiles: ["server2"]
+    volumes:
+      - /var/jibri/recordings:/config/recordings
+      - ./finalize-remote.sh:/config/finalize.sh:ro
+      - /root/.ssh:/root/.ssh:ro
+    environment:
+      <<: *jibri-env
+      JIBRI_INSTANCE_ID: jibri-8
+      DISPLAY: ':3'
+      MAIN_SERVER_IP: 5.189.173.131
+
+  jibri-9:
+    <<: *jibri-defaults
+    build:
+      context: .
+      dockerfile: Dockerfile.remote
+    container_name: jibri-9
+    profiles: ["server2"]
+    volumes:
+      - /var/jibri/recordings:/config/recordings
+      - ./finalize-remote.sh:/config/finalize.sh:ro
+      - /root/.ssh:/root/.ssh:ro
+    environment:
+      <<: *jibri-env
+      JIBRI_INSTANCE_ID: jibri-9
+      DISPLAY: ':4'
+      MAIN_SERVER_IP: 5.189.173.131

@@ -224,9 +224,18 @@ Server-Sent Events pour les notifications en temps reel quand l'app est ouverte.
 **Backend :**
 - `SseConnectionManager.java` - Gestion des connexions SSE actives
 - `UserNotificationService.java` - Orchestration des notifications
+- `SseController.java` - Endpoints `/notifications/stream` et `/notifications/stats`
+
+**Securite et fiabilite (ameliore 2026-02-15) :**
+- Multi-onglets : jusqu'a 3 connexions SSE simultanees par utilisateur
+- Limite globale : 1000 connexions max (prevention DoS)
+- Heartbeat nomme toutes les 20s avec timestamp (detection connexions mortes)
+- Nettoyage automatique des connexions inactives
+- Endpoint `/notifications/stats` pour monitoring
 
 **Frontend :**
-- `NotificationService` - Client SSE avec reconnexion automatique
+- `NotificationService` / `SseService` - Client SSE avec reconnexion automatique
+- Detection des connexions stale via timeout heartbeat
 
 **Logique intelligente :** Si l'utilisateur est connecte via SSE, les notifications push ne sont pas envoyees (evite les doublons).
 
@@ -353,7 +362,7 @@ Module d'exercice contre myChessBot accessible depuis l'historique des cours :
 │   │   ├── /security         # JWT, RateLimiting
 │   │   └── /service          # 36 Services metier
 │   ├── /src/main/resources
-│   │   └── /db/migration     # Migrations Flyway (V0-V28)
+│   │   └── /db/migration     # Migrations Flyway (V0-V29)
 │   ├── Dockerfile
 │   └── pom.xml
 ├── /frontend-web             # Application Angular 21
@@ -445,6 +454,7 @@ Module d'exercice contre myChessBot accessible depuis l'historique des cours :
 | PATCH   | `/{id}/read`    | Marquer comme lue                 | JWT     |
 | PATCH   | `/read-all`     | Tout marquer comme lu             | JWT     |
 | DELETE  | `/{id}`         | Supprimer une notification        | JWT     |
+| GET     | `/stats`        | Statistiques connexions SSE       | JWT     |
 
 ### Bibliotheque Video (`/api/library`)
 | Methode | Endpoint              | Description                     | Auth    |
@@ -780,6 +790,7 @@ ADMIN_EMAIL=support@mychess.fr
 | V26 | Sequence numerotation factures |
 | V27 | Codes promo et parrainage |
 | V28 | Max participants par disponibilite |
+| V29 | Index de performance (lessons, invoices, payments, users, availabilities) |
 
 ## Stack Technique
 
@@ -828,6 +839,7 @@ ADMIN_EMAIL=support@mychess.fr
 - **Batch Queries** : Evite le N+1
 - **HikariCP** : Pool 5-20 connexions
 - **Pagination** : Endpoints admin pagines (Spring Pageable)
+- **Index V29** : Index composites sur lessons(status, scheduled_at), teacher/student lookups, invoices, payments, users(role), availabilities
 
 ### Frontend
 - **OnPush Strategy** : Change Detection optimisee
@@ -883,6 +895,9 @@ docker compose down -v
 
 | Hash | Description |
 |------|-------------|
+| 89c769a | Fix stress test video timing: scheduled_at NOW()+5min to NOW()+2min |
+| 11236ef | Improve FFmpeg video quality and comprehensive CLAUDE.md audit update |
+| 05c89d2 | Improve SSE reliability, video quality, and DB performance (V29 indexes) |
 | 78ea54e | Redesign group lessons: coach defines group size, fix library/recording/wallet for groups |
 | fbb614f | Fix library video player: hide wrong duration badge, remove double modal, fill video width |
 | 4e00ec9 | Add promo codes, availability lesson types, auto-hangup video calls, call timer, video duration fix |

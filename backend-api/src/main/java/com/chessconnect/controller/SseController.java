@@ -45,18 +45,28 @@ public class SseController {
 
         SseEmitter emitter = connectionManager.createEmitter(userId);
 
-        // Send initial connection event
-        try {
-            emitter.send(SseEmitter.event()
-                    .name("connected")
-                    .data(Map.of(
-                            "status", "connected",
-                            "userId", userId
-                    )));
-        } catch (IOException e) {
-            log.error("Failed to send initial SSE event to user {}", userId);
+        // Handle connection limit exceeded
+        if (emitter == null) {
+            log.warn("SSE connection rejected for user {} - limits exceeded", userId);
+            SseEmitter errorEmitter = new SseEmitter(0L);
+            try {
+                errorEmitter.send(SseEmitter.event()
+                        .name("error")
+                        .data(Map.of("error", "connection_limit_exceeded")));
+                errorEmitter.complete();
+            } catch (IOException ignored) {}
+            return errorEmitter;
         }
 
+        // Initial connected event is sent by the connection manager
         return emitter;
+    }
+
+    /**
+     * Get SSE connection statistics (for monitoring).
+     */
+    @GetMapping("/stats")
+    public Map<String, Object> getStats() {
+        return connectionManager.getStats();
     }
 }

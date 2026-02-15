@@ -69,9 +69,13 @@ export class SseService {
   private readonly INITIAL_RECONNECT_DELAY = 3000; // 3 seconds
   private readonly MAX_RECONNECT_DELAY = 60000; // 60 seconds
   private readonly HIDDEN_DISCONNECT_DELAY = 30000; // 30s grace before disconnect when tab hidden
+  private readonly HEARTBEAT_TIMEOUT = 45000; // Consider connection dead if no heartbeat in 45s
 
   private isConnected = signal(false);
   private isConnecting = signal(false);
+  private lastHeartbeat = signal<number>(0);
+
+  private heartbeatCheckInterval: ReturnType<typeof setInterval> | null = null;
 
   readonly connected = this.isConnected.asReadonly();
   readonly connecting = this.isConnecting.asReadonly();
@@ -179,8 +183,47 @@ export class SseService {
     // Connected event (initial handshake)
     this.eventSource.addEventListener('connected', (event) => {
       this.ngZone.run(() => {
-        const data = JSON.parse((event as MessageEvent).data);
-        console.log('[SSE] Connected:', data);
+        try {
+          const data = JSON.parse((event as MessageEvent).data);
+          console.log('[SSE] Connected:', data);
+          this.lastHeartbeat.set(Date.now());
+          this.startHeartbeatCheck();
+        } catch (e) {
+          console.warn('[SSE] Failed to parse connected event');
+        }
+      });
+    });
+
+    // Heartbeat event (server sends every 20s)
+    this.eventSource.addEventListener('heartbeat', (event) => {
+      this.ngZone.run(() => {
+        this.lastHeartbeat.set(Date.now());
+      });
+    });
+
+    // Connection replaced by new tab
+    this.eventSource.addEventListener('replaced', (event) => {
+      this.ngZone.run(() => {
+        console.log('[SSE] Connection replaced by another tab');
+        this.intentionalDisconnect = true;
+        this.cleanupConnection();
+      });
+    });
+
+    // Error from server (e.g., connection limit)
+    this.eventSource.addEventListener('error', (event) => {
+      this.ngZone.run(() => {
+        try {
+          const data = JSON.parse((event as MessageEvent).data);
+          console.warn('[SSE] Server error:', data);
+          if (data.error === 'connection_limit_exceeded') {
+            // Don't reconnect if limit exceeded
+            this.intentionalDisconnect = true;
+            this.cleanupConnection();
+          }
+        } catch (e) {
+          // Native error event, handled by onerror
+        }
       });
     });
 
@@ -362,7 +405,33 @@ export class SseService {
     }
   }
 
+  private startHeartbeatCheck(): void {
+    this.stopHeartbeatCheck();
+
+    this.heartbeatCheckInterval = setInterval(() => {
+      const lastBeat = this.lastHeartbeat();
+      const elapsed = Date.now() - lastBeat;
+
+      if (lastBeat > 0 && elapsed > this.HEARTBEAT_TIMEOUT) {
+        console.warn(`[SSE] No heartbeat for ${elapsed}ms, connection likely dead`);
+        this.cleanupConnection();
+        if (!this.intentionalDisconnect && !document.hidden) {
+          this.scheduleReconnect();
+        }
+      }
+    }, 15000); // Check every 15s
+  }
+
+  private stopHeartbeatCheck(): void {
+    if (this.heartbeatCheckInterval) {
+      clearInterval(this.heartbeatCheckInterval);
+      this.heartbeatCheckInterval = null;
+    }
+  }
+
   private cleanupConnection(): void {
+    this.stopHeartbeatCheck();
+
     if (this.reconnectTimeout) {
       clearTimeout(this.reconnectTimeout);
       this.reconnectTimeout = null;
@@ -375,6 +444,7 @@ export class SseService {
 
     this.isConnected.set(false);
     this.isConnecting.set(false);
+    this.lastHeartbeat.set(0);
   }
 
   /**

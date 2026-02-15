@@ -227,17 +227,19 @@ public class VideoConcatenationService {
         // Build FFmpeg command
         // Re-encode to fix frozen frames at segment boundaries (keyframe alignment issues)
         // Using libx264/aac ensures clean output even when segments have different parameters
+        // Scale filter centers video and eliminates black bars from resolution mismatches
         ProcessBuilder pb = new ProcessBuilder(
             "ffmpeg",
             "-fflags", "+genpts",           // Regenerate presentation timestamps
             "-f", "concat",
             "-safe", "0",
             "-i", concatListFile.getAbsolutePath(),
+            "-vf", "scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:-1:-1:color=black",
             "-c:v", "libx264",             // Re-encode video to fix keyframe issues
-            "-preset", "fast",              // Balance speed vs quality
-            "-crf", "23",                   // Good quality (lower = better, 18-28 range)
+            "-preset", "medium",            // Better quality, 2x slower than fast
+            "-crf", "20",                   // Good quality (18=excellent, 23=medium, 28=bad)
             "-c:a", "aac",                  // Re-encode audio for compatibility
-            "-b:a", "128k",
+            "-b:a", "192k",                 // Better audio quality
             "-movflags", "+faststart",      // Enable progressive download
             "-y",                           // Overwrite output file
             outputFile.getAbsolutePath()

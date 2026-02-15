@@ -1,9 +1,9 @@
-# Jibri Pool - 4 instances on meet.mychess.fr (5.189.173.131)
+# Jibri Pool - 8 instances on meet.mychess.fr (5.189.173.131)
 # ============================================================
 # Server: 11.7 GB RAM / 6 CPU cores AMD EPYC
-# Each instance: ~2.5 GB RAM (2 GB shm + Chrome/FFmpeg) + ~1.5 CPU cores
-# Reserved for OS + app containers: ~2 GB RAM / ~0.5 cores
-# Max capacity: 4 concurrent recorded lessons
+# Idle: ~180 MB/instance | Recording: ~500 MB-1 GB/instance
+# All instances local = no SCP, no remote complexity
+# Max capacity: 8 concurrent recorded lessons
 #
 # Usage:
 #   Start:    docker compose up -d
@@ -87,3 +87,43 @@ services:
       DISPLAY: ':3'
       JIBRI_HTTP_API_EXTERNAL_PORT: '2225'
       JIBRI_HTTP_API_INTERNAL_PORT: '3336'
+
+  jibri-5:
+    <<: *jibri-defaults
+    container_name: jibri-5
+    environment:
+      <<: *jibri-env
+      JIBRI_INSTANCE_ID: jibri-5
+      DISPLAY: ':4'
+      JIBRI_HTTP_API_EXTERNAL_PORT: '2226'
+      JIBRI_HTTP_API_INTERNAL_PORT: '3337'
+
+  jibri-6:
+    <<: *jibri-defaults
+    container_name: jibri-6
+    environment:
+      <<: *jibri-env
+      JIBRI_INSTANCE_ID: jibri-6
+      DISPLAY: ':5'
+      JIBRI_HTTP_API_EXTERNAL_PORT: '2227'
+      JIBRI_HTTP_API_INTERNAL_PORT: '3338'
+
+  jibri-7:
+    <<: *jibri-defaults
+    container_name: jibri-7
+    environment:
+      <<: *jibri-env
+      JIBRI_INSTANCE_ID: jibri-7
+      DISPLAY: ':6'
+      JIBRI_HTTP_API_EXTERNAL_PORT: '2228'
+      JIBRI_HTTP_API_INTERNAL_PORT: '3339'
+
+  jibri-8:
+    <<: *jibri-defaults
+    container_name: jibri-8
+    environment:
+      <<: *jibri-env
+      JIBRI_INSTANCE_ID: jibri-8
+      DISPLAY: ':7'
+      JIBRI_HTTP_API_EXTERNAL_PORT: '2229'
+      JIBRI_HTTP_API_INTERNAL_PORT: '3340'

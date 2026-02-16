@@ -108,30 +108,15 @@ test.describe('Page d\'accueil', () => {
   });
 
   test('navigation vers /teachers fonctionne', async ({ page, isMobile }) => {
-    // Sur mobile, on navigue directement car le menu hamburger est complexe
-    if (isMobile) {
-      await page.goto('/teachers');
-      await page.waitForLoadState('networkidle');
-      // La page peut afficher les coachs ou rediriger vers login si protégée
-      const isOnTeachers = page.url().includes('teachers');
-      const isOnLogin = page.url().includes('login');
-      expect(isOnTeachers || isOnLogin).toBeTruthy();
-      return;
-    }
+    // Navigate directly to /coaches (public coach listing page)
+    await page.goto('/coaches');
+    await page.waitForLoadState('networkidle');
 
-    const coachLink = page.getByRole('link', { name: /coach|nos coachs|professeur/i }).first();
-    if (await coachLink.isVisible()) {
-      await coachLink.click();
-      await page.waitForLoadState('networkidle');
-    } else {
-      // Navigue directement
-      await page.goto('/teachers');
-      await page.waitForLoadState('networkidle');
-    }
+    const isOnCoaches = page.url().includes('coaches');
+    expect(isOnCoaches).toBeTruthy();
 
-    // La page peut afficher les coachs ou rediriger vers login si protégée
-    const isOnTeachers = page.url().includes('teachers');
-    const isOnLogin = page.url().includes('login');
-    expect(isOnTeachers || isOnLogin).toBeTruthy();
+    // Verify the page has coach content
+    const heading = page.getByRole('heading', { level: 1 });
+    await expect(heading).toBeVisible();
   });
 });

@@ -404,6 +404,21 @@ public class PaymentController {
                 ));
             }
 
+            // Idempotency: if this payment was already processed, return success
+            String paymentIntentId = session.getPaymentIntent();
+            if (paymentIntentId != null) {
+                var existingPayment = paymentRepository.findByStripePaymentIntentId(paymentIntentId);
+                if (existingPayment.isPresent()) {
+                    Payment p = existingPayment.get();
+                    log.info("Payment already processed for paymentIntent {} (lesson {}), returning success", paymentIntentId, p.getLesson().getId());
+                    return ResponseEntity.ok(Map.of(
+                            "success", true,
+                            "lessonId", p.getLesson().getId(),
+                            "message", "success.lessonBooked"
+                    ));
+                }
+            }
+
             // Get metadata from session
             Map<String, String> metadata = session.getMetadata();
             String type = metadata.get("type");
@@ -507,7 +522,6 @@ public class PaymentController {
                     Lesson lesson = lessonRepository.findById(groupResponse.lesson().id()).orElseThrow();
                     int pricePerPerson = com.chessconnect.service.GroupPricingCalculator.calculateParticipantPrice(
                             teacher.getHourlyRateCents(), targetGroupSize);
-                    String paymentIntentId = session.getPaymentIntent();
 
                     Payment payment = new Payment();
                     payment.setPayer(student);
@@ -533,6 +547,11 @@ public class PaymentController {
                             "message", "group_lesson.createSuccess"
                     ));
                 } catch (IllegalArgumentException e) {
+                    String msg = e.getMessage();
+                    if (msg != null && (msg.contains("already a participant") || msg.contains("already full"))) {
+                        log.info("Group create idempotency: user {} already participant, returning success", userId);
+                        return ResponseEntity.ok(Map.of("success", true, "message", "group_lesson.createSuccess"));
+                    }
                     throw e;
                 }
             }
@@ -564,7 +583,6 @@ public class PaymentController {
             User teacher = userRepository.findById(teacherId)
                     .orElseThrow(() -> new RuntimeException("Teacher not found"));
 
-            String paymentIntentId = session.getPaymentIntent();
             int amountCents = session.getAmountTotal() != null ? session.getAmountTotal().intValue() : lesson.getPriceCents();
 
             // Read promo code metadata
@@ -678,9 +696,23 @@ public class PaymentController {
 
     private void handleCheckoutCompleted(Event event) {
         try {
-            Session session = (Session) event.getDataObjectDeserializer()
-                    .getObject()
-                    .orElseThrow(() -> new RuntimeException("Failed to deserialize session"));
+            // Try deserialization, fall back to API retrieval if it fails
+            Session session;
+            var deserializer = event.getDataObjectDeserializer();
+            if (deserializer.getObject().isPresent()) {
+                session = (Session) deserializer.getObject().get();
+            } else {
+                // Deserialization can fail due to Stripe SDK version mismatch — retrieve via API
+                String sessionId = event.getData().getObject().toJson()
+                        .replaceAll(".*\"id\"\\s*:\\s*\"(cs_[^\"]+)\".*", "$1");
+                if (sessionId.startsWith("cs_")) {
+                    log.warn("Webhook deserialization failed, retrieving session {} via API", sessionId);
+                    session = stripeService.retrieveSession(sessionId);
+                } else {
+                    log.error("Failed to deserialize session and could not extract session ID from webhook");
+                    return;
+                }
+            }
 
             String mode = session.getMode();
             Map<String, String> metadata = session.getMetadata();
@@ -705,49 +737,10 @@ public class PaymentController {
                 log.info("Subscription activated for user {} via checkout webhook", userId);
                 // Note: Invoice is generated in confirmSubscriptionPayment endpoint
             } else if ("payment".equals(mode) && "ONE_TIME_LESSON".equals(metadata.get("type"))) {
-                // Handle one-time lesson payment
-                Long studentId = Long.parseLong(metadata.get("user_id"));
-                Long teacherId = Long.parseLong(metadata.get("teacher_id"));
-                LocalDateTime scheduledAt = LocalDateTime.parse(metadata.get("scheduled_at"));
-                int durationMinutes = Integer.parseInt(metadata.get("duration_minutes"));
-                String notes = metadata.get("notes");
-                String courseIdStr = metadata.get("course_id");
-                Long courseId = (courseIdStr != null && !courseIdStr.isEmpty()) ? Long.parseLong(courseIdStr) : null;
-
-                BookLessonRequest bookRequest = new BookLessonRequest(
-                        teacherId,
-                        scheduledAt,
-                        durationMinutes,
-                        notes,
-                        false, // Don't use subscription
-                        courseId
-                );
-
-                // Book the lesson and get the response with lesson ID
-                LessonResponse lessonResponse = lessonService.bookLesson(studentId, bookRequest);
-                log.info("Lesson booked for student {} with teacher {} after payment", studentId, teacherId);
-
-                // Create Payment entity linked to the lesson for refund tracking
-                Lesson lesson = lessonRepository.findById(lessonResponse.id())
-                        .orElseThrow(() -> new RuntimeException("Lesson not found after booking"));
-                User student = userRepository.findById(studentId)
-                        .orElseThrow(() -> new RuntimeException("Student not found"));
-                User teacher = userRepository.findById(teacherId)
-                        .orElseThrow(() -> new RuntimeException("Teacher not found"));
-
-                Payment payment = new Payment();
-                payment.setPayer(student);
-                payment.setTeacher(teacher);
-                payment.setLesson(lesson);
-                payment.setPaymentType(PaymentType.ONE_TIME_LESSON);
-                payment.setAmountCents(lesson.getPriceCents());
-                payment.setStripePaymentIntentId(session.getPaymentIntent());
-                payment.setStatus(PaymentStatus.COMPLETED);
-                payment.setProcessedAt(LocalDateTime.now());
-
-                paymentRepository.save(payment);
-                log.info("Payment {} created and linked to lesson {} for refund tracking",
-                        payment.getId(), lesson.getId());
+                // Lesson booking is handled by the confirm endpoint (called by frontend after Stripe redirect).
+                // Do NOT book here to avoid double-booking race conditions.
+                log.info("checkout.session.completed for ONE_TIME_LESSON user {} — skipping (handled by confirm endpoint)",
+                        metadata.get("user_id"));
             }
         } catch (Exception e) {
             log.error("Error handling checkout.session.completed", e);

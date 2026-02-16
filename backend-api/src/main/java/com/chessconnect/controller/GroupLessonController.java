@@ -423,6 +423,21 @@ public class GroupLessonController {
                 ));
             }
 
+            // Idempotency: if this payment was already processed, return success
+            String paymentIntentId = session.getPaymentIntent();
+            if (paymentIntentId != null) {
+                var existingPayment = paymentRepository.findByStripePaymentIntentId(paymentIntentId);
+                if (existingPayment.isPresent()) {
+                    Payment p = existingPayment.get();
+                    log.info("Group create payment already processed for paymentIntent {} (lesson {}), returning success", paymentIntentId, p.getLesson().getId());
+                    return ResponseEntity.ok(Map.of(
+                            "success", true,
+                            "lessonId", p.getLesson().getId(),
+                            "message", "group_lesson.createSuccess"
+                    ));
+                }
+            }
+
             Map<String, String> metadata = session.getMetadata();
             String userIdStr = metadata.get("user_id");
             if (userIdStr == null) {
@@ -504,7 +519,6 @@ public class GroupLessonController {
 
             int pricePerPerson = GroupPricingCalculator.calculateParticipantPrice(
                     teacher.getHourlyRateCents(), targetGroupSize);
-            String paymentIntentId = session.getPaymentIntent();
 
             Payment payment = new Payment();
             payment.setPayer(student);
@@ -536,6 +550,17 @@ public class GroupLessonController {
             return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(Map.of(
                     "success", false,
                     "error", "errors.paymentVerificationError"
+            ));
+        } catch (IllegalArgumentException e) {
+            String msg = e.getMessage();
+            if (msg != null && (msg.contains("already a participant") || msg.contains("already full"))) {
+                log.info("Group create idempotency: already participant, returning success");
+                return ResponseEntity.ok(Map.of("success", true, "message", "group_lesson.createSuccess"));
+            }
+            log.error("Error confirming group create payment", e);
+            return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "error", e.getMessage()
             ));
         } catch (Exception e) {
             log.error("Error confirming group create payment", e);

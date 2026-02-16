@@ -231,6 +231,14 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
     @Query("SELECT l FROM Lesson l WHERE l.id = :id")
     java.util.Optional<Lesson> findByIdForUpdate(@Param("id") Long id);
 
+    // Video concatenation: find completed lessons with pending segments
+    @Query(value = "SELECT l.* FROM lessons l " +
+           "WHERE l.recording_segments IS NOT NULL AND l.recording_segments <> '' " +
+           "AND l.status = 'COMPLETED' " +
+           "AND l.scheduled_at < :cutoffTime " +
+           "ORDER BY l.scheduled_at ASC", nativeQuery = true)
+    List<Lesson> findLessonsNeedingConcatenation(@Param("cutoffTime") LocalDateTime cutoffTime);
+
     // Admin: Find lessons with messages/notes for review
     @Query("SELECT l FROM Lesson l " +
            "LEFT JOIN FETCH l.student " +

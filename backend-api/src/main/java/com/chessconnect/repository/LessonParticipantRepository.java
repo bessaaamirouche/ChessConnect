@@ -28,7 +28,11 @@ public interface LessonParticipantRepository extends JpaRepository<LessonPartici
     @Query("SELECT lp FROM LessonParticipant lp WHERE lp.lesson.id = :lessonId AND lp.student.id = :studentId AND lp.status = 'ACTIVE'")
     Optional<LessonParticipant> findActiveByLessonIdAndStudentId(@Param("lessonId") Long lessonId, @Param("studentId") Long studentId);
 
-    @Query("SELECT lp.lesson FROM LessonParticipant lp WHERE lp.student.id = :studentId AND lp.status = 'ACTIVE' AND lp.lesson.status IN ('PENDING', 'CONFIRMED') AND lp.lesson.scheduledAt >= :now")
+    @Query(value = "SELECT l.* FROM lessons l JOIN lesson_participants lp ON lp.lesson_id = l.id " +
+           "WHERE lp.student_id = :studentId AND lp.status = 'ACTIVE' " +
+           "AND l.status IN ('PENDING', 'CONFIRMED') " +
+           "AND (l.scheduled_at + (l.duration_minutes * INTERVAL '1 minute')) >= :now " +
+           "ORDER BY l.scheduled_at ASC", nativeQuery = true)
     List<Lesson> findUpcomingGroupLessonsForStudent(@Param("studentId") Long studentId, @Param("now") java.time.LocalDateTime now);
 
     @Query("SELECT lp.lesson FROM LessonParticipant lp WHERE lp.student.id = :studentId AND lp.status = 'ACTIVE' AND lp.lesson.status IN ('COMPLETED', 'CANCELLED')")

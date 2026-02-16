@@ -64,8 +64,10 @@ public class SseConnectionManager {
         if (heartbeatScheduler != null) {
             heartbeatScheduler.shutdown();
         }
-        emitters.values().forEach(emitter -> {
-            try { emitter.complete(); } catch (Exception ignored) {}
+        emitters.values().forEach(emitterList -> {
+            for (SseEmitter emitter : emitterList) {
+                try { emitter.complete(); } catch (Exception ignored) {}
+            }
         });
         emitters.clear();
     }

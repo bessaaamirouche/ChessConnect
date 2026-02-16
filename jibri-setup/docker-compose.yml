@@ -25,11 +25,16 @@ x-jibri-defaults: &jibri-defaults
   network_mode: host
 
 x-jibri-env: &jibri-env
+  XMPP_DOMAIN: meet.mychess.fr
   XMPP_AUTH_DOMAIN: auth.meet.mychess.fr
   XMPP_INTERNAL_MUC_DOMAIN: internal.auth.meet.mychess.fr
+  XMPP_MUC_DOMAIN: conference.meet.mychess.fr
   XMPP_RECORDER_DOMAIN: recorder.meet.mychess.fr
+  XMPP_HIDDEN_DOMAIN: recorder.meet.mychess.fr
   XMPP_SERVER: meet.mychess.fr
   XMPP_PORT: '5222'
+  XMPP_ENV_NAME: mychess
+  PUBLIC_URL: https://meet.mychess.fr
   JIBRI_XMPP_USER: jibri
   JIBRI_XMPP_PASSWORD: ${JIBRI_XMPP_PASSWORD:-CHANGE_ME_SECURE_PASSWORD}
   JIBRI_RECORDER_USER: recorder

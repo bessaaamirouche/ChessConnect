@@ -53,17 +53,17 @@ jwt:
 
 # Zoom API Configuration (Server-to-Server OAuth)
 zoom:
-  account-id: ${ZOOM_ACCOUNT_ID:your-zoom-account-id}
-  client-id: ${ZOOM_CLIENT_ID:your-zoom-client-id}
-  client-secret: ${ZOOM_CLIENT_SECRET:your-zoom-client-secret}
+  account-id: ${ZOOM_ACCOUNT_ID:}
+  client-id: ${ZOOM_CLIENT_ID:}
+  client-secret: ${ZOOM_CLIENT_SECRET:}
   base-url: https://api.zoom.us/v2
   oauth-url: https://zoom.us/oauth/token
 
-# Stripe Configuration (Test mode)
+# Stripe Configuration
 stripe:
-  secret-key: ${STRIPE_SECRET_KEY:sk_test_your_stripe_secret_key}
-  publishable-key: ${STRIPE_PUBLISHABLE_KEY:pk_test_your_stripe_publishable_key}
-  webhook-secret: ${STRIPE_WEBHOOK_SECRET:whsec_your_webhook_secret}
+  secret-key: ${STRIPE_SECRET_KEY:}
+  publishable-key: ${STRIPE_PUBLISHABLE_KEY:}
+  webhook-secret: ${STRIPE_WEBHOOK_SECRET:}
 
 # App Configuration
 app:
@@ -124,7 +124,7 @@ spring.datasource.hikari:
 # Logging
 logging:
   level:
-    com.chessconnect: DEBUG
+    com.chessconnect: INFO
     org.springframework.security: WARN
     com.stripe: WARN
     org.hibernate.SQL: WARN

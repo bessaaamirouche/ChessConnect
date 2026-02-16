@@ -90,6 +90,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.seoService.setHomePage();
     this.structuredDataService.setOrganizationSchema();
     this.structuredDataService.setCourseSchema();
+    this.structuredDataService.setEducationalOrganizationSchema();
   }
 
   ngOnInit(): void {

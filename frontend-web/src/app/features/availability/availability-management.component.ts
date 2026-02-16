@@ -1,7 +1,6 @@
 import { Component, OnInit, inject, ChangeDetectionStrategy, signal, computed, viewChild } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AvailabilityService } from '../../core/services/availability.service';
 import { SeoService } from '../../core/services/seo.service';
@@ -27,7 +26,7 @@ import {
 
 @Component({
     selector: 'app-availability-management',
-    imports: [FormsModule, RouterLink, ConfirmDialogComponent, NgIconComponent, DateInputComponent, TranslateModule],
+    imports: [FormsModule, ConfirmDialogComponent, NgIconComponent, DateInputComponent, TranslateModule],
     changeDetection: ChangeDetectionStrategy.OnPush,
     viewProviders: [provideIcons({
             heroChartBarSquare,

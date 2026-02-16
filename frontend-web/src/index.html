@@ -42,6 +42,9 @@
   <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-touch-icon.png">
   <link rel="manifest" href="manifest.webmanifest">
 
+  <!-- LLM-optimized content -->
+  <link rel="help" type="text/plain" href="https://mychess.fr/llms.txt">
+
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="mychess">
@@ -73,16 +76,26 @@
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "Organization",
+    "@type": ["Organization", "EducationalOrganization"],
     "name": "mychess",
+    "alternateName": "MyChess",
     "url": "https://mychess.fr",
     "logo": "https://mychess.fr/assets/logo.png",
-    "description": "Plateforme de cours d'échecs en ligne avec des coachs certifiés",
+    "image": "https://mychess.fr/assets/og-image.jpg",
+    "description": "Plateforme française de cours d'échecs en ligne avec des coachs certifiés. Progression personnalisée du niveau Pion au niveau Roi. Premier cours gratuit.",
+    "foundingDate": "2024",
+    "areaServed": {
+      "@type": "Country",
+      "name": "France"
+    },
+    "availableLanguage": ["fr", "en"],
+    "knowsAbout": ["Échecs", "Chess", "Cours d'échecs en ligne", "Coaching échecs", "Apprentissage des échecs"],
     "sameAs": ["https://www.instagram.com/mychess_learning"],
     "contactPoint": {
       "@type": "ContactPoint",
       "contactType": "customer service",
-      "availableLanguage": "French"
+      "email": "support@mychess.fr",
+      "availableLanguage": ["French", "English"]
     }
   }
   </script>
@@ -108,34 +121,66 @@
     "@context": "https://schema.org",
     "@type": "Service",
     "name": "Cours d'échecs en ligne",
-    "description": "Cours particuliers d'échecs en visioconférence avec des coachs qualifiés. Progression du niveau Pion au niveau Dame.",
+    "description": "Cours particuliers et de groupe d'échecs en visioconférence avec des coachs qualifiés. Parcours structuré de 120 cours et 546 leçons. Progression du niveau Pion au niveau Roi. Premier cours gratuit.",
     "provider": {
-      "@type": "Organization",
+      "@type": "EducationalOrganization",
       "name": "mychess",
       "url": "https://mychess.fr"
     },
-    "serviceType": "Cours particuliers",
-    "areaServed": "FR",
+    "serviceType": "Cours d'échecs en ligne",
+    "areaServed": {
+      "@type": "Country",
+      "name": "France"
+    },
+    "availableChannel": {
+      "@type": "ServiceChannel",
+      "serviceType": "Visioconférence",
+      "serviceUrl": "https://mychess.fr"
+    },
     "hasOfferCatalog": {
       "@type": "OfferCatalog",
-      "name": "Cours d'échecs",
+      "name": "Offres de cours d'échecs",
       "itemListElement": [
         {
           "@type": "Offer",
+          "name": "Premier cours gratuit",
+          "description": "Premier cours d'une heure gratuit et sans engagement pour découvrir la plateforme",
+          "price": "0",
+          "priceCurrency": "EUR",
           "itemOffered": {
             "@type": "Service",
-            "name": "Premier cours gratuit"
-          },
-          "price": "0",
-          "priceCurrency": "EUR"
+            "name": "Cours d'essai gratuit"
+          }
         },
         {
           "@type": "Offer",
+          "name": "Cours individuel",
+          "description": "Cours particulier d'une heure en visioconférence avec un coach certifié",
           "itemOffered": {
             "@type": "Service",
             "name": "Cours particulier 1h"
-          },
-          "priceRange": "Variable"
+          }
+        },
+        {
+          "@type": "Offer",
+          "name": "Cours de groupe",
+          "description": "Cours collectif de 2 à 10 participants avec prix dégressif",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Cours de groupe"
+          }
+        },
+        {
+          "@type": "Offer",
+          "name": "Abonnement Premium",
+          "description": "Accès à la bibliothèque vidéo, entraînement myChessBot, badge Premium",
+          "price": "4.99",
+          "priceCurrency": "EUR",
+          "billingIncrement": "P1M",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "mychess Premium"
+          }
         }
       ]
     }

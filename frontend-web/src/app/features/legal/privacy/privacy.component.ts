@@ -1,5 +1,4 @@
 import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { SeoService } from '../../../core/services/seo.service';
 import { PublicNavbarComponent, NavLink } from '../../../shared/components/public-navbar/public-navbar.component';
@@ -7,7 +6,7 @@ import { FooterComponent } from '../../../shared/components/footer/footer.compon
 
 @Component({
     selector: 'app-privacy',
-    imports: [RouterLink, TranslateModule, PublicNavbarComponent, FooterComponent],
+    imports: [TranslateModule, PublicNavbarComponent, FooterComponent],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './privacy.component.html',
     styleUrl: './privacy.component.scss'

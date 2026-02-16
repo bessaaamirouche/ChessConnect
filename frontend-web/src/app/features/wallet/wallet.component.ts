@@ -1,5 +1,5 @@
 import { Component, OnInit, signal, ChangeDetectionStrategy, inject, ChangeDetectorRef, ApplicationRef, effect, untracked } from '@angular/core';
-import { RouterLink, ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { WalletService, CreditTransaction } from '../../core/services/wallet.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -31,7 +31,7 @@ interface TopUpOption {
 
 @Component({
     selector: 'app-wallet',
-    imports: [RouterLink, DatePipe, NgIconComponent, EmbeddedCheckoutComponent, TranslateModule, PaginationComponent],
+    imports: [DatePipe, NgIconComponent, EmbeddedCheckoutComponent, TranslateModule, PaginationComponent],
     changeDetection: ChangeDetectionStrategy.OnPush,
     viewProviders: [provideIcons({
             heroWallet,

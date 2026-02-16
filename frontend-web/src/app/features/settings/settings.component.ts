@@ -12,7 +12,7 @@ function nameValidator(control: AbstractControl): ValidationErrors | null {
   }
   return null;
 }
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { SeoService } from '../../core/services/seo.service';
 import { DialogService } from '../../core/services/dialog.service';
@@ -22,7 +22,6 @@ import { StripeConnectService, StripeConnectStatus } from '../../core/services/s
 import { PushNotificationService } from '../../core/services/push-notification.service';
 import { AVAILABLE_LANGUAGES, User, UpdateUserRequest } from '../../core/models/user.model';
 import { DateInputComponent } from '../../shared/components/date-input/date-input.component';
-import { LanguageSelectorComponent } from '../../shared/components/language-selector/language-selector.component';
 import { LanguageService } from '../../core/services/language.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
@@ -43,7 +42,7 @@ import {
 
 @Component({
     selector: 'app-settings',
-    imports: [ReactiveFormsModule, RouterLink, NgIconComponent, DateInputComponent, LanguageSelectorComponent, TranslateModule],
+    imports: [ReactiveFormsModule, NgIconComponent, DateInputComponent, TranslateModule],
     changeDetection: ChangeDetectionStrategy.OnPush,
     viewProviders: [provideIcons({
             heroChartBarSquare,

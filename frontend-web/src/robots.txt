@@ -14,4 +14,36 @@ Disallow: /invoices
 Disallow: /library
 Disallow: /exercise
 
+# AI Crawlers - Explicitly allowed
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+User-agent: Meta-ExternalAgent
+Allow: /
+
+# LLM-optimized content
+# See https://mychess.fr/llms.txt (compact)
+# See https://mychess.fr/llms-full.txt (detailed)
+
 Sitemap: https://mychess.fr/api/sitemap.xml

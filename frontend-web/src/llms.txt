@@ -1,0 +1,47 @@
+# mychess
+
+> Plateforme francaise de cours d'echecs en ligne avec des coachs certifies. Progression personnalisee du niveau Pion au niveau Roi.
+
+## Informations cles
+
+- **Site** : https://mychess.fr
+- **Type** : Plateforme de mise en relation joueurs/coachs d'echecs
+- **Langues** : Francais, Anglais
+- **Zone** : France (principalement), accessible mondialement
+- **Premier cours** : Gratuit et sans engagement
+
+## Fonctionnalites principales
+
+- Cours particuliers en visioconference (Jitsi Meet)
+- Cours de groupe (2-10 participants, prix degressif)
+- Quiz d'evaluation pour determiner le niveau
+- Parcours structure : 120 cours, 546 lecons, 4 niveaux (Pion, Cavalier, Reine, Roi)
+- Enregistrement video des cours (Premium)
+- Entrainement contre myChessBot (5 niveaux de difficulte)
+- Systeme de notation des coachs (5 etoiles)
+- Coachs favoris avec notifications de nouveaux creneaux
+- Portefeuille (wallet) pour payer les cours
+- Blog SEO avec articles sur les echecs
+
+## Tarifs
+
+- **Premier cours** : Gratuit
+- **Cours individuels** : Tarif fixe par chaque coach
+- **Cours de groupe** : Prix degressif selon le nombre de participants
+- **Abonnement Premium** : 4,99 EUR/mois (bibliotheque video, myChessBot, badge Premium)
+
+## Liens utiles
+
+- Page d'accueil : https://mychess.fr
+- Liste des coachs : https://mychess.fr/coaches
+- Tarifs : https://mychess.fr/pricing
+- Comment ca marche : https://mychess.fr/how-it-works
+- FAQ : https://mychess.fr/faq
+- Blog : https://mychess.fr/blog
+- A propos : https://mychess.fr/about
+- Inscription : https://mychess.fr/register
+
+## Contact
+
+- Email : support@mychess.fr
+- Instagram : @mychess_learning

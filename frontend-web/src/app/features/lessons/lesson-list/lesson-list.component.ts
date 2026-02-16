@@ -21,7 +21,6 @@ import { StudentProfileModalComponent } from '../../../shared/student-profile-mo
 import { StudentEvaluationModalComponent } from '../../../shared/student-evaluation-modal/student-evaluation-modal.component';
 import { RatingModalComponent } from '../../../shared/rating-modal/rating-modal.component';
 import { VideoCallComponent } from '../../../shared/video-call/video-call.component';
-import { ExerciseButtonComponent } from '../../../shared/components/exercise-button/exercise-button.component';
 import { VideoPlayerComponent } from '../../../shared/components/video-player/video-player.component';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
@@ -73,7 +72,7 @@ export interface PendingValidation {
 
 @Component({
     selector: 'app-lesson-list',
-    imports: [RouterLink, DatePipe, FormsModule, TranslateModule, ConfirmDialogComponent, NgIconComponent, StudentProfileModalComponent, StudentEvaluationModalComponent, RatingModalComponent, VideoCallComponent, ExerciseButtonComponent, VideoPlayerComponent, PaginationComponent],
+    imports: [RouterLink, DatePipe, FormsModule, TranslateModule, ConfirmDialogComponent, NgIconComponent, StudentProfileModalComponent, StudentEvaluationModalComponent, RatingModalComponent, VideoCallComponent, VideoPlayerComponent, PaginationComponent],
     changeDetection: ChangeDetectionStrategy.OnPush,
     viewProviders: [provideIcons({
             heroCalendarDays,
@@ -272,9 +271,9 @@ export class LessonListComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.lessonService.loadUpcomingLessons().subscribe({
       next: () => {
-        // Check if we should auto-open a video call (from notification click)
+        // Check if we should auto-open a video call (from notification click or direct join)
         this.route.queryParams.subscribe(params => {
-          const openCallId = params['openCall'];
+          const openCallId = params['openCall'] || params['join'];
           if (openCallId) {
             const lessonId = parseInt(openCallId, 10);
             const lesson = this.lessonService.upcomingLessons().find(l => l.id === lessonId);

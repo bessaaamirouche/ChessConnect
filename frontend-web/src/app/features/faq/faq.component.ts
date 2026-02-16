@@ -1,5 +1,4 @@
 import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { SeoService } from '../../core/services/seo.service';
 import { StructuredDataService } from '../../core/services/structured-data.service';
@@ -32,7 +31,7 @@ interface FaqCategory {
 
 @Component({
     selector: 'app-faq',
-    imports: [RouterLink, NgIconComponent, TranslateModule, PublicNavbarComponent, FooterComponent],
+    imports: [NgIconComponent, TranslateModule, PublicNavbarComponent, FooterComponent],
     changeDetection: ChangeDetectionStrategy.OnPush,
     viewProviders: [provideIcons({
             heroChevronDown,

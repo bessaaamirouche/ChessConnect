@@ -3,7 +3,7 @@ import {
   ChangeDetectionStrategy,
   viewChild
 } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
@@ -19,7 +19,7 @@ type GameStatus = 'loading' | 'playing' | 'player_won' | 'ai_won' | 'draw';
 
 @Component({
     selector: 'app-exercise',
-    imports: [RouterLink, NgIconComponent, ChessBoardComponent, TranslateModule],
+    imports: [NgIconComponent, ChessBoardComponent, TranslateModule],
     changeDetection: ChangeDetectionStrategy.OnPush,
     viewProviders: [provideIcons({
             heroArrowLeft, heroCpuChip, heroTrophy, heroClock,

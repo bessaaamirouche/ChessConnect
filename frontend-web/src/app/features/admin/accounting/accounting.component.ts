@@ -1,6 +1,5 @@
 import { Component, OnInit, DestroyRef, signal, inject, computed, effect, untracked } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AdminService, AccountingResponse, TeacherBalanceResponse } from '../../../core/services/admin.service';
@@ -11,7 +10,7 @@ import { PaginationComponent } from '../../../shared/components/pagination/pagin
 
 @Component({
     selector: 'app-accounting',
-    imports: [DecimalPipe, FormsModule, TranslateModule, PaginationComponent],
+    imports: [FormsModule, TranslateModule, PaginationComponent],
     template: `
     <div class="accounting">
       <header class="page-header">

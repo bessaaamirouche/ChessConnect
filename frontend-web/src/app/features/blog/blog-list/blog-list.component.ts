@@ -1,6 +1,5 @@
 import { Component, OnInit, signal, inject, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { DatePipe } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ArticleService } from '../../../core/services/article.service';
 import { SeoService } from '../../../core/services/seo.service';
@@ -14,7 +13,7 @@ import { heroClock, heroArrowRight, heroArrowLeft } from '@ng-icons/heroicons/ou
 
 @Component({
     selector: 'app-blog-list',
-    imports: [RouterLink, DatePipe, NgIconComponent, ScrollRevealDirective, StaggerRevealDirective, TranslateModule, PublicNavbarComponent, FooterComponent],
+    imports: [RouterLink, NgIconComponent, ScrollRevealDirective, StaggerRevealDirective, TranslateModule, PublicNavbarComponent, FooterComponent],
     changeDetection: ChangeDetectionStrategy.OnPush,
     viewProviders: [provideIcons({ heroClock, heroArrowRight, heroArrowLeft })],
     templateUrl: './blog-list.component.html',

@@ -1,0 +1,142 @@
+<div class="about-page">
+  <app-public-navbar [links]="navLinks"></app-public-navbar>
+
+  <header class="about-header">
+    <div class="about-header__content">
+      <h1 class="about-header__title">À propos de mychess</h1>
+      <p class="about-header__subtitle">La plateforme française de cours d'échecs en ligne avec des coachs certifiés</p>
+    </div>
+  </header>
+
+  <main class="about-content">
+    <div class="about-content__container">
+      <article class="prose">
+
+        <section>
+          <h2>Notre mission</h2>
+          <p>
+            mychess est une plateforme de mise en relation entre joueurs d'échecs et coachs certifiés.
+            Notre mission est de rendre l'apprentissage des échecs accessible à tous, grâce à des cours
+            en visioconférence personnalisés et un parcours pédagogique structuré.
+          </p>
+          <p>
+            Que vous soyez débutant complet ou joueur confirmé, mychess vous accompagne dans votre progression
+            avec un programme adapté à votre niveau. Le premier cours est gratuit et sans engagement.
+          </p>
+        </section>
+
+        <section>
+          <h2>Le programme en chiffres</h2>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <span class="stat-card__number">546</span>
+              <span class="stat-card__label">Leçons</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-card__number">120</span>
+              <span class="stat-card__label">Cours structurés</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-card__number">4</span>
+              <span class="stat-card__label">Niveaux de progression</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-card__number">2</span>
+              <span class="stat-card__label">Langues (FR, EN)</span>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <h2>Les 4 niveaux de progression</h2>
+          <p>Le parcours mychess est organisé en 4 niveaux, chacun composé de cours structurés et validés par votre coach :</p>
+          <div class="levels-grid">
+            <div class="level-card">
+              <h3>Pion — Débutant</h3>
+              <p>Règles du jeu, mouvements des pièces, principes fondamentaux de l'échiquier. Idéal pour ceux qui découvrent les échecs.</p>
+            </div>
+            <div class="level-card">
+              <h3>Cavalier — Intermédiaire</h3>
+              <p>Tactiques de base, ouvertures classiques, stratégies de milieu de partie. Pour les joueurs qui maîtrisent les règles.</p>
+            </div>
+            <div class="level-card">
+              <h3>Reine — Avancé</h3>
+              <p>Stratégie avancée, techniques de finales, préparation de tournoi. Pour les joueurs qui veulent atteindre un niveau compétitif.</p>
+            </div>
+            <div class="level-card">
+              <h3>Roi — Expert</h3>
+              <p>Maîtrise complète du jeu, analyse approfondie de parties, compétition de haut niveau. Le sommet du parcours mychess.</p>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <h2>Types de cours</h2>
+
+          <h3>Cours individuels</h3>
+          <p>
+            Des séances d'une heure en visioconférence avec un coach certifié. Chaque coach fixe
+            librement son tarif horaire. Le premier cours est toujours gratuit pour les nouveaux joueurs.
+          </p>
+
+          <h3>Cours de groupe</h3>
+          <p>
+            Des sessions collectives de 2 à 10 participants avec un prix dégressif selon le nombre
+            de participants. Le coach définit la taille maximale du groupe et un système d'invitation
+            par lien permet de constituer facilement le groupe.
+          </p>
+
+          <h3>Abonnement Premium — 4,99 €/mois</h3>
+          <p>L'abonnement Premium donne accès à des fonctionnalités exclusives :</p>
+          <ul>
+            <li>Bibliothèque vidéo : revisionnez tous vos cours enregistrés</li>
+            <li>myChessBot : entraînez-vous contre un bot adaptatif (5 niveaux de difficulté)</li>
+            <li>Badge Premium : badge doré visible sur votre profil</li>
+            <li>Notifications prioritaires : alertes quand vos coachs favoris publient de nouveaux créneaux</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Technologie</h2>
+          <p>
+            Les cours se déroulent en visioconférence via Jitsi Meet, avec un thème premium aux couleurs
+            de mychess. Les sessions peuvent être enregistrées automatiquement pour être revisionnées
+            ultérieurement dans la bibliothèque vidéo (fonctionnalité Premium).
+          </p>
+          <p>
+            La plateforme inclut un minuteur d'appel visible pendant le cours, un raccrochage automatique
+            en fin de session, et un indicateur de présence en temps réel pour savoir quand votre coach est en ligne.
+          </p>
+        </section>
+
+        <section>
+          <h2>Politique d'annulation</h2>
+          <ul>
+            <li>Coach ne confirme pas sous 24h : annulation automatique + remboursement 100%</li>
+            <li>Coach annule : remboursement 100%</li>
+            <li>Joueur annule plus de 24h avant : remboursement 100%</li>
+            <li>Joueur annule entre 2h et 24h avant : remboursement 50%</li>
+            <li>Joueur annule moins de 2h avant : pas de remboursement</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Contact</h2>
+          <p>
+            Pour toute question ou demande de support, contactez-nous à
+            <a href="mailto:support@mychess.fr">support@mychess.fr</a>.
+          </p>
+        </section>
+
+        <section class="cta-section">
+          <h2>Commencez gratuitement</h2>
+          <p>Inscrivez-vous et réservez votre premier cours gratuit avec un de nos coachs certifiés.</p>
+          <a routerLink="/register" class="cta-button">S'inscrire gratuitement</a>
+        </section>
+
+      </article>
+    </div>
+  </main>
+
+  <app-footer></app-footer>
+</div>

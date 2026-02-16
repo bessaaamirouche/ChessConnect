@@ -1,0 +1,144 @@
+# mychess - Plateforme de Cours d'Echecs en Ligne
+
+> mychess.fr est une plateforme francaise de mise en relation entre joueurs d'echecs et coachs certifies. Elle propose des cours particuliers et de groupe en visioconference, un parcours d'apprentissage structure, et des outils d'entrainement. Le premier cours est gratuit.
+
+## Presentation
+
+mychess est une plateforme web dediee a l'apprentissage des echecs en ligne. Elle met en relation des joueurs de tous niveaux avec des coachs qualifies pour des cours en visioconference. La plateforme offre un parcours pedagogique structure et des outils de suivi de progression.
+
+**Site** : https://mychess.fr
+**Langues** : Francais, Anglais
+**Zone geographique** : France (principalement), accessible mondialement
+
+## Parcours d'apprentissage
+
+### Niveaux de progression
+Le programme comporte 4 niveaux, chacun avec des cours structures :
+
+1. **Pion** (Debutant) : Regles du jeu, mouvements des pieces, principes de base
+2. **Cavalier** (Intermediaire) : Tactiques, ouvertures classiques, milieu de partie
+3. **Reine** (Avance) : Strategie avancee, finales, preparation de tournoi
+4. **Roi** (Expert) : Maitrise complete, analyse approfondie, competition
+
+### Chiffres du programme
+- **120 cours** structures par niveau
+- **546 lecons** detaillees
+- Quiz d'evaluation initial pour determiner le niveau de depart
+- Validation progressive par le coach
+
+## Types de cours
+
+### Cours individuels
+- Duree : 1 heure
+- En visioconference via Jitsi Meet (theme Premium mychess)
+- Tarif fixe par chaque coach
+- Premier cours gratuit pour les nouveaux joueurs
+
+### Cours de groupe
+- De 2 a 10 participants
+- Prix degressif selon le nombre de participants
+- Systeme d'invitation par lien avec token unique
+- Deadline configurable pour remplir le groupe
+- Le createur peut payer la totalite ou annuler si le groupe n'est pas rempli
+
+## Tarification
+
+| Offre | Prix | Details |
+|-------|------|---------|
+| Premier cours | Gratuit | 1h, sans engagement, pour les nouveaux joueurs |
+| Cours individuels | Variable | Chaque coach fixe son tarif horaire |
+| Cours de groupe | Degressif | Prix reduit selon le nombre de participants |
+| Abonnement Premium | 4,99 EUR/mois | Bibliotheque video, myChessBot, badge Premium |
+
+### Portefeuille (Wallet)
+- Systeme de credit pour payer les cours (minimum 10 EUR)
+- Remboursements automatiques credites au portefeuille
+- Historique complet des transactions
+
+### Politique d'annulation
+- Coach ne confirme pas sous 24h : annulation automatique + remboursement 100%
+- Coach annule : remboursement 100%
+- Joueur annule > 24h avant : remboursement 100%
+- Joueur annule 2-24h avant : remboursement 50%
+- Joueur annule < 2h avant : pas de remboursement
+
+## Fonctionnalites Premium (4,99 EUR/mois)
+
+- **Bibliotheque video** : Acces aux enregistrements de tous les cours passes
+- **Reprise de lecture** : Progression video sauvegardee
+- **myChessBot** : Entrainement contre un bot adaptatif (5 niveaux de difficulte)
+- **Badge Premium** : Badge dore visible sur le profil
+- **Notifications prioritaires** : Alertes quand les coachs favoris publient des creneaux
+
+## Fonctionnalites pour les joueurs
+
+- Inscription gratuite avec choix du role (Joueur ou Coach)
+- Quiz d'evaluation du niveau
+- Reservation de cours avec calendrier des disponibilites
+- Suivi de progression personnalise
+- Notation des coachs (systeme 5 etoiles avec commentaires)
+- Liste de coachs favoris avec notifications
+- Portefeuille pour gerer les paiements
+- Factures PDF telechargables
+- Codes promotionnels et parrainage
+- Notifications push navigateur et temps reel (SSE)
+
+## Fonctionnalites pour les coachs
+
+- Creation de profil coach avec bio et tarif
+- Gestion des disponibilites (creneaux 24h/24)
+- Configuration cours individuel ou groupe par creneau
+- Confirmation/annulation des reservations
+- Validation de progression des eleves
+- Stripe Connect pour recevoir les paiements directement
+- Suivi des gains avec commissions
+- Retrait personnalise des fonds
+
+## Visioconference
+
+- Technologie : Jitsi Meet auto-heberge (meet.mychess.fr)
+- Theme Premium avec couleurs mychess (fond sombre, accents dores)
+- Enregistrement automatique via Jibri (4 instances paralleles, 720p)
+- Concatenation automatique des segments video avec FFmpeg
+- Stockage sur Bunny CDN pour le streaming
+- Minuteur d'appel visible pendant le cours
+- Raccrochage automatique en fin de cours
+- Indicateur de presence (pastille verte quand le coach est en ligne)
+
+## Stack technique
+
+- **Backend** : Spring Boot 3.2, Java 17, PostgreSQL 16
+- **Frontend** : Angular 21, TypeScript, SCSS, SSR
+- **Paiements** : Stripe (Checkout, Connect Express)
+- **Video** : Jitsi Meet, Jibri, Bunny CDN, FFmpeg
+- **Echecs** : Chessground, Chess.js, moteur JavaScript custom
+- **Notifications** : Web Push (VAPID), Server-Sent Events
+- **Infrastructure** : Docker, Nginx
+
+## SEO et contenu
+
+- Blog avec articles optimises pour le referencement (support Markdown)
+- Design responsive (mobile-first)
+- Server-Side Rendering (Angular SSR)
+- Donnees structurees Schema.org (Organization, Course, FAQ, BreadcrumbList)
+- Sitemap XML dynamique
+- Support multilingue (Francais, Anglais) avec 1945 cles de traduction
+
+## Liens
+
+- **Accueil** : https://mychess.fr
+- **Coachs** : https://mychess.fr/coaches
+- **Tarifs** : https://mychess.fr/pricing
+- **Comment ca marche** : https://mychess.fr/how-it-works
+- **FAQ** : https://mychess.fr/faq
+- **Blog** : https://mychess.fr/blog
+- **A propos** : https://mychess.fr/about
+- **Inscription** : https://mychess.fr/register
+- **CGU** : https://mychess.fr/terms
+- **Politique de confidentialite** : https://mychess.fr/privacy
+- **Mentions legales** : https://mychess.fr/legal-notice
+
+## Contact
+
+- **Email** : support@mychess.fr
+- **Instagram** : @mychess_learning

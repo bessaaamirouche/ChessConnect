@@ -39,6 +39,10 @@ public class SitemapController {
         addUrl(xml, "", "1.0", "daily");
         addUrl(xml, "/coaches", "0.9", "daily");
         addUrl(xml, "/blog", "0.9", "daily");
+        addUrl(xml, "/about", "0.7", "monthly");
+        addUrl(xml, "/how-it-works", "0.7", "monthly");
+        addUrl(xml, "/pricing", "0.7", "monthly");
+        addUrl(xml, "/faq", "0.7", "monthly");
         addUrl(xml, "/register", "0.7", "monthly");
         addUrl(xml, "/login", "0.5", "monthly");
 
@@ -66,23 +70,58 @@ public class SitemapController {
 
     @GetMapping(value = "/robots.txt", produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<String> getRobotsTxt() {
+        String sitemapUrl = frontendUrl.replace(":4200", ":8282");
         String robots = """
             User-agent: *
             Allow: /
-
-            Sitemap: %s/api/sitemap.xml
-
-            # Disallow admin and user-specific pages
             Disallow: /dashboard
-            Disallow: /settings
-            Disallow: /admin
             Disallow: /lessons
+            Disallow: /book/
             Disallow: /progress
             Disallow: /quiz
             Disallow: /subscription
             Disallow: /availability
-            Disallow: /book/
-            """.formatted(frontendUrl.replace(":4200", ":8282"));
+            Disallow: /settings
+            Disallow: /admin
+            Disallow: /wallet
+            Disallow: /invoices
+            Disallow: /library
+            Disallow: /exercise
+
+            # AI Crawlers - Explicitly allowed
+            User-agent: GPTBot
+            Allow: /
+
+            User-agent: ChatGPT-User
+            Allow: /
+
+            User-agent: Google-Extended
+            Allow: /
+
+            User-agent: ClaudeBot
+            Allow: /
+
+            User-agent: anthropic-ai
+            Allow: /
+
+            User-agent: PerplexityBot
+            Allow: /
+
+            User-agent: Bingbot
+            Allow: /
+
+            User-agent: Applebot
+            Allow: /
+
+            User-agent: Meta-ExternalAgent
+            Allow: /
+
+            # LLM-optimized content
+            # See %s/llms.txt (compact)
+            # See %s/llms-full.txt (detailed)
+
+            Sitemap: %s/api/sitemap.xml
+            """.formatted(frontendUrl, frontendUrl, sitemapUrl);
 
         return ResponseEntity.ok(robots);
     }

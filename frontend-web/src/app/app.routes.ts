@@ -151,6 +151,10 @@ export const routes: Routes = [
   },
   // Info pages
   {
+    path: 'about',
+    loadComponent: () => import('./features/about/about.component').then(m => m.AboutComponent)
+  },
+  {
     path: 'how-it-works',
     loadComponent: () => import('./features/how-it-works/how-it-works.component').then(m => m.HowItWorksComponent)
   },

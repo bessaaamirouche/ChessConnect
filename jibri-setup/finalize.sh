@@ -12,6 +12,7 @@ RECORDING_DIR="$1"
 BACKEND_URL="${BACKEND_WEBHOOK_URL:-https://mychess.fr/api/recordings/webhook}"
 WEBHOOK_SECRET="${JIBRI_WEBHOOK_SECRET:-}"
 LOG_FILE="/var/log/jibri/finalize.log"
+mkdir -p "$(dirname "$LOG_FILE")" 2>/dev/null || LOG_FILE="/tmp/jibri-finalize.log"
 
 log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$LOG_FILE"
@@ -29,7 +30,9 @@ if [ -z "$MP4_FILE" ]; then
 fi
 
 FILENAME=$(basename "$MP4_FILE")
-ROOM_NAME=$(basename "$RECORDING_DIR")
+# Room name is the filename prefix before the _YYYY-MM-DD-HH-MM-SS.mp4 timestamp suffix.
+# The recording directory is named after Jibri's session UUID, not the Jitsi room.
+ROOM_NAME=$(echo "$FILENAME" | sed -E 's/_[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{2}-[0-9]{2}-[0-9]{2}\.mp4$//')
 
 log "MP4 file: $MP4_FILE"
 log "Filename: $FILENAME"

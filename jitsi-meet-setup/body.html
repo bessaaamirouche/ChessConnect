@@ -1,0 +1,136 @@
+<script>
+(function () {
+    'use strict';
+
+    if (window.__chessconnectAutoRecordLoaded) return;
+    window.__chessconnectAutoRecordLoaded = true;
+
+    var ROOM_PREFIX = 'chessconnect-';
+    var START_DELAY_MS = 6000;
+    var POLL_INTERVAL_MS = 500;
+    var MAX_WAIT_MS = 120000;
+    var startedAt = Date.now();
+    var triggered = false;
+
+    function log() {
+        try {
+            console.log.apply(console,
+                ['[ChessConnect AutoRecord]'].concat(Array.prototype.slice.call(arguments)));
+        } catch (e) {}
+    }
+
+    function getRoomName() {
+        try {
+            var first = (location.pathname || '').replace(/^\//, '').split('/')[0];
+            return decodeURIComponent(first || '').toLowerCase();
+        } catch (e) { return ''; }
+    }
+
+    function decodeJwt(token) {
+        try {
+            var parts = token.split('.');
+            if (parts.length !== 3) return null;
+            var payload = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+            while (payload.length % 4) payload += '=';
+            return JSON.parse(atob(payload));
+        } catch (e) { return null; }
+    }
+
+    function findJwt() {
+        try {
+            if (typeof APP !== 'undefined') {
+                if (APP.connection && APP.connection.token) return APP.connection.token;
+                if (APP.store && typeof APP.store.getState === 'function') {
+                    var state = APP.store.getState();
+                    var jwtSlice = state && state['features/base/jwt'];
+                    if (jwtSlice && jwtSlice.jwt) return jwtSlice.jwt;
+                }
+            }
+        } catch (e) {}
+        try {
+            var combined = (location.search.substring(1) || '') + '&' + (location.hash.substring(1) || '');
+            var match = combined.match(/(?:^|&)jwt=([^&]+)/);
+            if (match) return decodeURIComponent(match[1]);
+        } catch (e) {}
+        return null;
+    }
+
+    function hasRecordingPermission(payload) {
+        if (!payload) return false;
+        var moderator = payload.moderator === true || payload.moderator === 'true';
+        var features = payload.context && payload.context.features;
+        var recording = features && (features.recording === true || features.recording === 'true');
+        return moderator && recording;
+    }
+
+    function isAlreadyRecording() {
+        try {
+            var state = APP.store.getState();
+            var rec = state && state['features/recording'];
+            if (rec && rec.sessionDatas && rec.sessionDatas.length) {
+                for (var i = 0; i < rec.sessionDatas.length; i++) {
+                    var s = rec.sessionDatas[i];
+                    if (s && (s.status === 'on' || s.status === 'pending')) return true;
+                }
+            }
+        } catch (e) {}
+        return false;
+    }
+
+    function isConferenceReady() {
+        try {
+            return typeof APP !== 'undefined'
+                && APP.conference
+                && APP.conference._room
+                && typeof APP.conference._room.startRecording === 'function'
+                && (typeof APP.conference._room.isJoined !== 'function' || APP.conference._room.isJoined());
+        } catch (e) { return false; }
+    }
+
+    function startRecording() {
+        try {
+            if (isAlreadyRecording()) {
+                log('Recording already active, skipping');
+                return;
+            }
+            APP.conference._room.startRecording({
+                mode: 'file',
+                appData: JSON.stringify({ file_recording_metadata: { share: false } })
+            });
+            log('Recording start command sent');
+        } catch (e) {
+            log('Failed to start recording', e);
+        }
+    }
+
+    function tick() {
+        if (triggered) return;
+        if (Date.now() - startedAt > MAX_WAIT_MS) {
+            log('Timeout waiting for conference to be ready');
+            return;
+        }
+        if (!isConferenceReady()) {
+            setTimeout(tick, POLL_INTERVAL_MS);
+            return;
+        }
+        var payload = decodeJwt(findJwt() || '');
+        if (!hasRecordingPermission(payload)) {
+            log('No recording permission for this user');
+            return;
+        }
+        triggered = true;
+        log('Conference ready, scheduling recording in', START_DELAY_MS, 'ms');
+        setTimeout(startRecording, START_DELAY_MS);
+    }
+
+    var room = getRoomName();
+    if (room && room.indexOf(ROOM_PREFIX) === 0) {
+        log('Initialized for room', room);
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', tick);
+        } else {
+            tick();
+        }
+    }
+})();
+</script>
